@@ -31,11 +31,13 @@ const FunctionsPanelEnvironmentVariablesView = ({
   handleAddNewEnv,
   handleDeleteEnv,
   handleEditEnv,
+  handleEnvValidation,
   isStagingMode
 }) => {
   return isStagingMode ? (
     <EnvironmentVariables
       envVariables={envVariables}
+      externalValidationHandler={handleEnvValidation}
       handleAddNewEnv={handleAddNewEnv}
       handleDeleteEnv={handleDeleteEnv}
       handleEditEnv={handleEditEnv}
@@ -53,6 +55,7 @@ const FunctionsPanelEnvironmentVariablesView = ({
           }))}
           deleteItem={handleDeleteEnv}
           editItem={handleEditEnv}
+          externalValidationHandler={handleEnvValidation}
           isKeyRequired={true}
           isValueRequired={true}
           keyHeader="Variable name"
@@ -85,6 +88,7 @@ FunctionsPanelEnvironmentVariablesView.propTypes = {
   handleAddNewEnv: PropTypes.func.isRequired,
   handleDeleteEnv: PropTypes.func.isRequired,
   handleEditEnv: PropTypes.func.isRequired,
+  handleEnvValidation: PropTypes.func.isRequired,
   isStagingMode: PropTypes.bool.isRequired
 }
 

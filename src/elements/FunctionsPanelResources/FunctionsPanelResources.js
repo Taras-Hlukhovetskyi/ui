@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { connect } from 'react-redux'
 import { isNumber } from 'lodash'
 import PropTypes from 'prop-types'
@@ -274,6 +274,9 @@ const FunctionsPanelResources = ({
     }
   }
 
+  const handleVolumesValidation = useCallback(isValid => {
+    setValidation(prevState => ({ ...prevState, isVolumesValid: isValid }))
+  }, [setValidation])
   const selectPodsPriorityClassName = value => {
     setNewFunctionPriorityClassName(value)
     setPodsPriorityClassName(value)
@@ -417,6 +420,7 @@ const FunctionsPanelResources = ({
       handleSelectMemoryUnit={handleSelectMemoryUnit}
       handleSelectPreemptionMode={handleSelectPreemptionMode}
       handleSelectVolumeMount={handleSelectVolumeMount}
+      handleVolumesValidation={handleVolumesValidation}
       mode={mode}
       podsPriorityClassName={podsPriorityClassName}
       selectPodsPriorityClassName={selectPodsPriorityClassName}

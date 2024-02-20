@@ -41,6 +41,7 @@ const FunctionsPanelResourcesView = ({
   handleSelectMemoryUnit,
   handleSelectPreemptionMode,
   handleSelectVolumeMount,
+  handleVolumesValidation,
   mode,
   podsPriorityClassName,
   selectPodsPriorityClassName,
@@ -96,10 +97,11 @@ const FunctionsPanelResourcesView = ({
         )}
         {(data.volumeMount === VOLUME_MOUNT_MANUAL_TYPE || mode === PANEL_EDIT_MODE) && (
           <VolumesTable
+            className="volumes"
+            externalValidationHandler={handleVolumesValidation}
             handleAddNewVolume={handleAddNewVolume}
             handleDelete={handleDeleteVolume}
             handleEdit={handleEditVolume}
-            className="volumes"
             volumeMounts={data.volumeMounts}
             volumes={data.volumes}
           />
@@ -129,6 +131,7 @@ FunctionsPanelResourcesView.propTypes = {
   handleSelectMemoryUnit: PropTypes.func.isRequired,
   handleSelectPreemptionMode: PropTypes.func.isRequired,
   handleSelectVolumeMount: PropTypes.func.isRequired,
+  handleVolumesValidation: PropTypes.func.isRequired,
   mode: PropTypes.string.isRequired,
   podsPriorityClassName: PropTypes.string.isRequired,
   selectPodsPriorityClassName: PropTypes.func.isRequired,

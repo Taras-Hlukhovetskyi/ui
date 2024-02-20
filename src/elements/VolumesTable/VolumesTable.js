@@ -29,6 +29,7 @@ import { ReactComponent as Delete } from 'igz-controls/images/delete.svg'
 
 export const VolumesTable = ({
   className,
+  externalValidationHandler,
   handleAddNewVolume,
   handleEdit,
   handleDelete,
@@ -69,6 +70,10 @@ export const VolumesTable = ({
       subPath: ''
     }))
   }, [newVolume.type])
+
+  useEffect(() => {
+    externalValidationHandler(Object.values(validation).every(value => value))
+  }, [validation, externalValidationHandler])
 
   const handleSetSelectedVolume = useCallback(
     selectedVolume => {
@@ -267,11 +272,13 @@ export const VolumesTable = ({
 
 VolumesTable.defaultProps = {
   className: '',
+  externalValidationHandler: () => {},
   isPanelEditMode: false
 }
 
 VolumesTable.propTypes = {
   className: PropTypes.string,
+  externalValidationHandler: PropTypes.func,
   handleAddNewVolume: PropTypes.func.isRequired,
   handleEdit: PropTypes.func.isRequired,
   handleDelete: PropTypes.func.isRequired,

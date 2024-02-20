@@ -32,6 +32,7 @@ const KeyValueTable = ({
   defaultKeyValue,
   disabled,
   editItem,
+  externalValidationHandler,
   isKeyEditable,
   isKeyRequired,
   isValueRequired,
@@ -68,6 +69,10 @@ const KeyValueTable = ({
       })
     }
   }, [isAddNewItem])
+
+  useEffect(() => {
+    externalValidationHandler(Object.values(validation).every(value => value))
+  }, [validation, externalValidationHandler])
 
   const saveItem = () => {
     const save = () => {
@@ -221,6 +226,7 @@ KeyValueTable.defaultProps = {
   defaultKeyValue: '',
   disabled: false,
   editItem: () => {},
+  externalValidationHandler: () => {},
   isKeyRequired: false,
   isValueRequired: false,
   keyLabel: 'Key',
@@ -245,6 +251,7 @@ KeyValueTable.propTypes = {
   deleteItem: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
   editItem: PropTypes.func,
+  externalValidationHandler: PropTypes.func,
   isKeyRequired: PropTypes.bool,
   isValueRequired: PropTypes.bool,
   keyHeader: PropTypes.string.isRequired,

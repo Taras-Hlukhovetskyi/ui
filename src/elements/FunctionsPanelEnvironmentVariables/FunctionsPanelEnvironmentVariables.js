@@ -17,8 +17,9 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
 
 import FunctionsPanelEnvironmentVariablesView from './FunctionsPanelEnvironmentVariablesView'
 
@@ -29,7 +30,8 @@ import { useMode } from '../../hooks/mode.hook'
 
 const FunctionsPanelEnvironmentVariables = ({
   functionsStore,
-  setNewFunctionEnv
+  setNewFunctionEnv,
+  setValidation
 }) => {
   const [envVariables, setEnvVariables] = useState([])
   const { isStagingMode } = useMode()
@@ -84,15 +86,24 @@ const FunctionsPanelEnvironmentVariables = ({
     }
   }
 
+  const handleEnvValidation = useCallback(isValid => {
+    setValidation(prevState => ({ ...prevState, isEnvVariablesValid: isValid }))
+  }, [setValidation])
+
   return (
     <FunctionsPanelEnvironmentVariablesView
       envVariables={envVariables}
       handleAddNewEnv={handleAddNewEnv}
       handleDeleteEnv={handleDeleteEnv}
       handleEditEnv={handleEditEnv}
+      handleEnvValidation={handleEnvValidation}
       isStagingMode={isStagingMode}
     />
   )
+}
+
+FunctionsPanelEnvironmentVariables.propTypes = {
+  setValidation: PropTypes.func.isRequired,
 }
 
 export default connect(

@@ -68,7 +68,9 @@ const FunctionsPanel = ({
     isCpuLimitValid: true,
     isGpuLimitValid: true,
     isAccessKeyValid: true,
-    isErrorStreamPathValid: true
+    isErrorStreamPathValid: true,
+    isVolumesValid: true,
+    isEnvVariablesValid: true,
   })
   const [imageType, setImageType] = useState(
     (defaultData?.build?.image ||

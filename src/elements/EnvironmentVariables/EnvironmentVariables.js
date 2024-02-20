@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import EnvironmentVariablesView from './EnvironmentVariablesView'
@@ -36,6 +36,7 @@ import { ReactComponent as Delete } from 'igz-controls/images/delete.svg'
 const EnvironmentVariables = ({
   className,
   envVariables,
+  externalValidationHandler,
   handleAddNewEnv,
   handleDeleteEnv,
   handleEditEnv,
@@ -45,6 +46,10 @@ const EnvironmentVariables = ({
   const [validation, setValidation] = useState(validationInitialState)
   const [showAddNewEnvVariableRow, setShowAddNewEnvVariableRow] = useState(false)
   const [selectedEnvVariable, setSelectedEnvVariable] = useState(null)
+
+  useEffect(() => {
+    externalValidationHandler(Object.values(validation).every(value => value))
+  }, [validation, externalValidationHandler])
 
   const addEnvVariable = () => {
     let valueIsValid = false
@@ -176,12 +181,14 @@ const EnvironmentVariables = ({
 
 EnvironmentVariables.defaultProps = {
   className: '',
+  externalValidationHandler: () => {},
   isPanelEditMode: false
 }
 
 EnvironmentVariables.propTypes = {
   className: PropTypes.string,
   envVariables: PropTypes.array.isRequired,
+  externalValidationHandler: PropTypes.func,
   handleAddNewEnv: PropTypes.func.isRequired,
   handleDeleteEnv: PropTypes.func.isRequired,
   handleEditEnv: PropTypes.func.isRequired,
