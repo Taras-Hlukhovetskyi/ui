@@ -142,7 +142,7 @@ const DatePickerView = React.forwardRef(
             customPosition={{
               element: ref.datePickerRef,
               position: 'bottom-right',
-              switchOppositeHorizontal: true
+              autoHorizontalPosition: true
             }}
           >
             <div ref={ref.datePickerViewRef} className="date-picker__pop-up">
@@ -167,8 +167,8 @@ const DatePickerView = React.forwardRef(
             customPosition={{
               element: ref.datePickerRef,
               position: 'bottom-right',
-              switchOppositeVertical: true,
-              switchOppositeHorizontal: true
+              autoVerticalPosition: true,
+              autoHorizontalPosition: true
             }}
           >
             <div ref={ref.datePickerViewRef} className="date-picker__pop-up date-picker">
