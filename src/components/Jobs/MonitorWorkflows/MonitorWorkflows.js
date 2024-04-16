@@ -585,7 +585,8 @@ const MonitorWorkflows = ({
           const filters = {
             dates: {
               value: generatedDates,
-              isPredefined: pastWeekOption.isPredefined
+              isPredefined: pastWeekOption.isPredefined,
+              initialSelectedOptionId: pastWeekOption.id
             },
             groupBy: GROUP_BY_WORKFLOW
           }

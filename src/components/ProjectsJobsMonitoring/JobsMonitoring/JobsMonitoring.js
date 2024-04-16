@@ -146,7 +146,8 @@ const JobsMonitoring = ({ fetchAllJobRuns, fetchJobs }) => {
       refreshJobs({
         dates: {
           value: past24HourOption.handler(),
-          isPredefined: past24HourOption.isPredefined
+          isPredefined: past24HourOption.isPredefined,
+          initialSelectedOptionId: past24HourOption.id
         },
         state: filtersStore.state
       })
