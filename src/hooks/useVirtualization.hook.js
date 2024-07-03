@@ -179,9 +179,8 @@ const useTableScroll = ({
         
         lastSelectedItemDataRef.current = null
       }
-    } catch (e) {
+    } catch {
       lastSelectedItemDataRef.current = null
-      console.warn('useTableScrollHook:: Error during table scroll attempt', e)
     }
   }, [content, getSpaceToSelectedItem, selectedItem, expandedRowsData, activateHook, handleSelectItemChanges])
 }
