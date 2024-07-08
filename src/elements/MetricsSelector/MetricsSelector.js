@@ -79,6 +79,15 @@ const MetricsSelector = ({ maxSelectionNumber, metrics, name, onSelect, preselec
   )
 
   useEffect(() => {
+    if (!isOpen) {
+      formRef.current.change(
+        'metrics',
+        appliedMetrics.map(metricItem => metricItem.full_name)
+      )
+    }
+  }, [appliedMetrics, isOpen])
+
+  useEffect(() => {
     if (preselectedMetrics) {
       formRef.current.reset({
         metrics: preselectedMetrics.map(metricItem => metricItem.full_name)
