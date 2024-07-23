@@ -115,7 +115,9 @@ const ModelsView = React.forwardRef(
               />
             ) : (
               <>
-                {(selectedRowData.loading || artifactsStore.models.modelLoading) && <Loader />}
+                {(selectedRowData.loading ||
+                  artifactsStore.models.modelLoading ||
+                  artifactsStore.pipelines.loading) && <Loader />}
                 <Table
                   actionsMenu={actionsMenu}
                   applyDetailsChanges={applyDetailsChanges}
