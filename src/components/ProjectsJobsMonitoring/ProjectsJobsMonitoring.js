@@ -99,7 +99,6 @@ const ProjectsJobsMonitoring = ({ fetchAllJobRuns, fetchJobFunction, fetchJobs }
       [DATES_FILTER]: { label: 'Created at:' },
       [PROJECT_FILTER]: { label: 'Project:' },
       [STATUS_FILTER]: { label: 'Status:' },
-      [LABELS_FILTER]: { label: 'Labels:' }
     }
   }, [])
 

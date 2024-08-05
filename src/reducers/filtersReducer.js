@@ -154,12 +154,10 @@ const initialState = {
     },
     [JOBS_MONITORING_WORKFLOWS_TAB]: {
       initialValues: {
-        [LABELS_FILTER]: '',
         [PROJECT_FILTER]: '',
         [STATUS_FILTER]: [FILTER_ALL_ITEMS]
       },
       values: {
-        [LABELS_FILTER]: '',
         [PROJECT_FILTER]: '',
         [STATUS_FILTER]: [FILTER_ALL_ITEMS]
       }
