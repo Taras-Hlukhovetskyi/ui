@@ -68,7 +68,7 @@ const DownloadContainer = () => {
               style={{ ...defaultStyle, ...transitionStyles[state] }}
             >
               <div className="download-container__header">Downloads</div>
-              <button className="notification_button-close" onClick={handleCancel}>
+              <button className="notification__button-close" onClick={handleCancel}>
                 <CloseIcon />
               </button>
               <div className="download-container__body">

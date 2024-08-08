@@ -37,7 +37,7 @@ const NotificationView = ({
     <div className="notification" style={{ ...transitionStyles }}>
       <div className="notification__body">
         <button
-          className="notification_button-close"
+          className="notification__button-close"
           onClick={() => handleRemoveNotification(item.id)}
         >
           <CloseIcon />
