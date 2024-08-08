@@ -26,13 +26,13 @@
       display: flex;
       align-items: center;
 
-      &-button_retry {
+      &__button_retry {
         margin-left: 15px;
         color: $portage;
         cursor: pointer;
       }
 
-      &-icon {
+      &__icon {
         .icon_success {
           width: 14px;
           height: 14px;
@@ -44,7 +44,7 @@
         }
       }
 
-      &-status {
+      &__status {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -54,11 +54,11 @@
         border-radius: 50%;
       }
 
-      &-icon_alert {
+      &__icon_alert {
         background-color: $burntSienna;
       }
 
-      &-icon_success {
+      &__icon_success {
         background-color: $brightTurquoise;
       }
     }

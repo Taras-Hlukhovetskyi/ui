@@ -37,13 +37,13 @@ const NotificationView = ({
     <div className="notification" style={{ ...transitionStyles }}>
       <div className="notification__body">
         <button
-          className="notification__button-close"
+          className="notification__button_close"
           onClick={() => handleRemoveNotification(item.id)}
         >
           <CloseIcon />
         </button>
         <div
-          className={`notification__body-status notification__body-icon_${
+          className={`notification__body__status notification__body__icon_${
             isSuccessResponse ? 'success' : 'alert'
           }`}
         >
@@ -54,7 +54,7 @@ const NotificationView = ({
         {item.message}
         {!isSuccessResponse && item.retry && (
           <div
-            className="notification__body-button_retry"
+            className="notification__body__button_retry"
             onClick={() => {
               retry(item)
             }}
