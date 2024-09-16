@@ -168,11 +168,11 @@ const projectsAction = {
   deleteProjectSuccess: () => ({
     type: DELETE_PROJECT_SUCCESS
   }),
-  fetchProject: (project, params) => dispatch => {
+  fetchProject: (project, params, signal) => dispatch => {
     dispatch(projectsAction.fetchProjectBegin())
 
     return projectsApi
-      .getProject(project, params)
+      .getProject(project, params, signal)
       .then(response => {
         dispatch(projectsAction.fetchProjectSuccess(response?.data))
 
@@ -318,7 +318,7 @@ const projectsAction = {
     type: FETCH_PROJECT_FUNCTIONS_SUCCESS,
     payload: functions
   }),
-  fetchProjectJobs: (project, startTimeFrom) => dispatch => {
+  fetchProjectJobs: (project, startTimeFrom, signal) => dispatch => {
     dispatch(projectsAction.fetchProjectJobsBegin())
 
     const params = {
@@ -331,7 +331,7 @@ const projectsAction = {
     }
 
     return projectsApi
-      .getJobsAndWorkflows(project, params)
+      .getJobsAndWorkflows(project, params, signal)
       .then(response => {
         dispatch(
           projectsAction.fetchProjectJobsSuccess(
@@ -458,11 +458,11 @@ const projectsAction = {
     type: FETCH_PROJECT_SECRETS_SUCCESS,
     payload: secrets
   }),
-  fetchProjectSummary: project => dispatch => {
+  fetchProjectSummary: (project, signal) => dispatch => {
     dispatch(projectsAction.fetchProjectSummaryBegin())
 
     return projectsApi
-      .getProjectSummary(project)
+      .getProjectSummary(project, signal)
       .then(({ data }) => {
         return dispatch(projectsAction.fetchProjectSummarySuccess(parseSummaryData(data)))
       })
