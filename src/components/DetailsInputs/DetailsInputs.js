@@ -19,6 +19,7 @@ such restriction.
 */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
+import { useParams } from 'react-router-dom'
 import { isEmpty, orderBy } from 'lodash'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
@@ -66,6 +67,7 @@ const DetailsInputs = ({ inputs }) => {
   }, [inputsContent, showArtifact])
 
   const dispatch = useDispatch()
+  const params = useParams()
 
   const fetchFeatureVector = useCallback((project, name, tag, uid) => {
     return featureStoreApi
@@ -151,7 +153,7 @@ const DetailsInputs = ({ inputs }) => {
                   ui: {
                     inputName: key,
                     inputPath,
-                    inputResourceLink: generateInputResourceLink(input, project),
+                    inputResourceLink: generateInputResourceLink(input, project ?? params.projectName),
                     isShowDetailsActive: true,
                     isPreviewable: kind !== FEATURE_VECTORS_KIND
                   }
@@ -209,7 +211,7 @@ const DetailsInputs = ({ inputs }) => {
       setInputsContent([])
       setArtifactsIds([])
     }
-  }, [inputs, dispatch, fetchFeatureVector, fetchArtifactByKind])
+  }, [inputs, dispatch, params.projectName, fetchFeatureVector, fetchArtifactByKind])
 
   return requestsCounter ? (
     <Loader />
