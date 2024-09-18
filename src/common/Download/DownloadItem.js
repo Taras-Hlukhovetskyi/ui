@@ -26,9 +26,9 @@ import { useParams } from 'react-router-dom'
 import { RoundedIcon, Tooltip, TextTooltipTemplate } from 'igz-controls/components'
 
 import downloadFile from '../../utils/downloadFile'
-import { REQUEST_CANCELED } from '../../constants'
-import { mainHttpClient } from '../../httpClient'
+import { ARTIFACT_MAX_CHUNK_SIZE, ARTIFACT_MAX_DOWNLOAD_SIZE, REQUEST_CANCELED } from '../../constants'
 import { removeDownloadItem } from '../../reducers/downloadReducer'
+import api from '../../api/artifacts-api'
 
 import { ReactComponent as Close } from 'igz-controls/images/close.svg'
 import { ReactComponent as RefreshIcon } from 'igz-controls/images/refresh.svg'
@@ -39,6 +39,7 @@ const DownloadItem = ({ downloadItem }) => {
   const [progress, setProgress] = useState(0)
   const [isDownload, setDownload] = useState(true)
   const [isSuccessResponse, setIsSuccessResponse] = useState(null)
+  const [isFileTooLarge, setFileTooLarge] = useState(false)
   const params = useParams()
   const downloadAbortControllerRef = useRef(null)
   const timeoutRef = useRef(null)
@@ -52,63 +53,94 @@ const DownloadItem = ({ downloadItem }) => {
     [downloadItem.fileName, downloadItem.path]
   )
 
-  const downloadCallback = useCallback(() => {
+  const downloadCallback = useCallback(async () => {
     if (isDownload) {
-      downloadAbortControllerRef.current = new AbortController()
+      let isFileTooLargeLocal = false
+      try {
+        downloadAbortControllerRef.current = new AbortController()
 
-      const config = {
-        onDownloadProgress: progressEvent => {
-          const percentCompleted = (progressEvent.loaded * 100) / progressEvent.total
-          setProgress(percentCompleted)
-        },
-        signal: downloadAbortControllerRef.current.signal,
-        params: { path: downloadItem.path },
-        responseType: 'arraybuffer'
-      }
+        const user = downloadItem.path.startsWith('/User') && downloadItem.user
+        const chunkSize = downloadItem.artifactLimits?.max_chunk_size ?? ARTIFACT_MAX_CHUNK_SIZE
+        const downloadLimit = downloadItem.artifactLimits?.max_download_size ?? ARTIFACT_MAX_DOWNLOAD_SIZE
+        let fileSize = downloadItem.fileSize
 
-      if (downloadItem.path.startsWith('/User')) {
-        config.params.user = downloadItem.user
-      }
+        if (!fileSize) {
+          const { data: fileStats } = await api.getArtifactPreviewStats(
+            params.projectName,
+            downloadItem.path,
+            user,
+            downloadAbortControllerRef.current?.signal
+          )
 
-      mainHttpClient
-        .get(`projects/${params.projectName}/files`, config)
-        .then(response => {
+          fileSize = fileStats.size
+        }
+      
+        if (fileSize > downloadLimit) {
+          setDownload(false)
+          setProgress(0)
+          setFileTooLarge(true)
+          isFileTooLargeLocal = true
+        } else {
+          const config = {
+            onDownloadProgress: progressEvent => {
+              const percentCompleted =
+                ((progressEvent.loaded + config.params.offset) * 100) / fileSize
+              setProgress(percentCompleted)
+            },
+            signal: downloadAbortControllerRef.current.signal,
+            params: { path: downloadItem.path, size: chunkSize, offset: 0 },
+            responseType: 'arraybuffer'
+          }
+          let fullFile = new Blob()
+          let response = {}
+
+          if (user) {
+            config.params.user = user
+          }
+
+          while (config.params.offset < fileSize) {
+            response = await api.getArtifactPreview(params.projectName, config)
+
+            if (response?.data) {
+              fullFile = new Blob([fullFile, response.data], { type: response.data.type })
+            } else {
+              throw new Error('Error during loading the file')
+            }
+
+            config.params.offset += chunkSize
+          }
+
+          response.data = fullFile
+
           downloadFile(file, response)
+
           if (downloadAbortControllerRef.current) {
             setDownload(false)
             setIsSuccessResponse(true)
           }
-        })
-        .catch(error => {
-          if (axios.isCancel(error)) {
-            setDownload(false)
-            return setProgress(0)
-          }
+        }
+      } catch (error) {
+        if (axios.isCancel(error)) {
+          setDownload(false)
 
-          if (downloadAbortControllerRef.current) {
-            setDownload(false)
-            setProgress(0)
-          }
-        })
-        .finally(() => {
-          if (downloadAbortControllerRef.current) {
-            downloadAbortControllerRef.current = null
-          }
+          return setProgress(0)
+        }
 
-          timeoutRef.current = setTimeout(() => {
-            dispatch(removeDownloadItem(downloadItem.id))
-          }, 5000)
-        })
+        if (downloadAbortControllerRef.current) {
+          setDownload(false)
+          setProgress(0)
+        }
+      } finally {
+        if (downloadAbortControllerRef.current) {
+          downloadAbortControllerRef.current = null
+        }
+
+        timeoutRef.current = setTimeout(() => {
+          dispatch(removeDownloadItem(downloadItem.id))
+        }, isFileTooLargeLocal ? 10000 : 5000)
+      }
     }
-  }, [
-    isDownload,
-    downloadItem.path,
-    params.projectName,
-    downloadItem.user,
-    file,
-    dispatch,
-    downloadItem.id
-  ])
+  }, [isDownload, downloadItem, params.projectName, file, dispatch])
 
   useEffect(() => {
     let cancelFetch = downloadAbortControllerRef.current
@@ -149,7 +181,7 @@ const DownloadItem = ({ downloadItem }) => {
         ) : isSuccessResponse ? (
           <div className="download-item__message_succeed">Done</div>
         ) : (
-          <div className="download-item__message_failed">Failed</div>
+          <div className="download-item__message_failed">Failed{`${isFileTooLarge ? '. The file is too large' : ''}`}</div>
         )}
       </div>
       <div className="download-item__buttons">
@@ -157,7 +189,7 @@ const DownloadItem = ({ downloadItem }) => {
           <RoundedIcon onClick={handleCancel}>
             <Close />
           </RoundedIcon>
-        ) : !isSuccessResponse ? (
+        ) : !isSuccessResponse && !isFileTooLarge ? (
           <RoundedIcon onClick={handleRetry}>
             <RefreshIcon />
           </RoundedIcon>

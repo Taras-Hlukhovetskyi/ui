@@ -136,6 +136,7 @@ export const generateArtifactsTabContent = (artifacts, params, iteration, showAr
               onlyIcon
               path={artifact.target_path}
               user={artifact.ui.user}
+              fileSize={artifact.size}
             />
           </>
         )

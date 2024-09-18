@@ -19,7 +19,7 @@ such restriction.
 */
 import React, { useRef } from 'react'
 import PropTypes from 'prop-types'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import classnames from 'classnames'
 
 import { RoundedIcon, Tooltip, TextTooltipTemplate } from 'igz-controls/components'
@@ -37,11 +37,14 @@ const Download = ({
   onlyIcon = false,
   path,
   user,
-  withoutIcon = false
+  withoutIcon = false,
+  fileSize
 }) => {
   const downloadRef = useRef(null)
   const dispatch = useDispatch()
-  const downloadClassNames = classnames('download', className, disabled && 'download_disabled')
+  const artifactLimits = useSelector(store => store.appStore.frontendSpec?.artifact_limits)
+  const downloadDisabled = disabled || (artifactLimits?.max_download_size && fileSize > artifactLimits.max_download_size)
+  const downloadClassNames = classnames('download', className, downloadDisabled && 'download_disabled')
 
   const handleClick = () => {
     dispatch(
@@ -49,7 +52,9 @@ const Download = ({
         filename: fileName,
         id: path + Date.now(),
         path,
-        user: user
+        user: user,
+        artifactLimits,
+        fileSize
       })
     )
     dispatch(setShowDownloadsList(true))
@@ -63,8 +68,8 @@ const Download = ({
       onClick={handleClick}
     >
       {onlyIcon ? (
-        <Tooltip template={<TextTooltipTemplate text="Download" />}>
-          <RoundedIcon>
+        <Tooltip template={!downloadDisabled ? <TextTooltipTemplate text="Download" /> : null}>
+          <RoundedIcon disabled={downloadDisabled} >
             <DownloadIcon />
           </RoundedIcon>
         </Tooltip>
