@@ -21,7 +21,6 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import axios from 'axios'
 import { useDispatch } from 'react-redux'
-import { useParams } from 'react-router-dom'
 
 import { RoundedIcon, Tooltip, TextTooltipTemplate } from 'igz-controls/components'
 
@@ -40,7 +39,6 @@ const DownloadItem = ({ downloadItem }) => {
   const [isDownload, setDownload] = useState(true)
   const [isSuccessResponse, setIsSuccessResponse] = useState(null)
   const [isFileTooLarge, setFileTooLarge] = useState(false)
-  const params = useParams()
   const downloadAbortControllerRef = useRef(null)
   const timeoutRef = useRef(null)
   const dispatch = useDispatch()
@@ -67,7 +65,7 @@ const DownloadItem = ({ downloadItem }) => {
 
         if (!fileSize) {
           const { data: fileStats } = await api.getArtifactPreviewStats(
-            params.projectName,
+            downloadItem.projectName,
             downloadItem.path,
             user,
             downloadAbortControllerRef.current?.signal
@@ -100,7 +98,7 @@ const DownloadItem = ({ downloadItem }) => {
           }
 
           while (config.params.offset < fileSize) {
-            response = await api.getArtifactPreview(params.projectName, config)
+            response = await api.getArtifactPreview(downloadItem.projectName, config)
 
             if (response?.data) {
               fullFile = new Blob([fullFile, response.data], { type: response.data.type })
@@ -144,7 +142,7 @@ const DownloadItem = ({ downloadItem }) => {
         )
       }
     }
-  }, [isDownload, downloadItem, params.projectName, file, dispatch])
+  }, [isDownload, downloadItem, file, dispatch])
 
   useEffect(() => {
     let cancelFetch = downloadAbortControllerRef.current

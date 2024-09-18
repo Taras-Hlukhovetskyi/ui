@@ -259,7 +259,8 @@ export const generateActionsMenu = (
                 user: file.producer?.owner,
                 id: downloadPath,
                 artifactLimits: frontendSpec?.artifact_limits,
-                fileSize: file.size
+                fileSize: file.size,
+                projectName
               })
             )
             dispatch(setShowDownloadsList(true))

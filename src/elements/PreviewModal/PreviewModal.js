@@ -126,6 +126,7 @@ const PreviewModal = ({ artifact }) => {
                 path={`${artifact.target_path}${artifact.model_file ? artifact.model_file : ''}`}
                 user={artifact.ui.user ?? artifact.producer?.owner}
                 fileSize={artifact.size}
+                projectName={params.projectName}
               />
             </div>
           </div>

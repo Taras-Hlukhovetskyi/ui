@@ -38,7 +38,8 @@ const Download = ({
   path,
   user,
   withoutIcon = false,
-  fileSize
+  fileSize,
+  projectName
 }) => {
   const downloadRef = useRef(null)
   const dispatch = useDispatch()
@@ -54,7 +55,8 @@ const Download = ({
         path,
         user: user,
         artifactLimits,
-        fileSize
+        fileSize,
+        projectName
       })
     )
     dispatch(setShowDownloadsList(true))

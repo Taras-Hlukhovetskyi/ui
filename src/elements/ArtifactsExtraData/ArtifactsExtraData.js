@@ -29,9 +29,11 @@ import { generateExtraDataContent } from '../../utils/getArtifactPreview'
 import { generateArtifactIdentifiers } from '../../components/Details/details.util'
 
 import './artifactsExtraData.scss'
+import { useParams } from 'react-router-dom'
 
 const ArtifactsExtraData = ({ artifact }) => {
   const [artifactsIds, setArtifactsIds] = useState([])
+  const params = useParams()
 
   const showArtifactPreview = useCallback(
     id => {
@@ -47,8 +49,8 @@ const ArtifactsExtraData = ({ artifact }) => {
   }, [artifact])
 
   const extraData = useMemo(() => {
-    return generateExtraDataContent(artifactExtraDataWithId, showArtifactPreview)
-  }, [artifactExtraDataWithId, showArtifactPreview])
+    return generateExtraDataContent(artifactExtraDataWithId, showArtifactPreview, params.projectName)
+  }, [artifactExtraDataWithId, showArtifactPreview, params.projectName])
 
   useEffect(() => {
     return () => {
