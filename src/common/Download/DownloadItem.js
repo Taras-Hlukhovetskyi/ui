@@ -61,7 +61,8 @@ const DownloadItem = ({ downloadItem }) => {
 
         const user = downloadItem.path.startsWith('/User') && downloadItem.user
         const chunkSize = downloadItem.artifactLimits?.max_chunk_size ?? ARTIFACT_MAX_CHUNK_SIZE
-        const downloadLimit = downloadItem.artifactLimits?.max_download_size ?? ARTIFACT_MAX_DOWNLOAD_SIZE
+        const downloadLimit =
+          downloadItem.artifactLimits?.max_download_size ?? ARTIFACT_MAX_DOWNLOAD_SIZE
         let fileSize = downloadItem.fileSize
 
         if (!fileSize) {
@@ -74,7 +75,7 @@ const DownloadItem = ({ downloadItem }) => {
 
           fileSize = fileStats.size
         }
-      
+
         if (fileSize > downloadLimit) {
           setDownload(false)
           setProgress(0)
@@ -135,9 +136,12 @@ const DownloadItem = ({ downloadItem }) => {
           downloadAbortControllerRef.current = null
         }
 
-        timeoutRef.current = setTimeout(() => {
-          dispatch(removeDownloadItem(downloadItem.id))
-        }, isFileTooLargeLocal ? 10000 : 5000)
+        timeoutRef.current = setTimeout(
+          () => {
+            dispatch(removeDownloadItem(downloadItem.id))
+          },
+          isFileTooLargeLocal ? 10000 : 5000
+        )
       }
     }
   }, [isDownload, downloadItem, params.projectName, file, dispatch])
@@ -181,20 +185,24 @@ const DownloadItem = ({ downloadItem }) => {
         ) : isSuccessResponse ? (
           <div className="download-item__message_succeed">Done</div>
         ) : (
-          <div className="download-item__message_failed">Failed{`${isFileTooLarge ? '. The file is too large' : ''}`}</div>
+          <div className="download-item__message_failed">
+            Failed{`${isFileTooLarge ? '. The file is too large' : ''}`}
+          </div>
         )}
       </div>
-      <div className="download-item__buttons">
-        {isDownload ? (
-          <RoundedIcon onClick={handleCancel}>
-            <Close />
-          </RoundedIcon>
-        ) : !isSuccessResponse && !isFileTooLarge ? (
-          <RoundedIcon onClick={handleRetry}>
-            <RefreshIcon />
-          </RoundedIcon>
-        ) : null}
-      </div>
+      {!isFileTooLarge ? (
+        <div className="download-item__buttons">
+          {isDownload ? (
+            <RoundedIcon onClick={handleCancel}>
+              <Close />
+            </RoundedIcon>
+          ) : !isSuccessResponse ? (
+            <RoundedIcon onClick={handleRetry}>
+              <RefreshIcon />
+            </RoundedIcon>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   )
 }
