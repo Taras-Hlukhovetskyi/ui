@@ -31,7 +31,7 @@ import { ARTIFACT_PREVIEW_TABLE_ROW_LIMIT } from '../../constants'
 import './artifactsPreview.scss'
 
 const ArtifactsPreviewView = ({ className, preview, setShowErrorBody, showErrorBody }) => {
-  const [warningMsgIsSHown, showWarningMsg] = useState(true)
+  const [showWarningMsg, setShowWarningMsg] = useState(true)
   const content = useMemo(
     () =>
       preview.data && preview.data.content
@@ -44,8 +44,8 @@ const ArtifactsPreviewView = ({ className, preview, setShowErrorBody, showErrorB
     <div className="artifact-preview__no-data">No preview</div>
   ) : (
     <>
-      {warningMsgIsSHown && preview.warningMsg && (
-        <WarningMessage message={preview.warningMsg} handleClose={() => showWarningMsg(false)} />
+      {showWarningMsg && preview.warningMsg && (
+        <WarningMessage message={preview.warningMsg} handleClose={() => setShowWarningMsg(false)} />
       )}
       <div className="artifact-preview__wrapper">
         {preview.header && (

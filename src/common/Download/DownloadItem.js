@@ -50,10 +50,12 @@ const DownloadItem = ({ downloadItem }) => {
       DEFAULT_FILE_NAME,
     [downloadItem.fileName, downloadItem.path]
   )
+  const failedDownloadMessage = `Failed${isFileTooLarge ? '. The file is too large' : ''}`
 
   const downloadCallback = useCallback(async () => {
     if (isDownload) {
       let isFileTooLargeLocal = false
+      
       try {
         downloadAbortControllerRef.current = new AbortController()
 
@@ -184,7 +186,7 @@ const DownloadItem = ({ downloadItem }) => {
           <div className="download-item__message_succeed">Done</div>
         ) : (
           <div className="download-item__message_failed">
-            Failed{`${isFileTooLarge ? '. The file is too large' : ''}`}
+            {failedDownloadMessage}
           </div>
         )}
       </div>

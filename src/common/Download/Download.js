@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useRef } from 'react'
+import React, { useMemo, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
 import classnames from 'classnames'
@@ -44,8 +44,16 @@ const Download = ({
   const downloadRef = useRef(null)
   const dispatch = useDispatch()
   const artifactLimits = useSelector(store => store.appStore.frontendSpec?.artifact_limits)
-  const downloadDisabled = disabled || (artifactLimits?.max_download_size && fileSize > artifactLimits.max_download_size)
-  const downloadClassNames = classnames('download', className, downloadDisabled && 'download_disabled')
+  const downloadIsDisabled = useMemo(
+    () =>
+      disabled ||
+      (artifactLimits?.max_download_size && fileSize > artifactLimits.max_download_size),
+    [disabled, artifactLimits]
+  )
+  const downloadClassNames = useMemo(
+    () => classnames('download', className, downloadIsDisabled && 'download_disabled'),
+    [downloadIsDisabled, className]
+  )
 
   const handleClick = () => {
     dispatch(
@@ -70,8 +78,8 @@ const Download = ({
       onClick={handleClick}
     >
       {onlyIcon ? (
-        <Tooltip template={!downloadDisabled ? <TextTooltipTemplate text="Download" /> : null}>
-          <RoundedIcon disabled={downloadDisabled} >
+        <Tooltip template={!downloadIsDisabled ? <TextTooltipTemplate text="Download" /> : null}>
+          <RoundedIcon disabled={downloadIsDisabled}>
             <DownloadIcon />
           </RoundedIcon>
         </Tooltip>
