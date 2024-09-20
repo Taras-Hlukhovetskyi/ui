@@ -209,9 +209,17 @@ const DownloadItem = ({ downloadItem }) => {
 
 DownloadItem.propTypes = {
   downloadItem: PropTypes.shape({
+    artifactLimits: PropTypes.shape({
+      max_chunk_size: PropTypes.number,
+      max_download_size: PropTypes.number,
+      max_preview_size: PropTypes.number
+
+    }),
     filename: PropTypes.string,
+    fileSize: PropTypes.number,
     id: PropTypes.string.isRequired,
     path: PropTypes.string.isRequired,
+    projectName: PropTypes.string.isRequired,
     user: PropTypes.string
   }).isRequired
 }

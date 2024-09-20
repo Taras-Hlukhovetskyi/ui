@@ -48,7 +48,7 @@ const Download = ({
     () =>
       disabled ||
       (artifactLimits?.max_download_size && fileSize > artifactLimits.max_download_size),
-    [disabled, artifactLimits]
+    [disabled, artifactLimits.max_download_size, fileSize]
   )
   const downloadClassNames = useMemo(
     () => classnames('download', className, downloadIsDisabled && 'download_disabled'),
@@ -97,8 +97,10 @@ Download.propTypes = {
   className: PropTypes.string,
   disabled: PropTypes.bool,
   fileName: PropTypes.string,
+  fileSize: PropTypes.number,
   onlyIcon: PropTypes.bool,
   path: PropTypes.string.isRequired,
+  projectName: PropTypes.string.isRequired,
   user: PropTypes.string,
   withoutIcon: PropTypes.bool
 }

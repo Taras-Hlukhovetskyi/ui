@@ -21,6 +21,7 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import classnames from 'classnames'
 import PropTypes from 'prop-types'
 import { v4 as uuidv4 } from 'uuid'
+import { useParams } from 'react-router-dom'
 
 import { TextTooltipTemplate, Tooltip } from 'igz-controls/components'
 import ArtifactsPreviewController from '../../components/ArtifactsPreview/ArtifactsPreviewController'
@@ -29,7 +30,6 @@ import { generateExtraDataContent } from '../../utils/getArtifactPreview'
 import { generateArtifactIdentifiers } from '../../components/Details/details.util'
 
 import './artifactsExtraData.scss'
-import { useParams } from 'react-router-dom'
 
 const ArtifactsExtraData = ({ artifact }) => {
   const [artifactsIds, setArtifactsIds] = useState([])
