@@ -43,7 +43,7 @@ const ArtifactsPreviewController = ({
   const [preview, setPreview] = useState({})
   const params = useParams()
   const frontendSpec = useSelector(store => store.appStore.frontendSpec)
-  const isPreviewFetchedRef = useRef(false)
+  const previewIsFetchedRef = useRef(false)
   const previewAbortControllerRef = useRef(new AbortController())
 
   const dispatch = useDispatch()
@@ -60,7 +60,7 @@ const ArtifactsPreviewController = ({
       !preview[artifactId] &&
       artifactsIds.includes(artifactId) &&
       frontendSpec &&
-      !isPreviewFetchedRef.current
+      !previewIsFetchedRef.current
     ) {
       previewAbortControllerRef.current = new AbortController()
 
@@ -75,7 +75,7 @@ const ArtifactsPreviewController = ({
         frontendSpec.artifact_limits,
         previewAbortControllerRef.current.signal
       )
-      isPreviewFetchedRef.current = true
+      previewIsFetchedRef.current = true
     }
   }, [
     artifactsIds,
@@ -92,7 +92,7 @@ const ArtifactsPreviewController = ({
     const abortController = previewAbortControllerRef.current
 
     return () => {
-      isPreviewFetchedRef.current = false
+      previewIsFetchedRef.current = false
       abortController.abort(REQUEST_CANCELED)
     }
   }, [artifact, params.projectName])

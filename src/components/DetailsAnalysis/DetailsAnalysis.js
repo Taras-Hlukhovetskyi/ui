@@ -32,7 +32,7 @@ const DetailsAnalysis = ({ artifact }) => {
   const [noData, setNoData] = useState(false)
   const params = useParams()
   const frontendSpec = useSelector(store => store.appStore.frontendSpec)
-  const isPreviewFetchedRef = useRef(false)
+  const previewIsFetchedRef = useRef(false)
   const abortControllersListRef = useRef([])
 
   const fetchPreviewFromAnalysis = useCallback(() => {
@@ -56,10 +56,10 @@ const DetailsAnalysis = ({ artifact }) => {
   }, [artifact, noData, params.projectName, frontendSpec])
 
   useEffect(() => {
-    if (artifact.analysis && preview.length === 0 && !isPreviewFetchedRef.current && frontendSpec) {
+    if (artifact.analysis && preview.length === 0 && !previewIsFetchedRef.current && frontendSpec) {
       fetchPreviewFromAnalysis()
 
-      isPreviewFetchedRef.current = true
+      previewIsFetchedRef.current = true
     } else if (!artifact.analysis) {
       setNoData(true)
     }
@@ -71,7 +71,7 @@ const DetailsAnalysis = ({ artifact }) => {
     return () => {
       abortControllersList.forEach(controller => controller.abort(REQUEST_CANCELED))
       abortControllersListRef.current = []
-      isPreviewFetchedRef.current = false
+      previewIsFetchedRef.current = false
     }
   }, [artifact.analysis, params.projectName])
 

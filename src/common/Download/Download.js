@@ -34,12 +34,12 @@ const Download = ({
   className = '',
   disabled = false,
   fileName,
+  fileSize,
   onlyIcon = false,
   path,
+  projectName,
   user,
-  withoutIcon = false,
-  fileSize,
-  projectName
+  withoutIcon = false
 }) => {
   const downloadRef = useRef(null)
   const dispatch = useDispatch()
@@ -50,9 +50,10 @@ const Download = ({
       (artifactLimits?.max_download_size && fileSize > artifactLimits.max_download_size),
     [disabled, artifactLimits.max_download_size, fileSize]
   )
-  const downloadClassNames = useMemo(
-    () => classnames('download', className, downloadIsDisabled && 'download_disabled'),
-    [downloadIsDisabled, className]
+  const downloadClassNames = classnames(
+    'download',
+    className,
+    downloadIsDisabled && 'download_disabled'
   )
 
   const handleClick = () => {

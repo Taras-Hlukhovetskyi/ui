@@ -38,7 +38,7 @@ const DetailsPreview = ({ artifact, handlePreview }) => {
   const [noData, setNoData] = useState(false)
   const params = useParams()
   const frontendSpec = useSelector(store => store.appStore.frontendSpec)
-  const isPreviewFetchedRef = useRef(false)
+  const previewIsFetchedRef = useRef(false)
   const previewAbortControllerRef = useRef(new AbortController())
 
   const popupButtonIsDisplayed = useMemo(() => {
@@ -60,7 +60,7 @@ const DetailsPreview = ({ artifact, handlePreview }) => {
   }, [artifact])
 
   useEffect(() => {
-    if (!isPreviewFetchedRef.current && frontendSpec) {
+    if (!previewIsFetchedRef.current && frontendSpec) {
       previewAbortControllerRef.current = new AbortController()
 
       getArtifactPreview(
@@ -75,7 +75,7 @@ const DetailsPreview = ({ artifact, handlePreview }) => {
         previewAbortControllerRef.current.signal
       )
 
-      isPreviewFetchedRef.current = true
+      previewIsFetchedRef.current = true
     }
   }, [artifact, noData, params.projectName, frontendSpec])
 
@@ -84,7 +84,7 @@ const DetailsPreview = ({ artifact, handlePreview }) => {
 
     return () => {
       abortController.abort(REQUEST_CANCELED)
-      isPreviewFetchedRef.current = false
+      previewIsFetchedRef.current = false
     }
   }, [artifact, params.projectName])
 

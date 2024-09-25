@@ -41,11 +41,11 @@ const PreviewModal = ({ artifact }) => {
   const dispatch = useDispatch()
   const params = useParams()
   const frontendSpec = useSelector(store => store.appStore.frontendSpec)
-  const isPreviewFetchedRef = useRef(false)
+  const previewIsFetchedRef = useRef(false)
   const previewAbortControllerRef = useRef(new AbortController())
 
   useEffect(() => {
-    if (preview.length === 0 && !isPreviewFetchedRef.current && frontendSpec) {
+    if (preview.length === 0 && !previewIsFetchedRef.current && frontendSpec) {
       previewAbortControllerRef.current = new AbortController()
 
       getArtifactPreview(
@@ -60,7 +60,7 @@ const PreviewModal = ({ artifact }) => {
         previewAbortControllerRef.current.signal
       )
 
-      isPreviewFetchedRef.current = true
+      previewIsFetchedRef.current = true
     }
   }, [artifact, frontendSpec, noData, params.projectName, preview.length])
 
@@ -69,7 +69,7 @@ const PreviewModal = ({ artifact }) => {
 
     return () => {
       abortController.abort(REQUEST_CANCELED)
-      isPreviewFetchedRef.current = false
+      previewIsFetchedRef.current = false
     }
   }, [artifact, params.projectName])
 
