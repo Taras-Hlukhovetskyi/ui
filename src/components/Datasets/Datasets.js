@@ -65,6 +65,7 @@ import { useInitialTableFetch } from '../../hooks/useInitialTableFetch.hook'
 
 import './datasets.scss'
 import cssVariables from './datasets.scss'
+import { useInitialFiltersFromQueryParams } from '../../hooks/useInitialFiltersFromQueryParams.hook'
 
 const Datasets = () => {
   const [datasets, setDatasets] = useState([])
@@ -316,6 +317,8 @@ const Datasets = () => {
         defaultDirection: 'desc'
       }
     })
+
+  useInitialFiltersFromQueryParams(DATASETS_FILTERS)
 
   useInitialTableFetch({
     createRowData: rowItem => createDatasetsRowData(rowItem, params.projectName, frontendSpec),

@@ -20,9 +20,11 @@ such restriction.
 import { getJobIdentifier } from '../../../utils/getUniqueIdentifier'
 import { validateArguments } from '../../../utils/validateArguments'
 import { generateLinkToDetailsPanel } from '../../../utils/link-helper.util'
-import { JOB_KIND_WORKFLOW, JOBS_PAGE, MONITOR_JOBS_TAB } from '../../../constants'
+import { DATES_FILTER, JOB_KIND_WORKFLOW, JOBS_PAGE, MONITOR_JOBS_TAB, STATUS_FILTER, TYPE_FILTER } from '../../../constants'
 import measureTime from '../../../utils/measureTime'
 import { formatDatetime } from '../../../utils'
+import { datePickerPastOptions, getDatePickerFilterValue } from '../../../utils/datePicker.util'
+import { generateTypeFilter, jobsStatuses } from '../../FilterMenu/filterMenu.settings'
 
 export const createJobsMonitoringContent = (jobs, jobName, isStagingMode) => {
   return jobs.map(job => {
@@ -143,4 +145,27 @@ export const createJobsMonitoringContent = (jobs, jobName, isStagingMode) => {
       ]
     }
   })
+}
+
+export const parseJobsQueryParamsCallback = ([paramName, paramValue]) => {
+  if (paramName === DATES_FILTER) {
+    const dateFilter = getDatePickerFilterValue(
+      datePickerPastOptions,
+      paramValue
+    )
+
+    return dateFilter.value ? dateFilter : null
+  }
+
+  if (paramName === STATUS_FILTER) {
+    const filteredStatuses = paramValue?.split(',').filter(paramStatus => jobsStatuses.find(status => status.id === paramStatus))
+
+    return filteredStatuses?.length ? filteredStatuses : null
+  }
+
+  if (paramName === TYPE_FILTER) {
+    return generateTypeFilter().find(type => type.id === paramValue)?.id
+  }
+
+  return paramValue
 }

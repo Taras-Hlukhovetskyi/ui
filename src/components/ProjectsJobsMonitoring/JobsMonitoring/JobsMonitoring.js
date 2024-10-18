@@ -33,6 +33,8 @@ import {
   JOBS_MONITORING_PAGE,
   REQUEST_CANCELED
 } from '../../../constants'
+import { useInitialFiltersFromQueryParams } from '../../../hooks/useInitialFiltersFromQueryParams.hook'
+import { parseJobsQueryParamsCallback } from './jobsMonitoring.util'
 
 const JobsMonitoring = () => {
   const [selectedJob, setSelectedJob] = useState({})
@@ -70,6 +72,9 @@ const JobsMonitoring = () => {
     () => jobs.length === 0 && ((!params.jobName && jobRuns.length === 0) || params.jobName),
     [jobRuns.length, jobs.length, params.jobName]
   )
+
+
+  useInitialFiltersFromQueryParams(JOBS_MONITORING_JOBS_TAB, parseJobsQueryParamsCallback)
 
   useEffect(() => {
     if (isEmpty(selectedJob) && !params.jobId && !dataIsLoaded) {

@@ -18,7 +18,7 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { set } from 'lodash'
+import { isEqual, pick, set } from 'lodash'
 
 import {
   ARTIFACT_OTHER_TYPE,
@@ -51,6 +51,7 @@ import {
   TYPE_FILTER
 } from '../constants'
 import {
+  CUSTOM_RANGE_DATE_OPTION,
   NEXT_24_HOUR_DATE_OPTION,
   PAST_24_HOUR_DATE_OPTION,
   PAST_WEEK_DATE_OPTION,
@@ -119,11 +120,11 @@ const initialState = {
     [FUNCTION_FILTERS]: {
       values: {
         [NAME_FILTER]: '',
-        [DATES_FILTER]: getDatePickerFilterValue(datePickerPastOptions, PAST_WEEK_DATE_OPTION),
+        [DATES_FILTER]: getDatePickerFilterValue(datePickerPastOptions, PAST_WEEK_DATE_OPTION)
       },
       initialValues: {
         [NAME_FILTER]: '',
-        [DATES_FILTER]: getDatePickerFilterValue(datePickerPastOptions, PAST_WEEK_DATE_OPTION),
+        [DATES_FILTER]: getDatePickerFilterValue(datePickerPastOptions, PAST_WEEK_DATE_OPTION)
       }
     },
     [CONSUMER_GROUPS_FILTER]: {
@@ -254,33 +255,120 @@ const filtersSlice = createSlice({
       return initialState
     },
     resetFilter(state, action) {
-      state[FILTER_MENU][action.payload] = initialState[FILTER_MENU][action.payload]
+      state[FILTER_MENU][action.payload].initialValues =
+        initialState[FILTER_MENU][action.payload].initialValues
+      state[FILTER_MENU][action.payload].values =
+        initialState[FILTER_MENU][action.payload].initialValues
     },
     resetModalFilter(state, action) {
-      state[FILTER_MENU_MODAL][action.payload] = initialState[FILTER_MENU_MODAL][action.payload]
+      state[FILTER_MENU_MODAL][action.payload].initialValues =
+        initialState[FILTER_MENU_MODAL][action.payload].initialValues
+      state[FILTER_MENU_MODAL][action.payload].values =
+        initialState[FILTER_MENU_MODAL][action.payload].initialValues
     },
     setFilters(state, action) {
       for (let filterProp in action.payload) {
         state[filterProp] = action.payload[filterProp]
       }
     },
-    setFiltersValues(state, action) {
+    setAllActionBarFiltersValues(state, action) {
       const payloadValue = action.payload.value ?? {}
-      const newFilterValues = {
+      console.log(payloadValue, action)
+      const newFilterMenuValues = {
         ...state[FILTER_MENU][action.payload.name]?.values,
-        ...payloadValue
+        ...pick(payloadValue, Object.keys(state[FILTER_MENU]?.[action.payload.name]?.values || {}))
       }
-
-      set(state, [FILTER_MENU, action.payload.name, 'values'], newFilterValues)
-    },
-    setModalFiltersValues(state, action) {
-      const payloadValue = action.payload.value ?? {}
-      const newFilterValues = {
+      const newFilterMenuModalValues = {
         ...state[FILTER_MENU_MODAL][action.payload.name]?.values,
-        ...payloadValue
+        ...pick(payloadValue, Object.keys(state[FILTER_MENU_MODAL]?.[action.payload.name]?.values || {}))
       }
 
-      set(state, [FILTER_MENU_MODAL, action.payload.name, 'values'], newFilterValues)
+      set(state, [FILTER_MENU, action.payload.name, 'values'], newFilterMenuValues)
+      set(state, [FILTER_MENU_MODAL, action.payload.name, 'values'], newFilterMenuModalValues)
+    },
+    setFiltersValues: {
+      reducer: (state, action) => {
+        const payloadValue = action.payload.value ?? {}
+        const newFilterValues = {
+          ...state[FILTER_MENU][action.payload.name]?.values,
+          ...payloadValue
+        }
+
+        set(state, [FILTER_MENU, action.payload.name, 'values'], newFilterValues)
+      },
+      prepare: payload => {
+        const queryParams = new URLSearchParams(window.location.search)
+
+        if (payload.value) {
+          for (const [parameterName, parameterValue] of Object.entries(payload.value)) {
+            if (
+              !isEqual(
+                initialState[FILTER_MENU][payload.name].initialValues[parameterName],
+                parameterValue
+              )
+            ) {
+              if (parameterName === DATES_FILTER) {
+                queryParams.set(
+                  parameterName,
+                  parameterValue.initialSelectedOptionId === CUSTOM_RANGE_DATE_OPTION
+                    ? parameterValue.value.map(date => new Date(date).getTime()).join('-')
+                    : parameterValue.initialSelectedOptionId
+                )
+              } else {
+                queryParams.set(parameterName, parameterValue)
+              }
+            } else {
+              queryParams.delete(parameterName)
+            }
+
+            window.history.replaceState(null, null, `?${queryParams.toString()}`)
+          }
+        }
+
+        return { payload }
+      }
+    },
+    setModalFiltersValues: {
+      reducer: (state, action) => {
+        const payloadValue = action.payload.value ?? {}
+        const newFilterValues = {
+          ...state[FILTER_MENU_MODAL][action.payload.name]?.values,
+          ...payloadValue
+        }
+
+        set(state, [FILTER_MENU_MODAL, action.payload.name, 'values'], newFilterValues)
+      },
+      prepare: payload => {
+        const queryParams = new URLSearchParams(window.location.search)
+
+        if (payload.value) {
+          for (const [parameterName, parameterValue] of Object.entries(payload.value)) {
+            if (
+              !isEqual(
+                initialState[FILTER_MENU_MODAL][payload.name].initialValues[parameterName],
+                parameterValue
+              )
+            ) {
+              if (parameterName === DATES_FILTER) {
+                queryParams.set(
+                  parameterName,
+                  parameterValue.initialSelectedOptionId === CUSTOM_RANGE_DATE_OPTION
+                    ? parameterValue.value.map(date => new Date(date).getTime()).join('-')
+                    : parameterValue.initialSelectedOptionId
+                )
+              } else {
+                queryParams.set(parameterName, parameterValue)
+              }
+            } else {
+              queryParams.delete(parameterName)
+            }
+
+            window.history.replaceState(null, null, `?${queryParams.toString()}`)
+          }
+        }
+
+        return { payload }
+      }
     },
     setModalFiltersInitialValues(state, action) {
       const payloadValue = action.payload.value ?? {}
@@ -306,6 +394,7 @@ export const {
   removeFilters,
   resetFilter,
   resetModalFilter,
+  setAllActionBarFiltersValues,
   setFilters,
   setFiltersValues,
   setModalFiltersValues,
