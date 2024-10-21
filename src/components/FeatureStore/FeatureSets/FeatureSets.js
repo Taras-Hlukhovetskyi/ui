@@ -27,7 +27,6 @@ import { FeatureStoreContext } from '../FeatureStore'
 
 import {
   DETAILS_OVERVIEW_TAB,
-  FEATURE_SETS_FILTERS,
   FEATURE_SETS_TAB,
   FEATURE_STORE_PAGE,
   FILTER_MENU,
@@ -54,7 +53,7 @@ import { useGroupContent } from '../../../hooks/groupContent.hook'
 import { useOpenPanel } from '../../../hooks/openPanel.hook'
 import { useVirtualization } from '../../../hooks/useVirtualization.hook'
 import { useInitialTableFetch } from '../../../hooks/useInitialTableFetch.hook'
-import { featureSetsFilters as filtersConfig } from './featureSets.util'
+import { filtersConfig } from './featureSets.util'
 
 import { ReactComponent as Yaml } from 'igz-controls/images/yaml.svg'
 
@@ -81,8 +80,8 @@ const FeatureSets = ({
   const featureSetsFilters = useSelector(
     store => {
       return {
-        ...store.filtersStore[FILTER_MENU][FEATURE_SETS_FILTERS].values,
-        ...store.filtersStore[FILTER_MENU_MODAL][FEATURE_SETS_FILTERS].values
+        ...store.filtersStore[FILTER_MENU][FEATURE_SETS_TAB].values,
+        ...store.filtersStore[FILTER_MENU_MODAL][FEATURE_SETS_TAB].values
       }
     }
   )
@@ -296,7 +295,7 @@ const FeatureSets = ({
 
     dispatch(
       setFiltersValues({
-        name: FEATURE_SETS_FILTERS,
+        name: FEATURE_SETS_TAB,
         value: {
           [NAME_FILTER]: '',
         }
@@ -304,7 +303,7 @@ const FeatureSets = ({
     )
     dispatch(
       setModalFiltersValues({
-        name: FEATURE_SETS_FILTERS,
+        name: FEATURE_SETS_TAB,
         value: {
           [TAG_FILTER]: currentTag,
           [LABELS_FILTER]: '',
@@ -334,8 +333,8 @@ const FeatureSets = ({
       createFeatureSetsRowData(rowItem, params.projectName, FEATURE_SETS_TAB),
     fetchTags,
     filters: featureSetsFilters,
-    filterModalName: FEATURE_SETS_FILTERS,
-    filterName: FEATURE_SETS_FILTERS,
+    filterModalName: FEATURE_SETS_TAB,
+    filterName: FEATURE_SETS_TAB,
     filtersConfig
   })
 
