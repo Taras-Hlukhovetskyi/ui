@@ -53,6 +53,7 @@ const FunctionsView = ({
   expand,
   filtersChangeCallback,
   filtersStore,
+  filters,
   functions,
   functionsFiltersConfig,
   functionsPanelIsOpen,
@@ -88,6 +89,7 @@ const FunctionsView = ({
                 page={FUNCTIONS_PAGE}
                 expand={expand}
                 filtersConfig={functionsFiltersConfig}
+                filters={filters}
                 filterMenuName={FUNCTION_FILTERS}
                 handleExpandAll={handleExpandAll}
                 handleRefresh={filtersChangeCallback}
@@ -111,12 +113,12 @@ const FunctionsView = ({
             ) : functions.length === 0 ? (
               <NoData
                 message={getNoDataMessage(
-                  filtersStore,
+                  filters,
                   functionsFiltersConfig,
                   requestErrorMessage,
                   FUNCTIONS_PAGE,
                   null,
-                  FUNCTION_FILTERS
+                  filtersStore
                 )}
               />
             ) : (

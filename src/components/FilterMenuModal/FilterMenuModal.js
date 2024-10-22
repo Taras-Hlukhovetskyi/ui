@@ -58,7 +58,7 @@ const FilterMenuModal = ({
   const [filtersWizardIsShown, setFiltersWizardIsShown] = useState(false)
   const filtersIconButtonRef = useRef()
   const dispatch = useDispatch()
-  const filtersData = useSelector(store => store.filtersStore[FILTER_MENU_MODAL][filterMenuName])
+  // const filtersData = useSelector(store => store.filtersStore[FILTER_MENU_MODAL][filterMenuName])
   const params = useParams()
   const formRef = React.useRef(
     createForm({
@@ -66,24 +66,25 @@ const FilterMenuModal = ({
       initialValues
     })
   )
+  console.log(values, initialValues)
   const filtersIconClassnames = classnames(
     'filters-button',
-    !isEqual(filtersData?.values, filtersData?.initialValues) && 'filters-button_applied'
+    !isEqual(values, initialValues) && 'filters-button_applied'
   )
 
   const filtersWizardClassnames = classnames('filters-wizard', wizardClassName)
 
-  useEffect(() => {
-    if (!has(filtersData, 'initialValues')) {
-      dispatch(setModalFiltersInitialValues({ name: filterMenuName, value: initialValues }))
-    }
-  }, [dispatch, filtersData, filterMenuName, initialValues])
+  // useEffect(() => {
+  //   if (!has(filtersData, 'initialValues')) {
+  //     dispatch(setModalFiltersInitialValues({ name: filterMenuName, value: initialValues }))
+  //   }
+  // }, [dispatch, filtersData, filterMenuName, initialValues])
 
-  useEffect(() => {
-    if (!has(filtersData, 'values')) {
-      dispatch(setModalFiltersValues({ name: filterMenuName, value: values }))
-    }
-  }, [dispatch, filtersData, filterMenuName, values])
+  // useEffect(() => {
+  //   if (!has(filtersData, 'values')) {
+  //     dispatch(setModalFiltersValues({ name: filterMenuName, value: values }))
+  //   }
+  // }, [dispatch, filtersData, filterMenuName, values])
 
   useEffect(() => {
     if (!isEqual(initialValues, values)) {
@@ -124,7 +125,7 @@ const FilterMenuModal = ({
 
     return () => {
       ref.restart(initialValues)
-      dispatch(resetModalFilter(filterMenuName))
+      // dispatch(resetModalFilter(filterMenuName))
     }
   }, [
     params.pageTab,
@@ -136,13 +137,13 @@ const FilterMenuModal = ({
   ])
 
   const getFilterCounter = formState => {
-    const initialValues = applyChanges ? filtersData?.initialValues : formState.initialValues
-    const currentValues = applyChanges ? filtersData?.values : formState.values
+    const initialValuesLocal = applyChanges ? initialValues : formState.initialValues
+    const currentValues = applyChanges ? values : formState.values
 
     return reduce(
       currentValues,
       (acc, filterValue, filterName) => {
-        return !isEqual(filterValue, initialValues[filterName]) &&
+        return !isEqual(filterValue, initialValuesLocal[filterName]) &&
           isEmpty(formState.errors[filterName])
           ? ++acc
           : acc
@@ -152,12 +153,12 @@ const FilterMenuModal = ({
   }
 
   const handleApplyFilters = formState => {
-    dispatch(
-      setModalFiltersValues({
-        name: filterMenuName,
-        value: { ...formState.values }
-      })
-    )
+    // dispatch(
+    //   setModalFiltersValues({
+    //     name: filterMenuName,
+    //     value: { ...formState.values }
+    //   })
+    // )
     applyChanges && applyChanges(formState.values)
     setFiltersWizardIsShown(false)
   }
@@ -169,12 +170,12 @@ const FilterMenuModal = ({
 
       if (counter > 0) {
         applyChanges && applyChanges(initialValues)
-        dispatch(
-          setModalFiltersValues({
-            name: filterMenuName,
-            value: initialValues
-          })
-        )
+        // dispatch(
+        //   setModalFiltersValues({
+        //     name: filterMenuName,
+        //     value: initialValues
+        //   })
+        // )
       }
     }
   }
@@ -222,7 +223,7 @@ const FilterMenuModal = ({
                       )}
                       {applyButton && !withoutApplyButton && (
                         <Button
-                          disabled={isEqual(filtersData?.values, formState.values)}
+                          disabled={isEqual(values, formState.values)}
                           id="filter-apply-btn"
                           variant={applyButton.variant}
                           label={applyButton.label}

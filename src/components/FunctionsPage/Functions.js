@@ -44,15 +44,16 @@ import {
   checkForSelectedFunction,
   generateActionsMenu,
   generateFunctionsPageData,
+  parseQueryParamsCallback,
   pollDeletingFunctions,
   searchFunctionItem,
   setFullSelectedFunction
 } from './functions.util'
-import {
-  ANY_TIME_DATE_OPTION,
-  datePickerPastOptions,
-  getDatePickerFilterValue
-} from '../../utils/datePicker.util'
+// import {
+//   ANY_TIME_DATE_OPTION,
+//   datePickerPastOptions,
+//   getDatePickerFilterValue
+// } from '../../utils/datePicker.util'
 import createFunctionsRowData from '../../utils/createFunctionsRowData'
 import functionsActions from '../../actions/functions'
 import jobsActions from '../../actions/jobs'
@@ -63,7 +64,7 @@ import { isBackgroundTaskRunning } from '../../utils/poll.util'
 import { isDetailsTabExists } from '../../utils/link-helper.util'
 import { openPopUp } from 'igz-controls/utils/common.util'
 import { parseFunctions } from '../../utils/parseFunctions'
-import { setFilters, setFiltersValues, setModalFiltersValues } from '../../reducers/filtersReducer'
+import { setFilters } from '../../reducers/filtersReducer'
 import { setNotification } from '../../reducers/notificationReducer'
 import { showErrorNotification } from '../../utils/notifications.util'
 import { useGroupContent } from '../../hooks/groupContent.hook'
@@ -71,8 +72,10 @@ import { useMode } from '../../hooks/mode.hook'
 import { useVirtualization } from '../../hooks/useVirtualization.hook'
 import { useYaml } from '../../hooks/yaml.hook'
 import { useInitialTableFetch } from '../../hooks/useInitialTableFetch.hook'
+import { useInitialFiltersFromQueryParams } from '../../hooks/useInitialFiltersFromQueryParams.hook'
 
 import cssVariables from './functions.scss'
+import { datePickerPastOptions, getDatePickerFilterValue, PAST_WEEK_DATE_OPTION } from '../../utils/datePicker.util'
 
 const Functions = ({
   deleteFunction,
@@ -109,13 +112,15 @@ const Functions = ({
   const location = useLocation()
   const dispatch = useDispatch()
 
-  const functionsFilters = useMemo(
-    () => ({
-      ...filtersStore.filterMenu.FUNCTION_FILTERS.values,
-      ...filtersStore.filterMenuModal.FUNCTION_FILTERS.values
-    }),
-    [filtersStore.filterMenu.FUNCTION_FILTERS, filtersStore.filterMenuModal.FUNCTION_FILTERS.values]
-  )
+  const functionsFiltersConfig = useMemo(() => {
+    return {
+      [NAME_FILTER]: { label: 'Name:', initialValue: '' },
+      [DATES_FILTER]: { label: 'Updated:', initialValue: getDatePickerFilterValue(datePickerPastOptions, PAST_WEEK_DATE_OPTION) },
+      [SHOW_UNTAGGED_FILTER]: { label: 'Show untagged:', initialValue: false, isModal: true }
+    }
+  }, [])
+
+  const functionsFilters = useInitialFiltersFromQueryParams(functionsFiltersConfig, parseQueryParamsCallback)
 
   const terminateDeleteTasksPolling = useCallback(() => {
     terminatePollRef?.current?.()
@@ -522,13 +527,7 @@ const Functions = ({
     ]
   )
 
-  const functionsFiltersConfig = useMemo(() => {
-    return {
-      [NAME_FILTER]: { label: 'Name:' },
-      [DATES_FILTER]: { label: 'Updated:' },
-      [SHOW_UNTAGGED_FILTER]: { label: 'Show untagged:' }
-    }
-  }, [])
+  
 
   useEffect(() => {
     setFullSelectedFunction(
@@ -541,29 +540,33 @@ const Functions = ({
     )
   }, [dispatch, fetchFunction, navigate, params.projectName, selectedFunctionMin])
 
-  const setInitialFilters = useCallback(() => {
-    if (params.funcName || (params.hash && params.hash.includes('@'))) {
-      const funcName = params.funcName || params.hash.split('@')[0]
-      const dateFilterValues = getDatePickerFilterValue(datePickerPastOptions, ANY_TIME_DATE_OPTION)
+  // useInitialFiltersFromQueryParams(FUNCTION_FILTERS, parseQueryParamsCallback)
 
-      dispatch(
-        setFiltersValues({
-          name: FUNCTION_FILTERS,
-          value: {
-            [NAME_FILTER]: funcName,
-            [DATES_FILTER]: dateFilterValues
-          }
-        })
-      )
-      dispatch(
-        setModalFiltersValues({
-          name: FUNCTION_FILTERS,
-          value: {
-            [SHOW_UNTAGGED_FILTER]: true
-          }
-        })
-      )
-    }
+  const setInitialFilters = useCallback(() => {
+    // if (
+    //   (!queryParams.get(NAME_FILTER) && params.funcName) ||
+    //   (params.hash && params.hash.includes('@'))
+    // ) {
+    //   const funcName = params.funcName || params.hash.split('@')[0]
+    //   const dateFilterValues = getDatePickerFilterValue(datePickerPastOptions, ANY_TIME_DATE_OPTION)
+    //   dispatch(
+    //     setFiltersValues({
+    //       name: FUNCTION_FILTERS,
+    //       value: {
+    //         [NAME_FILTER]: funcName,
+    //         [DATES_FILTER]: dateFilterValues
+    //       }
+    //     })
+    //   )
+    //   dispatch(
+    //     setModalFiltersValues({
+    //       name: FUNCTION_FILTERS,
+    //       value: {
+    //         [SHOW_UNTAGGED_FILTER]: true
+    //       }
+    //     })
+    //   )
+    // }
   }, [dispatch, params.funcName, params.hash])
 
   useInitialTableFetch({
@@ -571,10 +574,7 @@ const Functions = ({
     setExpandedRowsData: setSelectedRowData,
     createRowData: rowItem => createFunctionsRowData(rowItem, params.projectName),
     setInitialFilters,
-    filters: {
-      ...filtersStore[FILTER_MENU][FUNCTION_FILTERS].values,
-      ...filtersStore[FILTER_MENU_MODAL][FUNCTION_FILTERS].values
-    }
+    filters: functionsFilters
   })
 
   useEffect(() => {
@@ -763,6 +763,7 @@ const Functions = ({
       expand={expand}
       filtersChangeCallback={filtersChangeCallback}
       filtersStore={filtersStore}
+      filters={functionsFilters}
       functions={functions}
       functionsFiltersConfig={functionsFiltersConfig}
       functionsPanelIsOpen={functionsPanelIsOpen}

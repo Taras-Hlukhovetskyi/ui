@@ -18,46 +18,19 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { set } from 'lodash'
 
 import {
   ARTIFACT_OTHER_TYPE,
-  CONSUMER_GROUPS_FILTER,
-  CONSUMER_GROUP_FILTER,
-  DATASETS_FILTERS,
   DATASET_TYPE,
-  DATES_FILTER,
   DATE_FILTER_ANY_TIME,
-  FILES_FILTERS,
   FILTER_ALL_ITEMS,
   FILTER_MENU,
   FILTER_MENU_MODAL,
-  FUNCTION_FILTERS,
   GROUP_BY_NAME,
-  ITERATIONS_FILTER,
-  JOBS_MONITORING_JOBS_TAB,
-  JOBS_MONITORING_SCHEDULED_TAB,
-  JOBS_MONITORING_WORKFLOWS_TAB,
-  LABELS_FILTER,
-  MODELS_FILTERS,
   MODEL_TYPE,
-  NAME_FILTER,
-  PROJECT_FILTER,
   SHOW_ITERATIONS,
-  SHOW_UNTAGGED_FILTER,
-  STATUS_FILTER,
-  TAG_FILTER,
   TAG_FILTER_LATEST,
-  TYPE_FILTER
 } from '../constants'
-import {
-  NEXT_24_HOUR_DATE_OPTION,
-  PAST_24_HOUR_DATE_OPTION,
-  PAST_WEEK_DATE_OPTION,
-  datePickerFutureOptions,
-  datePickerPastOptions,
-  getDatePickerFilterValue
-} from '../utils/datePicker.util'
 
 const initialState = {
   saveFilters: false,
@@ -76,153 +49,7 @@ const initialState = {
   sortBy: '',
   tag: TAG_FILTER_LATEST,
   tagOptions: null,
-  projectOptions: [],
-  [FILTER_MENU]: {
-    [JOBS_MONITORING_JOBS_TAB]: {
-      initialValues: {
-        [NAME_FILTER]: '',
-        [DATES_FILTER]: getDatePickerFilterValue(datePickerPastOptions, PAST_24_HOUR_DATE_OPTION)
-      },
-      values: {
-        [NAME_FILTER]: '',
-        [DATES_FILTER]: getDatePickerFilterValue(datePickerPastOptions, PAST_24_HOUR_DATE_OPTION)
-      }
-    },
-    [JOBS_MONITORING_WORKFLOWS_TAB]: {
-      initialValues: {
-        [NAME_FILTER]: '',
-        [DATES_FILTER]: getDatePickerFilterValue(datePickerPastOptions, PAST_24_HOUR_DATE_OPTION)
-      },
-      values: {
-        [NAME_FILTER]: '',
-        [DATES_FILTER]: getDatePickerFilterValue(datePickerPastOptions, PAST_24_HOUR_DATE_OPTION)
-      }
-    },
-    [JOBS_MONITORING_SCHEDULED_TAB]: {
-      initialValues: {
-        [NAME_FILTER]: '',
-        [DATES_FILTER]: getDatePickerFilterValue(
-          datePickerFutureOptions,
-          NEXT_24_HOUR_DATE_OPTION,
-          true
-        )
-      },
-      values: {
-        [NAME_FILTER]: '',
-        [DATES_FILTER]: getDatePickerFilterValue(
-          datePickerFutureOptions,
-          NEXT_24_HOUR_DATE_OPTION,
-          true
-        )
-      }
-    },
-    [FUNCTION_FILTERS]: {
-      values: {
-        [NAME_FILTER]: '',
-        [DATES_FILTER]: getDatePickerFilterValue(datePickerPastOptions, PAST_WEEK_DATE_OPTION),
-      },
-      initialValues: {
-        [NAME_FILTER]: '',
-        [DATES_FILTER]: getDatePickerFilterValue(datePickerPastOptions, PAST_WEEK_DATE_OPTION),
-      }
-    },
-    [CONSUMER_GROUPS_FILTER]: {
-      values: {
-        [NAME_FILTER]: ''
-      },
-      initialValues: {
-        [NAME_FILTER]: ''
-      }
-    },
-    [CONSUMER_GROUP_FILTER]: {
-      values: {
-        [NAME_FILTER]: ''
-      },
-      initialValues: {
-        [NAME_FILTER]: ''
-      }
-    }
-  },
-  [FILTER_MENU_MODAL]: {
-    [DATASETS_FILTERS]: {
-      initialValues: {
-        [TAG_FILTER]: TAG_FILTER_LATEST,
-        [LABELS_FILTER]: '',
-        [ITERATIONS_FILTER]: SHOW_ITERATIONS
-      },
-      values: {
-        [TAG_FILTER]: TAG_FILTER_LATEST,
-        [LABELS_FILTER]: '',
-        [ITERATIONS_FILTER]: SHOW_ITERATIONS
-      }
-    },
-    [FILES_FILTERS]: {
-      initialValues: {
-        [TAG_FILTER]: TAG_FILTER_LATEST,
-        [LABELS_FILTER]: '',
-        [ITERATIONS_FILTER]: SHOW_ITERATIONS
-      },
-      values: {
-        [TAG_FILTER]: TAG_FILTER_LATEST,
-        [LABELS_FILTER]: '',
-        [ITERATIONS_FILTER]: SHOW_ITERATIONS
-      }
-    },
-    [MODELS_FILTERS]: {
-      initialValues: {
-        [TAG_FILTER]: TAG_FILTER_LATEST,
-        [LABELS_FILTER]: '',
-        [ITERATIONS_FILTER]: SHOW_ITERATIONS
-      },
-      values: {
-        [TAG_FILTER]: TAG_FILTER_LATEST,
-        [LABELS_FILTER]: '',
-        [ITERATIONS_FILTER]: SHOW_ITERATIONS
-      }
-    },
-    [FUNCTION_FILTERS]: {
-      initialValues: { [SHOW_UNTAGGED_FILTER]: false },
-      values: { [SHOW_UNTAGGED_FILTER]: false }
-    },
-    [JOBS_MONITORING_JOBS_TAB]: {
-      initialValues: {
-        [LABELS_FILTER]: '',
-        [PROJECT_FILTER]: '',
-        [STATUS_FILTER]: [FILTER_ALL_ITEMS],
-        [TYPE_FILTER]: FILTER_ALL_ITEMS
-      },
-      values: {
-        [LABELS_FILTER]: '',
-        [PROJECT_FILTER]: '',
-        [STATUS_FILTER]: [FILTER_ALL_ITEMS],
-        [TYPE_FILTER]: FILTER_ALL_ITEMS
-      }
-    },
-    [JOBS_MONITORING_WORKFLOWS_TAB]: {
-      initialValues: {
-        [LABELS_FILTER]: '',
-        [PROJECT_FILTER]: '',
-        [STATUS_FILTER]: [FILTER_ALL_ITEMS]
-      },
-      values: {
-        [LABELS_FILTER]: '',
-        [PROJECT_FILTER]: '',
-        [STATUS_FILTER]: [FILTER_ALL_ITEMS]
-      }
-    },
-    [JOBS_MONITORING_SCHEDULED_TAB]: {
-      initialValues: {
-        [LABELS_FILTER]: '',
-        [PROJECT_FILTER]: '',
-        [TYPE_FILTER]: FILTER_ALL_ITEMS
-      },
-      values: {
-        [LABELS_FILTER]: '',
-        [PROJECT_FILTER]: '',
-        [TYPE_FILTER]: FILTER_ALL_ITEMS
-      }
-    }
-  }
+  projectOptions: []
 }
 
 export const getFilterTagOptions = createAsyncThunk(
@@ -254,42 +81,21 @@ const filtersSlice = createSlice({
       return initialState
     },
     resetFilter(state, action) {
-      state[FILTER_MENU][action.payload] = initialState[FILTER_MENU][action.payload]
+      state[FILTER_MENU][action.payload].initialValues =
+        initialState[FILTER_MENU][action.payload].initialValues
+      state[FILTER_MENU][action.payload].values =
+        initialState[FILTER_MENU][action.payload].initialValues
     },
     resetModalFilter(state, action) {
-      state[FILTER_MENU_MODAL][action.payload] = initialState[FILTER_MENU_MODAL][action.payload]
+      state[FILTER_MENU_MODAL][action.payload].initialValues =
+        initialState[FILTER_MENU_MODAL][action.payload].initialValues
+      state[FILTER_MENU_MODAL][action.payload].values =
+        initialState[FILTER_MENU_MODAL][action.payload].initialValues
     },
     setFilters(state, action) {
       for (let filterProp in action.payload) {
         state[filterProp] = action.payload[filterProp]
       }
-    },
-    setFiltersValues(state, action) {
-      const payloadValue = action.payload.value ?? {}
-      const newFilterValues = {
-        ...state[FILTER_MENU][action.payload.name]?.values,
-        ...payloadValue
-      }
-
-      set(state, [FILTER_MENU, action.payload.name, 'values'], newFilterValues)
-    },
-    setModalFiltersValues(state, action) {
-      const payloadValue = action.payload.value ?? {}
-      const newFilterValues = {
-        ...state[FILTER_MENU_MODAL][action.payload.name]?.values,
-        ...payloadValue
-      }
-
-      set(state, [FILTER_MENU_MODAL, action.payload.name, 'values'], newFilterValues)
-    },
-    setModalFiltersInitialValues(state, action) {
-      const payloadValue = action.payload.value ?? {}
-      const newFilterInitialValues = {
-        ...state[FILTER_MENU_MODAL][action.payload.name]?.initialValues,
-        ...payloadValue
-      }
-
-      set(state, [FILTER_MENU_MODAL, action.payload.name, 'initialValues'], newFilterInitialValues)
     },
     setFilterProjectOptions(state, action) {
       state.projectOptions = action.payload
@@ -306,6 +112,7 @@ export const {
   removeFilters,
   resetFilter,
   resetModalFilter,
+  setAllActionBarFiltersValues,
   setFilters,
   setFiltersValues,
   setModalFiltersValues,
