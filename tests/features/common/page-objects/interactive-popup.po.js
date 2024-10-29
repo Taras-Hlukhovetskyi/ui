@@ -653,7 +653,7 @@ const commonLabelFilterInput = inputGroup(
     '[data-testid="labels-form-field-input"]',
     true,
     false,
-    true
+    '.form-field__warning svg'
   )
 )
 
@@ -1627,6 +1627,22 @@ module.exports = {
       }
     }),
     Checkbox_Label: By.css('#overlay_container .form-field-checkbox label'),
+    Table_Projects_Filter_Dropdown: dropdownComponent(
+      generateDropdownGroup(
+        '[data-testid="project-form-field-select"] [data-testid="select-header"]',
+        'svg',
+        '[data-testid="select-body"] [data-testid="select-option"]',
+        ''
+      )
+    ),
+    Table_Entity_Filter_Input: inputGroup(
+      generateInputGroup(
+        '[data-testid="entities-form-field-input"]',
+        true,
+        false,
+        true
+      )
+    ),
     Clear_Button: By.css('[data-testid="filter-clear-btn"]'),
     Apply_Button: By.css('[data-testid="filter-apply-btn"]')
   },
