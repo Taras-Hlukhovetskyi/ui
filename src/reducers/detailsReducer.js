@@ -96,11 +96,11 @@ export const fetchJobPods = createAsyncThunk('fetchJobPods', ({ project, uid, ki
 
 export const fetchModelEndpointMetrics = createAsyncThunk(
   'fetchEndpointMetrics',
-  ({ project, uid }, thunkAPI) => {
+  ({ project, uid, applicationName = '' }, thunkAPI) => {
     return modelEndpointsApi
       .getModelEndpointMetrics(project, uid)
       .then(({ data = [] }) => {
-        const metrics = generateMetricsItems(data)
+        const metrics = generateMetricsItems(data, applicationName)
 
         return { endpointUid: uid, metrics }
       })
