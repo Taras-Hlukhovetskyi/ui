@@ -2226,8 +2226,8 @@ function getArtifact(req, res) {
         artifact.metadata?.tree === req.query.tree ||
         artifact?.tree === req.query.tree) &&
       (isNil(req.query.uid) ||
-        artifact.metadata?.uid === req.query.uid ||
-        artifact?.uid === req.query.uid)
+        artifact.metadata?.uid === req.query['object-uid'] ||
+        artifact?.uid === req.query['object-uid'])
   )
 
   if (requestedArtifact) {
