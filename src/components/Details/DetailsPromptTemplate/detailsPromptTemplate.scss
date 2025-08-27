@@ -4,9 +4,13 @@
 .prompt-template {
   .prompt-tab {
     &__header {
+      position: sticky;
+      top: 0;
+      left: 0;
+      z-index: 6;
       display: flex;
       align-items: center;
-      margin-top: 20px;
+      padding-top: 20px;
       padding-bottom: 10px;
       background-color: white;
     }
@@ -27,9 +31,9 @@
       justify-content: space-between;
       width: 135px;
       padding: 11px 18px;
+      font-size: 14px;
       border: borders.$primaryBorder;
       border-radius: 4px;
-      font-size: 14px;
       cursor: pointer;
 
       &-wrapper {
@@ -64,8 +68,8 @@
 
       &-key {
         width: 150px;
-        font-weight: bold;
         padding-right: 10px;
+        font-weight: bold;
       }
 
       &-value {
