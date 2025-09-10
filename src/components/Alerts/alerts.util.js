@@ -61,15 +61,15 @@ import { showErrorNotification } from 'igz-controls/utils/notification.util'
 export const getAlertsFiltersConfig = (timeFrameLimit = false, isAlertsPage = false) => {
   return {
     [NAME_FILTER]: { label: 'Alert Name:', initialValue: '', hidden: isAlertsPage },
-    [DATES_FILTER]: {
-      initialValue: getDatePickerFilterValue(
-        datePickerPastOptions,
-        isAlertsPage ? PAST_MONTH_DATE_OPTION : PAST_24_HOUR_DATE_OPTION
-      ),
-      hidden: isAlertsPage,
-      label: 'Start time:',
-      timeFrameLimit: timeFrameLimit ? TIME_FRAME_LIMITS.MONTH : Infinity
-    },
+    // [DATES_FILTER]: {
+    //   initialValue: getDatePickerFilterValue(
+    //     datePickerPastOptions,
+    //     isAlertsPage ? PAST_MONTH_DATE_OPTION : PAST_24_HOUR_DATE_OPTION
+    //   ),
+    //   hidden: isAlertsPage,
+    //   label: 'Start time:',
+    //   timeFrameLimit: timeFrameLimit ? TIME_FRAME_LIMITS.MONTH : Infinity
+    // },
     [PROJECT_FILTER]: {
       label: 'Project:',
       initialValue: PROJECTS_FILTER_ALL_ITEMS,

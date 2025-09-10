@@ -137,6 +137,8 @@ const Alerts = () => {
     }
   }, [lastCheckedAlertIdRef, selectedAlert])
 
+  console.log(alertsFilters)
+
   return (
     <div className="content-wrapper">
       <div className="content__header">

@@ -136,6 +136,7 @@ const DetailsAlertsMetrics = ({ selectedItem, filters, isAlertsPage = true }) =>
       setMetrics([])
     }
   }, [fetchMetrics, setMetrics])
+  console.log('details')
 
   return (
     <div className="metrics-wrapper">

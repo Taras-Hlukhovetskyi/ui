@@ -139,6 +139,7 @@ export const getNoDataMessage = (
   filtersStore
 ) => {
   if (defaultMessage) return defaultMessage
+  console.log('f', filters, filtersStore, filtersConfig)
 
   if (Array.isArray(filtersConfig)) {
     filtersConfig = keyBy(filtersConfig, 'type')

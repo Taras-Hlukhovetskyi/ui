@@ -50,7 +50,11 @@ const DetailsAlerts = () => {
     parseAlertsQueryParamsCallback
   )
 
-  const { alerts, requestErrorMessage } = useRefreshAlerts(alertsFilters)
+  const filters = useMemo(() => {
+    return {...alertsFilters, 'entity-type': 'model-endpoint-result'}
+  }, [alertsFilters])
+
+  const { alerts, requestErrorMessage } = useRefreshAlerts(filters)
 
   const tableContent = useMemo(() => {
     if (alerts) {
@@ -72,6 +76,7 @@ const DetailsAlerts = () => {
     [tableContent]
   )
 
+console.log(alertsFilters)
   return (
     <div>
       {tableContent.length >= ALERTS_DISPLAY_LIMIT && (

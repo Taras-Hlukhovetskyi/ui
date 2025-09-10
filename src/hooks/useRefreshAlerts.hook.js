@@ -55,6 +55,7 @@ export const useRefreshAlerts = (filters, isAlertsPage) => {
 
       if (!isAlertsPage) {
         filters = { ...filters, [MODEL_ENDPOINT_ID]: params.tag }
+        console.log(filters)
       }
 
       dispatch(
