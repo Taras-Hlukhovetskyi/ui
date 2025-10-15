@@ -19,8 +19,9 @@ such restriction.
 */
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import MaskedInput from 'react-text-mask'
 import classNames from 'classnames'
+
+import { MaskedInput } from 'igz-controls/components'
 
 import { DENSITY_OPTIONS } from 'igz-controls/types'
 

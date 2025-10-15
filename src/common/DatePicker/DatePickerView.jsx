@@ -19,7 +19,6 @@ such restriction.
 */
 import React from 'react'
 import PropTypes from 'prop-types'
-import MaskedInput from 'react-text-mask'
 import classnames from 'classnames'
 import { isEmpty } from 'lodash'
 
@@ -33,6 +32,7 @@ import {
   ErrorMessage
 } from 'igz-controls/components'
 import { SelectOption } from 'igz-controls/elements'
+import { MaskedInput } from 'igz-controls/components'
 
 import { PRIMARY_BUTTON } from 'igz-controls/constants'
 import { CUSTOM_RANGE_DATE_OPTION } from '../../utils/datePicker.util'
