@@ -402,7 +402,7 @@ const App = () => {
         </Route>
       </>
     ),
-    { basename: import.meta.env.VITE_REACT_ROUTER_BASE_NAME }
+    { basename: import.meta.env.VITE_PUBLIC_URL }
   )
 
   return (
