@@ -31,7 +31,6 @@ import { isNil } from 'lodash'
 import moment from 'moment'
 
 import DatePickerView from './DatePickerView'
-import { DATE_FILTER_ANY_TIME } from '../../constants'
 import { createAutoCorrectedDatePipe } from '../../utils/createAutoCorrectedDatePipe'
 import {
   datePickerPastOptions,

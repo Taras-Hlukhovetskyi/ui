@@ -314,7 +314,8 @@ export const getDatePipe = () => {
       if (part.type === 'literal') return part.value
       return mapping[part.type] || ''
     })
-    .join('').toLocaleLowerCase()
+    .join('')
+    .toLocaleLowerCase()
 }
 
 export const getDateMask = () => {

@@ -206,7 +206,7 @@ const DatePickerView = React.forwardRef(
                         mask={dateMask}
                         disabled={disabled}
                         showMask={!isValueEmpty}
-                        onChange={(event) => onInputChange(event, item.id)}
+                        onChange={event => onInputChange(event, item.id)}
                         pipe={autoCorrectedDatePipe}
                         value={moment(item.selectedDate).format(getDatePipe()?.toUpperCase())}
                       />

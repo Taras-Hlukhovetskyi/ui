@@ -134,15 +134,14 @@ const timeFormatters = {
   },
   days: {
     handler: date =>
-     formatDatetime(date, 'N/A', {
+      formatDatetime(date, 'N/A', {
         year: TWO_DIGIT,
         month: TWO_DIGIT,
         day: TWO_DIGIT
       })
   },
   full: {
-    handler: date =>
-      formatDatetime(date, 'N/A')
+    handler: date => formatDatetime(date, 'N/A')
   }
 }
 
