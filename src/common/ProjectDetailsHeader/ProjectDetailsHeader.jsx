@@ -23,7 +23,7 @@ import { useSelector } from 'react-redux'
 
 import PageHeader from '../../elements/PageHeader/PageHeader'
 
-import { getDateAndTimeByFormat } from 'igz-controls/utils/datetime.util'
+import { formatDatetime } from 'igz-controls/utils/datetime.util'
 
 import { COUNTERS_GENERAL_MESSAGE } from '../../constants'
 
@@ -39,7 +39,7 @@ const ProjectDetailsHeader = ({ projectData, projectName }) => {
         <div>
           <span className="project-details__details-label">
             Created:
-            {getDateAndTimeByFormat(projectData.metadata.created + 'Z', ' MM/DD/YYYY, HH:mm:ss A')}
+            <span>{formatDatetime(projectData.metadata.created)}</span>
           </span>
           {projectData.spec.owner && !frontendSpec.ce?.version && (
             <span className="project-details__details-label">Owner: {projectData.spec.owner}</span>
