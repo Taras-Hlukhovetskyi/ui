@@ -24,26 +24,31 @@ import { Tooltip, TextTooltipTemplate } from 'igz-controls/components'
 import { generateTimeOptions, is12HourFormat } from './TimePicker.utils'
 
 function TimePickerOptions({ handleInputChange = () => {} }) {
-  const optionsWrapperRef = useRef()
+  const beginningOptionRef = useRef()
   const timeOptions = useMemo(() => generateTimeOptions(is12HourFormat()), [])
+
+  const scrollTargetIndex = useMemo(() => {
+    return timeOptions.findIndex(option => option.includes('06:00'))
+  }, [timeOptions])
 
   useEffect(() => {
     // per figma show list from 06:00 AM
-    const beginningOption = optionsWrapperRef.current?.querySelector(':scope > div:nth-of-type(13)')
-
-    if (beginningOption) {
-      beginningOption.scrollIntoView()
+    if (beginningOptionRef.current) {
+      beginningOptionRef.current.scrollIntoView()
     }
   }, [])
 
   return (
-    <div ref={optionsWrapperRef}>
-      {timeOptions.map(option => {
+    <>
+      {timeOptions.map((option, index) => {
+        const isScrollTarget = index === scrollTargetIndex
+
         return (
           <div
             key={option}
             className={'time-picker__dropdown-item'}
             onClick={() => handleInputChange(option)}
+            ref={isScrollTarget ? beginningOptionRef : null}
           >
             <Tooltip template={<TextTooltipTemplate text={option} />}>
               <span>{option}</span>
@@ -51,7 +56,7 @@ function TimePickerOptions({ handleInputChange = () => {} }) {
           </div>
         )
       })}
-    </div>
+    </>
   )
 }
 
