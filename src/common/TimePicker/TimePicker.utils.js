@@ -19,8 +19,10 @@ such restriction.
 */
 import moment from 'moment'
 
+import { getSupportedLocale } from 'igz-controls/utils/datetime.util'
+
 export function is12HourFormat() {
-  const locale = navigator.language
+  const locale = getSupportedLocale()
   const options = new Intl.DateTimeFormat(locale, {
     hour: 'numeric'
   }).resolvedOptions()

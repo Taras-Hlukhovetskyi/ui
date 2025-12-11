@@ -20,7 +20,7 @@ such restriction.
 import { trim } from 'lodash'
 
 import { ANY_TIME, DATE_FILTER_ANY_TIME } from '../constants'
-import { formatDatetime } from 'igz-controls/utils/datetime.util'
+import { formatDatetime, getSupportedLocale } from 'igz-controls/utils/datetime.util'
 
 export const datesDivider = ' - '
 
@@ -292,7 +292,7 @@ export const generateCalendar = (date, startWeek) => {
 }
 
 export const getDatePipe = () => {
-  const formatter = new Intl.DateTimeFormat(navigator.language, {
+  const formatter = new Intl.DateTimeFormat(getSupportedLocale(), {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
