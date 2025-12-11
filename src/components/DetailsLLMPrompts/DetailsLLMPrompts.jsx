@@ -27,7 +27,11 @@ import { Loader, TextTooltipTemplate, Tooltip } from 'igz-controls/components'
 import NoData from '../../common/NoData/NoData'
 
 import { fetchLLMPromptArtifacts, removeDetailsLLMPrompts } from '../../reducers/detailsReducer'
-import { generateLLMPromptsTabContent, LLM_PROMPTS_DISPLAY_LIMIT, navigateToLLMPromptsPage } from './detailsLLMPrompts.util'
+import {
+  generateLLMPromptsTabContent,
+  LLM_PROMPTS_DISPLAY_LIMIT,
+  navigateToLLMPromptsPage
+} from './detailsLLMPrompts.util'
 import { REQUEST_CANCELED } from '../../constants'
 
 import ExclamationMarkIcon from 'igz-controls/images/exclamation-mark.svg?react'
