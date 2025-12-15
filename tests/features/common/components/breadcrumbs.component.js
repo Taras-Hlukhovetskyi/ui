@@ -18,7 +18,7 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import { By } from 'selenium-webdriver'
-import inputWithAutocomplete from './input-with-autocomplete.component'
+import inputWithAutocomplete from './input-with-autocomplete.component.js'
 
 export default {
   root: By.css('nav.breadcrumbs'),

@@ -21,7 +21,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
-import { groupBy, uniqBy } from 'lodash'
+import { groupBy, uniqBy } from 'lodash-es'
 
 import CreateFeatureVectorPopUp from '../CreateFeatureVectorPopUp/CreateFeatureVectorPopUp'
 import Select from '../../common/Select/Select'

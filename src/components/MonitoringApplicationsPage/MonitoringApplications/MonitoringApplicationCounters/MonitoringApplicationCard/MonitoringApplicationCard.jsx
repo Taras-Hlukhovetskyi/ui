@@ -19,7 +19,7 @@ such restriction.
 */
 import React from 'react'
 import PropTypes from 'prop-types'
-import { isNil } from 'lodash'
+import { isNil } from 'lodash-es'
 
 import StatsCard from '../../../../../common/StatsCard/StatsCard'
 import { Tooltip, TextTooltipTemplate, Loader } from 'igz-controls/components'

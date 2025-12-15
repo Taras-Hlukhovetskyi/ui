@@ -20,7 +20,7 @@ such restriction.
 import PropTypes from 'prop-types'
 import React, { useEffect, useMemo, useState } from 'react'
 import classnames from 'classnames'
-import { isPlainObject } from 'lodash'
+import { isPlainObject } from 'lodash-es'
 
 import {
   FormCheckBox,

@@ -17,10 +17,10 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-const axios = require('axios')
-const fs = require('fs-extra')
-const yaml = require('js-yaml')
-const lodash = require('lodash')
+import axios from 'axios'
+import fs from 'fs-extra'
+import yaml from 'js-yaml'
+import lodash from 'lodash-es'
 
 const baseMlRunUrl =
   'http://mlrun-api-ingress.dashboard.default-tenant.app.dev35.lab.iguazeng.com/api/'

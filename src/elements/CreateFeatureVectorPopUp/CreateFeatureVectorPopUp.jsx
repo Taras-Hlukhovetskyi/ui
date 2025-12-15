@@ -22,7 +22,7 @@ import PropTypes from 'prop-types'
 import arrayMutators from 'final-form-arrays'
 import { Form } from 'react-final-form'
 import { createForm } from 'final-form'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 import { useSelector } from 'react-redux'
 
 import {

@@ -19,7 +19,7 @@ such restriction.
 */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import FunctionsViewOld from './FunctionsViewOld'

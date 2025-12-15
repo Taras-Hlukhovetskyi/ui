@@ -20,7 +20,7 @@ such restriction.
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { debounce, isEmpty } from 'lodash'
+import { debounce, isEmpty } from 'lodash-es'
 import { createForm } from 'final-form'
 import { Form } from 'react-final-form'
 import classNames from 'classnames'

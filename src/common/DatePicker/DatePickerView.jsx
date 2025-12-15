@@ -20,7 +20,7 @@ such restriction.
 import React from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 
 import TimePicker from '../TimePicker/TimePicker'
 import {

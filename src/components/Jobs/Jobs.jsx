@@ -20,7 +20,7 @@ such restriction.
 import React, { useEffect, useState, useMemo, useLayoutEffect, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate, useParams, Outlet, useLocation } from 'react-router-dom'
-import { defaultsDeep, isEmpty } from 'lodash'
+import { defaultsDeep, isEmpty } from 'lodash-es'
 
 import Breadcrumbs from '../../common/Breadcrumbs/Breadcrumbs'
 import ContentMenu from '../../elements/ContentMenu/ContentMenu'

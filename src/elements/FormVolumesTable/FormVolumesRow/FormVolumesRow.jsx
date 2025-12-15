@@ -20,7 +20,7 @@ such restriction.
 import React, { useCallback, useLayoutEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
-import { isEmpty, pick } from 'lodash'
+import { isEmpty, pick } from 'lodash-es'
 import { useParams } from 'react-router-dom'
 
 import {

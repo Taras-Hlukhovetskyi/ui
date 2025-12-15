@@ -17,10 +17,10 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { mainHttpClient } from '../../../../src/httpClient'
+import { mainHttpClient } from '../../../testsHttpClient.js'
 import { expect } from 'chai'
 import { v4 as uuidv4 } from 'uuid'
-import { TAG_LATEST } from '../../../../src/constants'
+import { TAG_LATEST } from '../../../../src/constants.js'
 
 const REACT_APP_MLRUN_API_URL = 'http://localhost:3000/api/v1'
 const REACT_APP_MLRUN_API_URL_V2 = 'http://localhost:3000/api/v2'

@@ -19,7 +19,7 @@ such restriction.
 */
 import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { isEqual, pickBy } from 'lodash'
+import { isEqual, pickBy } from 'lodash-es'
 import { useSelector } from 'react-redux'
 import { useForm } from 'react-final-form'
 

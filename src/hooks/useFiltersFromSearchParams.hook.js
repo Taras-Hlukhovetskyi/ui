@@ -18,7 +18,7 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import { useMemo } from 'react'
-import { mapValues, isNil, pickBy } from 'lodash'
+import { mapValues, isNil, pickBy } from 'lodash-es'
 import {
   DATES_FILTER,
   ITERATIONS_FILTER,

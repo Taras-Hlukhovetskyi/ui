@@ -18,7 +18,7 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import { useEffect } from 'react'
-import { isEmpty, get } from 'lodash'
+import { isEmpty, get } from 'lodash-es'
 import { useParams } from 'react-router-dom'
 
 import { arePodsHidden } from '../components/Jobs/jobs.util'

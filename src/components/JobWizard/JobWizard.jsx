@@ -23,7 +23,7 @@ import arrayMutators from 'final-form-arrays'
 import { Form } from 'react-final-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { createForm } from 'final-form'
-import { isEmpty, get } from 'lodash'
+import { isEmpty, get } from 'lodash-es'
 import { useNavigate } from 'react-router-dom'
 
 import FormDirtySpy from '../../common/FormDirtySpy/FormDirtySpy'

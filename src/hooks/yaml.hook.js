@@ -19,7 +19,7 @@ such restriction.
 */
 import yaml from 'js-yaml'
 import { useCallback, useState } from 'react'
-import { set, cloneDeep, omit } from 'lodash'
+import { set, cloneDeep, omit } from 'lodash-es'
 
 export const useYaml = initialState => {
   const [yamlContent, setYamlContent] = useState(initialState)

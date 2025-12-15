@@ -22,7 +22,7 @@ import PropTypes from 'prop-types'
 import { Form } from 'react-final-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { createForm } from 'final-form'
-import { differenceWith, isEmpty, isEqual } from 'lodash'
+import { differenceWith, isEmpty, isEqual } from 'lodash-es'
 import { useParams } from 'react-router-dom'
 import arrayMutators from 'final-form-arrays'
 

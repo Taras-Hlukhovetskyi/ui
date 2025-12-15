@@ -35,7 +35,7 @@ import {
 } from '../../../constants'
 import { generateTypeFilter, jobsStatuses } from '../../FilterMenu/filterMenu.settings'
 import { generateProjectsList } from '../../../utils/projects'
-import { upperFirst } from 'lodash'
+import { upperFirst } from 'lodash-es'
 
 const JobsMonitoringFilters = () => {
   const form = useForm()

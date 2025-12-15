@@ -18,7 +18,7 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import { When, Then } from '@cucumber/cucumber'
-import pageObjects from '../common/page-objects'
+import pageObjects from '../common/page-objects.js'
 import {
   clickNearComponent,
   clickOnComponent,
@@ -36,7 +36,7 @@ import {
   waitPageLoad,
   waiteUntilComponent,
   checkComponentHintTextWithHover
-} from '../common/actions/common.action'
+} from '../common/actions/common.action.js'
 import {
   checkCellHintText,
   findRowIndexesByColumnTooltipsValue,
@@ -56,24 +56,24 @@ import {
   isDatetimeCelsValueInRange,
   isNotContainsValueInColumn,
   putToTestContextCellParameters
-} from '../common/actions/table.action'
+} from '../common/actions/table.action.js'
 import {
   checkActionMenuOptions,
   openActionMenu,
   verifyOptionInActionMenuEnabled,
   verifyOptionInActionMenuDisabled,
   selectOptionInActionMenu
-} from '../common/actions/action-menu.action'
-import { typeValue } from '../common/actions/input-group.action'
+} from '../common/actions/action-menu.action.js'
+import { typeValue } from '../common/actions/input-group.action.js'
 import {
   checkDropdownSelectedOption,
   openDropdown,
   selectOptionInDropdownWithoutCheck,
   selectOptionInDropdown
-} from '../common/actions/dropdown.action'
-import pageObjectsConsts from '../common-tools/common-consts'
+} from '../common/actions/dropdown.action.js'
+import pageObjectsConsts from '../common-tools/common-consts.js'
 import { expect } from 'chai'
-import { isRowActive } from '../common/actions/tab-selector.action'
+import { isRowActive } from '../common/actions/tab-selector.action.js'
 
 Then(
   'check {string} value in {string} column in {string} table on {string} wizard',

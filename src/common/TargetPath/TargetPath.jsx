@@ -19,7 +19,7 @@ such restriction.
 */
 import React, { useState, useEffect, useCallback } from 'react'
 import { useDispatch } from 'react-redux'
-import { get, isNil } from 'lodash'
+import { get, isNil } from 'lodash-es'
 import PropTypes from 'prop-types'
 
 import { FormCombobox, FormOnChange } from 'igz-controls/components'

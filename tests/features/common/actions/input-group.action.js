@@ -19,7 +19,7 @@ such restriction.
 */
 import { expect } from 'chai'
 import { Key } from 'selenium-webdriver'
-import { parseString } from '../../common-tools/common-tools'
+import { parseString } from '../../common-tools/common-tools.js'
 
 async function verifyFormInputInvalid(driver, inputGroup) {
   const inputField = await driver.findElement(inputGroup.root)
