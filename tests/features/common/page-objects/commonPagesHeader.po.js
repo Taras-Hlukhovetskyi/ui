@@ -19,8 +19,8 @@ such restriction.
 */
 import { By } from 'selenium-webdriver'
 
-import breadcrumbsComponent from '../components/breadcrumbs.component'
-import commonTable from '../components/table.component'
+import breadcrumbsComponent from '../components/breadcrumbs.component.js'
+import commonTable from '../components/table.component.js'
 
 const generalInfoQuickLinks = {
   root: '.navbar .navbar__body .navbar-links',

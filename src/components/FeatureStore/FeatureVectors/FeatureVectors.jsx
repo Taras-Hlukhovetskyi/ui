@@ -20,7 +20,7 @@ such restriction.
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { cloneDeep, isEmpty } from 'lodash'
+import { cloneDeep, isEmpty } from 'lodash-es'
 
 import FeatureVectorsView from './FeatureVectorsView'
 import { FeatureStoreContext } from '../FeatureStore'

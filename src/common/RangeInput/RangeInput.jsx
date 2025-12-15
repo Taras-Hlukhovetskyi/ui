@@ -20,7 +20,7 @@ such restriction.
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
-import { isNil } from 'lodash'
+import { isNil } from 'lodash-es'
 
 import Input from '../Input/Input'
 import { Tooltip, TextTooltipTemplate } from 'igz-controls/components'

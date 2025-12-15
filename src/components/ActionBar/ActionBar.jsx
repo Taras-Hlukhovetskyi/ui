@@ -24,7 +24,7 @@ import classnames from 'classnames'
 import { Field } from 'react-final-form'
 import { Form } from 'react-final-form'
 import { createForm } from 'final-form'
-import { isEmpty, isEqual, isNil, mapValues, pickBy } from 'lodash'
+import { isEmpty, isEqual, isNil, mapValues, pickBy } from 'lodash-es'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 

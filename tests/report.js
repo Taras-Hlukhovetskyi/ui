@@ -17,9 +17,9 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-const reporter = require('cucumber-html-reporter')
-const os = require('os')
-const { browser, report } = require('./config')
+import * as reporter from 'cucumber-html-reporter'
+import * as os from 'os'
+import { browser, report } from './config.js'
 
 const options = {
   theme: 'bootstrap',
@@ -33,7 +33,7 @@ const options = {
     Platform: os.platform(),
     kernel: os.release(),
     arch: os.arch(),
-    browser: browser,
+    browser,
     'report generated': new Date().toISOString()
   }
 }

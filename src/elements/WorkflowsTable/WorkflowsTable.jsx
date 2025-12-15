@@ -21,7 +21,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import PropTypes from 'prop-types'
-import { find, isEmpty } from 'lodash'
+import { find, isEmpty } from 'lodash-es'
 
 import JobWizard from '../../components/JobWizard/JobWizard'
 import JobsTableRow from '../JobsTableRow/JobsTableRow'

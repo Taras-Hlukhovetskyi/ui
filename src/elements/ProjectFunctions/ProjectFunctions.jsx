@@ -21,7 +21,7 @@ import React, { useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import classnames from 'classnames'
-import { lowerCase, upperFirst } from 'lodash'
+import { lowerCase, upperFirst } from 'lodash-es'
 import { useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 

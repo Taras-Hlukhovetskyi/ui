@@ -20,7 +20,7 @@ such restriction.
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 
 import NoData from '../../common/NoData/NoData'
 import ProjectStatistics from '../ProjectStatistics/ProjectStatistics'

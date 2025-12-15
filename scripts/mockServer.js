@@ -22,6 +22,8 @@ such restriction.
 // const fs = require('fs')
 
 // Do this as the first thing so that any code reading it knows the right env.
+import { execSync } from 'child_process'
+
 process.env.BABEL_ENV = 'test'
 process.env.NODE_ENV = 'test'
 
@@ -32,14 +34,8 @@ process.on('unhandledRejection', err => {
   throw err
 })
 
-// Ensure environment variables are read.
-require('../config/env')
-
-const execSync = require('child_process').execSync
-// const argv = process.argv.slice(2)
-
 // build cucumber executive command
-const mockServer = 'node --require @babel/register tests/mockServer/mock.js'
+const mockServer = 'node tests/mockServer/mock.js'
 
 function runCrossPlatform() {
   try {
@@ -50,5 +46,4 @@ function runCrossPlatform() {
   }
 }
 
-// cucumber
 runCrossPlatform()

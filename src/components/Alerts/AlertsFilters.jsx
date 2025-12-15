@@ -22,7 +22,7 @@ import { useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 import { useForm, useFormState } from 'react-final-form'
-import { upperFirst } from 'lodash'
+import { upperFirst } from 'lodash-es'
 
 import MultiSelectFilter from '../../common/MultiSelectFilter/MultiSelectFilter'
 import { FormSelect, FormInput, FormOnChange } from 'igz-controls/components'

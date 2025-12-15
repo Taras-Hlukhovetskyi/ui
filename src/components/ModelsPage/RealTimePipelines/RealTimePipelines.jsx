@@ -21,7 +21,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import classnames from 'classnames'
-import { isNil } from 'lodash'
+import { isNil } from 'lodash-es'
 
 import ActionBar from '../../ActionBar/ActionBar'
 import ModelsPageTabs from '../ModelsPageTabs/ModelsPageTabs'

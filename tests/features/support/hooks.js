@@ -19,8 +19,8 @@ such restriction.
 */
 import { Before, After, Status } from '@cucumber/cucumber'
 import wd from 'selenium-webdriver'
-import { browser } from '../../config'
-import { clearBackendAfterTest, setRequestsFailureCondition } from '../common-tools/common-tools'
+import { browser } from '../../config.js'
+import { clearBackendAfterTest, setRequestsFailureCondition } from '../common-tools/common-tools.js'
 
 Before(async function () {
   await this.driver.manage().window()

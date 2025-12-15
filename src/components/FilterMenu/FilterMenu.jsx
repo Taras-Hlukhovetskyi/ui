@@ -21,7 +21,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } fro
 import PropTypes from 'prop-types'
 import { useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { cloneDeep, isEqual } from 'lodash'
+import { cloneDeep, isEqual } from 'lodash-es'
 
 import CheckBox from '../../common/CheckBox/CheckBox'
 import DatePicker from '../../common/DatePicker/DatePicker'

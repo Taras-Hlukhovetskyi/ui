@@ -21,7 +21,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import MaskedInput from 'react-text-mask'
 import classnames from 'classnames'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 
 import TimePicker from '../TimePicker/TimePicker'
 import {

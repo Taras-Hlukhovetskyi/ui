@@ -18,10 +18,10 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import seleniumWebdriver from 'selenium-webdriver'
-import chrome from 'selenium-webdriver/chrome'
-import firefox from 'selenium-webdriver/firefox'
+import chrome from 'selenium-webdriver/chrome.js'
+import firefox from 'selenium-webdriver/firefox.js'
 import { setWorldConstructor, setDefaultTimeout } from '@cucumber/cucumber'
-import { timeout, browser, headless, screen_size } from '../../config'
+import { timeout, browser, headless, screen_size } from '../../config.js'
 
 import 'chromedriver'
 import 'geckodriver'

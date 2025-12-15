@@ -21,7 +21,7 @@ import React, { useState, useRef, useEffect, useCallback, useMemo, useLayoutEffe
 import PropTypes from 'prop-types'
 import { Field, useField } from 'react-final-form'
 import { useSelector } from 'react-redux'
-import { isEqual, uniq } from 'lodash'
+import { isEqual, uniq } from 'lodash-es'
 import classnames from 'classnames'
 
 import { PopUpDialog, Tooltip, TextTooltipTemplate } from 'igz-controls/components'

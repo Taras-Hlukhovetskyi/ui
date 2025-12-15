@@ -18,11 +18,11 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 
-const fs = require('fs')
-const path = require('path')
-const crypto = require('node:crypto')
-const chalk = require('react-dev-utils/chalk')
-const paths = require('./paths')
+import fs from 'fs'
+import path from 'path'
+import crypto from 'node:crypto'
+import chalk from 'react-dev-utils/chalk'
+import paths from './paths.js'
 
 // Ensure the certificate and key provided are valid and if not
 // throw an easy to debug error
@@ -57,7 +57,7 @@ function readEnvFile(file, type) {
 
 // Get the https config
 // Return cert files if provided in env, otherwise just true or false
-function getHttpsConfig() {
+export default function getHttpsConfig() {
   const { SSL_CRT_FILE, SSL_KEY_FILE, HTTPS } = process.env
   const isHttps = HTTPS === 'true'
 
@@ -74,5 +74,3 @@ function getHttpsConfig() {
   }
   return isHttps
 }
-
-module.exports = getHttpsConfig

@@ -20,7 +20,7 @@ such restriction.
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
-import { groupBy, forEach, isEmpty, map, concat, mapValues } from 'lodash'
+import { groupBy, forEach, isEmpty, map, concat, mapValues } from 'lodash-es'
 import { Link, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 

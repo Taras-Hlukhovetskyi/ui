@@ -22,7 +22,7 @@ import PropTypes from 'prop-types'
 
 import VolumesTableView from './VolumesTableView'
 import { CONFIG_MAP, PVC, SECRET, V3IO } from './volumesTable.util'
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import { isCommunityEdition } from '../../utils/helper'
 
 import Edit from 'igz-controls/images/edit.svg?react'

@@ -20,7 +20,7 @@ such restriction.
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
-import { includes, isEmpty, intersection, isBoolean, pickBy, keys, uniqBy, cloneDeep } from 'lodash'
+import { includes, isEmpty, intersection, isBoolean, pickBy, keys, uniqBy, cloneDeep } from 'lodash-es'
 
 import ContentMenu from '../../../../elements/ContentMenu/ContentMenu'
 import FilterMenuModal from '../../../FilterMenuModal/FilterMenuModal'

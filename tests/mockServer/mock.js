@@ -43,44 +43,44 @@ import {
   random,
   remove,
   set
-} from 'lodash'
+} from 'lodash-es'
 import mime from 'mime-types'
 import moment from 'moment'
 
-import alerts from './data/alerts.json'
-import frontendSpec from './data/frontendSpec.json'
-import projects from './data/projects.json'
-import projectsSummary from './data/summary.json'
-import monitoringApplications from './data/monitoringApplications.json'
-import monitoringApplicationsSummary from './data/monitoringApplicationsSummary.json'
-import artifacts from './data/artifacts.json'
-import featureSets from './data/featureSets.json'
-import features from './data/features.json'
-import entities from './data/entities.json'
-import featureVectors from './data/featureVectors.json'
-import runs from './data/runs.json'
-import run from './data/run.json'
-import itemsCatalog from './data/itemsCatalog.json'
-import pipelines from './data/pipelines.json'
-import secretKeys from './data/secretKeys.json'
-import pipelineIDs from './data/piplineIDs.json'
-import schedules from './data/schedules.json'
-import funcs from './data/funcs.json'
-import logs from './data/logs.json'
-import modelEndpoints from './data/modelEndpoints.json'
-import metricsData from './data/metrics.json'
+import alerts from './data/alerts.json' with { type: 'json' }
+import frontendSpec from './data/frontendSpec.json' with { type: 'json' }
+import projects from './data/projects.json' with { type: 'json' }
+import projectsSummary from './data/summary.json' with { type: 'json' }
+import monitoringApplications from './data/monitoringApplications.json' with { type: 'json' }
+import monitoringApplicationsSummary from './data/monitoringApplicationsSummary.json' with { type: 'json' }
+import artifacts from './data/artifacts.json' with { type: 'json' }
+import featureSets from './data/featureSets.json' with { type: 'json' }
+import features from './data/features.json' with { type: 'json' }
+import entities from './data/entities.json' with { type: 'json' }
+import featureVectors from './data/featureVectors.json' with { type: 'json' }
+import runs from './data/runs.json' with { type: 'json' }
+import run from './data/run.json' with { type: 'json' }
+import itemsCatalog from './data/itemsCatalog.json' with { type: 'json' }
+import pipelines from './data/pipelines.json' with { type: 'json' }
+import secretKeys from './data/secretKeys.json' with { type: 'json' }
+import pipelineIDs from './data/piplineIDs.json' with { type: 'json' }
+import schedules from './data/schedules.json' with { type: 'json' }
+import funcs from './data/funcs.json' with { type: 'json' }
+import logs from './data/logs.json' with { type: 'json' }
+import modelEndpoints from './data/modelEndpoints.json' with { type: 'json' }
+import metricsData from './data/metrics.json' with { type: 'json' }
 
-import iguazioProjects from './data/iguazioProjects.json'
-import iguazioUserGrops from './data/iguazioUserGroups.json'
-import iguazioProjectAuthorizationRoles from './data/iguazioProjectAuthorizationRoles.json'
-import iguazioUsers from './data/iguazioUsers.json'
-import iguazioSelf from './data/iguazioSelf.json'
-import iguazioUserRelations from './data/iguazioUserRelations.json'
-import iguazioProjectsRelations from './data/iguazioProjectsRelations.json'
+import iguazioProjects from './data/iguazioProjects.json' with { type: 'json' }
+import iguazioUserGrops from './data/iguazioUserGroups.json' with { type: 'json' }
+import iguazioProjectAuthorizationRoles from './data/iguazioProjectAuthorizationRoles.json' with { type: 'json' }
+import iguazioUsers from './data/iguazioUsers.json' with { type: 'json' }
+import iguazioSelf from './data/iguazioSelf.json' with { type: 'json' }
+import iguazioUserRelations from './data/iguazioUserRelations.json' with { type: 'json' }
+import iguazioProjectsRelations from './data/iguazioProjectsRelations.json' with { type: 'json' }
 
-import nuclioFunctions from './data/nuclioFunctions.json'
-import nuclioAPIGateways from './data/nuclioAPIGateways.json'
-import nuclioStreams from './data/nuclioStreams.json'
+import nuclioFunctions from './data/nuclioFunctions.json' with { type: 'json' }
+import nuclioAPIGateways from './data/nuclioAPIGateways.json' with { type: 'json' }
+import nuclioStreams from './data/nuclioStreams.json' with { type: 'json' }
 import {
   updateRuns,
   updatePipelines,

@@ -3,6 +3,7 @@
   "version": "1.10.0",
   "private": true,
   "homepage": "/mlrun",
+  "type": "module",
   "dependencies": {
     "@dagrejs/dagre": "^1.1.5",
     "@monaco-editor/react": "^4.7.0",
@@ -25,7 +26,7 @@
     "is-wsl": "^1.1.0",
     "js-base64": "^2.6.4",
     "js-yaml": "^4.1.0",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "moment": "^2.30.1",
     "pretty-bytes": "^6.1.1",
     "prismjs": "^1.29.0",
@@ -80,13 +81,6 @@
     "nui": "npm unlink iguazio.dashboard-react-controls"
   },
   "devDependencies": {
-    "@babel/core": "^7.16.0",
-    "@babel/eslint-parser": "^7.24.1",
-    "@babel/node": "^7.14.9",
-    "@babel/plugin-proposal-logical-assignment-operators": "^7.12.1",
-    "@babel/polyfill": "^7.12.1",
-    "@babel/preset-env": "^7.13.12",
-    "@babel/register": "^7.13.14",
     "@cucumber/cucumber": "^10.3.1",
     "@d4c/numjs": "^0.17.34",
     "@eslint/js": "^9.19.0",
@@ -101,15 +95,6 @@
     "@vitejs/plugin-react": "^4.3.4",
     "@vitejs/plugin-react-swc": "^3.8.0",
     "acorn": "^7.4.1",
-    "babel-jest": "^29.7.0",
-    "babel-loader": "^8.2.3",
-    "babel-node": "0.0.1-security",
-    "babel-plugin-inline-react-svg": "^2.0.1",
-    "babel-plugin-jest-hoist": "^26.2.0",
-    "babel-plugin-named-asset-import": "^0.3.8",
-    "babel-plugin-prismjs": "^2.1.0",
-    "babel-plugin-react-remove-properties": "^0.3.0",
-    "babel-preset-react-app": "^10.0.1",
     "babel-runtime": "^6.26.0",
     "body-parser": "^1.19.0",
     "chai": "^4.3.4",
@@ -132,7 +117,7 @@
     "http-proxy-middleware": "^2.0.3",
     "jsdom": "^27.2.0",
     "mime-types": "^2.1.35",
-    "node": "^21.6.2",
+    "node": "^24.12.0",
     "nodemon": "^3.1.2",
     "pandas-js": "^0.2.4",
     "postcss": "^8.4.36",
@@ -154,24 +139,9 @@
     "stylelint-order": "^4.0.0",
     "stylelint-scss": "^3.17.2",
     "url-loader": "4.1.1",
-    "vite": "^6.2.0",
-    "vite-plugin-commonjs": "^0.10.4",
+    "vite": "^7.2.4",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-svgr": "^4.3.0",
     "vitest": "^4.0.10"
-  },
-  "babel": {
-    "plugins": [
-      "@babel/plugin-proposal-logical-assignment-operators"
-    ],
-    "presets": [
-      [
-        "@babel/preset-env",
-        {
-          "useBuiltIns": "usage",
-          "corejs": "^3.23.3"
-        }
-      ]
-    ]
   }
 }

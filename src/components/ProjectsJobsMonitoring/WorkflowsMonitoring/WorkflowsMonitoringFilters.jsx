@@ -19,7 +19,7 @@ such restriction.
 */
 import React, { useMemo } from 'react'
 import { useForm } from 'react-final-form'
-import { upperFirst } from 'lodash'
+import { upperFirst } from 'lodash-es'
 import { useSelector } from 'react-redux'
 
 import { FormInput, FormOnChange, FormSelect } from 'igz-controls/components'

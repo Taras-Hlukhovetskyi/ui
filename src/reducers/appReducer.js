@@ -22,7 +22,7 @@ import appApi from '../api/app-api'
 import { openPopUp } from 'igz-controls/utils/common.util'
 import { ConfirmDialog } from 'igz-controls/components'
 import { GATEWAY_TIMEOUT_STATUS_CODE } from 'igz-controls/constants'
-import { cloneDeep, isEmpty, isEqual, omit, set } from 'lodash'
+import { cloneDeep, isEmpty, isEqual, omit, set } from 'lodash-es'
 import yaml from 'js-yaml'
 
 import localStorageService from '../utils/localStorageService'

@@ -20,7 +20,7 @@ such restriction.
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
-import { isNil } from 'lodash'
+import { isNil } from 'lodash-es'
 import { useParams } from 'react-router-dom'
 
 import FunctionsPanelCodeView from './FunctionsPanelCodeView'

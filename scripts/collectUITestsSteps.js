@@ -17,10 +17,15 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-const fs = require('fs')
-const acorn = require('acorn')
+import fs from 'fs'
+import * as acorn from 'acorn'
 
 const testStepsFolder = './tests/features/step-definitions/'
+
+if (!fs.existsSync(testStepsFolder)) {
+  console.error(`Directory not found: ${testStepsFolder}`)
+  process.exit(1)
+}
 
 const fileArr = fs.readdirSync(testStepsFolder)
 

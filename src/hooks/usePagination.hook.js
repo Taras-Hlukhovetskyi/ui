@@ -19,7 +19,7 @@ such restriction.
 */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { chunk, debounce, isEqual, isNull } from 'lodash'
+import { chunk, debounce, isEqual, isNull } from 'lodash-es'
 import { useSelector } from 'react-redux'
 
 import {
