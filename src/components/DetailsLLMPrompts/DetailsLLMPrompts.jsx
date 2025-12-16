@@ -88,12 +88,12 @@ const DetailsLLMPrompts = ({ selectedItem, isDetailsPopUp = false }) => {
       {llmPromptsContent.length >= LLM_PROMPTS_DISPLAY_LIMIT && (
         <div className="alerts-container__content-info">
           <ExclamationMarkIcon />
-          <div>{`Only ${LLM_PROMPTS_DISPLAY_LIMIT} LLM Prompts are displayed. View all in`}</div>
+          <div>{`Displays only ${LLM_PROMPTS_DISPLAY_LIMIT} LLM prompts. View all prompts in the`}</div>
           <span
             className="link"
             onClick={() => navigateToLLMPromptsPage(navigate, params.projectName, selectedItem)}
           >
-            LLM Prompts screen
+            LLM prompts screen
           </span>
         </div>
       )}
