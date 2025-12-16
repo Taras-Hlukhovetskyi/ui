@@ -138,9 +138,9 @@ export function groupDataToBins(data, startTime, endTime) {
     const toDateObject = moment(to || from)
     const shortFormatOptions =
       basePeriod === MINUTES
-        ? { hour: '2-digit', minute: '2-digit', hour12: true }
+        ? { hour: '2-digit', minute: '2-digit' }
         : basePeriod === HOUR
-          ? { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true }
+          ? { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'}
           : { month: '2-digit', day: '2-digit', year: '2-digit' }
 
     if (!to) {

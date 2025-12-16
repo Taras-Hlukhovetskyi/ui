@@ -125,12 +125,12 @@ const DatePickerView = React.forwardRef(
             </>
           ) : (
             <>
-              <input
+              <Tooltip
                 className={inputClassNames}
-                disabled={disabled}
-                readOnly
-                value={valueDatePickerInput}
-              />
+                template={<TextTooltipTemplate text={valueDatePickerInput} />}
+              >
+                {valueDatePickerInput}
+              </Tooltip>
               {isValueEmpty && timeFrameLimit === Infinity && (
                 <span className="input__label input__label-empty">&nbsp;Any time</span>
               )}
