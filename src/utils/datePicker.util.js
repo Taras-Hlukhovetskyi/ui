@@ -227,7 +227,7 @@ const getDates = (setDate, isFutureTime, isRange) => {
 
   setDate(fromDate, toDate)
 
-  if (isFutureTime && isRange) return [null, fromDate]
+  if (isFutureTime && isRange) return [undefined, fromDate]
 
   return [fromDate]
 }
