@@ -85,7 +85,7 @@ jobs:
 
       - name: Pull, retag and push UI Docker image
         run: |
-          SOURCE_IMAGE="${{ secrets.ARTIFACTORY_URL }}${{ github.event.inputs.source_artifactory_docker_repo }}/mlrun/mlrun-ui:${{ github.event.inputs.version }}"
+          SOURCE_IMAGE="${{ secrets.ARTIFACTORY_URL }}/${{ github.event.inputs.source_artifactory_docker_repo }}/mlrun/mlrun-ui:${{ github.event.inputs.version }}"
           
           echo "Pulling image: $SOURCE_IMAGE"
           docker pull "$SOURCE_IMAGE"
