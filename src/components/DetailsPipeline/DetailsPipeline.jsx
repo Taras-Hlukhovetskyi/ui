@@ -20,37 +20,45 @@ such restriction.
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
-import { groupBy, forEach, isEmpty, map, concat, mapValues } from 'lodash'
+import { groupBy, forEach, isEmpty, map } from 'lodash'
 import { useSelector } from 'react-redux'
 
-import { Tooltip, TextTooltipTemplate, RoundedIcon, Loader } from 'igz-controls/components'
+import {
+  Tooltip,
+  TextTooltipTemplate,
+  RoundedIcon,
+  Loader,
+  CopyToClipboard
+} from 'igz-controls/components'
 import Accordion from '../../common/Accordion/Accordion'
 import ArtifactPopUp from '../../elements/DetailsPopUp/ArtifactPopUp/ArtifactPopUp'
 import CodeBlock from '../../common/CodeBlock/CodeBlock'
 import MlReactFlow from '../../common/ReactFlow/MlReactFlow'
 import ModelEndpointPopUp from '../../elements/DetailsPopUp/ModelEndpointPopUp/ModelEndpointPopUp'
 import NoData from '../../common/NoData/NoData'
+import { getStepDescriptionFields, getStepsNodeData } from './pipeline.utils'
+import { Position, ReactFlowProvider, useStoreApi } from 'reactflow'
 
 import {
   DEFAULT_EDGE,
-  FLOATING_EDGE,
-  GREY_NODE,
   ML_EDGE,
-  ML_MODEL_RUNNER_NODE,
-  ML_NODE,
-  MODEL_RUNNER_STEP_KIND,
-  PRIMARY_NODE,
-  ROUNDED_RECTANGLE_NODE_SHAPE,
-  SECONDARY_NODE
+  REAL_TIME_PIPELINES_TAB,
+  ERROR_STEP_KIND,
+  SMOOTH_STEP_EDGE,
+  PRIMARY_PIPELINE_NODE,
+  ML_SMART_STEP_EDGE
 } from '../../constants'
-import { getLayoutedElements } from '../../common/ReactFlow/mlReactFlow.util'
+import { fetchAndParseFunction } from '../ModelsPage/RealTimePipelines/realTimePipelines.util'
+import {
+  addVisualFramesForGroups,
+  getLayoutedElements
+} from '../../common/ReactFlow/mlReactFlow.util'
 import { openPopUp } from 'igz-controls/utils/common.util'
 import { parseUri } from '../../utils'
 import { useModelsPage } from '../ModelsPage/ModelsPage.context'
 
 import Arrow from 'igz-controls/images/arrow.svg?react'
 import CloseIcon from 'igz-controls/images/close.svg?react'
-import ConnectionIcon from 'igz-controls/images/connections-icon.svg?react'
 
 import './detailsPipeline.scss'
 
@@ -60,120 +68,77 @@ const DetailsPipeline = ({ selectedItem }) => {
   const [selectedStep, setSelectedStep] = useState({})
   const [selectedStepData, setSelectedStepData] = useState({})
   const [stepIsSelected, setStepIsSelected] = useState(false)
+  const [defaultErrorHandlerData, setDefaultErrorHandlerData] = useState(null)
+  const defaultErrorHandlerIdRef = React.useRef(null)
+  const params = useParams()
+  const dispatch = useDispatch()
   const functionsStore = useSelector(store => store.functionsStore)
   const { handleMonitoring, toggleConvertedYaml, frontendSpec } = useModelsPage()
+  const reactFlowStoreApi = useStoreApi()
+
+  useEffect(() => {
+    const selectedFunction = content.find(contentItem => contentItem.hash === params.pipelineId)
+
+    if (selectedFunction) {
+      fetchAndParseFunction(selectedFunction, dispatch).then(func => {
+        return setPipeline(func)
+      })
+    }
+  }, [content, dispatch, params.pipelineId])
 
   useEffect(() => {
     if (selectedStep.data) {
-      const selectedStepCustomData = selectedStep.data.customData
+      setSelectedStepData(getStepDescriptionFields(selectedStep, pipeline.graph))
+    }
 
-      setSelectedStepData({
-        general: [
-          {
-            label: 'Type:',
-            value: selectedStepCustomData.kind
-          },
-          {
-            label: 'Class name:',
-            value: selectedStepCustomData.class_name
-          },
-          {
-            label: 'Function name:',
-            value: selectedStepCustomData.function
-          },
-          {
-            label: 'Handler:',
-            value: selectedStepCustomData.handler,
-            hidden: selectedStepCustomData.kind === MODEL_RUNNER_STEP_KIND
-          },
-          {
-            label: 'Arguments:',
-            value: selectedStepCustomData.class_args,
-            type: 'codeblock'
-          },
-          {
-            label: 'Input path:',
-            value: selectedStepCustomData.input_path
-          },
-          {
-            label: 'Result path:',
-            value: selectedStepCustomData.result_path
-          }
-        ],
-        runningModels: mapValues(
-          selectedStepCustomData?.class_args?.monitoring_data ?? {},
-          (runningModelData, runningModelName) => {
-            return [
-              {
-                label: 'Model endpoint:',
-                value: runningModelData.model_endpoint_uid,
-                additionalData: {
-                  modelEndpointName: runningModelName
-                },
-                type: 'pop-up'
-              },
-              {
-                label: 'Model artifact:',
-                value: runningModelData.model_path,
-                type: 'pop-up'
-              },
-              {
-                label: 'Class name:',
-                value: runningModelData.model_class
-              },
-              {
-                label: 'Input path:',
-                value: runningModelData.input_path
-              },
-              {
-                label: 'Result path:',
-                value: runningModelData.result_path
-              },
-              {
-                label: 'Outputs:',
-                value: runningModelData.outputs.join(', ')
-              },
-              {
-                label: 'Execution mechanism:',
-                value:
-                  selectedStepCustomData?.class_args?.execution_mechanism_by_model_name?.[
-                    runningModelName
-                  ] ?? ''
-              }
-            ]
-          }
-        )
+    if (defaultErrorHandlerIdRef.current) {
+      const isDefaultErrorHandlerSelected = defaultErrorHandlerIdRef.current === selectedStep?.id
+
+      setDefaultErrorHandlerData(stepData => {
+        if (!stepData) return stepData
+
+        return {
+          ...stepData,
+          className: isDefaultErrorHandlerSelected ? 'selected' : ''
+        }
       })
     }
 
+    if (isEmpty(selectedStep) || defaultErrorHandlerIdRef.current === selectedStep?.id) {
+      reactFlowStoreApi.getState().unselectNodesAndEdges()
+    }
+
     setStepIsSelected(Boolean(selectedStep.id))
-  }, [selectedStep])
+  }, [pipeline.graph, reactFlowStoreApi, selectedStep])
 
   useEffect(() => {
     const graph = selectedItem?.graph
-    const steps = graph?.routes || graph?.steps
+    const steps = graph?.steps || []
 
-    if (steps) {
-      let mainRouterStepId = ''
+    if (steps && graph) {
       const newNodes = []
       const edgesMap = {}
-      const edgesRouterMap = []
+      const cyclicEdgesMap = {}
       const errorsMap = {}
+      const defaultErrorHandlerStepId = graph?.on_error
+      const nodesConnectionMap = {} // [after]: [step]
+
+      defaultErrorHandlerIdRef.current = defaultErrorHandlerStepId
 
       if (graph.kind === 'router') {
-        mainRouterStepId = graph.class_args?.name || 'router'
+        const nodeTypeData = getStepsNodeData(graph)
+        const mainRouterStepId = graph.class_args?.name || graph.name || 'Router'
 
         newNodes.push({
           id: mainRouterStepId,
-          type: ML_NODE,
+          type: nodeTypeData.nodeType,
           data: {
-            subType: PRIMARY_NODE,
-            label: graph.class_args?.name ?? '',
-            subLabel: '« router »',
+            ...nodeTypeData,
+            subType: PRIMARY_PIPELINE_NODE,
+            label: graph.class_args?.name ?? 'Router',
             isSelectable: true,
             customData: graph
           },
-          className: classnames(selectedStep.id === mainRouterStepId && 'selected'),
           position: { x: 0, y: 0 }
         })
       }
@@ -181,68 +146,72 @@ const DetailsPipeline = ({ selectedItem }) => {
       forEach(steps, (step, stepName) => {
         if (!step.kind) return
 
-        let nodeType = step.kind === MODEL_RUNNER_STEP_KIND ? ML_MODEL_RUNNER_NODE : ML_NODE
-        const subLabel =
-          step.kind === 'queue' ? '« queue »' : step.kind === 'router' ? '« router »' : ''
+        const stepData = { ...step, track_models: graph.track_models }
+        const nodeTypeData = getStepsNodeData(stepData)
 
-        newNodes.push({
-          id: stepName,
-          type: nodeType,
-          data: {
-            subType: PRIMARY_NODE,
+        if (step.kind === ERROR_STEP_KIND && stepName === defaultErrorHandlerStepId) {
+          return setDefaultErrorHandlerData({
+            ...nodeTypeData,
+            id: stepName,
+            subType: PRIMARY_PIPELINE_NODE,
             label: stepName,
-            subLabel: subLabel,
             isSelectable: true,
-            customData: { ...step, track_models: graph.track_models }
-          },
-          className: classnames(selectedStep.id === stepName && 'selected'),
-          position: { x: 0, y: 0 }
-        })
-
-        if (mainRouterStepId) {
-          edgesMap[stepName] = mainRouterStepId
-        }
-
-        if (step.after && Array.isArray(step.after) && step.after.length) {
-          edgesMap[stepName] = step.after[0]
-        }
-
-        if (step.on_error) {
-          errorsMap[stepName] = step.on_error
-        }
-
-        if (step.kind === 'router' && step.routes) {
-          forEach(step.routes, (routeInner, routeInnerName) => {
-            newNodes.push({
-              id: routeInnerName,
-              type: ML_NODE,
-              data: {
-                subType: SECONDARY_NODE,
-                label: routeInnerName,
-                isSelectable: true,
-                shape: ROUNDED_RECTANGLE_NODE_SHAPE,
-                withOpacity: true,
-                customData: routeInner
-              },
-              className: classnames(selectedStep.id === routeInnerName && 'selected'),
-              position: { x: 0, y: 0 }
-            })
-
-            edgesRouterMap.push([stepName, routeInnerName])
+            customData: stepData
           })
+        }
+
+        const newNode = {
+          id: stepName,
+          type: nodeTypeData.nodeType,
+          data: {
+            ...nodeTypeData,
+            subType: PRIMARY_PIPELINE_NODE,
+            label: stepName,
+            isSelectable: true,
+            customData: stepData
+          },
+          position: { x: 0, y: 0 },
+          sourcePosition: Position.Right,
+          targetPosition: Position.Left
+        }
+
+        newNodes.push(newNode)
+
+        if (stepData.after && Array.isArray(stepData.after) && stepData.after.length) {
+          if (stepData.cycle_from?.length) {
+            const [cycledFrom] = stepData.cycle_from
+            const filteredAfter = stepData.after.filter(stepName => stepName !== cycledFrom)
+            if (filteredAfter.length) {
+              edgesMap[stepName] = filteredAfter[0]
+              nodesConnectionMap[filteredAfter[0]] = nodesConnectionMap[filteredAfter[0]]
+                ? nodesConnectionMap[filteredAfter[0]].push?.(stepName)
+                : [stepName]
+            }
+          } else {
+            edgesMap[stepName] = stepData.after[0]
+            nodesConnectionMap[stepData.after[0]] = nodesConnectionMap[stepData.after[0]]
+              ? nodesConnectionMap[stepData.after[0]].push?.(stepName)
+              : [stepName]
+          }
+        }
+
+        if (stepData.on_error) {
+          errorsMap[stepName] = stepData.on_error
+        }
+
+        if (stepData.cycle_from?.length) {
+          cyclicEdgesMap[stepData.cycle_from[0]] = stepName
         }
       })
 
-      const nodesRouterEdges = map(edgesRouterMap, ([source, target]) => {
-        return {
-          type: ML_EDGE,
-          data: {
-            subType: FLOATING_EDGE,
-            isMarkerStart: true
-          },
-          id: `e.${source}.${target}`,
-          source: source,
-          target: target
+      newNodes.forEach(node => {
+        // hide right handle for nodes without connections
+        if (!(node.id in nodesConnectionMap)) {
+          node.data.isLastStep = true
+        }
+
+        if (node.id in cyclicEdgesMap) {
+          node.data.cycleTo = cyclicEdgesMap[node.id]
         }
       })
 
@@ -250,73 +219,87 @@ const DetailsPipeline = ({ selectedItem }) => {
         return {
           type: ML_EDGE,
           data: {
-            subType: DEFAULT_EDGE
-          },
-          id: `e.${source}.${target}`,
-          source: source,
-          target: target
-        }
-      })
-
-      const errorEdges = map(errorsMap, (target, source) => {
-        const errorHandlerElement = newNodes.find(node => node.id === target)
-        errorHandlerElement.data.subType = GREY_NODE
-
-        return {
-          type: ML_EDGE,
-          data: {
-            subType: DEFAULT_EDGE
+            subType: SMOOTH_STEP_EDGE,
+            isHorizontalFlow: true,
+            arrowHeadType: 'arrow'
           },
           id: `e.${source}.${target}`,
           source: source,
           target: target,
-          animated: true
+          sourceHandle: 'right',
+          targetHandle: 'left',
+          weight: 10
+        }
+      })
+
+      const errorEdges = map(errorsMap, (target, source) => {
+        return {
+          type: ML_EDGE,
+          data: {
+            subType: DEFAULT_EDGE,
+            arrowHeadType: ''
+          },
+          id: `e.${source}.${target}`,
+          source: source,
+          target: target,
+          sourceHandle: 'bottom-error-handler',
+          targetHandle: 'top-error-handler',
+          animated: true,
+          weight: 1
+        }
+      })
+
+      const cyclicEdges = map(cyclicEdgesMap, (target, source) => {
+        return {
+          type: ML_SMART_STEP_EDGE,
+          data: {
+            isBackward: true
+          },
+          id: `e.${source}.${target}`,
+          source: source,
+          target: target,
+          sourceHandle: 'top',
+          targetHandle: 'top',
+          weight: 1
         }
       })
 
       const groupedNodesEdges = groupBy(nodesEdges, 'source')
       const sortedNodesEdges = []
 
-      forEach(groupedNodesEdges, (edgesGroup, edgesSource) => {
-        const filteredRouterEdges = nodesRouterEdges.filter(routerEdge => {
-          return routerEdge.source === edgesSource || routerEdge.target === edgesSource
-        })
-
-        if (filteredRouterEdges.length > 1) {
-          const routerEdgesHalfLength = filteredRouterEdges.length / 2
-          const routerEdgesFirstHalf = filteredRouterEdges.slice(0, routerEdgesHalfLength)
-          const routerEdgesSecondHalf = filteredRouterEdges.slice(routerEdgesHalfLength)
-          const mergedRouterEdges = [
-            ...routerEdgesFirstHalf,
-            ...edgesGroup,
-            ...routerEdgesSecondHalf
-          ]
-
-          sortedNodesEdges.push(...mergedRouterEdges)
-        } else {
-          sortedNodesEdges.push(...edgesGroup)
-        }
+      forEach(groupedNodesEdges, edgesGroup => {
+        sortedNodesEdges.push(...edgesGroup)
       })
 
       const [layoutedNodes, layoutedEdges] = getLayoutedElements(
         newNodes,
-        concat(sortedNodesEdges, errorEdges)
+        sortedNodesEdges,
+        'LR',
+        defaultErrorHandlerStepId,
+        errorEdges,
+        cyclicEdges,
+        true
       )
 
-      setNodes(layoutedNodes)
+      const groupedNodes = addVisualFramesForGroups(
+        layoutedNodes,
+        node => node.data?.customData?.function
+      )
+
+      setNodes(groupedNodes)
       setEdges(layoutedEdges)
     }
-  }, [selectedItem, selectedStep])
+  }, [selectedItem])
 
-  const openModelRunnerPopUp = modelRunnerRowData => {
-    if (modelRunnerRowData.value.startsWith('store://')) {
+  const openModelPopUp = rowData => {
+    if (rowData.value.startsWith('store://')) {
       openPopUp(ArtifactPopUp, {
-        artifactData: parseUri(modelRunnerRowData.value)
+        artifactData: parseUri(rowData.value)
       })
     } else {
       openPopUp(ModelEndpointPopUp, {
-        modelEndpointUid: modelRunnerRowData.value,
-        modelEndpointName: modelRunnerRowData.additionalData.modelEndpointName,
+        modelEndpointUid: rowData.value,
+        modelEndpointName: rowData.additionalData.modelEndpointName,
         frontendSpec,
         handleMonitoring,
         toggleConvertedYaml
@@ -339,23 +322,24 @@ const DetailsPipeline = ({ selectedItem }) => {
                   setSelectedStep(node)
                 }
               }}
+              defaultErrorHandlerData={defaultErrorHandlerData}
+              withBackground
+              withProvider={false}
             />
           </div>
           {stepIsSelected && (
             <div className="graph-pane">
               <div className="graph-pane-scroll-container">
                 <div className="graph-pane__title">
-                  {selectedStep.type === ML_MODEL_RUNNER_NODE && (
-                    <div className="graph-pane__title-icon">
-                      <ConnectionIcon />
-                    </div>
+                  {selectedStep.data?.badgeIcon && (
+                    <div className="graph-pane__title-icon">{selectedStep.data?.badgeIcon}</div>
                   )}
                   <Tooltip
                     className="graph-pane__title-label"
                     hidden={!selectedStep.id}
-                    template={<TextTooltipTemplate text={selectedStep.id} />}
+                    template={<TextTooltipTemplate text={selectedStep.id || ''} />}
                   >
-                    {selectedStep.id}
+                    {selectedStep.id || ''}
                   </Tooltip>
                   <RoundedIcon onClick={() => setSelectedStep({})} tooltipText="Close">
                     <CloseIcon />
@@ -378,31 +362,42 @@ const DetailsPipeline = ({ selectedItem }) => {
                             <CodeBlock codeData={rowData.value} />
                           ) : (
                             <div className="graph-pane__row-value">
-                              <Tooltip template={<TextTooltipTemplate text={rowData.value} />}>
-                                {rowData.value}
-                              </Tooltip>
+                              {rowData.type === 'copy' ? (
+                                <CopyToClipboard
+                                  className="graph-pane__row-value__copy-to-clipboard"
+                                  textToCopy={rowData.value}
+                                  tooltipText="Click to copy"
+                                >
+                                  {rowData.value}
+                                </CopyToClipboard>
+                              ) : (
+                                <Tooltip template={<TextTooltipTemplate text={rowData.value || ''} />}>
+                                  {rowData.value || ''}
+                                </Tooltip>
+                              )}
                             </div>
                           )}
                         </div>
                       )
                   )}
                 </div>
-                {Object.keys(selectedStepData.runningModels).length > 0 && (
+                {Object.keys(selectedStepData.subItemsData?.items).length > 0 && (
                   <div className="graph-pane__section">
                     <div className="graph-pane__section-title">
-                      Running models ({Object.keys(selectedStepData.runningModels).length})
+                      {selectedStepData.subItemsData.itemsTitle} (
+                      {Object.keys(selectedStepData.subItemsData.items).length})
                     </div>
-                    {Object.entries(selectedStepData.runningModels).map(
-                      ([modelRunnerName, modelRunnerData]) => (
+                    {Object.entries(selectedStepData.subItemsData?.items).map(
+                      ([itemName, itemData]) => (
                         <Accordion
-                          key={modelRunnerName}
+                          key={itemName}
                           accordionClassName="graph-pane__expand-item"
                           icon={<Arrow />}
                           iconClassName="graph-pane__expand-icon"
                         >
-                          <div className="graph-pane__expand-title">{modelRunnerName}</div>
+                          <div className="graph-pane__expand-title">{itemName}</div>
                           <div className="graph-pane__expand-content">
-                            {modelRunnerData.map(rowData => {
+                            {itemData.map(rowData => {
                               return (
                                 <div className="graph-pane__row" key={rowData.label}>
                                   <div className="graph-pane__row-label">{rowData.label}</div>
@@ -410,15 +405,15 @@ const DetailsPipeline = ({ selectedItem }) => {
                                     className="graph-pane__row-value"
                                     onClick={
                                       rowData.type === 'pop-up'
-                                        ? () => openModelRunnerPopUp(rowData)
+                                        ? () => openModelPopUp(rowData)
                                         : null
                                     }
                                   >
                                     <Tooltip
-                                      template={<TextTooltipTemplate text={rowData.value} />}
+                                      template={<TextTooltipTemplate text={rowData.value || ''} />}
                                       className={classnames({ link: rowData.type === 'pop-up' })}
                                     >
-                                      {rowData.value}
+                                      {rowData.value || ''}
                                     </Tooltip>
                                   </div>
                                 </div>
@@ -447,4 +442,13 @@ DetailsPipeline.propTypes = {
   selectedItem: PropTypes.object.isRequired
 }
 
-export default React.memo(DetailsPipeline)
+// wrapped in provider to have access to react flow context in pipeline component
+const PipelineWrapper = props => {
+  return (
+    <ReactFlowProvider>
+      <DetailsPipeline {...props} />
+    </ReactFlowProvider>
+  )
+}
+
+export default React.memo(PipelineWrapper)

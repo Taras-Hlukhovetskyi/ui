@@ -292,6 +292,10 @@ export const FUNCTION_FILTERS = 'FUNCTION_FILTERS'
 /*=========== PIPELINES =============*/
 
 export const MODEL_RUNNER_STEP_KIND = 'model_runner'
+export const QUEUE_STEP_KIND = 'queue'
+export const ERROR_STEP_KIND = 'error_step'
+export const HUB_STEP_KIND = 'hub_task'
+export const ROUTER_STEP_KIND = 'router'
 
 /*=========== ARTIFACTS =============*/
 
@@ -436,11 +440,16 @@ export const PANEL_DEFAULT_ACCESS_KEY = '$generate'
 /*=========== ML REACT FLOW =============*/
 
 export const ML_NODE = 'ml-node'
-export const ML_MODEL_RUNNER_NODE = 'ml-model-runner-node'
+export const ML_NODE_WITH_SUB_ITEMS = 'ml-node-with-sub-items'
+export const ML_QUEUE_NODE = 'ml-queue-node'
+export const ML_COMMON_NODE = 'ml-common-node'
+export const ML_DEFAULT_ERROR_NODE = 'ml-default-error-node'
+export const ML_GROUP_NODE = 'ml-group-node'
 
 export const INPUT_NODE = 'input-node'
 export const OUTPUT_NODE = 'output-node'
 export const PRIMARY_NODE = 'primary-node'
+export const PRIMARY_PIPELINE_NODE = 'primary-pipeline-node'
 export const SECONDARY_NODE = 'secondary-node'
 export const GREY_NODE = 'grey-node'
 
@@ -448,6 +457,7 @@ export const OVAL_NODE_SHAPE = 'oval-shape'
 export const ROUNDED_RECTANGLE_NODE_SHAPE = 'rounded-rectangle-shape'
 
 export const ML_EDGE = 'ml-edge'
+export const ML_SMART_STEP_EDGE = 'ml-smart-step-edge'
 
 export const DEFAULT_EDGE = 'default-edge'
 export const FLOATING_EDGE = 'floating-edge'

@@ -22,6 +22,8 @@
         "description": "",
         "source": "",
         "graph": {
+          "max_iterations": 5,
+          "allow_cyclic": true,
           "steps": {
             "model-runner": {
               "class_args": {
@@ -57,9 +59,34 @@
                     "model_class": "MyLLM",
                     "model_endpoint_uid": "c3e9308aaab54e53b1013ecda9234e43"
                   },
-                  "my-endpoin2t": {
-                    "inputs": [ ],
-                    "outputs": [ ],
+                  "endpoint2": {
+                    "inputs": [],
+                    "outputs": [],
+                    "input_path": null,
+                    "result_path": null,
+                    "creation_strategy": "inplace",
+                    "labels": null,
+                    "model_path": "store://llm-prompts/default/my_llm4#0@9c0c8773-b1ce-4fa0-ac94-2f6c1fb71554^d28e010ba24e272a3ba2ba522f6caecde05ff383",
+                    "model_class": "MyLLM",
+                    "model_endpoint_uid": "a7c95783e6a726a1a233e581ea898ba33fa7e342"
+                  },
+                  "endpoint3": {
+                    "inputs": [],
+                    "outputs": [
+                      "output1",
+                      "output2"
+                    ],
+                    "input_path": "input_path",
+                    "result_path": "result_path",
+                    "creation_strategy": "inplace",
+                    "labels": null,
+                    "model_path": "store://llm-prompts/default/my_llm4#0@9c0c8773-b1ce-4fa0-ac94-2f6c1fb71554^d28e010ba24e272a3ba2ba522f6caecde05ff383",
+                    "model_class": "MyLLM",
+                    "model_endpoint_uid": "c3e9308aaab54e53b1013ecda9234e43"
+                  },
+                  "endpoint4": {
+                    "inputs": [],
+                    "outputs": [],
                     "input_path": null,
                     "result_path": null,
                     "creation_strategy": "inplace",
@@ -75,13 +102,365 @@
               "endpoint_type": 1,
               "model_endpoint_creation_strategy": "skip",
               "class_name": "mlrun.serving.ModelRunner",
+              "on_error": "model_runner_error_handler",
               "raise_exception": true,
               "_shared_proxy_mapping": {
                 "model-deployment": {
                   "my-endpoint": "store://llm-prompts/default/my_llm4#0:latest@9c0c8773-b1ce-4fa0-ac94-2f6c1fb71554^d28e010ba24e272a3ba2ba522f6caecde05ff383"
                 }
               },
-              "shape": "folder"
+              "shape": "folder",
+              "cycle_from": [
+                "route"
+              ]
+            },
+            "step-above-1": {
+              "model_endpoint_creation_strategy": "skip",
+              "after": [
+                "model-runner"
+              ],
+              "kind": "task",
+              "class_name": "LoopStep",
+              "endpoint_type": 1
+            },
+            "step-above-2": {
+              "model_endpoint_creation_strategy": "skip",
+              "after": [
+                "model-runner"
+              ],
+              "kind": "task",
+              "class_name": "LoopStep",
+              "endpoint_type": 1,
+              "function": "function-test"
+            },
+            "step1": {
+              "model_endpoint_creation_strategy": "skip",
+              "after": [
+                "model-runner"
+              ],
+              "kind": "task",
+              "class_name": "LoopStep",
+              "endpoint_type": 1,
+              "function": "function-test",
+              "cycle_from": [
+                "stream"
+              ]
+            },
+            "step-below-1": {
+              "model_endpoint_creation_strategy": "skip",
+              "after": [
+                "model-runner"
+              ],
+              "kind": "task",
+              "class_name": "LoopStep",
+              "endpoint_type": 1
+            },
+            "step2": {
+              "model_endpoint_creation_strategy": "skip",
+              "after": [
+                "step1"
+              ],
+              "kind": "task",
+              "class_name": "DecideNext",
+              "endpoint_type": 1,
+              "class_args": {
+                "limit": 5
+              },
+              "function": "function-test"
+            },
+            "stream": {
+              "after": [
+                "step2"
+              ],
+              "shards": 7,
+              "kind": "queue",
+              "path": "v3io:///projects/mronetttbl//out-stream",
+              "cycle_from": [
+                "exit"
+              ]
+            },
+            "route": {
+              "model_endpoint_creation_strategy": "skip",
+              "after": [
+                "stream"
+              ],
+              "kind": "task",
+              "class_name": "mlrun.serving.steps.ChoiceByField",
+              "endpoint_type": 1,
+              "class_args": {
+                "field_name": "_next"
+              }
+            },
+            "exit": {
+              "responder": true,
+              "model_endpoint_creation_strategy": "skip",
+              "after": [
+                "route"
+              ],
+              "kind": "task",
+              "endpoint_type": 1,
+              "handler": "exit_handler"
+            },
+            "choice": {
+              "model_endpoint_creation_strategy": "skip",
+              "endpoint_type": 1,
+              "class_name": "storey.Choice",
+              "class_args": {
+                "class_args": {
+                  "condition": "<function choice_condition at 0x7f738e77b600>",
+                  "true_event": "branch_a",
+                  "false_event": "branch_b"
+                }
+              },
+              "kind": "task"
+            },
+            "choice_by_field": {
+              "model_endpoint_creation_strategy": "skip",
+              "endpoint_type": 1,
+              "class_name": "storey.ChoiceByField",
+              "class_args": {
+                "after": "choice",
+                "class_args": {
+                  "field": "route",
+                  "cases": {
+                    "a": "branch_a",
+                    "b": "branch_b"
+                  }
+                }
+              },
+              "kind": "task"
+            },
+            "extend_step": {
+              "model_endpoint_creation_strategy": "skip",
+              "after": [
+                "choice_by_field"
+              ],
+              "endpoint_type": 1,
+              "class_name": "storey.Extend",
+              "class_args": {
+                "class_args": {
+                  "_fn": "<function extend_fn at 0x7f738e77b740>"
+                }
+              },
+              "kind": "task"
+            },
+            "flatmap_step": {
+              "model_endpoint_creation_strategy": "skip",
+              "after": [
+                "extend_step"
+              ],
+              "endpoint_type": 1,
+              "class_name": "storey.FlatMap",
+              "class_args": {
+                "class_args": {
+                  "_fn": "<function flatmap_fn at 0x7f738e77b7e0>"
+                }
+              },
+              "kind": "task"
+            },
+            "flatten_step": {
+              "model_endpoint_creation_strategy": "skip",
+              "after": [
+                "flatmap_step"
+              ],
+              "endpoint_type": 1,
+              "class_name": "storey.Flatten",
+              "kind": "task"
+            },
+            "map_with_state_step": {
+              "model_endpoint_creation_strategy": "skip",
+              "after": [
+                "flatten_step"
+              ],
+              "endpoint_type": 1,
+              "class_name": "storey.MapWithState",
+              "class_args": {
+                "class_args": {
+                  "state_class": "<class '__main__.StatefulCounter'>"
+                }
+              },
+              "kind": "task"
+            },
+            "batch_step": {
+              "model_endpoint_creation_strategy": "skip",
+              "after": [
+                "map_with_state_step"
+              ],
+              "endpoint_type": 1,
+              "class_name": "storey.Batch",
+              "class_args": {
+                "class_args": {
+                  "interval": "5s",
+                  "max_events": 10
+                }
+              },
+              "kind": "task"
+            },
+            "foreach_step": {
+              "model_endpoint_creation_strategy": "skip",
+              "after": [
+                "batch_step"
+              ],
+              "endpoint_type": 1,
+              "class_name": "storey.ForEach",
+              "kind": "task"
+            },
+            "filter_step": {
+              "model_endpoint_creation_strategy": "skip",
+              "after": [
+                "foreach_step"
+              ],
+              "endpoint_type": 1,
+              "class_name": "storey.Filter",
+              "class_args": {
+                "class_args": {
+                  "_fn": "<function filter_even_counter at 0x7f738e77b880>"
+                }
+              },
+              "kind": "task"
+            },
+            "sample_window_step": {
+              "model_endpoint_creation_strategy": "skip",
+              "on_error": "sample_window_error_handler",
+              "after": [
+                "filter_step"
+              ],
+              "endpoint_type": 1,
+              "class_name": "storey.SampleWindow",
+              "class_args": {
+                "class_args": {
+                  "size": 5
+                }
+              },
+              "kind": "task"
+            },
+            "remote_step": {
+              "model_endpoint_creation_strategy": "skip",
+              "on_error": "remote_step_error_handler",
+              "after": [],
+              "endpoint_type": 1,
+              "class_name": "mlrun.serving.RemoteHttpStep",
+              "class_args": {
+                "url": "https://httpbin.org/post",
+                "method": "POST"
+              },
+              "kind": "task"
+            },
+            "custom_step": {
+              "model_endpoint_creation_strategy": "skip",
+              "endpoint_type": 1,
+              "class_name": "CustomLogicStep",
+              "class_args": {
+                "factor": 10
+              },
+              "kind": "task"
+            },
+            "queue_step": {
+              "kind": "queue"
+            },
+            "final": {
+              "responder": true,
+              "model_endpoint_creation_strategy": "skip",
+              "endpoint_type": 1,
+              "class_name": "EchoStep",
+              "class_args": {
+                "prefix": "FINAL: "
+              },
+              "kind": "task"
+            },
+            "default_error_handler": {
+              "model_endpoint_creation_strategy": "skip",
+              "full_event": true,
+              "endpoint_type": 1,
+              "class_name": "<class '__main__.ErrorCatcher'>",
+              "kind": "error_step"
+            },
+            "sample_window_error_handler": {
+              "model_endpoint_creation_strategy": "skip",
+              "full_event": true,
+              "endpoint_type": 1,
+              "class_name": "<class '__main__.ErrorCatcher'>",
+              "kind": "error_step",
+              "base_step": "sample_window_step"
+            },
+            "model_runner_error_handler": {
+              "model_endpoint_creation_strategy": "skip",
+              "full_event": true,
+              "endpoint_type": 1,
+              "class_name": "<class '__main__.ErrorCatcher'>",
+              "kind": "error_step",
+              "base_step": "model_runner"
+            },
+            "remote_step_error_handler": {
+              "model_endpoint_creation_strategy": "skip",
+              "full_event": true,
+              "endpoint_type": 1,
+              "class_name": "<class '__main__.ErrorCatcher'>",
+              "kind": "error_step",
+              "base_step": "remote_step"
+            },
+            "router_step_mock": {
+              "routes": {
+                "model_0": {
+                  "model_endpoint_creation_strategy": "inplace",
+                  "endpoint_type": 3,
+                  "class_name": "mlrun.frameworks.sklearn.SKLearnModelServer",
+                  "class_args": {
+                    "model_path": "store://models/v3io-v1/model_4#0:latest@5d413328-5eca-4aa9-aecf-4b451604e344^da30c407fb0a702918548a90e24deac180727907",
+                    "outputs": null,
+                    "model_endpoint_uid": "7a4692ab40644d12b96b42209aca403b"
+                  },
+                  "kind": "task"
+                },
+                "model_1": {
+                  "model_endpoint_creation_strategy": "inplace",
+                  "endpoint_type": 3,
+                  "class_name": "mlrun.frameworks.sklearn.SKLearnModelServer",
+                  "class_args": {
+                    "model_path": "store://models/v3io-v1/model_3#0:latest@6607eed8-202e-4673-9f02-6d3b14b5c285^69aa2757889420fb4dc975ebd2a21bb76639f02a",
+                    "outputs": null,
+                    "model_endpoint_uid": "329058f6fb8245d99ebf54188c80dcaa"
+                  },
+                  "kind": "task"
+                },
+                "model_2": {
+                  "model_endpoint_creation_strategy": "inplace",
+                  "endpoint_type": 3,
+                  "class_name": "mlrun.frameworks.sklearn.SKLearnModelServer",
+                  "class_args": {
+                    "model_path": "store://models/v3io-v1/model_2#0:latest@69cdbf57-affd-4566-9e04-88868caa466d^54f35b92c0e34bc70d33f6a4b9d11534c84b85ae",
+                    "outputs": null,
+                    "model_endpoint_uid": "855b4dfa00fc4c92a66a94c14312d7eb"
+                  },
+                  "kind": "task"
+                },
+                "model_3": {
+                  "model_endpoint_creation_strategy": "inplace",
+                  "endpoint_type": 3,
+                  "class_name": "mlrun.frameworks.sklearn.SKLearnModelServer",
+                  "class_args": {
+                    "model_path": "store://models/v3io-v1/model_1#0:latest@880bcefd-89ba-4a39-82fc-0685646d7713^3e7629af8f0912e15febe065d3ab88fa81a1aca4",
+                    "outputs": null,
+                    "model_endpoint_uid": "5df1651b6cba4dc6a849c85de63d9feb"
+                  },
+                  "kind": "task"
+                },
+                "model_4": {
+                  "model_endpoint_creation_strategy": "inplace",
+                  "endpoint_type": 3,
+                  "class_name": "mlrun.frameworks.sklearn.SKLearnModelServer",
+                  "class_args": {
+                    "model_path": "store://models/v3io-v1/model_0#0:latest@ff2e5cfa-f944-41e0-8531-bc7b20b73d9e^c0d6b9985fc1d7c405dd592b3d40b0629fca8925",
+                    "outputs": null,
+                    "model_endpoint_uid": "5d806716139d4b6e9f62c4d7989596b1"
+                  },
+                  "kind": "task"
+                }
+              },
+              "model_endpoint_creation_strategy": "skip",
+              "name": "router",
+              "endpoint_type": 2,
+              "kind": "router"
             }
           },
           "shared_models": {
@@ -98,6 +477,7 @@
             ]
           },
           "engine": "async",
+          "on_error": "default_error_handler",
           "track_models": true,
           "model_endpoints_names": [
             "my-endpoint"

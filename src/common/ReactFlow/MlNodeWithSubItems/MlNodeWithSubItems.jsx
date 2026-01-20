@@ -19,13 +19,13 @@ such restriction.
 */
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Handle } from 'reactflow'
+import { Handle, Position } from 'reactflow'
 import { Form } from 'react-final-form'
 import arrayMutators from 'final-form-arrays'
 
 import { Tooltip, TextTooltipTemplate, FormChipCell } from 'igz-controls/components'
 
-import { REACT_FLOW_NODE_DATA } from '../../types'
+import { REACT_FLOW_NODE_DATA } from '../../../types'
 import { createForm } from 'final-form'
 import { getChipOptions } from 'igz-controls/utils/chips.util'
 import { setFieldState } from 'igz-controls/utils/form.util'
@@ -33,21 +33,20 @@ import { setFieldState } from 'igz-controls/utils/form.util'
 import ConnectionIcon from 'igz-controls/images/connections-icon.svg?react'
 import MonitoringIcon from 'igz-controls/images/monitoring-icon.svg?react'
 
-import './mlModelRunnerNode.scss'
+import './MlNodeWithSubItems.scss'
 
-const MlModelRunnerNode = ({ data, isConnectable }) => {
+const MlNodeWithSubItems = ({ data, isConnectable }) => {
   const formRef = React.useRef(
     createForm({
       initialValues: {
-        runningModels: Object.keys(data.customData.class_args.monitoring_data).map(
-          runningModelName => {
+        subItems:
+          data.subItems?.map(runningModelName => {
             return {
               isKeyOnly: true,
               key: runningModelName,
               id: runningModelName
             }
-          }
-        )
+          }) || []
       },
       mutators: { ...arrayMutators, setFieldState },
       onSubmit: () => {}
@@ -58,20 +57,9 @@ const MlModelRunnerNode = ({ data, isConnectable }) => {
     <Form form={formRef.current} onSubmit={() => {}}>
       {formState => (
         <>
-          <Tooltip
-            hidden={!data.targetHandle?.tooltip}
-            template={<TextTooltipTemplate text={data.targetHandle?.tooltip} />}
-          >
-            <Handle
-              className={data.targetHandle?.className}
-              type="target"
-              position="top"
-              isConnectable={isConnectable}
-            />
-          </Tooltip>
           <div className="react-flow__node-header">
             <div className="react-flow__node-header-icon">
-              <ConnectionIcon />
+              {data.badgeIcon || <ConnectionIcon />}
             </div>
             <div className="react-flow__node-header-title">
               <div className="react-flow__node-header-label">
@@ -79,9 +67,9 @@ const MlModelRunnerNode = ({ data, isConnectable }) => {
                   {data.label}
                 </Tooltip>
               </div>
-              <div className="react-flow__node-header-sub-label">Model runner step</div>
+              <div className="react-flow__node-header-sub-label">{data.subLabel}</div>
             </div>
-            {data.customData.track_models && (
+            {data.inMonitoring && (
               <div className="react-flow__node-header-monitoring-icon">
                 <Tooltip className="" template={<TextTooltipTemplate text="In monitoring" />}>
                   <MonitoringIcon />
@@ -89,36 +77,89 @@ const MlModelRunnerNode = ({ data, isConnectable }) => {
               </div>
             )}
           </div>
-          <div className="react-flow__node-chips-title">Running models</div>
+          <div className="react-flow__node-chips-title">{data.subItemsTitle}</div>
           <div className="react-flow__node-chips">
             <FormChipCell
               chipOptions={getChipOptions('metrics')}
               formState={formState}
               initialValues={formState.initialValues}
-              name="runningModels"
+              name={'subItems'}
               withInitialParentWidth
             />
           </div>
-          <Tooltip
-            hidden={!data.sourceHandle?.tooltip}
-            template={<TextTooltipTemplate text={data.sourceHandle?.tooltip} />}
-          >
-            <Handle
-              className={data.sourceHandle?.className}
-              type="source"
-              position="bottom"
-              isConnectable={isConnectable}
-            />
-          </Tooltip>
+          <Handle
+            className={data.targetHandle?.className}
+            isConnectable={isConnectable}
+            type="target"
+            position={Position.Left}
+            id="left"
+          />
+          <Handle
+            className={data.targetHandle?.className}
+            isConnectable={isConnectable}
+            type="target"
+            position={Position.Top}
+            id="top"
+            style={{ left: '60%', visibility: 'hidden' }}
+          />
+          <Handle
+            className={data.targetHandle?.className}
+            isConnectable={isConnectable}
+            type="target"
+            position={Position.Bottom}
+            id="bottom"
+            style={{ left: '60%', visibility: 'hidden' }}
+          />
+          <Handle
+            className={data.targetHandle?.className}
+            isConnectable={isConnectable}
+            type="target"
+            position={Position.Top}
+            id="top-error-handler"
+            style={{ visibility: 'hidden' }}
+          />
+          {/* SOURCE HANDLES (Outputs) */}
+          <Handle
+            className={data.sourceHandle?.className}
+            isConnectable={isConnectable}
+            type="source"
+            position={Position.Right}
+            id="right"
+            style={{ visibility: data.isLastStep ? 'hidden' : 'visible' }}
+          />
+          <Handle
+            className={data.sourceHandle?.className}
+            isConnectable={isConnectable}
+            type="source"
+            position={Position.Top}
+            id="top-source"
+            style={{ left: '40%', visibility: 'hidden' }}
+          />
+          <Handle
+            className={data.sourceHandle?.className}
+            isConnectable={isConnectable}
+            type="source"
+            position={Position.Bottom}
+            id="bottom-source"
+            style={{ left: '40%', visibility: 'hidden' }}
+          />
+          <Handle
+            className={data.sourceHandle?.className}
+            isConnectable={isConnectable}
+            type="source"
+            position={Position.Bottom}
+            id="bottom-error-handler"
+            style={{ visibility: 'hidden' }}
+          />
         </>
       )}
     </Form>
   )
 }
 
-MlModelRunnerNode.propTypes = {
+MlNodeWithSubItems.propTypes = {
   data: REACT_FLOW_NODE_DATA.isRequired,
   isConnectable: PropTypes.bool.isRequired
 }
 
-export default React.memo(MlModelRunnerNode)
+export default React.memo(MlNodeWithSubItems)

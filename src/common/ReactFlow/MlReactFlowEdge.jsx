@@ -31,24 +31,26 @@ import {
 } from '../../constants'
 
 const MlReactFlowEdge = ({
-  arrowHeadType = 'arrowclosed',
   data,
   id,
   markerEndId = null,
   source,
   sourceX,
   sourceY,
+  sourcePosition,
+  targetPosition,
   style = {},
   target,
   targetX,
-  targetY
+  targetY,
+  interactionWidth = 20
 }) => {
   const nodes = useNodes()
   const markerEndIdConverted = useMemo(() => markerEndId?.replace(' ', '_'), [markerEndId])
   const idConverted = useMemo(() => id?.replace(' ', '_'), [id])
   const markerEnd = useMemo(
-    () => getMarkerEnd(arrowHeadType, markerEndIdConverted, idConverted),
-    [arrowHeadType, idConverted, markerEndIdConverted]
+    () => getMarkerEnd(data.arrowHeadType ?? 'arrowclosed', markerEndIdConverted, idConverted),
+    [data.arrowHeadType, idConverted, markerEndIdConverted]
   )
   const sourceNode = useMemo(() => nodes.find(n => n.id === source), [source, nodes])
   const targetNode = useMemo(() => nodes.find(n => n.id === target), [target, nodes])
@@ -73,7 +75,10 @@ const MlReactFlowEdge = ({
         sourceY,
         targetX,
         targetY,
-        borderRadius: data.subType === STEP_EDGE ? 0 : 5
+        targetPosition,
+        sourcePosition,
+        borderRadius: data.subType === STEP_EDGE ? 0 : 12,
+        offset: 20
       })
     } else if (data.subType === STRAIGHT_EDGE) {
       d = 'M' + sourceX + ',' + sourceY + ' ' + targetX + ',' + targetY
@@ -87,7 +92,17 @@ const MlReactFlowEdge = ({
     }
 
     return d
-  }, [data.subType, sourceNode, sourceX, sourceY, targetNode, targetX, targetY])
+  }, [
+    data.subType,
+    sourceNode,
+    sourcePosition,
+    sourceX,
+    sourceY,
+    targetNode,
+    targetPosition,
+    targetX,
+    targetY
+  ])
 
   const path = useMemo(() => getPath(), [getPath])
 
@@ -134,13 +149,40 @@ const MlReactFlowEdge = ({
           />
         </marker>
       </defs>
-      <BaseEdge id={idConverted} path={path[0]} markerEnd={markerEnd} style={style} />
+      <BaseEdge
+        id={idConverted}
+        path={path[0]}
+        markerEnd={markerEnd}
+        style={{ ...style, fill: 'none', pointerEvents: 'none' }}
+      />
+
+      {/* Invisible wider edge for easier user interaction */}
+      <path
+        d={path[0]}
+        fill="none"
+        opacity={0}
+        stroke="transparent"
+        strokeWidth={interactionWidth}
+        className="react-flow__edge-interaction"
+        style={{
+          strokeWidth: interactionWidth,
+          cursor: 'default',
+          pointerEvents: 'all'
+        }}
+        onMouseDownCapture={event => {
+          event.stopPropagation()
+          event.preventDefault()
+        }}
+        onClickCapture={event => {
+          event.stopPropagation()
+          event.preventDefault()
+        }}
+      />
     </>
   )
 }
 
 MlReactFlowEdge.propTypes = {
-  arrowHeadType: PropTypes.oneOf(['arrow', 'arrowclosed']),
   data: PropTypes.shape({
     subType: PropTypes.oneOf([
       DEFAULT_EDGE,
@@ -150,17 +192,22 @@ MlReactFlowEdge.propTypes = {
       SMOOTH_STEP_EDGE
     ]).isRequired,
     customData: PropTypes.object,
-    isSelectable: PropTypes.bool
+    isSelectable: PropTypes.bool,
+    isHorizontalFlow: PropTypes.bool,
+    arrowHeadType: PropTypes.oneOf(['arrow', 'arrowclosed', null, ''])
   }).isRequired,
   id: PropTypes.string.isRequired,
   markerEndId: PropTypes.string,
   source: PropTypes.string.isRequired,
+  sourcePosition: PropTypes.oneOf(['top', 'bottom', 'left', 'right']),
   sourceX: PropTypes.number.isRequired,
   sourceY: PropTypes.number.isRequired,
   style: PropTypes.object,
   target: PropTypes.string.isRequired,
+  targetPosition: PropTypes.oneOf(['top', 'bottom', 'left', 'right']),
   targetX: PropTypes.number.isRequired,
-  targetY: PropTypes.number.isRequired
+  targetY: PropTypes.number.isRequired,
+  interactionWidth: PropTypes.number
 }
 
 export default React.memo(MlReactFlowEdge)
