@@ -556,6 +556,194 @@ Feature: Models Page
     Then verify "Cross_Close_Button" element visibility on "Models_Info_Pane" wizard
 
   @MLM
+  @passive
+  @smoke
+  Scenario: MLM040 - Check LLM prompts tab components on Model infopane
+    Given open url
+    And wait load page
+    And click on row root with value "llmdeploy335" in "name" column in "Projects_Table" table on "Projects" wizard
+    And wait load page
+    Then verify "Model_Stats_Counter" element visibility in "Models_Stats_Container" on "Project" wizard
+    When click on "Model_Stats_Counter" element in "Models_Stats_Container" on "Project" wizard
+    And wait load page
+    When click on cell with value "model_art1" in "name" column in "Models_Table" table on "Models" wizard
+    And wait load page
+    Then verify "Info_Pane_Tab_Selector" element visibility on "Models_Info_Pane" wizard
+    Then verify "Info_Pane_Tab_Selector" on "Models_Info_Pane" wizard should contains "Models_Info_Pane"."Tab_List_Prompt"
+    Then verify "Overview" tab is active in "Info_Pane_Tab_Selector" on "Models_Info_Pane" wizard
+    Then select "LLM Prompts" tab in "Info_Pane_Tab_Selector" on "Models_Info_Pane" wizard
+    Then verify "LLM Prompts" tab is active in "Info_Pane_Tab_Selector" on "Models_Info_Pane" wizard
+    Then verify cell with "LLM Prompts" value in "key" column in "Info_Pane_Tab_Selector" table on "Models_Info_Pane" wizard should display "Label_Hint"."Models_LLM_Prompts"
+    Then verify "LLMPrompts_Table" element visibility on "Models_Info_Pane" wizard
+    Then verify "Header" element visibility on "Models_Info_Pane" wizard
+    Then verify "Updated" element visibility on "Models_Info_Pane" wizard
+    Then verify "Action_Menu" element visibility on "Models_Info_Pane" wizard
+    Then verify "Action_Menu" dropdown element on "Models_Info_Pane" wizard should contains "Common_Lists"."Action_Menu_List"
+    Then select "Download" option in action menu on "Models_Info_Pane" wizard
+    And wait load page
+    And wait load page
+    Then verify "Download_Pop_Up" element visibility on "Downloads_Popup" wizard
+    And wait load page
+    Then verify "Download_Pop_Up_Cross_Cancel_Button" element visibility on "Downloads_Popup" wizard
+    And wait load page
+    Then verify "Download_Pop_Up_Cross_Cancel_Button" element visibility on "Downloads_Popup" wizard
+    And wait load page
+    Then verify "Header_Download_Pop_Up" element visibility on "Downloads_Popup" wizard
+    Then "Header_Download_Pop_Up" element on "Downloads_Popup" should contains "Downloads" value
+    Then click on "Download_Pop_Up_Cross_Cancel_Button" element on "Downloads_Popup" wizard
+    Then check that "Delete" option in action menu on "Models_Info_Pane" wizard is disabled
+    Then check that "Delete all versions" option in action menu on "Models_Info_Pane" wizard is disabled
+    Then verify "Cross_Close_Button" element visibility on "Models_Info_Pane" wizard
+    Then verify "Full_View_Button" element visibility on "Models_Info_Pane" wizard
+    Then verify "Models" tab is active in "Models_Tab_Selector" on "Models" wizard
+    Then click on "Full_View_Button" element on "Models_Info_Pane" wizard
+    Then verify "Cross_Close_Button" element not exists on "Models_Info_Pane" wizard
+    Then verify "LLM Prompts" tab is active in "Info_Pane_Tab_Selector" on "Models_Info_Pane" wizard
+    Then verify cell with "LLM Prompts" value in "key" column in "Info_Pane_Tab_Selector" table on "Models_Info_Pane" wizard should display "Label_Hint"."Models_LLM_Prompts"
+    Then verify "LLMPrompts_Table" element visibility on "Models_Info_Pane" wizard
+    Then click on "Tabel_View_Button" element on "Models_Info_Pane" wizard
+    Then verify "Cross_Close_Button" element visibility on "Models_Info_Pane" wizard
+
+  @MLM
+  @passive
+  @smoke
+  Scenario: MLM041 - Check LLM prompts tab components on version history Model infopane
+    Given open url
+    And wait load page
+    And click on row root with value "llmdeploy335" in "name" column in "Projects_Table" table on "Projects" wizard
+    And wait load page
+    Then verify "Model_Stats_Counter" element visibility in "Models_Stats_Container" on "Project" wizard
+    When click on "Model_Stats_Counter" element in "Models_Stats_Container" on "Project" wizard
+    And wait load page
+    Then click on "show_all_versions" option on "Models" wizard in "Models_Table" table with "model_art1" value in "name" column with scroll "false"
+    And wait load page
+    Then verify "History_Back_Button" element visibility on "Models" wizard
+    Then "Version_History_Model_Name" element on "Models" should contains "model_art1" value
+    When click on cell with value "0a571c5752ee1eb1efdf74c435088ee80b0c521b" in "name" column in "Models_Table" table on "Models" wizard
+    And wait load page
+    Then verify "Info_Pane_Tab_Selector" element visibility on "Models_Info_Pane" wizard
+    Then verify "Info_Pane_Tab_Selector" on "Models_Info_Pane" wizard should contains "Models_Info_Pane"."Tab_List_Prompt"
+    Then verify "Overview" tab is active in "Info_Pane_Tab_Selector" on "Models_Info_Pane" wizard
+    Then select "LLM Prompts" tab in "Info_Pane_Tab_Selector" on "Models_Info_Pane" wizard
+    Then verify "LLM Prompts" tab is active in "Info_Pane_Tab_Selector" on "Models_Info_Pane" wizard
+    Then verify cell with "LLM Prompts" value in "key" column in "Info_Pane_Tab_Selector" table on "Models_Info_Pane" wizard should display "Label_Hint"."Models_LLM_Prompts"
+    Then verify "LLMPrompts_Table" element visibility on "Models_Info_Pane" wizard
+    Then verify "Header" element visibility on "Models_Info_Pane" wizard
+    Then verify "Updated" element visibility on "Models_Info_Pane" wizard
+    Then verify "Action_Menu" element visibility on "Models_Info_Pane" wizard
+    Then verify "Action_Menu" dropdown element on "Models_Info_Pane" wizard should contains "Common_Lists"."Action_Menu_List_Version_History"
+    Then select "Download" option in action menu on "Models_Info_Pane" wizard
+    And wait load page
+    And wait load page
+    Then verify "Download_Pop_Up" element visibility on "Downloads_Popup" wizard
+    And wait load page
+    Then verify "Download_Pop_Up_Cross_Cancel_Button" element visibility on "Downloads_Popup" wizard
+    And wait load page
+    Then verify "Download_Pop_Up_Cross_Cancel_Button" element visibility on "Downloads_Popup" wizard
+    And wait load page
+    Then verify "Header_Download_Pop_Up" element visibility on "Downloads_Popup" wizard
+    Then "Header_Download_Pop_Up" element on "Downloads_Popup" should contains "Downloads" value
+    Then click on "Download_Pop_Up_Cross_Cancel_Button" element on "Downloads_Popup" wizard
+    Then check that "Delete" option in action menu on "Models_Info_Pane" wizard is disabled
+    Then verify "Cross_Close_Button" element visibility on "Models_Info_Pane" wizard
+    Then verify "Full_View_Button" element visibility on "Models_Info_Pane" wizard
+    Then verify "Models" tab is active in "Models_Tab_Selector" on "Models" wizard
+    Then click on "Full_View_Button" element on "Models_Info_Pane" wizard
+    Then verify "Cross_Close_Button" element not exists on "Models_Info_Pane" wizard
+    Then verify "LLM Prompts" tab is active in "Info_Pane_Tab_Selector" on "Models_Info_Pane" wizard
+    Then verify cell with "LLM Prompts" value in "key" column in "Info_Pane_Tab_Selector" table on "Models_Info_Pane" wizard should display "Label_Hint"."Models_LLM_Prompts"
+    Then verify "LLMPrompts_Table" element visibility on "Models_Info_Pane" wizard
+    Then click on "Tabel_View_Button" element on "Models_Info_Pane" wizard
+    Then verify "Cross_Close_Button" element visibility on "Models_Info_Pane" wizard
+
+  @MLM
+  @passive
+  @smoke
+  #TODO: add tests for prompt, producer detail popups; prompts tag verification, prompts limitation message and redirection
+  Scenario: MLM042 - Check LLM prompts tab detail popups in main table on Model infopane
+    Given open url
+    And wait load page
+    And click on row root with value "llmdeploy335" in "name" column in "Projects_Table" table on "Projects" wizard
+    And wait load page
+    Then verify "Model_Stats_Counter" element visibility in "Models_Stats_Container" on "Project" wizard
+    When click on "Model_Stats_Counter" element in "Models_Stats_Container" on "Project" wizard
+    And wait load page
+    When click on cell with value "model_art1" in "name" column in "Models_Table" table on "Models" wizard
+    And wait load page
+    Then verify "Info_Pane_Tab_Selector" element visibility on "Models_Info_Pane" wizard
+    Then verify "Info_Pane_Tab_Selector" on "Models_Info_Pane" wizard should contains "Models_Info_Pane"."Tab_List_Prompt"
+    Then select "LLM Prompts" tab in "Info_Pane_Tab_Selector" on "Models_Info_Pane" wizard
+    Then verify "LLM Prompts" tab is active in "Info_Pane_Tab_Selector" on "Models_Info_Pane" wizard
+    Then verify cell with "LLM Prompts" value in "key" column in "Info_Pane_Tab_Selector" table on "Models_Info_Pane" wizard should display "Label_Hint"."Models_LLM_Prompts"
+    Then verify "LLMPrompts_Table" element visibility on "Models_Info_Pane" wizard
+    When click on cell with value "my_llm" in "name" column in "LLMPrompts_Table" table on "Models_Info_Pane" wizard
+    And wait load page
+    Then verify if "Modal_Transition_Popup" popup dialog appears
+    Then verify "Title" element visibility on "Modal_Transition_Popup" wizard
+    Then "Title" element on "Modal_Transition_Popup" should contains "my_llm" value
+    Then verify "Data_Status" element visibility on "Modal_Transition_Popup" wizard
+    Then verify "Cross_Close_Button" element visibility on "Modal_Transition_Popup" wizard
+    Then verify "Refresh_Button" element visibility on "Modal_Transition_Popup" wizard
+    Then verify "Refresh_Button" element on "Modal_Transition_Popup" wizard should display hover tooltip "Common_Tooltips"."Refresh_Button"
+    Then click on "Refresh_Button" element on "Modal_Transition_Popup" wizard
+    And wait load page
+    Then verify "Refresh_Button" element visibility on "Modal_Transition_Popup" wizard
+    Then verify "Action_Menu" element visibility on "Modal_Transition_Popup" wizard
+    Then verify "Action_Menu" dropdown element on "Modal_Transition_Popup" wizard should contains "Common_Lists"."Action_Menu_List_Artifacts_Transition_Popup"
+    Then select "View YAML" option in action menu on "Modal_Transition_Popup" wizard
+    And wait load page
+    Then verify if "View_YAML" popup dialog appears
+    Then verify "Cross_Cancel_Button" element visibility on "View_YAML" wizard
+    Then verify "YAML_Modal_Container" element visibility on "View_YAML" wizard
+    Then click on "Cross_Cancel_Button" element on "View_YAML" wizard
+    And wait load page
+    Then select "Download" option in action menu on "Modal_Transition_Popup" wizard
+    And wait load page
+    And wait load page
+    Then verify "Download_Pop_Up" element visibility on "Downloads_Popup" wizard
+    And wait load page
+    Then verify "Download_Pop_Up_Cross_Cancel_Button" element visibility on "Downloads_Popup" wizard
+    And wait load page
+    Then verify "Download_Pop_Up_Cross_Cancel_Button" element visibility on "Downloads_Popup" wizard
+    And wait load page
+    Then verify "Header_Download_Pop_Up" element visibility on "Downloads_Popup" wizard
+    Then "Header_Download_Pop_Up" element on "Downloads_Popup" should contains "Downloads" value
+    Then click on "Download_Pop_Up_Cross_Cancel_Button" element on "Downloads_Popup" wizard
+    Then select "Copy URI" option in action menu on "Modal_Transition_Popup" wizard
+    And wait load page
+    Then verify if "Notification_Popup" popup dialog appears
+    Then verify "Notification_Pop_Up" element visibility on "Notification_Popup" wizard
+    Then "Notification_Pop_Up" element on "Notification_Popup" should contains "Copied to clipboard successfully" value
+    Then verify "Notification_Pop_Up_Cross_Close_Button" element visibility on "Notification_Popup" wizard
+    Then click on "Notification_Pop_Up_Cross_Close_Button" element on "Notification_Popup" wizard
+    Then verify "Tab_Selector" on "Modal_Transition_Popup" wizard should contains "LLM_Prompts_Info_Pane"."Tab_List"
+    Then verify "Overview" tab is active in "Tab_Selector" on "Modal_Transition_Popup" wizard
+    Then verify "Overview_General_Headers" on "Modal_Transition_Popup" wizard should contains "LLM_Prompts_Info_Pane"."Overview_General_Headers"
+    And select "Prompt Template" tab in "Tab_Selector" on "Modal_Transition_Popup" wizard
+    And wait load page
+    Then verify "Prompt_Arguments_Tab_Selector" element visibility on "LLM_Prompts_Info_Pane" wizard
+    Then verify "Prompt_Arguments_Tab_Selector" on "LLM_Prompts_Info_Pane" wizard should contains "LLM_Prompts_Info_Pane"."Tab_List_Prompt_Template"
+    Then verify "Prompt" tab is active in "Prompt_Arguments_Tab_Selector" on "LLM_Prompts_Info_Pane" wizard
+    Then verify "Find_In_Prompt_Filter_Input" element visibility on "LLM_Prompts_Info_Pane" wizard
+    Then verify "Prompt_Template_Table" element visibility on "LLM_Prompts_Info_Pane" wizard
+    Then verify "Prompt_Template_Argument" element visibility on "LLM_Prompts_Info_Pane" wizard
+    Then "Prompt_Template_Argument" element on "LLM_Prompts_Info_Pane" should contains "{something_with_meaning}" value
+    Then verify "Prompt_Template_Argument" element on "LLM_Prompts_Info_Pane" wizard should display hover tooltip "Common_Tooltips"."Argument"
+    Then click on "Prompt_Template_Argument" element on "LLM_Prompts_Info_Pane" wizard
+    And wait load page
+    Then verify "Prompt Template" tab is active in "Tab_Selector" on "Modal_Transition_Popup" wizard
+    Then verify "Arguments" tab is active in "Prompt_Arguments_Tab_Selector" on "LLM_Prompts_Info_Pane" wizard
+    Then value in "key" column with "text" in "Arguments_Tab_Table" on "LLM_Prompts_Info_Pane" wizard should contains "something_with_meaning"
+    Then value in "value" column with "text" in "Arguments_Tab_Table" on "LLM_Prompts_Info_Pane" wizard should contains "The essence of all things"
+    And select "Invocation Configuration" tab in "Tab_Selector" on "Modal_Transition_Popup" wizard
+    And wait load page
+    Then verify "Invocation Configuration" tab is active in "Tab_Selector" on "Modal_Transition_Popup" wizard
+    Then verify "Generation_Configuration_Counter" element visibility on "LLM_Prompts_Info_Pane" wizard
+    Then "Generation_Configuration_Counter" element on "LLM_Prompts_Info_Pane" should contains "5 modifications made to the default configuration:" value
+    Then value in "key" column with "text" in "Generation_Configuration_Tab_Table" on "LLM_Prompts_Info_Pane" wizard should contains "temperature"
+    Then value in "value" column with "text" in "Generation_Configuration_Tab_Table" on "LLM_Prompts_Info_Pane" wizard should contains "0.5"
+
+  @MLM
   @smoke
   Scenario: MLM026 - Verify the Delete option state in Models table and Overview details action menu 
     Given open url
@@ -1096,7 +1284,6 @@ Feature: Models Page
        | name4        | value4        |
 
   @MLM
-  #TODO: arrow lines position - y not found
   @passive
   @smoke
   Scenario: MLM031 - Verify behaviour of Real-Time Pipelines table
@@ -1116,20 +1303,20 @@ Feature: Models Page
     And select "Real-Time Pipelines" tab in "Models_Tab_Selector" on "Models" wizard
     And wait load page
     Then verify "Real-Time Pipelines" tab is active in "Models_Tab_Selector" on "Models" wizard
-    Then save to context "name" column and "href" attribute on 3 row from "Real_Time_Pipelines_Table" table on "Real_Time_Pipelines" wizard
+    Then save to context "name" column and "href" attribute on 4 row from "Real_Time_Pipelines_Table" table on "Real_Time_Pipelines" wizard
     When click on cell with value "model-monitoring-stream" in "name_link" column in "Real_Time_Pipelines_Table" table on "Real_Time_Pipelines" wizard
     And wait load page
     And wait load page
     Then compare current browser URL with test "href" context value
     Then verify "Real_Time_Pipelines_Graph" element visibility on "Real_Time_Pipelines" wizard
-    # Then verify arrow lines position on "Real_Time_Pipelines_Graph" on "Real_Time_Pipelines" wizard
+    Then verify workflow graph nodes and arrows connections on "Real_Time_Pipelines_Graph" on "Real_Time_Pipelines" wizard
     When click on node with index 2 in "Real_Time_Pipelines_Graph" graph on "Real_Time_Pipelines" wizard
     Then verify "Header" element visibility on "Real_Time_Pipeline_Pane" wizard
     Then verify "Cross_Close_Button" element visibility on "Real_Time_Pipeline_Pane" wizard
     Then verify "Overview_Headers" on "Real_Time_Pipeline_Pane" wizard should contains "Real_Time_Pipeline_Pane"."Overview_Headers"
     Then click on "Arrow_Back" element on "Real_Time_Pipeline_Pane" wizard
     And wait load page
-    Then click on cell with row index 3 in "function" column in "Real_Time_Pipelines_Table" table on "Real_Time_Pipelines" wizard
+    Then click on cell with row index 4 in "function" column in "Real_Time_Pipelines_Table" table on "Real_Time_Pipelines" wizard
     And wait load page
     Then verify if "Modal_Transition_Popup" popup dialog appears
     Then verify "Title" element visibility on "Modal_Transition_Popup" wizard
@@ -1154,7 +1341,7 @@ Feature: Models Page
     Then verify "Cross_Close_Button" element visibility on "Modal_Transition_Popup" wizard
     Then click on "Cross_Close_Button" element on "Modal_Transition_Popup" wizard
     And wait load page
-    Then click on cell with row index 3 in "function" column in "Real_Time_Pipelines_Table" table on "Real_Time_Pipelines" wizard
+    Then click on cell with row index 4 in "function" column in "Real_Time_Pipelines_Table" table on "Real_Time_Pipelines" wizard
     And wait load page
     Then verify if "Modal_Transition_Popup" popup dialog appears
     Then verify "Tab_Selector" element visibility on "Modal_Transition_Popup" wizard
@@ -1181,6 +1368,84 @@ Feature: Models Page
     And wait load page
     And verify "No_Data_Message" element visibility on "commonPagesHeader" wizard
     Then "No_Data_Message" element on "commonPagesHeader" should contains "The ingestion function has no steps and therefore no graph." value
+    And wait load page
+
+  @MLM
+  @passive
+  @smoke
+  Scenario: MLM039 - Check the model runner step on the Real-Time Pipeline graph
+    Given open url
+    And wait load page
+    And click on row root with value "default" in "name" column in "Projects_Table" table on "Projects" wizard
+    And wait load page
+    Then verify breadcrumbs "project" label should be equal "default" value
+    When click on "Model_Stats_Counter" element in "Models_Stats_Container" on "Project" wizard
+    And wait load page
+    Then verify breadcrumbs "tab" label should be equal "Models" value
+    And select "Real-Time Pipelines" tab in "Models_Tab_Selector" on "Models" wizard
+    And wait load page
+    Then verify "Real-Time Pipelines" tab is active in "Models_Tab_Selector" on "Models" wizard
+    When click on cell with value "function-with-llm" in "name_link" column in "Real_Time_Pipelines_Table" table on "Real_Time_Pipelines" wizard
+    And wait load page
+    Then verify "Real_Time_Pipelines_Graph" element visibility on "Real_Time_Pipelines" wizard
+    Then verify "Pipeline_Back_Button" element visibility on "Real_Time_Pipelines" wizard
+    Then verify "Pipeline_Link_Title" element visibility on "Real_Time_Pipelines" wizard
+    Then "Pipeline_Link_Title" element on "Real_Time_Pipelines" should contains "function-with-llm" value
+    Then verify "Model_Runner_Step_Icon" element visibility on "Real_Time_Pipelines" wizard
+    Then verify "Model_Runner_Step_Label" element visibility on "Real_Time_Pipelines" wizard
+    Then "Model_Runner_Step_Label" element on "Real_Time_Pipelines" should contains "model-runner" value
+    Then verify "Model_Runner_Step_Sub_Label" element visibility on "Real_Time_Pipelines" wizard
+    Then "Model_Runner_Step_Sub_Label" element on "Real_Time_Pipelines" should contains "Model runner step" value
+    Then verify "Model_Runner_Monitoring_Icon" element visibility on "Real_Time_Pipelines" wizard
+    Then verify "Model_Runner_Monitoring_Icon" element on "Real_Time_Pipelines" wizard should display hover tooltip "Real_Time_Pipeline_Pane"."In_Monitoring_State"
+    Then verify "Model_Runner_Chips_Title" element visibility on "Real_Time_Pipelines" wizard
+    Then "Model_Runner_Chips_Title" element on "Real_Time_Pipelines" should contains "Running models" value
+    Then verify "Model_Runner_Chip_Container" element visibility on "Real_Time_Pipelines" wizard
+    Then verify "Model_Runner_Chip_Container" element on "Real_Time_Pipelines" wizard should display hover tooltip "Real_Time_Pipeline_Pane"."Chip_Tooltip"
+    When click on node with index 1 in "node_title" column in "Real_Time_Pipelines_Graph" graph on "Real_Time_Pipelines" wizard
+    And wait load page
+    Then verify "Header" element visibility on "Real_Time_Pipeline_Pane" wizard
+    Then verify "Title_Icon" element visibility on "Real_Time_Pipeline_Pane" wizard
+    Then verify "Cross_Close_Button" element visibility on "Real_Time_Pipeline_Pane" wizard
+    Then verify "General_Section_Title" element visibility on "Real_Time_Pipeline_Pane" wizard
+    Then "General_Section_Title" element on "Real_Time_Pipeline_Pane" should contains "General" value
+    Then verify "Overview_Headers" on "Real_Time_Pipeline_Pane" wizard should contains "Real_Time_Pipeline_Pane"."Overview_Headers_Model_Runner"
+    Then verify "Running_Models_Section_Title" element visibility on "Real_Time_Pipeline_Pane" wizard
+    Then "Running_Models_Section_Title" element on "Real_Time_Pipeline_Pane" should contains "Running models (1)" value
+    Then verify "Graph_Pane_Expand_Icon" element visibility on "Real_Time_Pipeline_Pane" wizard
+    Then click on "Graph_Pane_Expand_Icon" element on "Real_Time_Pipeline_Pane" wizard
+    And wait load page
+    Then verify "Running_Models_Headers" on "Real_Time_Pipeline_Pane" wizard should contains "Real_Time_Pipeline_Pane"."Running_Models_Headers"
+    When click on cell with value "c3e9308aaab54e53b1013ecda9234e43" in "key_value" column in "Running_Models_Headers" table on "Real_Time_Pipeline_Pane" wizard
+    And wait load page
+    Then verify if "Modal_Transition_Popup" popup dialog appears
+    Then verify "Title" element visibility on "Modal_Transition_Popup" wizard
+    Then "Title" element on "Modal_Transition_Popup" should contains "my-endpoint" value
+    Then verify "Data_Status" element visibility on "Modal_Transition_Popup" wizard
+    Then verify "Cross_Close_Button" element visibility on "Modal_Transition_Popup" wizard
+    Then click on "Cross_Close_Button" element on "Modal_Transition_Popup" wizard
+    And wait load page
+    When click on cell with value "store://llm-prompts/default/my_llm4#0@9c0c8773-b1ce-4fa0-ac94-2f6c1fb71554^d28e010ba24e272a3ba2ba522f6caecde05ff383" in "key_value" column in "Running_Models_Headers" table on "Real_Time_Pipeline_Pane" wizard
+    And wait load page
+    Then verify if "Modal_Transition_Popup" popup dialog appears
+    Then verify "Title" element visibility on "Modal_Transition_Popup" wizard
+    Then "Title" element on "Modal_Transition_Popup" should contains "my_llm4" value
+    Then verify "Data_Status" element visibility on "Modal_Transition_Popup" wizard
+    Then verify "Cross_Close_Button" element visibility on "Modal_Transition_Popup" wizard
+    Then click on "Cross_Close_Button" element on "Modal_Transition_Popup" wizard
+    And wait load page
+    Then click on "Arrow_Back" element on "Real_Time_Pipeline_Pane" wizard
+    And wait load page
+    When click on cell with value "model-monitoring-stream" in "name_link" column in "Real_Time_Pipelines_Table" table on "Real_Time_Pipelines" wizard
+    And wait load page
+    Then verify "Real_Time_Pipelines_Graph" element visibility on "Real_Time_Pipelines" wizard
+    When click on node with index 1 in "Real_Time_Pipelines_Graph" graph on "Real_Time_Pipelines" wizard
+    Then verify "Header" element visibility on "Real_Time_Pipeline_Pane" wizard
+    Then verify "Cross_Close_Button" element visibility on "Real_Time_Pipeline_Pane" wizard
+    Then verify "Overview_Headers" on "Real_Time_Pipeline_Pane" wizard should contains "Real_Time_Pipeline_Pane"."Overview_Headers"
+    And wait load page
+    Then verify "Graph_Pane_Expand_Icon" element not exists on "Real_Time_Pipeline_Pane" wizard
+    Then click on "Arrow_Back" element on "Real_Time_Pipeline_Pane" wizard
     And wait load page
 
   @MLM
@@ -1551,13 +1816,13 @@ Feature: Models Page
     And wait load page
     And select "Model Endpoints" tab in "Models_Tab_Selector" on "Models" wizard
     And wait load page
-    When click on cell with row index 3 in "name" column in "Model_Endpoints_Table" table on "Model_Endpoints" wizard
+    When click on cell with value "GradientBoostingClassifier" in "name" column in "Model_Endpoints_Table" table on "Model_Endpoints" wizard
     And wait load page
     Then verify "Info_Pane_Tab_Selector" element visibility on "Model_Endpoints_Info_Pane" wizard
     Then verify "Info_Pane_Tab_Selector" on "Model_Endpoints_Info_Pane" wizard should contains "Models_Endpoints_Info_Pane"."Tab_List"
     Then select "Metrics" tab in "Info_Pane_Tab_Selector" on "Model_Endpoints_Info_Pane" wizard
     Then verify "Choose_Metrics_Dropdown" element visibility on "Model_Endpoints_Info_Pane" wizard
-    Then "Choose_Metrics_Dropdown" element on "Model_Endpoints_Info_Pane" should contains "Choose Metrics..." value
+    Then "Choose_Metrics_Dropdown" element on "Model_Endpoints_Info_Pane" should contains "Choose metrics..." value
     Then verify "Date_Picker_Filter_Dropdown" element visibility on "Model_Endpoints_Info_Pane" wizard
     Then verify "Date_Picker_Filter_Dropdown" dropdown on "Model_Endpoints_Info_Pane" wizard selected option value "Past 24 hours"
     Then verify "Date_Picker_Filter_Dropdown" dropdown element on "Model_Endpoints_Info_Pane" wizard should contains "Dropdown_Options"."Metrics_Date_Picker_Filter_Options"
@@ -1608,7 +1873,7 @@ Feature: Models Page
     And wait load page
     And select "Model Endpoints" tab in "Models_Tab_Selector" on "Models" wizard
     And wait load page
-    When click on cell with row index 3 in "name" column in "Model_Endpoints_Table" table on "Model_Endpoints" wizard
+    When click on cell with value "GradientBoostingClassifier" in "name" column in "Model_Endpoints_Table" table on "Model_Endpoints" wizard
     Then select "Metrics" tab in "Info_Pane_Tab_Selector" on "Model_Endpoints_Info_Pane" wizard
     Then click on "Choose_Metrics_Dropdown" element on "Model_Endpoints_Info_Pane" wizard
     And wait load page

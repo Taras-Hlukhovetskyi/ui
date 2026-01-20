@@ -25,8 +25,8 @@ import ArtifactPopUp from '../../elements/DetailsPopUp/ArtifactPopUp/ArtifactPop
 
 import { openPopUp } from 'igz-controls/utils/common.util'
 import { formatDatetime } from 'igz-controls/utils/datetime.util'
-import { parseKeyValues } from '../../utils'
 import { parseArtifacts } from '../../utils/parseArtifacts'
+import { parseChipsData } from '../../utils/convertChipsData'
 
 import DetailsIcon from 'igz-controls/images/view-details.svg?react'
 
@@ -34,7 +34,7 @@ export const getJobAccordingIteration = selectedJob => {
   return {
     artifacts: parseArtifacts(selectedJob?.status?.artifacts || []),
     startTime: new Date(selectedJob?.status?.start_time),
-    labels: parseKeyValues(selectedJob?.metadata?.labels || {})
+    labels: parseChipsData(selectedJob?.metadata?.labels || {})
   }
 }
 
@@ -59,8 +59,8 @@ export const generateArtifactsPreviewContent = (selectedJob, artifacts) => {
       date: formatDatetime(selectedJob.startTime),
       size: artifact.size ? prettyBytes(artifact.size) : 'N/A',
       user: selectedJob?.labels
-        ?.find(item => item.match(/v3io_user|owner/g))
-        ?.replace(/(v3io_user|owner): /, '')
+        ?.find(item => item.key.match(/v3io_user|owner/))
+        ?.key.replace(/(v3io_user|owner): /, '')
     }
 
     return generatedArtifact

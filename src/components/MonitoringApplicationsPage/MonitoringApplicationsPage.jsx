@@ -38,6 +38,7 @@ import { fetchArtifacts } from '../../reducers/artifactsReducer'
 import { getFiltersConfig } from './MonitoringApplicationsPage.util'
 import { showErrorNotification } from 'igz-controls/utils/notification.util'
 import { useFiltersFromSearchParams } from '../../hooks/useFiltersFromSearchParams.hook'
+import { getSavedSearchParams } from 'igz-controls/utils/filter.util'
 
 import PresentMetricsIcon from 'igz-controls/images/present-metrics-icon.svg?react'
 
@@ -77,7 +78,7 @@ const MonitoringApplicationsPage = () => {
               dispatch,
               error,
               '',
-              'Failed to fetch Model Endpoints with suspected/detected issue'
+              'Failed to fetch model endpoints with suspected/detected issue'
             )
           })
       }
@@ -95,7 +96,7 @@ const MonitoringApplicationsPage = () => {
               ...filters,
               labels: `mlrun/app-name=${params.name}`
             },
-            config: { params: { page: 1, 'page-size': 50, format: 'minimal'} } // limit to 50 artifacts the same as we have on Artifacts page per 1 FE page to avoid overload
+            config: { params: { page: 1, 'page-size': 50, format: 'minimal' } } // limit to 50 artifacts the same as we have on Artifacts page per 1 FE page to avoid overload
           })
         )
           .unwrap()
@@ -142,12 +143,12 @@ const MonitoringApplicationsPage = () => {
       <div className="content__header">
         <Breadcrumbs />
       </div>
-      <div className="content monitoring-app-content" ref={contentRef} >
+      <div className="content monitoring-app-content" ref={contentRef}>
         <div className="content__action-bar-wrapper">
           <span className="monitoring-apps-title">
             {params.name && (
               <TableTop
-                link={`/projects/${params.projectName}/${MONITORING_APP_PAGE}/${window.location.search}`}
+                link={`/projects/${params.projectName}/${MONITORING_APP_PAGE}/${getSavedSearchParams(window.location.search)}`}
                 text={params.name}
               />
             )}

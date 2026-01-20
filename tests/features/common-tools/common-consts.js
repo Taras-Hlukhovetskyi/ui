@@ -68,14 +68,33 @@ export default {
     ]
   },
   Real_Time_Pipeline_Pane: {
+    In_Monitoring_State: 'In monitoring',
+    Chip_Tooltip: 'my-endpoint',
     Overview_Headers: [
       'Type:',
-      'After:',
       'Class name:',
       'Function name:',
+      'Arguments:',
       'Handler:',
       'Input path:',
       'Result path:'
+    ],
+    Overview_Headers_Model_Runner: [
+      'Type:',
+      'Class name:',
+      'Function name:',
+      'Arguments:',
+      'Input path:',
+      'Result path:'
+    ],
+    Running_Models_Headers: [
+      'Model endpoint:',
+      'Model artifact:',
+      'Class name:',
+      'Input path:',
+      'Result path:',
+      'Outputs:',
+      'Execution mechanism:'
     ]
   },
   Feature_Sets_Info_Pane: {
@@ -114,7 +133,7 @@ export default {
     Action_Menu_List_LLM_Prompt: ['Add a tag', 'Download', 'Copy URI', 'View YAML'],
     Action_Menu_List_Version_History: ['Add a tag', 'Download', 'Copy URI', 'View YAML', 'Delete'],
     Action_Menu_List_Expanded: ['Add a tag', 'Download', 'Copy URI', 'View YAML', 'Delete all'],
-    Action_Menu_List_Dataset_Transition_Popup: ['Download', 'Copy URI', 'View YAML'],
+    Action_Menu_List_Artifacts_Transition_Popup: ['Download', 'Copy URI', 'View YAML'],
     Action_Menu_List_Function_Transition_Popup: ['View YAML'],
     Action_Menu_List_Run_Transition_Popup: ['Run\'s resource monitoring', 'View YAML'],
     Action_Menu_List_Feature_Set_Transition_Popup: ['View YAML'],
@@ -157,7 +176,7 @@ export default {
     Overview_Producer_Headers: ['Name:', 'Kind:', 'Tag:', 'Owner:', 'UID:']
   },
   LLM_Prompts_Info_Pane: {
-    Tab_List: ['Overview', 'Prompt Template', 'Generation Configuration'],
+    Tab_List: ['Overview', 'Prompt Template', 'Invocation Configuration'],
     Tab_List_Prompt_Template: ['Prompt', 'Arguments'],
     Info_Banner_Message: /The LLM prompt is not in the filtered list\. Closing the details panel will return you to the current list\./,
     Overview_General_Headers: [
@@ -178,15 +197,15 @@ export default {
   },
   Alerts_Jobs_Info_Pane: {
     Overview_General_Headers: [
-      'Project Name:',
-      'Job Name:',
+      'Project name:',
+      'Job name:',
       'Type:',
       'Timestamp:',
       'Severity:',
       'Job:'
     ],
     Overview_General_Headers_PerProject: [
-      'Job Name:',
+      'Job name:',
       'Type:',
       'Timestamp:',
       'Severity:',
@@ -196,18 +215,18 @@ export default {
   },
   Alerts_Endpoint_Info_Pane: {
     Overview_General_Headers: [
-      'Project Name:',
+      'Project name:',
       'Endpoint ID:',
-      'Application Name:',
-      'Result Name:',
+      'Application name:',
+      'Result name:',
       'Type:',
       'Timestamp:',
       'Severity:'
     ],
     Overview_General_Headers_Per_Project: [
       'Endpoint ID:',
-      'Application Name:',
-      'Result Name:',
+      'Application name:',
+      'Result name:',
       'Type:',
       'Timestamp:',
       'Severity:'
@@ -216,14 +235,14 @@ export default {
   },
   Alerts_Application_Info_Pane: {
     Overview_General_Headers: [
-      'Project Name:',
-      'Application Name:',
+      'Project name:',
+      'Application name:',
       'Type:',
       'Timestamp:',
       'Severity:'
     ],
     Overview_General_Headers_Per_Project: [
-      'Application Name:',
+      'Application name:',
       'Type:',
       'Timestamp:',
       'Severity:'
@@ -290,6 +309,7 @@ export default {
     Tab_List: ['Overview'],
     Tab_List_Two_Tabs: ['Overview', 'Preview'],
     Tab_List_Extended: ['Overview', 'Preview', 'Features', 'Statistics'],
+    Tab_List_Prompt: ['Overview', 'Preview', 'LLM Prompts'],
     Info_Banner_Message: /The (.+?) is not in the filtered list\. Closing the details panel will return you to the current list\./,
     Overview_General_Headers: [
       'Hash:',
@@ -309,6 +329,7 @@ export default {
       'Metrics:'
     ],
     Overview_Producer_Headers: ['Name:', 'Kind:', 'URI:', 'Owner:', 'Workflow:', 'UID:'],
+    Overview_Producer_Headers_Kind_Project: ['Name:', 'Kind:', 'Tag:', 'Owner:', 'UID:'],
     Overview_Sources_Headers: ['Name:', 'Path:']
   },
   Models_Endpoints_Info_Pane: {
@@ -318,7 +339,7 @@ export default {
       'Model class:',
       'Model artifact:',
       'Function URI:',
-      'Function Tag:',
+      'Function tag:',
       'Feature set:',
       'Sampling percentage:',
       'Last prediction:',
@@ -326,9 +347,9 @@ export default {
     ],
     Overview_Drift_Headers: [
       'Mean TVD:',
-      'Mean Hellinger:',
+      'Mean hellinger:',
       'Mean KLD:',
-      'Drift Actual Value:'
+      'Drift actual value:'
     ]
   },
   New_Feature_Store: {
@@ -421,6 +442,7 @@ export default {
     Auto_Refresh: 'Uncheck Auto Refresh to view more results',
     FilterBy_Button: 'Filter',
     FilterBy_Button_1: 'Filter (1)',
+    FilterBy_Button_2: 'Filter (2)',
     Argument: 'The essence of all things',
     Show_All_Versions: 'Show all versions',
     Open_Metrics: 'Open metrics',
@@ -536,6 +558,14 @@ export default {
     Distinct_Keys: 'The partition is based on key.',
     Source_URL_Input:
       'Source URL is the Git Repo that is associated with the project. When the user pulls the project it will use the source URL to pull from',
+    Secret_Name_Rule_Options:
+      'Valid characters: a–z, A–Z, 0–9, –, _, .\n' +
+      'Must begin and end with: a–z, A–Z, 0–9\n' +
+      'No consecutive characters: ..,, .–,, –.\n' +
+      'Max length between two periods: 63\n' +
+      'Length – max: 253\n'+
+      'This field is required\n'+
+      'Secret does not reference an MLRun secret defined in another project',
     SECRET_INPUT_HINT:
       '• Valid characters: A-Z, a-z, 0-9, -, _, .\n' +
       '• Must begin and end with: A-Z, a-z, 0-9\n' +
@@ -563,6 +593,8 @@ export default {
       ' Note that some values may be empty due to the use of different engines for calculating statistics',
     Models_Statistics:
       'Note that some values may be empty due to the use of different engines for calculating statistics',
+    Models_LLM_Prompts:
+      'All LLM prompt artifacts linked to this model',
     Model_Stats_Tip:  
       'Each model can have multiple versions, produced by multiple runs and given multiple tags.\n' +
       ' You can browse them in the Models page.',
@@ -635,7 +667,7 @@ export default {
     Overview_Headers: [
       'UID:',
       'Start time:',
-      'Last Updated:',
+      'Last updated:',
       'Run on spot:',
       'Node selector:',
       'Priority:',
@@ -796,6 +828,7 @@ export default {
     Common_Message_LLM_Prompt_Name: /No data matches the filter: "Name: (.+?), LLM prompt version tag: (.+?), Show best iteration only: (.+?)"/,
     Common_Message_LLM_Prompt_Label: /No data matches the filter: "Name: (.+?), LLM prompt version tag: (.+?), Labels: (.+?), Show best iteration only: (.+?)"/,
     Common_Message_LLM_Prompt_Tag: /No data matches the filter: "LLM prompt version tag: (.+?), Show best iteration only: (.+?)"/,
+    Common_Message_LLM_Prompt_Model_Name_Tag: /No data matches the filter: "Name: (.+?), LLM prompt version tag: (.+?), Labels: (.+?), Show best iteration only: (.+?), Model name: (.+?), Model version tag: (.+?)"/,
     Common_Message_Artifact_Tag: /No data matches the filter: "Version tag: (.+?), Show best iteration only: (.+?)"/,
     Common_Message_Jobs_Monitoring_Workflow_Project:
       /No data matches the filter: "Created at: \d{2}\/\d{2}\/\d{4} \d{2}:\d{2} - \d{2}\/\d{2}\/\d{4} \d{2}:\d{2}, Project: (.+?)"/,

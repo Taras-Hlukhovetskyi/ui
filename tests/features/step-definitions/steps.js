@@ -50,6 +50,7 @@ import {
   generatePath,
   determineFileAccess,
   verifyClassDisabled,
+  verifyClassEnabled,
   checkComponentHintTextWithHover,
   putToTestContextElementValue
 } from '../common/actions/common.action'
@@ -105,7 +106,7 @@ import {
   isContainsSubstringInSuggestedOptions,
   typeSearchableValue
 } from '../common/actions/input-with-autocomplete.action'
-import { checkNodesConnectionsNPandas } from '../common/actions/graph.action'
+import { checkWorkflowGraphConnections } from '../common/actions/graph.action'
 import {
   isRadioButtonSelected,
   isRadioButtonUnselected,
@@ -416,6 +417,16 @@ Then(
   'verify {string} element on {string} wizard is disabled by class name',
   async function(inputField, wizardName) {
     await verifyClassDisabled(
+      this.driver,
+      pageObjects[wizardName][inputField]
+    )
+  }
+)
+
+Then(
+  'verify {string} element on {string} wizard is enabled by class name',
+  async function(inputField, wizardName) {
+    await verifyClassEnabled(
       this.driver,
       pageObjects[wizardName][inputField]
     )
@@ -1614,9 +1625,9 @@ Then('select {string} with {string} value in breadcrumbs menu', async function(
 })
 
 Then(
-  'verify arrow lines position on {string} on {string} wizard',
+  'verify workflow graph nodes and arrows connections on {string} on {string} wizard',
   async function(graphName, wizardName) {
-    await checkNodesConnectionsNPandas(
+    await checkWorkflowGraphConnections(
       this.driver,
       pageObjects[wizardName][graphName]
     )

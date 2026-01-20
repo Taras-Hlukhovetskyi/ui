@@ -150,9 +150,9 @@ Feature: Jobs and workflows
         Then verify "Table_FilterBy_Button" element visibility on "Schedule_Monitor_Tab" wizard
         Then click on "Table_FilterBy_Button" element on "Schedule_Monitor_Tab" wizard
         Then "Title" element on "FilterBy_Popup" should contains "Filter by" value
-        Then verify "Type_Filter_Dropdown" element visibility on "FilterBy_Popup" wizard
-        Then verify "Type_Filter_Dropdown" dropdown on "FilterBy_Popup" wizard selected option value "All"
-        Then verify "Type_Filter_Dropdown" dropdown element on "FilterBy_Popup" wizard should contains "Dropdown_Options"."Scheduled_Type_Filter_Options"
+        Then verify "Type_Filter_Dropdown_Schedule" element visibility on "FilterBy_Popup" wizard
+        Then verify "Type_Filter_Dropdown_Schedule" dropdown on "FilterBy_Popup" wizard selected option value "All"
+        Then verify "Type_Filter_Dropdown_Schedule" dropdown element on "FilterBy_Popup" wizard should contains "Dropdown_Options"."Scheduled_Type_Filter_Options"
         Then verify "Table_Label_Filter_Input" element visibility on "FilterBy_Popup" wizard
         Then verify "Clear_Button" element visibility on "FilterBy_Popup" wizard
         Then verify "Apply_Button" element visibility on "FilterBy_Popup" wizard
@@ -187,40 +187,40 @@ Feature: Jobs and workflows
         Then verify "Date_Picker_Filter_Dropdown" dropdown on "Schedule_Monitor_Tab" wizard selected option value "Next 24 hours"
         Then verify "Table_FilterBy_Button" element visibility on "Schedule_Monitor_Tab" wizard
         Then click on "Table_FilterBy_Button" element on "Schedule_Monitor_Tab" wizard
-        Then verify "Type_Filter_Dropdown" dropdown on "FilterBy_Popup" wizard selected option value "All"
-        When select "Databricks" option in "Type_Filter_Dropdown" filter dropdown on "FilterBy_Popup" wizard
+        Then verify "Type_Filter_Dropdown_Schedule" dropdown on "FilterBy_Popup" wizard selected option value "All"
+        When select "Databricks" option in "Type_Filter_Dropdown_Schedule" filter dropdown on "FilterBy_Popup" wizard
         Then click on "Title" element on "FilterBy_Popup" wizard
-        Then verify "Type_Filter_Dropdown" dropdown on "FilterBy_Popup" wizard selected option value "Databricks"
-        When select "Dask" option in "Type_Filter_Dropdown" filter dropdown on "FilterBy_Popup" wizard
+        Then verify "Type_Filter_Dropdown_Schedule" dropdown on "FilterBy_Popup" wizard selected option value "Databricks"
+        When select "Dask" option in "Type_Filter_Dropdown_Schedule" filter dropdown on "FilterBy_Popup" wizard
         Then click on "Title" element on "FilterBy_Popup" wizard
-        Then verify "Type_Filter_Dropdown" dropdown on "FilterBy_Popup" wizard selected option value "Dask, Databricks"
-        When select "Horovod" option in "Type_Filter_Dropdown" filter dropdown on "FilterBy_Popup" wizard
+        Then verify "Type_Filter_Dropdown_Schedule" dropdown on "FilterBy_Popup" wizard selected option value "Dask, Databricks"
+        When select "Horovod" option in "Type_Filter_Dropdown_Schedule" filter dropdown on "FilterBy_Popup" wizard
         Then click on "Title" element on "FilterBy_Popup" wizard
-        Then verify "Type_Filter_Dropdown" dropdown on "FilterBy_Popup" wizard selected option value "3 items selected"
-        When select "Spark" option in "Type_Filter_Dropdown" filter dropdown on "FilterBy_Popup" wizard
+        Then verify "Type_Filter_Dropdown_Schedule" dropdown on "FilterBy_Popup" wizard selected option value "3 items selected"
+        When select "Spark" option in "Type_Filter_Dropdown_Schedule" filter dropdown on "FilterBy_Popup" wizard
         Then click on "Title" element on "FilterBy_Popup" wizard
-        Then verify "Type_Filter_Dropdown" dropdown on "FilterBy_Popup" wizard selected option value "4 items selected"
-        When select "Workflow" option in "Type_Filter_Dropdown" filter dropdown on "FilterBy_Popup" wizard
+        Then verify "Type_Filter_Dropdown_Schedule" dropdown on "FilterBy_Popup" wizard selected option value "4 items selected"
+        When select "Workflow" option in "Type_Filter_Dropdown_Schedule" filter dropdown on "FilterBy_Popup" wizard
         Then click on "Title" element on "FilterBy_Popup" wizard
-        Then verify "Type_Filter_Dropdown" dropdown on "FilterBy_Popup" wizard selected option value "5 items selected"
+        Then verify "Type_Filter_Dropdown_Schedule" dropdown on "FilterBy_Popup" wizard selected option value "5 items selected"
         Then click on "Apply_Button" element on "FilterBy_Popup" wizard
         And wait load page
         Then verify "Schedule_Monitor_Table" element visibility on "Schedule_Monitor_Tab" wizard
         Then click on "Table_FilterBy_Button" element on "Schedule_Monitor_Tab" wizard
-        Then verify "Type_Filter_Dropdown" dropdown on "FilterBy_Popup" wizard selected option value "5 items selected"
-        When select "Job" option in "Type_Filter_Dropdown" filter dropdown on "FilterBy_Popup" wizard
+        Then verify "Type_Filter_Dropdown_Schedule" dropdown on "FilterBy_Popup" wizard selected option value "5 items selected"
+        When select "Job" option in "Type_Filter_Dropdown_Schedule" filter dropdown on "FilterBy_Popup" wizard
         Then click on "Title" element on "FilterBy_Popup" wizard
-        Then verify "Type_Filter_Dropdown" dropdown on "FilterBy_Popup" wizard selected option value "All"
+        Then verify "Type_Filter_Dropdown_Schedule" dropdown on "FilterBy_Popup" wizard selected option value "All"
         Then click on "Apply_Button" element on "FilterBy_Popup" wizard
         And wait load page
         Then verify "Schedule_Monitor_Table" element visibility on "Schedule_Monitor_Tab" wizard
         Then click on "Table_FilterBy_Button" element on "Schedule_Monitor_Tab" wizard
-        Then verify "Type_Filter_Dropdown" dropdown on "FilterBy_Popup" wizard selected option value "All"
-        When select "Spark" option in "Type_Filter_Dropdown" filter dropdown on "FilterBy_Popup" wizard
+        Then verify "Type_Filter_Dropdown_Schedule" dropdown on "FilterBy_Popup" wizard selected option value "All"
+        When select "Spark" option in "Type_Filter_Dropdown_Schedule" filter dropdown on "FilterBy_Popup" wizard
         Then click on "Title" element on "FilterBy_Popup" wizard
-        When select "Horovod" option in "Type_Filter_Dropdown" filter dropdown on "FilterBy_Popup" wizard
+        When select "Horovod" option in "Type_Filter_Dropdown_Schedule" filter dropdown on "FilterBy_Popup" wizard
         Then click on "Title" element on "FilterBy_Popup" wizard
-        Then verify "Type_Filter_Dropdown" dropdown on "FilterBy_Popup" wizard selected option value "Spark, Horovod"
+        Then verify "Type_Filter_Dropdown_Schedule" dropdown on "FilterBy_Popup" wizard selected option value "Spark, Horovod"
         Then click on "Apply_Button" element on "FilterBy_Popup" wizard
         And wait load page
         And verify "No_Data_Message" element visibility on "commonPagesHeader" wizard
@@ -282,7 +282,6 @@ Feature: Jobs and workflows
         And hover "MLRun_Logo" component on "commonPagesHeader" wizard
         And wait load page
         When pick up "Custom range" from "03/31/2014 10:30" to "03/21/2015 19:15" in "Date_Time_Picker" via "Date_Picker_Filter_Dropdown" on "Jobs_Monitor_Tab" wizard
-        And wait load page
         And wait load page
         Then verify from "03/31/2014 10:30" to "03/21/2015 19:15" filter band in "Custom_Range_Filter_Dropdown" filter dropdown on "Jobs_Monitor_Tab" wizard
         When pick up "Custom range" from "03/31/2044 10:30" to "03/21/2015 19:15" in "Date_Time_Picker" via "Date_Picker_Filter_Dropdown" on "Jobs_Monitor_Tab" wizard
@@ -525,6 +524,7 @@ Feature: Jobs and workflows
         When click on cell with row index 1 in "name" column in "Jobs_Monitor_Table" table on "Jobs_Monitor_Tab" wizard
         And wait load page
         When pick up "Custom range" from "01/01/2021 00:00" to "01/01/2023 00:00" in "Date_Time_Picker" via "Date_Picker_Filter_Dropdown" on "Jobs_Monitor_Tab" wizard
+        And wait load page
         Then verify from "01/01/2021 00:00" to "01/01/2023 00:00" filter band in "Custom_Range_Filter_Dropdown" filter dropdown on "Jobs_Monitor_Tab" wizard
         And wait load page
         When click on cell with row index 1 in "name" column in "Jobs_Monitor_Table" table on "Jobs_Monitor_Tab" wizard
@@ -1287,17 +1287,17 @@ Feature: Jobs and workflows
         Then verify "Step_1_Button" element on "commonPagesHeader" wizard is enabled
         Then verify "Step_2_Button" element on "commonPagesHeader" wizard is enabled
         Then verify "Step_3_Button" element on "commonPagesHeader" wizard is enabled
-        Then "Step_1_Button_text" element on "commonPagesHeader" should contains "Run Details" value
+        Then "Step_1_Button_text" element on "commonPagesHeader" should contains "Run details" value
         Then verify "Step_4_Button" element on "commonPagesHeader" wizard is enabled
         Then verify "Step_5_Button" element on "commonPagesHeader" wizard is enabled
-        Then "Form_Header_Run_Details" element on "commonPagesHeader" should contains "Run Details" value
+        Then "Form_Header_Run_Details" element on "commonPagesHeader" should contains "Run details" value
         Then "Hyperparameter_Checkbox" element should be unchecked on "Modal_Wizard_Form" wizard
         Then verify "Run_Name_Input" element visibility on "Modal_Wizard_Form" wizard
         Then verify "Handler_Edit_Job" element visibility on "Modal_Wizard_Form" wizard
         Then verify "Handler_Edit_Job" element on "Modal_Wizard_Form" wizard is disabled
         Then verify "Labels_Table" element visibility on "Modal_Wizard_Form" wizard
         And click on "Next_Button" element on "Modal_Wizard_Form" wizard
-        Then "Form_Header_Data_Inputs" element on "commonPagesHeader" should contains "Data Inputs" value
+        Then "Form_Header_Data_Inputs" element on "commonPagesHeader" should contains "Data inputs" value
         Then verify "Data_Inputs_Headers" on "Modal_Wizard_Form" wizard should contains "Modal_Wizard_Form"."Data_Inputs_Table_Header"
         And click on "Next_Button" element on "Modal_Wizard_Form" wizard
         Then "Form_Header_Parameters" element on "commonPagesHeader" should contains "Parameters" value
@@ -1515,17 +1515,17 @@ Feature: Jobs and workflows
         Then verify "Step_1_Button" element on "commonPagesHeader" wizard is enabled
         Then verify "Step_2_Button" element on "commonPagesHeader" wizard is enabled
         Then verify "Step_3_Button" element on "commonPagesHeader" wizard is enabled
-        Then "Step_1_Button_text" element on "commonPagesHeader" should contains "Run Details" value
+        Then "Step_1_Button_text" element on "commonPagesHeader" should contains "Run details" value
         Then verify "Step_4_Button" element on "commonPagesHeader" wizard is enabled
         Then verify "Step_5_Button" element on "commonPagesHeader" wizard is enabled
-        Then "Form_Header_Run_Details" element on "commonPagesHeader" should contains "Run Details" value
+        Then "Form_Header_Run_Details" element on "commonPagesHeader" should contains "Run details" value
         Then "Hyperparameter_Checkbox" element should be unchecked on "Modal_Wizard_Form" wizard
         Then verify "Run_Name_Input" element visibility on "Modal_Wizard_Form" wizard
         Then verify "Handler_Edit_Job" element visibility on "Modal_Wizard_Form" wizard
         Then verify "Handler_Edit_Job" element on "Modal_Wizard_Form" wizard is disabled
         Then verify "Labels_Table" element visibility on "Modal_Wizard_Form" wizard
         And click on "Next_Button" element on "Modal_Wizard_Form" wizard
-        Then "Form_Header_Data_Inputs" element on "commonPagesHeader" should contains "Data Inputs" value
+        Then "Form_Header_Data_Inputs" element on "commonPagesHeader" should contains "Data inputs" value
         Then verify "Data_Inputs_Headers" on "Modal_Wizard_Form" wizard should contains "Modal_Wizard_Form"."Data_Inputs_Table_Header"
         And click on "Next_Button" element on "Modal_Wizard_Form" wizard
         Then "Form_Header_Parameters" element on "commonPagesHeader" should contains "Parameters" value
@@ -1558,7 +1558,6 @@ Feature: Jobs and workflows
         Then "Save_Button" element on "Modal_Wizard_Form" should contains "Save" value
 
     @MLJW
-    #TODO: arrow lines position - y not found
     @passive
     @smoke
     Scenario: MLJW081 - Check visibility of main components on Workflow graph View
@@ -1575,9 +1574,8 @@ Feature: Jobs and workflows
         When click on cell with row index 1 in "name" column in "Workflows_Monitor_Table" table on "Workflows_Monitor_Tab" wizard
         And wait load page
         Then verify "Workflow_Graph" element visibility on "Workflows_Monitor_Tab" wizard
-        # Then verify arrow lines position on "Workflow_Graph" on "Workflows_Monitor_Tab" wizard
+        Then verify workflow graph nodes and arrows connections on "Workflow_Graph" on "Workflows_Monitor_Tab" wizard
         When click on node with index 2 in "Workflow_Graph" graph on "Workflows_Monitor_Tab" wizard
-        And wait load page
         And wait load page
         Then verify "Header" element visibility on "Jobs_Monitor_Tab_Info_Pane" wizard
         Then verify "Updated" element visibility on "Jobs_Monitor_Tab_Info_Pane" wizard
@@ -1970,11 +1968,11 @@ Feature: Jobs and workflows
         Then "Form_Header_Function_Selection" element on "commonPagesHeader" should contains "Function selection" value
         Then verify "Function_Selection_Tabs" on "Modal_Wizard_Form" wizard should contains "Modal_Wizard_Form"."Tab_List"
         Then verify "Step_1_Button" element on "commonPagesHeader" wizard is enabled
-        Then "Step_1_Button_text" element on "commonPagesHeader" should contains "Function Selection" value
+        Then "Step_1_Button_text" element on "commonPagesHeader" should contains "Function selection" value
         Then verify "Step_2_Button" element on "commonPagesHeader" wizard is disabled
-        Then "Step_2_Button_text" element on "commonPagesHeader" should contains "Run Details" value
+        Then "Step_2_Button_text" element on "commonPagesHeader" should contains "Run details" value
         Then verify "Step_3_Button" element on "commonPagesHeader" wizard is disabled
-        Then "Step_3_Button_text" element on "commonPagesHeader" should contains "Data Inputs" value
+        Then "Step_3_Button_text" element on "commonPagesHeader" should contains "Data inputs" value
         Then verify "Step_4_Button" element on "commonPagesHeader" wizard is disabled
         Then "Step_4_Button_text" element on "commonPagesHeader" should contains "Parameters" value
         Then verify "Step_5_Button" element on "commonPagesHeader" wizard is disabled
@@ -2081,7 +2079,7 @@ Feature: Jobs and workflows
 
     @MLJW
     @smoke
-    Scenario: MLJW042 - Check all mandatory components on Batch Run wizard - Run Details without Method
+    Scenario: MLJW042 - Check all mandatory components on Batch Run wizard - Run details without Method
         Given open url
         And wait load page
         And click on row root with value "default" in "name" column in "Projects_Table" table on "Projects" wizard
@@ -2104,7 +2102,7 @@ Feature: Jobs and workflows
         Then "Step_5_Button_text" element on "commonPagesHeader" should contains "Resources" value
         Then verify "Step_6_Button" element on "commonPagesHeader" wizard is enabled
         Then verify "Form_Header_Run_Details" element visibility on "commonPagesHeader" wizard
-        Then "Form_Header_Run_Details" element on "commonPagesHeader" should contains "Run Details" value
+        Then "Form_Header_Run_Details" element on "commonPagesHeader" should contains "Run details" value
         Then verify "Hyperparameter_Checkbox" element visibility on "Modal_Wizard_Form" wizard
         Then "Hyperparameter_Checkbox" element should be unchecked on "Modal_Wizard_Form" wizard
         Then check "Hyperparameter_Checkbox" element on "Modal_Wizard_Form" wizard
@@ -2177,7 +2175,7 @@ Feature: Jobs and workflows
 
     @MLJW
     @smoke
-    Scenario: MLJW051 - Check all mandatory components on Batch Run wizard - Run Details with Method
+    Scenario: MLJW051 - Check all mandatory components on Batch Run wizard - Run details with Method
         Given open url
         And wait load page
         And click on row root with value "churn-project-admin" in "name" column in "Projects_Table" table on "Projects" wizard
@@ -2195,7 +2193,7 @@ Feature: Jobs and workflows
         Then "Function_Title" element on "Modal_Wizard_Form" should contains "clean-data" value
         Then verify "Run_Name_Field" on "Modal_Wizard_Form" wizard should contains "clean-data" value
         Then verify "Form_Header_Run_Details" element visibility on "commonPagesHeader" wizard
-        Then "Form_Header_Run_Details" element on "commonPagesHeader" should contains "Run Details" value
+        Then "Form_Header_Run_Details" element on "commonPagesHeader" should contains "Run details" value
         Then verify "Hyperparameter_Checkbox" element visibility on "Modal_Wizard_Form" wizard
         Then "Hyperparameter_Checkbox" element should be unchecked on "Modal_Wizard_Form" wizard
         Then verify "Run_Name_Input" element visibility on "Modal_Wizard_Form" wizard
@@ -2228,7 +2226,7 @@ Feature: Jobs and workflows
 
     @MLJW
     @smoke
-    Scenario: MLJW053 - Check changing "Method" after "Hyperparameter" check in Run Details section of Batch Run
+    Scenario: MLJW053 - Check changing "Method" after "Hyperparameter" check in Run details section of Batch Run
         Given open url
 	    And wait load page
         And click on row root with value "default" in "name" column in "Projects_Table" table on "Projects" wizard
@@ -2253,7 +2251,7 @@ Feature: Jobs and workflows
 
     @MLJW
     @smoke
-    Scenario: MLJW054 - Check "Image name" field in Run Details section of Batch Run
+    Scenario: MLJW054 - Check "Image name" field in Run details section of Batch Run
         Given open url
 	    And wait load page
         And click on row root with value "default" in "name" column in "Projects_Table" table on "Projects" wizard
@@ -2276,7 +2274,7 @@ Feature: Jobs and workflows
 
     @MLJW
     @smoke
-    Scenario: MLJW039 - Check all mandatory components on Batch Run wizard - Data Inputs
+    Scenario: MLJW039 - Check all mandatory components on Batch Run wizard - Data inputs
         Given open url
         And wait load page
         And click on row root with value "default" in "name" column in "Projects_Table" table on "Projects" wizard
@@ -2302,7 +2300,7 @@ Feature: Jobs and workflows
         Then verify "Step_6_Button" element on "commonPagesHeader" wizard is enabled
         Then "Title" element on "Modal_Wizard_Form" should contains "Batch Run" value
         Then verify "Form_Header_Data_Inputs" element visibility on "commonPagesHeader" wizard
-        Then "Form_Header_Data_Inputs" element on "commonPagesHeader" should contains "Data Inputs" value
+        Then "Form_Header_Data_Inputs" element on "commonPagesHeader" should contains "Data inputs" value
         Then verify "Data_Inputs_Headers" on "Modal_Wizard_Form" wizard should contains "Modal_Wizard_Form"."Data_Inputs_Table_Header"
         When add data to "Data_Inputs_Table" table on "Modal_Wizard_Form" wizard with a pre-filled table
             | name_input | path_dropdown |      path_input     |
@@ -2667,7 +2665,7 @@ Feature: Jobs and workflows
         When click on "Delete_New_Row_Button" element in "Resources_Accordion" on "Modal_Wizard_Form" wizard
         When add new volume rows to "Volume_Paths_Table" table in "Resources_Accordion" on "Modal_Wizard_Form" wizard using nontable inputs
             | Volume_Paths_Table_Type_Dropdown | Volume_Paths_Table_Volume_Name_Input | Volume_Paths_Table_Path_Input | Volume_Paths_Table_Config_Map_Input | Add_New_Row_Button |
-            |           Config Map             |                                      |                               |                                     |         yes        |
+            |           Config map             |                                      |                               |                                     |         yes        |
         Then verify "Volume_Paths_Table_Volume_Name_Input" element in "Resources_Accordion" on "Modal_Wizard_Form" wizard should display hover warning "Input_Hint"."Input_Field_Require"
         Then verify "Volume_Paths_Table_Path_Input" element in "Resources_Accordion" on "Modal_Wizard_Form" wizard should display hover warning "Input_Hint"."Input_Field_Require"
         Then verify "Volume_Paths_Table_Config_Map_Input" element in "Resources_Accordion" on "Modal_Wizard_Form" wizard should display hover warning "Input_Hint"."Input_Field_Require"
@@ -2678,7 +2676,7 @@ Feature: Jobs and workflows
             |             Secret               |                                      |                               |                                      |         yes        |
         Then verify "Volume_Paths_Table_Volume_Name_Input" element in "Resources_Accordion" on "Modal_Wizard_Form" wizard should display hover warning "Input_Hint"."Input_Field_Require"
         Then verify "Volume_Paths_Table_Path_Input" element in "Resources_Accordion" on "Modal_Wizard_Form" wizard should display hover warning "Input_Hint"."Input_Field_Require"
-        Then verify "Volume_Paths_Table_Secret_Name_Input" element in "Resources_Accordion" on "Modal_Wizard_Form" wizard should display hover warning "Input_Hint"."Input_Field_Require"
+        Then verify "Volume_Paths_Table_Secret_Name_Input" in "Resources_Accordion" on "Modal_Wizard_Form" wizard should display options "Input_Hint"."Secret_Name_Rule_Options"
         Then verify "Volume_Paths_Table_Path_Input" element in "Resources_Accordion" on "Modal_Wizard_Form" wizard should display hint "Input_Hint"."Mount_Path_Hint"
         When click on "Delete_New_Row_Button" element in "Resources_Accordion" on "Modal_Wizard_Form" wizard
         When add new volume rows to "Volume_Paths_Table" table in "Resources_Accordion" on "Modal_Wizard_Form" wizard using nontable inputs
@@ -2740,7 +2738,7 @@ Feature: Jobs and workflows
         And click on "Next_Button" element on "Modal_Wizard_Form" wizard
         And click on "Next_Button" element on "Modal_Wizard_Form" wizard
         Then "Title" element on "Modal_Wizard_Form" should contains "Batch Run" value
-        Then "Form_Header_Data_Inputs" element on "commonPagesHeader" should contains "Data Inputs" value
+        Then "Form_Header_Data_Inputs" element on "commonPagesHeader" should contains "Data inputs" value
         When add data to "Data_Inputs_Table" table on "Modal_Wizard_Form" wizard with combobox
             |    name_input   | path_dropdown | path_dropdown_autocomplete_artifacts | path_dropdown_autocomplete_project | path_dropdown_autocomplete_item | path_dropdown_autocomplete_tag |
             |     artifacts   |  MLRun store  |               Artifacts              |     default (Current project)      |        download_content         |            #0:latest           |

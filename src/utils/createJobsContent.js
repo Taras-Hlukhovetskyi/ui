@@ -17,6 +17,8 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
+import { get } from 'lodash'
+
 import JobPopUp from '../elements/DetailsPopUp/JobPopUp/JobPopUp'
 import FunctionPopUp from '../elements/DetailsPopUp/FunctionPopUp/FunctionPopUp'
 
@@ -31,7 +33,8 @@ import {
   MONITOR_JOBS_TAB,
   MONITOR_WORKFLOWS_TAB,
   NAME_FILTER,
-  PROJECT_FILTER
+  PROJECT_FILTER,
+  RUNNING_STATE
 } from '../constants'
 import { openPopUp } from 'igz-controls/utils/common.util'
 import {
@@ -41,16 +44,16 @@ import {
 import { measureTime } from './measureTime'
 import { generateLinkToDetailsPanel } from './link-helper.util'
 import { getJobIdentifier, getWorkflowJobIdentifier } from './getUniqueIdentifier'
-import { parseKeyValues } from './object'
 import { validateArguments } from './validateArguments'
-import { getJobKindFromLabels, typesOfJob } from './jobs.util'
+import { typesOfJob } from './jobs.util'
 import { saveAndTransformSearchParams } from 'igz-controls/utils/filter.util'
 import { formatDatetime } from 'igz-controls/utils/datetime.util'
 
 export const createJobsMonitorTabContent = (jobs, jobName, isStagingMode) => {
   return jobs.map(job => {
     const identifierUnique = getJobIdentifier(job, true)
-    const type = getJobKindFromLabels(job.labels)
+    const type = get(job, 'ui.originalContent.metadata.labels.kind', '')
+
     const getLink = tab => {
       if (jobName) {
         return validateArguments(job.uid, tab, job.name)
@@ -119,7 +122,7 @@ export const createJobsMonitorTabContent = (jobs, jobName, isStagingMode) => {
           id: `duration.${identifierUnique}`,
           value: measureTime(
             job.startTime || new Date(job.created_at),
-            (job.state?.value !== 'running' && job.updated) ||
+            (job.state?.value !== RUNNING_STATE && job.updated) ||
               (job.state?.value !== ERROR_STATE && new Date(job.finished_at))
           ),
           className: 'table-cell-1',
@@ -234,7 +237,7 @@ export const createJobsScheduleTabContent = jobs => {
           headerId: 'labels',
           headerLabel: 'Labels',
           id: `labels.${identifierUnique}`,
-          value: parseKeyValues(job.scheduled_object?.task.metadata.labels || {}),
+          value: job.scheduled_object?.task.metadata.labels ?? [],
           className: 'table-cell-1',
           type: 'labels'
         },
@@ -331,7 +334,7 @@ export const createJobsWorkflowsTabContent = (jobs, projectName, isStagingMode, 
           id: `duration.${identifierUnique}`,
           value: measureTime(
             job.startTime || new Date(job.created_at),
-            (job.state?.value !== 'running' && job.updated) ||
+            (job.state?.value !== RUNNING_STATE && job.updated) ||
               (job.state?.value !== ERROR_STATE && new Date(job.finished_at))
           ),
           className: 'table-cell-1',
@@ -454,7 +457,8 @@ export const createJobsWorkflowContent = (
 export const createJobsMonitoringContent = (jobs, jobName, isStagingMode) => {
   return jobs.map(job => {
     const identifierUnique = getJobIdentifier(job, true)
-    const type = getJobKindFromLabels(job.labels)
+    const type = get(job, 'ui.originalContent.metadata.labels.kind', '')
+
     const getLink = tab => {
       if (jobName) {
         return validateArguments(job.uid, tab, job.name)
@@ -529,7 +533,7 @@ export const createJobsMonitoringContent = (jobs, jobName, isStagingMode) => {
           id: `duration.${identifierUnique}`,
           value: measureTime(
             job.startTime || new Date(job.created_at),
-            (job.state?.value !== 'running' && job.updated) ||
+            (job.state?.value !== RUNNING_STATE && job.updated) ||
               (job.state?.value !== ERROR_STATE && new Date(job.finished_at))
           ),
           className: 'table-cell-1',
@@ -643,7 +647,7 @@ export const createScheduleJobsMonitoringContent = jobs => {
           headerId: 'labels',
           headerLabel: 'Labels',
           id: `labels.${identifierUnique}`,
-          value: parseKeyValues(job.scheduled_object?.task.metadata.labels || {}),
+          value: job.scheduled_object?.task.metadata.labels ?? [],
           className: 'table-cell-1',
           type: 'labels'
         },
@@ -747,7 +751,7 @@ export const createWorkflowsMonitoringContent = (jobs, isStagingMode, isSelected
           id: `duration.${identifierUnique}`,
           value: measureTime(
             job.startTime || new Date(job.created_at),
-            (job.state?.value !== 'running' && job.updated) ||
+            (job.state?.value !== RUNNING_STATE && job.updated) ||
               (job.state?.value !== ERROR_STATE && new Date(job.finished_at))
           ),
           className: 'table-cell-1',

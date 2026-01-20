@@ -30,10 +30,12 @@ const ModelsAndApplication = () => {
   const projectStore = useSelector(store => store.projectStore)
   const { projectName } = useParams()
   const navigate = useNavigate()
+  const isDataLoading =
+    projectStore?.projectsSummary?.loading || projectStore?.projectSummary?.loading
 
   const modelsData = projectName
-    ? projectStore.projectSummary.data?.models_count || 0
-    : projectStore.jobsMonitoringData?.models?.total || 0
+    ? projectStore.projectSummary.data?.models_count
+    : projectStore.jobsMonitoringData?.models?.total
 
   const data = useMemo(
     () => generateMonitoringStats(modelsData, navigate, MODELS_PAGE, projectName),
@@ -49,12 +51,12 @@ const ModelsAndApplication = () => {
           id="models_total_counter"
           onClick={data.models.link}
         >
-          {projectStore?.projectsSummary?.loading ? (
+          {isDataLoading ? (
             <Loader section small secondary />
           ) : (
             data?.models?.counter?.toLocaleString()
           )}
-        </StatsCard.MainCounter >
+        </StatsCard.MainCounter>
       </StatsCard.Row>
     </StatsCard>
   )

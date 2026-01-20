@@ -81,7 +81,7 @@ import {
   FORBIDDEN_ERROR_STATUS_CODE,
   NOTFOUND_ERROR_STATUS_CODE
 } from 'igz-controls/constants'
-import { convertChipsData, parseChipsData } from '../../utils/convertChipsData'
+import { convertChipsData, validateByInternalLabels } from '../../utils/convertChipsData'
 import { generateObjectFromKeyValue, parseObjectToKeyValue } from 'igz-controls/utils/form.util'
 import { getDefaultSchedule, scheduleDataInitialState } from '../SheduleWizard/scheduleWizard.util'
 import { getErrorDetail } from 'igz-controls/utils/common.util'
@@ -345,7 +345,7 @@ const getFunctionInfo = (selectedFunctionData, preSelectedVersion, isTrain) => {
 
 const getRunDefaultInfo = (defaultData, selectedFunction, internalLabels) => {
   return {
-    labels: parseChipsData(defaultData.task?.metadata?.labels, internalLabels),
+    labels: validateByInternalLabels(defaultData.task?.metadata?.labels, internalLabels),
     name: defaultData.task?.metadata?.name || '',
     handler: defaultData.task?.spec?.handler,
     handlerData: getHandlerData(selectedFunction, defaultData.task?.spec?.handler),
@@ -527,39 +527,6 @@ const parseVolumes = (volumes, volumeMounts, isEditMode) => {
       canBeModified: isEditMode
     }
   })
-}
-
-export const getCategoryName = categoryId => {
-  const categoriesNames = {
-    'data-analysis': 'Data Analysis',
-    'data-generation': 'Data Generation',
-    'data-preparation': 'Data Preparation',
-    'data-validation': 'Data Validation',
-    'deep-learning': 'Deep Learning',
-    'feature-store': 'Feature Store',
-    'machine-learning': 'Machine Learning',
-    'model-prep': 'Model Prep',
-    'model-serving': 'Model Serving',
-    'model-test': 'Model Test',
-    'model-testing': 'Model Testing',
-    'model-training': 'Model Training',
-    NLP: 'NLP',
-    audio: 'Audio',
-    dask: 'Dask',
-    dl: 'Deep Learning',
-    etl: 'ETL',
-    genai: 'GenAI',
-    huggingface: 'Hugging Face',
-    monitoring: 'Monitoring',
-    notifications: 'Alerts and Notifications',
-    other: 'Other',
-    pytorch: 'PyTorch',
-    simulators: 'Simulators',
-    training: 'Model Training',
-    utils: 'Utilities'
-  }
-
-  return categoriesNames[categoryId] ?? categoryId
 }
 
 const getDataInputData = (dataInputName, dataInputValue, dataInputIsChecked) => {

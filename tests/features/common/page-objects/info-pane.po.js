@@ -592,12 +592,28 @@ const modelsRealTimeinfoPaneOverviewHeaders = {
   root: '.table-container',
   header: {},
   body: {
-    root: '.graph-pane',
+    root: '.graph-pane .graph-pane__section:nth-of-type(2)',
     offset: 1,
     row: {
       root: '.graph-pane__row',
       fields: {
         key: '.graph-pane__row-label'
+      }
+    }
+  }
+}
+
+const modelsRealTimeinfoPaneRunningModelsHeaders = {
+  root: '.table-container',
+  header: {},
+  body: {
+    root: '.graph-pane  .graph-pane__section:nth-of-type(3)',
+    offset: 0,
+    row: {
+      root: '.graph-pane__row',
+      fields: {
+        key: '.graph-pane__row-label',
+        key_value:'.graph-pane__row-value .link'
       }
     }
   }
@@ -616,7 +632,7 @@ const featureSetTransformationGraph = {
           row: {
             root: '.react-flow__node-ml-node',
             fields: {
-              name: '.react-flow__node-label .data-ellipsis .data-ellipsis',
+              name: '.react-flow__node-label .data-ellipsis',
               top_handler: '.data-ellipsis .react-flow__handle-top',
               bottom_handler: '.data-ellipsis .react-flow__handle-bottom'
             }
@@ -630,7 +646,7 @@ const featureSetTransformationGraph = {
         root: '',
         header: {},
         body: {
-          root: '.react-flow__edges g[transform]',
+          root: '.react-flow__edges g',
           row: {
             root: '.react-flow__edge',
             fields: {
@@ -642,6 +658,21 @@ const featureSetTransformationGraph = {
     },
     svg: '.react-flow__edges',
     zoomPane: '.react-flow__nodes'
+  }
+}
+
+const modelsLLMPromptsTable = {
+  root: '[data-testid="detailsPanel"] .llm-artifacts .table',
+  header: {},
+  body: {
+    root: '.table-body',
+    row: {
+      root: '.table-row',
+      fields: {
+        name: '.table-body__cell:nth-of-type(1) .data-ellipsis',
+        producer: '.table-body__cell:nth-of-type(4)'
+      }
+    }
   }
 }
 
@@ -1018,6 +1049,7 @@ export default {
     ),
     Expand_Sources: By.css('.details-item .info-sources'),
     Overview_Table: commonTable(modelsOverviewTable),
+    LLMPrompts_Table: commonTable(modelsLLMPromptsTable),
     Info_Sources_Table: commonTable(filesInfoSourcesTable),
     Labels_Field: By.css(
       '.item-info__details-wrapper .details-item:nth-of-type(14) [data-testid="labels-add-chip"]'
@@ -1074,9 +1106,14 @@ export default {
   },
   modelsRealTimePipelineInfoPane: {
     Arrow_Back: commonArrowBack,
-    Header: By.css('.graph-pane__title span'),
+    Header: By.css('.graph-pane__title .graph-pane__title-label'),
+    Title_Icon: By.css('.graph-pane__title .graph-pane__title-icon'),
     Cross_Close_Button: By.css('.graph-pane__title .round-icon-cp .round-icon-cp__circle'),
-    Overview_Headers: commonTable(modelsRealTimeinfoPaneOverviewHeaders)
+    General_Section_Title: By.css('.graph-pane .graph-pane__section:nth-of-type(2) .graph-pane__section-title'),
+    Overview_Headers: commonTable(modelsRealTimeinfoPaneOverviewHeaders),
+    Running_Models_Section_Title: By.css('.graph-pane .graph-pane__section:nth-of-type(3) .graph-pane__section-title'),
+    Graph_Pane_Expand_Icon: By.css('.graph-pane .graph-pane__section:nth-of-type(3) .graph-pane__expand-icon'),
+    Running_Models_Headers: commonTable(modelsRealTimeinfoPaneRunningModelsHeaders)
   },
   llmPromptsInfoPane: {
     Header: header,

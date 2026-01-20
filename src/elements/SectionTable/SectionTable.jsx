@@ -23,8 +23,7 @@ import classnames from 'classnames'
 import { Link } from 'react-router-dom'
 
 import { TableTypeCell } from 'igz-controls/elements'
-import { TextTooltipTemplate, Tooltip, Tip, Loader } from 'igz-controls/components'
-import ReadOnlyChips from '../ReadOnlyChips/ReadOnlyChips'
+import { TextTooltipTemplate, Tooltip, Tip, Loader, ReadOnlyChips } from 'igz-controls/components'
 
 import './SectionTable.scss'
 
@@ -97,19 +96,31 @@ const SectionTable = ({ loading = false, params, table }) => {
                                   </Tooltip>
                                 </a>
                               ) : body[key].link ? (
-                                <Link className="link section-table__table-link" to={body[key].link}>
-                                  <Tooltip className="item-name" template={<TextTooltipTemplate text={body[key].value} />}>
+                                <Link
+                                  className="link section-table__table-link"
+                                  to={body[key].link}
+                                >
+                                  <Tooltip
+                                    className="item-name"
+                                    template={<TextTooltipTemplate text={body[key].value} />}
+                                  >
                                     {body[key].value}
                                   </Tooltip>
                                 </Link>
                               ) : (
-                                <Tooltip className="item-name" template={<TextTooltipTemplate text={body[key].value} />}>
+                                <Tooltip
+                                  className="item-name"
+                                  template={<TextTooltipTemplate text={body[key].value} />}
+                                >
                                   {body[key].value}
                                 </Tooltip>
                               )}
-                              
+
                               {body[key].tag ? (
-                                <Tooltip className="item-tag" template={<TextTooltipTemplate text={body[key].tag} />}>
+                                <Tooltip
+                                  className="item-tag"
+                                  template={<TextTooltipTemplate text={body[key].tag} />}
+                                >
                                   {body[key].tag}
                                 </Tooltip>
                               ) : null}

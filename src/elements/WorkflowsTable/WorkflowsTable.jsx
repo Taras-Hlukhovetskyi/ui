@@ -31,6 +31,7 @@ import Workflow from '../../components/Workflow/Workflow'
 import { Loader } from 'igz-controls/components'
 
 import {
+  ABORTING_STATE,
   ERROR_STATE,
   FAILED_STATE,
   JOB_KIND_JOB,
@@ -112,6 +113,20 @@ const WorkflowsTable = React.forwardRef(
     let fetchFunctionLogsTimeout = useRef(null)
     const accessibleProjectsMap = useSelector(state => state.projectStore.accessibleProjectsMap)
     const [permissionsLoading, setPermissionsLoading] = useState(false)
+
+    const detailsFormInitialValues = useMemo(() => {
+      return {
+        labels: selectedJob.labels ?? [],
+        results: selectedJob.resultsChips ?? [],
+        parameters: selectedJob.parametersChips ?? [],
+        nodeSelector: selectedJob.nodeSelectorChips ?? []
+      }
+    }, [
+      selectedJob.labels,
+      selectedJob.nodeSelectorChips,
+      selectedJob.parametersChips,
+      selectedJob.resultsChips
+    ])
 
     useEffect(() => {
       const projectNames = workflowsStore.workflows.data.map(workflow => workflow.project)
@@ -234,7 +249,7 @@ const WorkflowsTable = React.forwardRef(
 
     const handlePollAbortingJob = useCallback(
       (jobRun, refresh) => {
-        if (jobRun.abortTaskId && jobRun.state.value === 'aborting') {
+        if (jobRun.abortTaskId && jobRun.state.value === ABORTING_STATE) {
           const abortingJob = {
             [jobRun.abortTaskId]: {
               uid: jobRun.uid,
@@ -337,7 +352,7 @@ const WorkflowsTable = React.forwardRef(
         setSelectedJob(state => ({
           ...state,
           abortTaskId: task,
-          state: getState('aborting', JOBS_PAGE, JOB_KIND_JOB)
+          state: getState(ABORTING_STATE, JOBS_PAGE, JOB_KIND_JOB)
         }))
       },
       [setSelectedJob]
@@ -781,6 +796,7 @@ const WorkflowsTable = React.forwardRef(
               <Workflow
                 actionsMenu={actionsMenu}
                 backLink={backLink}
+                detailsFormInitialValues={detailsFormInitialValues}
                 handleCancel={handleCancel}
                 handleConfirmTerminateWorkflow={handleConfirmTerminateWorkflow}
                 itemIsSelected={itemIsSelected}
@@ -794,6 +810,7 @@ const WorkflowsTable = React.forwardRef(
             ) : (
               <Table
                 actionsMenu={actionsMenu}
+                detailsFormInitialValues={detailsFormInitialValues}
                 handleCancel={handleCancel}
                 pageData={pageData}
                 selectedItem={selectedJob}

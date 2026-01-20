@@ -34,7 +34,7 @@ import {
   MODEL_ENDPOINTS_TAB,
   MLRUN_STORAGE_INPUT_PATH_SCHEME
 } from '../../constants'
-import { parseKeyValues, parseUri } from '../../utils'
+import { parseUri } from '../../utils'
 import { getTriggerCriticalTimePeriod } from '../../utils/createAlertsContent'
 import { getChipOptions } from 'igz-controls/utils/chips.util'
 import { getLimitsGpuType } from '../../elements/FormResourcesUnits/formResourcesUnits.util'
@@ -91,7 +91,7 @@ const generateFunctionConfigurationContent = selectedFunction => {
   return [
     {
       id: 'runOnSpotNodes',
-      label: 'Run on Spot nodes',
+      label: 'Run on spot nodes',
       value: capitalize(selectedFunction.preemption_mode)
     },
     {
@@ -136,9 +136,15 @@ const generateFunctionConfigurationContent = selectedFunction => {
     },
     {
       id: 'nodeSelectors',
-      label: 'Node Selectors',
-      value: selectedFunction.node_selector,
-      chipVariant: 'results'
+      label: 'Node selectors',
+      chipVariant: 'results',
+      chipConfig: {
+        fieldData: {
+          name: 'additionalInfo.nodeSelectors'
+        },
+        editModeEnabled: false,
+        editModeType: 'chips'
+      }
     }
   ]
 }
@@ -152,7 +158,7 @@ const generateModelEndpointDriftContent = modelEndpoint => {
     },
     {
       id: 'hellinger_mean',
-      label: 'Mean Hellinger',
+      label: 'Mean hellinger',
       value: roundFloats(modelEndpoint.status?.drift_measures?.hellinger_mean, 2) ?? '-'
     },
     {
@@ -162,7 +168,7 @@ const generateModelEndpointDriftContent = modelEndpoint => {
     },
     {
       id: 'drift_value',
-      label: 'Drift Actual Value',
+      label: 'Drift actual value',
       value:
         isNumber(modelEndpoint.status?.drift_measures?.hellinger_mean) &&
         isNumber(modelEndpoint.status?.drift_measures?.tvd_mean)
@@ -177,7 +183,7 @@ const generateModelEndpointDriftContent = modelEndpoint => {
   ]
 }
 
-export const generateConfigurationDetailsInfo = selectedFunction => {
+export const generateConfigurationDetailsInfo = (selectedFunction, formState) => {
   if (selectedFunction.type === FUNCTION_TYPE_APPLICATION) {
     const functionContent = generateFunctionConfigurationContent(selectedFunction)
 
@@ -187,14 +193,15 @@ export const generateConfigurationDetailsInfo = selectedFunction => {
           <div className="details-item__header">{item.label}:</div>
           <DetailsInfoItem
             info={item.value}
+            item={item.chipConfig}
             chipsData={
               item.chipVariant
                 ? {
-                    chips: item.value,
                     chipOptions: getChipOptions(item.chipVariant)
                   }
                 : null
             }
+            formState={formState}
           />
         </li>
       )
@@ -315,7 +322,7 @@ export const generateProducerDetailsInfo = (selectedItem, isDetailsPopUp) => {
   }
 }
 
-export const generateDocumentLoaderDetailsInfo = (selectedItem, isDetailsPopUp) => {
+export const generateDocumentLoaderDetailsInfo = (selectedItem, isDetailsPopUp, formState) => {
   if (!isEveryObjectValueEmpty(selectedItem) && selectedItem.document_loader) {
     return (
       <>
@@ -337,11 +344,17 @@ export const generateDocumentLoaderDetailsInfo = (selectedItem, isDetailsPopUp) 
           <div className="details-item__header">Parameters</div>
           <DetailsInfoItem
             chipsData={{
-              chips: parseKeyValues(selectedItem.document_loader.kwargs),
-              chipOptions: getChipOptions('results'),
-              isEditEnabled: false
+              chipOptions: getChipOptions('results')
             }}
+            formState={formState}
             isDetailsPopUp={isDetailsPopUp}
+            item={{
+              editModeEnabled: false,
+              editModeType: 'chips',
+              fieldData: {
+                name: 'additionalInfo.parameters'
+              }
+            }}
           />
         </li>
       </>

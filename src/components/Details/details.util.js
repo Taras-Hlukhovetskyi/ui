@@ -30,6 +30,7 @@ import {
 } from 'igz-controls/utils/validation.util'
 
 import {
+  ABORTED_STATE,
   DATASETS_PAGE,
   DOCUMENTS_PAGE,
   FEATURE_SETS_TAB,
@@ -183,7 +184,18 @@ export const generateArtifactsContent = (
         copyToClipboard: true
       },
       metrics: {
-        value: selectedItem.metrics ?? []
+        fieldData: {
+          name: 'metrics'
+        },
+        editModeEnabled: false,
+        editModeType: 'chips',
+        validationRules: {
+          key: getValidationRules(
+            'artifact.labels.key',
+            getInternalLabelsValidationRule(internal_labels)
+          ),
+          value: getValidationRules('artifact.labels.value')
+        }
       },
       model_file: {
         value: selectedItem.model_file
@@ -210,7 +222,6 @@ export const generateArtifactsContent = (
         value: selectedItem.algorithm
       },
       labels: {
-        value: isEmpty(selectedItem.labels) ? [] : selectedItem.labels,
         fieldData: {
           name: 'labels'
         },
@@ -301,7 +312,7 @@ export const generateJobsContent = selectedItem => {
     startTime: {
       value: formatDatetime(
         selectedItem.startTime,
-        selectedItem.state?.value === 'aborted' ? 'N/A' : 'Not yet started'
+        selectedItem.state?.value === ABORTED_STATE ? 'N/A' : 'Not yet started'
       )
     },
     updated: {
@@ -310,14 +321,22 @@ export const generateJobsContent = selectedItem => {
     runOnSpot: {
       value: selectedItem.ui.runOnSpot
     },
-    nodeSelectorChips: {
-      value: selectedItem.nodeSelectorChips
+    nodeSelector: {
+      fieldData: {
+        name: 'nodeSelector'
+      },
+      editModeEnabled: false,
+      editModeType: 'chips'
     },
     priority: {
       value: selectedItem.ui.priority
     },
     parameters: {
-      value: selectedItem.parametersChips
+      fieldData: {
+        name: 'parameters'
+      },
+      editModeEnabled: false,
+      editModeType: 'chips'
     },
     handler: {
       value: selectedItem.handler
@@ -334,11 +353,19 @@ export const generateJobsContent = selectedItem => {
     functionTag: {
       value: selectedItem.ui?.functionTag ?? ''
     },
-    resultsChips: {
-      value: selectedItem.resultsChips
+    results: {
+      fieldData: {
+        name: 'results'
+      },
+      editModeEnabled: false,
+      editModeType: 'chips'
     },
     labels: {
-      value: isEmpty(selectedItem.labels) ? [] : selectedItem.labels
+      fieldData: {
+        name: 'labels'
+      },
+      editModeEnabled: false,
+      editModeType: 'chips'
     },
     logLevel: {
       value: selectedItem.logLevel
@@ -424,7 +451,6 @@ export const generateFeatureSetsOverviewContent = (selectedItem, isDetailsPopUp)
     }
   },
   labels: {
-    value: isEmpty(selectedItem.labels) ? [] : selectedItem.labels,
     editModeEnabled: !isDetailsPopUp,
     editModeType: 'chips',
     fieldData: {
@@ -479,7 +505,6 @@ export const generateFeatureVectorsOverviewContent = (selectedItem, isDetailsPop
     }
   },
   labels: {
-    value: isEmpty(selectedItem.labels) ? [] : selectedItem.labels,
     editModeEnabled: !isDetailsPopUp,
     editModeType: 'chips',
     fieldData: {

@@ -27,6 +27,7 @@ import { Loader, PopUpDialog } from 'igz-controls/components'
 import StatsCard from '../../common/StatsCard/StatsCard'
 
 import { generateAlertsStats } from '../../utils/generateAlertsStats'
+import { countTotalValue } from '../../utils/generateMonitoringData'
 
 import Alerts from 'igz-controls/images/alerts.svg?react'
 import ClockIcon from 'igz-controls/images/clock.svg?react'
@@ -40,6 +41,8 @@ const AlertsCounters = () => {
   const { projectName: paramProjectName } = useParams()
   const navigate = useNavigate()
   const projectStore = useSelector(store => store.projectStore)
+  const isDataLoading =
+    projectStore?.projectsSummary?.loading || projectStore?.projectSummary?.loading
 
   const handleOpenPopUp = () => {
     const isHidden = !detailsRef.current?.offsetParent
@@ -52,17 +55,11 @@ const AlertsCounters = () => {
 
   const alertsData = useMemo(() => {
     const projectName = paramProjectName ? paramProjectName : '*'
-    const defaultAlertData = {
-      endpoint: 0,
-      jobs: 0,
-      application: 0,
-      total: 0
-    }
 
     if (projectName !== '*') {
-      const endpoint = projectStore?.projectSummary?.data?.endpoint_alerts_count || 0
-      const jobs = projectStore?.projectSummary?.data?.job_alerts_count || 0
-      const application = projectStore?.projectSummary?.data?.other_alerts_count || 0
+      const endpoint = projectStore?.projectSummary?.data?.endpoint_alerts_count
+      const jobs = projectStore?.projectSummary?.data?.job_alerts_count
+      const application = projectStore?.projectSummary?.data?.other_alerts_count
 
       return {
         projectName,
@@ -70,14 +67,14 @@ const AlertsCounters = () => {
           endpoint,
           jobs,
           application,
-          total: endpoint + jobs + application
+          total: countTotalValue([endpoint, jobs, application])
         }
       }
     }
 
     return {
       projectName,
-      data: defaults({}, projectStore?.jobsMonitoringData?.alerts, defaultAlertData)
+      data: defaults({}, projectStore?.jobsMonitoringData?.alerts)
     }
   }, [
     paramProjectName,
@@ -114,10 +111,10 @@ const AlertsCounters = () => {
               id="alerts_total_counter"
               onClick={alertsStats?.total?.link}
             >
-              {projectStore?.projectsSummary?.loading ? (
+              {isDataLoading ? (
                 <Loader section small secondary />
               ) : (
-                alertsData?.data?.total?.toLocaleString()
+                alertsStats.total?.counter?.toLocaleString?.()
               )}
             </StatsCard.MainCounter>
           </StatsCard.Row>
@@ -131,10 +128,10 @@ const AlertsCounters = () => {
               >
                 <h6 className="stats__subtitle">Endpoint</h6>
                 <StatsCard.SecondaryCounter>
-                  {projectStore?.projectsSummary?.loading ? (
+                  {isDataLoading ? (
                     <Loader section small secondary />
                   ) : (
-                    alertsData?.data?.endpoint?.toLocaleString()
+                    alertsStats.endpoints?.counter?.toLocaleString?.()
                   )}
                 </StatsCard.SecondaryCounter>
               </div>
@@ -147,10 +144,10 @@ const AlertsCounters = () => {
               >
                 <h6 className="stats__subtitle">Jobs</h6>
                 <StatsCard.SecondaryCounter>
-                  {projectStore?.projectsSummary?.loading ? (
+                  {isDataLoading ? (
                     <Loader section small secondary />
                   ) : (
-                    alertsData?.data?.jobs?.toLocaleString()
+                    alertsStats.job?.counter?.toLocaleString?.()
                   )}
                 </StatsCard.SecondaryCounter>
               </div>
@@ -163,10 +160,10 @@ const AlertsCounters = () => {
               >
                 <div className="stats__subtitle">Application</div>
                 <StatsCard.SecondaryCounter>
-                  {projectStore.projectsSummary.loading ? (
+                  {isDataLoading ? (
                     <Loader section small secondary />
                   ) : (
-                    alertsData?.data?.application?.toLocaleString()
+                    alertsStats.application?.counter?.toLocaleString?.()
                   )}
                 </StatsCard.SecondaryCounter>
               </div>
@@ -183,13 +180,13 @@ const AlertsCounters = () => {
             >
               <div className="card-popup_text">
                 <div className="card-popup_text_link" onClick={alertsStats?.endpoints?.link}>
-                  Endpoint: {alertsData?.data?.endpoint}
+                  Endpoint: {alertsStats.endpoints?.counter}
                 </div>
                 <div className="card-popup_text_link" onClick={alertsStats?.job?.link}>
-                  Jobs: {alertsData?.data?.jobs}
+                  Jobs: {alertsStats.job?.counter}
                 </div>
                 <div className="card-popup_text_link" onClick={alertsStats?.application?.link}>
-                  Application: {alertsData?.data?.application}
+                  Application: {alertsStats.application?.counter}
                 </div>
               </div>
             </PopUpDialog>

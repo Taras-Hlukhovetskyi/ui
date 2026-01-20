@@ -24,7 +24,7 @@ import { useSelector } from 'react-redux'
 import { Loader, PopUpDialog } from 'igz-controls/components'
 import StatsCard from '../../common/StatsCard/StatsCard'
 
-import { generateMonitoringStats } from '../../utils/generateMonitoringData'
+import { countTotalValue, generateMonitoringStats } from '../../utils/generateMonitoringData'
 import { JOBS_MONITORING_SCHEDULED_TAB, SCHEDULE_TAB } from '../../constants'
 
 import ClockIcon from 'igz-controls/images/clock.svg?react'
@@ -38,6 +38,8 @@ const ScheduledJobsCounters = () => {
   const [showPopup, setShowPopup] = useState(false)
   const anchorRef = useRef(null)
   const detailsRef = useRef(null)
+  const isDataLoading =
+    projectStore?.projectsSummary?.loading || projectStore?.projectSummary?.loading
 
   const handleOpenPopUp = () => {
     const isHidden = !detailsRef.current?.offsetParent
@@ -50,23 +52,17 @@ const ScheduledJobsCounters = () => {
 
   const scheduledData = useMemo(() => {
     if (projectName) {
-      const jobs = projectStore.projectSummary?.data?.distinct_scheduled_jobs_pending_count || 0
+      const jobs = projectStore.projectSummary?.data?.distinct_scheduled_jobs_pending_count
       const workflows =
-        projectStore.projectSummary?.data?.distinct_scheduled_pipelines_pending_count || 0
+        projectStore.projectSummary?.data?.distinct_scheduled_pipelines_pending_count
 
       return {
         jobs,
         workflows,
-        total: jobs + workflows
+        total: countTotalValue([jobs, workflows])
       }
     }
-    return (
-      projectStore?.jobsMonitoringData.scheduled || {
-        jobs: 0,
-        workflows: 0,
-        total: 0
-      }
-    )
+    return projectStore?.jobsMonitoringData.scheduled || {}
   }, [
     projectName,
     projectStore.projectSummary?.data?.distinct_scheduled_jobs_pending_count,
@@ -101,11 +97,7 @@ const ScheduledJobsCounters = () => {
               id="scheduled_total_counter"
               onClick={scheduledStats?.total?.link}
             >
-              {projectStore?.projectsSummary?.loading ? (
-                <Loader section small secondary />
-              ) : (
-                scheduledStats.total.counter
-              )}
+              {isDataLoading ? <Loader section small secondary /> : scheduledStats.total.counter}
             </StatsCard.MainCounter>
           </StatsCard.Row>
           <div ref={detailsRef} className="stats__details">
@@ -117,7 +109,7 @@ const ScheduledJobsCounters = () => {
               >
                 <h6 className="stats__subtitle">Jobs</h6>
                 <StatsCard.SecondaryCounter>
-                  {projectStore.projectsSummary.loading ? (
+                  {isDataLoading ? (
                     <Loader section small secondary />
                   ) : (
                     scheduledStats.jobs.counter.toLocaleString()
@@ -133,7 +125,7 @@ const ScheduledJobsCounters = () => {
               >
                 <h6 className="stats__subtitle">Workflows</h6>
                 <StatsCard.SecondaryCounter>
-                  {projectStore.projectsSummary.loading ? (
+                  {isDataLoading ? (
                     <Loader section small secondary />
                   ) : (
                     scheduledStats.workflows.counter.toLocaleString()

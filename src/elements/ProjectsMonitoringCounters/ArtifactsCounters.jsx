@@ -24,7 +24,7 @@ import { Loader, PopUpDialog } from 'igz-controls/components'
 
 import { ARTIFACTS_PAGE } from '../../constants'
 import StatsCard from '../../common/StatsCard/StatsCard'
-import { generateMonitoringStats } from '../../utils/generateMonitoringData'
+import { countTotalValue, generateMonitoringStats } from '../../utils/generateMonitoringData'
 
 import './projectsMonitoringCounters.scss'
 
@@ -35,6 +35,8 @@ const ArtifactsCounters = () => {
   const { projectName } = useParams()
   const navigate = useNavigate()
   const projectStore = useSelector(store => store.projectStore)
+  const isDataLoading =
+    projectStore?.projectsSummary?.loading || projectStore?.projectSummary?.loading
 
   const handleOpenPopUp = () => {
     const isHidden = !detailsRef.current?.offsetParent
@@ -47,28 +49,20 @@ const ArtifactsCounters = () => {
 
   const dataStats = useMemo(() => {
     if (projectName) {
-      const llm_prompts = projectStore?.projectSummary?.data?.llm_prompts_count || 0
-      const files = projectStore?.projectSummary?.data?.files_count || 0
-      const documents = projectStore?.projectSummary?.data?.documents_count || 0
-      const datasets = projectStore?.projectSummary?.data?.datasets_count || 0
+      const llm_prompts = projectStore?.projectSummary?.data?.llm_prompts_count
+      const files = projectStore?.projectSummary?.data?.files_count
+      const documents = projectStore?.projectSummary?.data?.documents_count
+      const datasets = projectStore?.projectSummary?.data?.datasets_count
 
       return {
         llm_prompts,
         files,
         documents,
         datasets,
-        total: llm_prompts + files + datasets + documents
+        total: countTotalValue([llm_prompts, files, datasets, documents])
       }
     }
-    return (
-      projectStore.jobsMonitoringData.artifacts || {
-        llm_prompts: 0,
-        files: 0,
-        documents: 0,
-        datasets: 0,
-        total: 0
-      }
-    )
+    return projectStore.jobsMonitoringData.artifacts || {}
   }, [projectName, projectStore.jobsMonitoringData.artifacts, projectStore.projectSummary.data])
 
   const data = useMemo(
@@ -83,7 +77,7 @@ const ArtifactsCounters = () => {
         <div onMouseEnter={handleOpenPopUp} onMouseLeave={handleClosePopUp}>
           <StatsCard.Row>
             <StatsCard.MainCounter id="artifacts_total_counter">
-              {projectStore.projectsSummary.loading ? (
+              {isDataLoading ? (
                 <Loader section small secondary />
               ) : (
                 data?.total?.counter?.toLocaleString()
@@ -99,7 +93,7 @@ const ArtifactsCounters = () => {
               >
                 <h6 className="stats__subtitle">Datasets</h6>
                 <StatsCard.SecondaryCounter>
-                  {projectStore.projectsSummary.loading ? (
+                  {isDataLoading ? (
                     <Loader section small secondary />
                   ) : (
                     data?.datasets.counter?.toLocaleString()
@@ -115,7 +109,7 @@ const ArtifactsCounters = () => {
               >
                 <h6 className="stats__subtitle">Documents</h6>
                 <StatsCard.SecondaryCounter>
-                  {projectStore.projectsSummary.loading ? (
+                  {isDataLoading ? (
                     <Loader section small secondary />
                   ) : (
                     data?.documents?.counter?.toLocaleString()
@@ -131,7 +125,7 @@ const ArtifactsCounters = () => {
               >
                 <h6 className="stats__subtitle">LLM prompt artifacts</h6>
                 <StatsCard.SecondaryCounter>
-                  {projectStore.projectsSummary.loading ? (
+                  {isDataLoading ? (
                     <Loader section small secondary />
                   ) : (
                     data?.llm_prompt?.counter?.toLocaleString()
@@ -147,13 +141,12 @@ const ArtifactsCounters = () => {
               >
                 <h6 className="stats__subtitle">Other artifacts</h6>
                 <StatsCard.SecondaryCounter>
-                  {projectStore.projectsSummary.loading ? (
+                  {isDataLoading ? (
                     <Loader section small secondary />
                   ) : (
                     data?.files?.counter?.toLocaleString()
                   )}
                 </StatsCard.SecondaryCounter>
-
               </div>
             </StatsCard.Row>
           </div>

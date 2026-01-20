@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { capitalize, chain, defaultsDeep, get, isEmpty, isObject } from 'lodash'
+import { capitalize, chain, defaultsDeep, get, isEmpty } from 'lodash'
 
 import tasksApi from '../../api/tasks-api'
 
@@ -35,7 +35,13 @@ import {
   JOB_KIND_SPARK,
   JOB_KIND_LOCAL,
   ERROR_STATE,
-  FAILED_STATE
+  FAILED_STATE,
+  PENDING_STATE,
+  RUNNING_STATE,
+  COMPLETED_STATE,
+  ABORTED_STATE,
+  ABORTING_STATE,
+  PENDING_RETRY_STATE
 } from '../../constants'
 import {
   abortJob,
@@ -46,7 +52,6 @@ import {
 } from '../../reducers/jobReducer'
 import { BG_TASK_FAILED, BG_TASK_SUCCEEDED, pollTask } from '../../utils/poll.util'
 import { generateFunctionPriorityLabel } from '../../utils/generateFunctionPriorityLabel'
-import { generateKeyValues, parseKeyValues } from '../../utils'
 import { setNotification } from 'igz-controls/reducers/notificationReducer'
 import { showErrorNotification } from 'igz-controls/utils/notification.util'
 import { truncateUid } from 'igz-controls/utils/string.util'
@@ -57,11 +62,11 @@ export const getInfoHeaders = (isSpark, selectedJob) => {
   const infoHeaders = [
     { label: 'UID', id: 'uid' },
     { label: 'Start time', id: 'startTime' },
-    { label: 'Last Updated', id: 'updated' },
+    { label: 'Last updated', id: 'updated' },
     { label: 'Run on spot', id: 'runOnSpot' },
     {
       label: 'Node selector',
-      id: 'nodeSelectorChips',
+      id: 'nodeSelector',
       hidden: isJobKindDask(selectedJob?.labels)
     },
     { label: 'Priority', id: 'priority' },
@@ -69,13 +74,21 @@ export const getInfoHeaders = (isSpark, selectedJob) => {
     { label: 'Parameters', id: 'parameters' },
     { label: 'Function', id: 'function' },
     { label: 'Function tag', id: 'functionTag' },
-    { label: 'Results', id: 'resultsChips' },
+    { label: 'Results', id: 'results' },
     { label: 'Labels', id: 'labels' },
     { label: 'Log level', id: LOG_LEVEL_ID },
     { label: 'Output path', id: 'outputPath' },
     { label: 'Total iterations', id: 'iterations' },
-    { label: 'Attempt count', id: 'retryCountWithInitialAttempt', tip: 'Number of attempts to run Kubernetes jobs' },
-    { label: 'Maximum attempts', id: 'maxRetriesWithInitialAttempt', tip: 'Maximum number of attempts to run Kubernetes jobs' }
+    {
+      label: 'Attempt count',
+      id: 'retryCountWithInitialAttempt',
+      tip: 'Number of attempts to run Kubernetes jobs'
+    },
+    {
+      label: 'Maximum attempts',
+      id: 'maxRetriesWithInitialAttempt',
+      tip: 'Maximum number of attempts to run Kubernetes jobs'
+    }
   ]
 
   if (isSpark) {
@@ -90,8 +103,8 @@ export const getInfoHeaders = (isSpark, selectedJob) => {
 }
 export const actionButtonHeader = 'Batch run'
 
-export const JOB_STEADY_STATES = ['completed', ERROR_STATE, 'aborted', FAILED_STATE]
-export const JOB_RUNNING_STATES = ['running', 'pending', 'pendingRetry']
+export const JOB_STEADY_STATES = [COMPLETED_STATE, ERROR_STATE, ABORTED_STATE, FAILED_STATE]
+export const JOB_RUNNING_STATES = [RUNNING_STATE, PENDING_STATE, PENDING_RETRY_STATE]
 
 export const getJobsDetailsMenu = (job = {}) => {
   return [
@@ -130,26 +143,25 @@ export const tabs = [
   { id: SCHEDULE_TAB, label: 'Schedule' }
 ]
 
-export const isJobKindAbortable = (job, abortableFunctionKinds) =>
-  (abortableFunctionKinds ?? [])
-    .map(kind => `kind: ${kind}`)
-    .some(kindLabel => job?.labels?.includes(kindLabel))
+export const isJobKindAbortable = (job, abortableFunctionKinds) => {
+  const jobKind = get(job, 'ui.originalContent.metadata.labels.kind')
+
+  return (abortableFunctionKinds ?? []).some(kindLabel => jobKind !== kindLabel)
+}
 
 export const isJobAborting = (currentJob = {}) => {
-  return currentJob?.state?.value === 'aborting'
+  return currentJob?.state?.value === ABORTING_STATE
 }
 
 export const isJobKindDask = (jobLabels = []) => {
-  return (isObject(jobLabels) ? parseKeyValues(jobLabels) : jobLabels)?.includes(
-    `kind: ${JOB_KIND_DASK}`
-  )
+  return jobLabels.some(label => label.key === 'kind' && label.value === JOB_KIND_DASK)
 }
 
 export const isJobKindLocal = job =>
   [JOB_KIND_LOCAL, ''].includes(get(job, 'ui.originalContent.metadata.labels.kind'))
 
 export const arePodsHidden = (jobLabels = []) => {
-  const jobKind = (jobLabels.find(label => label.startsWith('kind:')) ?? '').split(':')[1]?.trim()
+  const jobKind = jobLabels.find(label => label.key === 'kind')?.value ?? ''
 
   return ![
     JOB_KIND_DASK,
@@ -183,7 +195,7 @@ const generateEditableItem = (functionData, job) => {
       schedule: null,
       task: {
         metadata: {
-          labels: generateKeyValues(job.labels ?? {}),
+          labels: job.labels ?? {},
           name: job.name,
           project: job.project
         },
