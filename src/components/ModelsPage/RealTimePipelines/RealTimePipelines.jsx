@@ -21,12 +21,12 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import classnames from 'classnames'
-import { isNil } from 'lodash'
+import { isEmpty, isNil } from 'lodash'
 
 import ActionBar from '../../ActionBar/ActionBar'
 import ModelsPageTabs from '../ModelsPageTabs/ModelsPageTabs'
 import NoData from '../../../common/NoData/NoData'
-import Pipeline from '../../Pipeline/Pipeline'
+import Details from '../../Details/Details'
 import RealTimePipelinesTableRow from '../../../elements/RealTimePipelinesTableRow/RealTimePipelinesTableRow'
 import Table from '../../Table/Table'
 import { Loader } from 'igz-controls/components'
@@ -38,7 +38,12 @@ import {
   REQUEST_CANCELED
 } from '../../../constants'
 import createRealTimePipelinesContent from '../../../utils/createRealTimePipelinesContent'
-import { fetchAndParseFunction, filtersConfig, generatePageData } from './realTimePipelines.util'
+import {
+  checkForSelectedPipeline,
+  fetchAndParsePipeline,
+  filtersConfig,
+  generatePageData
+} from './realTimePipelines.util'
 import { fetchArtifactsFunctions, removePipelines } from '../../../reducers/artifactsReducer'
 import { getNoDataMessage } from '../../../utils/getNoDataMessage'
 import { getScssVariableValue } from 'igz-controls/utils/common.util'
@@ -47,6 +52,7 @@ import { setFilters } from '../../../reducers/filtersReducer'
 import { useFiltersFromSearchParams } from '../../../hooks/useFiltersFromSearchParams.hook'
 import { useInitialTableFetch } from '../../../hooks/useInitialTableFetch.hook'
 import { useModelsPage } from '../ModelsPage.context'
+import { FULL_VIEW_MODE } from 'igz-controls/constants'
 
 import Yaml from 'igz-controls/images/yaml.svg?react'
 
@@ -55,6 +61,7 @@ import './realTimePipelines.scss'
 const RealTimePipelines = () => {
   const [requestErrorMessage, setRequestErrorMessage] = useState('')
   const [pipelines, setPipelines] = useState([])
+  const [selectedPipeline, setSelectedPipeline] = useState({})
   const artifactsStore = useSelector(store => store.artifactsStore)
   const filtersStore = useSelector(store => store.filtersStore)
   const params = useParams()
@@ -62,6 +69,7 @@ const RealTimePipelines = () => {
   const dispatch = useDispatch()
   const abortControllerRef = useRef(new AbortController())
   const pipelinesRef = useRef(null)
+  const lastCheckedPipelineIdRef = useRef(null)
   const pageData = useMemo(() => generatePageData(params.pipelineId), [params.pipelineId])
   const { toggleConvertedYaml } = useModelsPage()
   const [, setSearchParams] = useSearchParams()
@@ -89,7 +97,7 @@ const RealTimePipelines = () => {
           label: 'View YAML',
           icon: <Yaml />,
           onClick: func =>
-            fetchAndParseFunction(func, dispatch).then(() => toggleConvertedYaml(func))
+            fetchAndParsePipeline(dispatch, func).then(() => toggleConvertedYaml(func))
         }
       ]
     ],
@@ -99,6 +107,7 @@ const RealTimePipelines = () => {
   const fetchData = useCallback(
     filters => {
       abortControllerRef.current = new AbortController()
+      lastCheckedPipelineIdRef.current = null
 
       dispatch(
         fetchArtifactsFunctions({
@@ -130,6 +139,7 @@ const RealTimePipelines = () => {
 
   const handleRefresh = useCallback(
     filters => {
+      setSelectedPipeline({})
       setPipelines([])
 
       return fetchData(filters)
@@ -149,6 +159,10 @@ const RealTimePipelines = () => {
     [dispatch, fetchData]
   )
 
+  const handleRefreshSelectedItem = useCallback(() => {
+    fetchAndParsePipeline(dispatch, selectedPipeline).then(setSelectedPipeline)
+  }, [dispatch, selectedPipeline])
+
   useInitialTableFetch({ fetchData: fetchInitialData, filters })
 
   useEffect(() => {
@@ -160,17 +174,22 @@ const RealTimePipelines = () => {
   }, [dispatch])
 
   useEffect(() => {
-    if (params.pipelineId && pipelines.length > 0) {
-      if (!pipelines.find(item => item.hash === params.pipelineId)) {
-        navigate(
-          `/projects/${params.projectName}/models/${REAL_TIME_PIPELINES_TAB}${window.location.search}`,
-          {
-            replace: true
-          }
-        )
-      }
+    checkForSelectedPipeline(
+      pipelines,
+      params.pipelineId,
+      navigate,
+      params.projectName,
+      setSelectedPipeline,
+      dispatch,
+      lastCheckedPipelineIdRef
+    )
+  }, [dispatch, navigate, params.pipelineId, params.projectName, pipelines])
+
+  useEffect(() => {
+    if (isEmpty(selectedPipeline)) {
+      lastCheckedPipelineIdRef.current = null
     }
-  }, [navigate, params.pipelineId, params.projectName, pipelines])
+  }, [selectedPipeline])
 
   const virtualizationConfig = useVirtualization({
     rowsData: {
@@ -212,18 +231,17 @@ const RealTimePipelines = () => {
                 filtersStore
               )}
             />
-          ) : params.pipelineId ? (
-            <Pipeline content={pipelines} />
           ) : (
             <>
               <Table
                 actionsMenu={actionsMenu}
                 pageData={pageData}
-                selectedItem={{}}
+                selectedItem={selectedPipeline}
                 tab={REAL_TIME_PIPELINES_TAB}
                 tableClassName="pipelines-table"
                 tableHeaders={tableContent[0]?.content ?? []}
                 virtualizationConfig={virtualizationConfig}
+                viewMode={FULL_VIEW_MODE}
               >
                 {tableContent.map(
                   (tableItem, index) =>
@@ -236,6 +254,17 @@ const RealTimePipelines = () => {
                     )
                 )}
               </Table>
+              {!isEmpty(selectedPipeline) && (
+                <Details
+                  actionsMenu={actionsMenu}
+                  detailsMenu={pageData.details.menu}
+                  handleRefresh={handleRefreshSelectedItem}
+                  isDetailsScreen
+                  pageData={pageData}
+                  tab={REAL_TIME_PIPELINES_TAB}
+                  selectedItem={selectedPipeline}
+                />
+              )}
             </>
           )}
         </div>
