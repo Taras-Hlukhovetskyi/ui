@@ -39,7 +39,7 @@ import ErrorStepIcon from 'igz-controls/images/error-step-badge.svg?react'
 import HubStepIcon from 'igz-controls/images/mlrun-hub-step-badge.svg?react'
 import ConnectionIcon from 'igz-controls/images/connections-icon.svg?react'
 import RouterStepIcon from 'igz-controls/images/router-step-badge.svg?react'
-import { isObject, mapValues } from 'lodash'
+import { mapValues } from 'lodash'
 
 export const STEPS_TYPES = {
   MODEL_RUNNER: 'ModelRunner',
@@ -61,6 +61,12 @@ export const STEPS_TYPES = {
   ROUTER_STEP: 'Router'
 }
 
+export const STEP_FIELD_TYPES = {
+  CODE_BLOCK: 'codeblock',
+  COPY: 'copy',
+  POP_UP: 'pop-up'
+}
+
 const NODE_TYPE_DATA_BY_KIND_MAP = {
   [MODEL_RUNNER_STEP_KIND]: {
     nodeType: ML_NODE_WITH_SUB_ITEMS,
@@ -68,8 +74,7 @@ const NODE_TYPE_DATA_BY_KIND_MAP = {
     subLabel: 'Model Runner Step',
     stepType: STEPS_TYPES.MODEL_RUNNER,
     subItemsTitle: 'Running models',
-    getSubItems: data => 
-      Object.keys(data?.class_args?.monitoring_data || {}),
+    getSubItems: data => Object.keys(data?.class_args?.monitoring_data || {}),
     getInMonitoring: data => Boolean(data?.track_models)
   },
   [ROUTER_STEP_KIND]: {
@@ -78,7 +83,7 @@ const NODE_TYPE_DATA_BY_KIND_MAP = {
     subLabel: 'Router',
     stepType: STEPS_TYPES.ROUTER_STEP,
     subItemsTitle: 'Routes',
-    getSubItems: data => Object.keys(data?.routes || {}),
+    getSubItems: data => Object.keys(data?.routes || {})
   },
   [QUEUE_STEP_KIND]: {
     nodeType: ML_QUEUE_NODE,
@@ -230,7 +235,7 @@ const getDetailsGeneralData = selectedStepData => [
   {
     label: 'Arguments:',
     value: selectedStepData.class_args,
-    type: 'codeblock',
+    type: STEP_FIELD_TYPES.CODE_BLOCK,
     hidden: selectedStepData.stepType !== STEPS_TYPES.CUSTOM_STEP
   },
   {
@@ -284,7 +289,7 @@ const getDetailsGeneralData = selectedStepData => [
     label: 'URL:',
     value: selectedStepData.class_args?.url,
     hidden: selectedStepData.stepType !== STEPS_TYPES.REMOTE_HTTP_STEP,
-    type: 'copy'
+    type: STEP_FIELD_TYPES.COPY
   },
   {
     label: 'Method:',
@@ -353,12 +358,12 @@ const getSubItemsData = selectedStepData => {
               additionalData: {
                 modelEndpointName: routeName
               },
-              type: 'pop-up'
+              type: STEP_FIELD_TYPES.POP_UP
             },
             {
               label: 'Model artifact:',
               value: routeData.class_args?.model_path,
-              type: 'pop-up'
+              type: STEP_FIELD_TYPES.POP_UP
             },
             {
               label: 'Class name:',

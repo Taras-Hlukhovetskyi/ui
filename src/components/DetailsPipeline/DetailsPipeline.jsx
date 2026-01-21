@@ -36,7 +36,7 @@ import CodeBlock from '../../common/CodeBlock/CodeBlock'
 import MlReactFlow from '../../common/ReactFlow/MlReactFlow'
 import ModelEndpointPopUp from '../../elements/DetailsPopUp/ModelEndpointPopUp/ModelEndpointPopUp'
 import NoData from '../../common/NoData/NoData'
-import { getStepDescriptionFields, getStepsNodeData } from './pipeline.utils'
+import { getStepDescriptionFields, getStepsNodeData, STEP_FIELD_TYPES } from './pipeline.utils'
 import { Position, ReactFlowProvider, useStoreApi } from 'reactflow'
 
 import {
@@ -353,16 +353,16 @@ const DetailsPipeline = ({ selectedItem }) => {
                         <div
                           className={classnames(
                             'graph-pane__row',
-                            rowData.type === 'codeblock' && 'graph-pane__row_wrap'
+                            rowData.type === STEP_FIELD_TYPES.CODE_BLOCK && 'graph-pane__row_wrap'
                           )}
                           key={rowData.label}
                         >
                           <div className="graph-pane__row-label">{rowData.label}</div>
-                          {rowData.type === 'codeblock' ? (
+                          {rowData.type === STEP_FIELD_TYPES.CODE_BLOCK ? (
                             <CodeBlock codeData={rowData.value} />
                           ) : (
                             <div className="graph-pane__row-value">
-                              {rowData.type === 'copy' ? (
+                              {rowData.type === STEP_FIELD_TYPES.COPY ? (
                                 <CopyToClipboard
                                   className="graph-pane__row-value__copy-to-clipboard"
                                   textToCopy={rowData.value}
@@ -371,7 +371,9 @@ const DetailsPipeline = ({ selectedItem }) => {
                                   {rowData.value}
                                 </CopyToClipboard>
                               ) : (
-                                <Tooltip template={<TextTooltipTemplate text={rowData.value || ''} />}>
+                                <Tooltip
+                                  template={<TextTooltipTemplate text={rowData.value || ''} />}
+                                >
                                   {rowData.value || ''}
                                 </Tooltip>
                               )}
@@ -404,14 +406,16 @@ const DetailsPipeline = ({ selectedItem }) => {
                                   <div
                                     className="graph-pane__row-value"
                                     onClick={
-                                      rowData.type === 'pop-up'
+                                      rowData.type === STEP_FIELD_TYPES.POP_UP
                                         ? () => openModelPopUp(rowData)
                                         : null
                                     }
                                   >
                                     <Tooltip
                                       template={<TextTooltipTemplate text={rowData.value || ''} />}
-                                      className={classnames({ link: rowData.type === 'pop-up' })}
+                                      className={classnames({
+                                        link: rowData.type === STEP_FIELD_TYPES.POP_UP
+                                      })}
                                     >
                                       {rowData.value || ''}
                                     </Tooltip>
