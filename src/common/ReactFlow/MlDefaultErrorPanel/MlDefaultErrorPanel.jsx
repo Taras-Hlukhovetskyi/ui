@@ -20,11 +20,11 @@ such restriction.
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Panel } from 'reactflow'
+import classNames from 'classnames'
 
 import MlCommonNode from '../MlCommonNode/MlCommonNode'
 
 import './mlDefaultErrorPanel.scss'
-import classNames from 'classnames'
 
 const MlDefaultErrorPanel = ({ data, onNodeClick }) => {
   const nodeClassName = classNames(

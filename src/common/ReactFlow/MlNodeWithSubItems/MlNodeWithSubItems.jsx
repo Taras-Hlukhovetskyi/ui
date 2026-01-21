@@ -83,7 +83,7 @@ const MlNodeWithSubItems = ({ data, isConnectable }) => {
               chipOptions={getChipOptions('metrics')}
               formState={formState}
               initialValues={formState.initialValues}
-              name={'subItems'}
+              name='subItems'
               withInitialParentWidth
             />
           </div>
