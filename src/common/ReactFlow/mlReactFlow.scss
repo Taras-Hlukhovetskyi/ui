@@ -243,15 +243,15 @@
 
   .react-flow__edge-path-selector,
   .react-flow__edge-path {
-    pointer-events: all;
+    pointer-events: stroke;
   }
 
   .react-flow__edge {
     transition: stroke 0.2s, stroke-width 0.2s;
-    pointer-events: all;
+    pointer-events: stroke;
 
     g > path:nth-child(2) {
-      pointer-events: all;
+      pointer-events: stroke;
     }
 
     path,

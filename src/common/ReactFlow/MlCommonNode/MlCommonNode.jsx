@@ -22,13 +22,15 @@ import PropTypes from 'prop-types'
 import { Handle, Position } from 'reactflow'
 
 import { Tooltip, TextTooltipTemplate } from 'igz-controls/components'
-import ResponseIcon from 'igz-controls/images/response-indicator.svg?react'
+import { SourceHandleComponent } from '../SmartHandle/SmartHandle'
 
 import { REACT_FLOW_NODE_DATA } from '../../../types'
 
+import ResponseIcon from 'igz-controls/images/response-indicator.svg?react'
+
 import './mlCommonNode.scss'
 
-const MlCommonNode = ({ data, isConnectable, hideHandles = false }) => {
+const MlCommonNode = ({ data, isConnectable, hideHandles = false, id }) => {
   return (
     <>
       <div className="react-flow__node-content">
@@ -100,22 +102,26 @@ const MlCommonNode = ({ data, isConnectable, hideHandles = false }) => {
             id="right"
             style={{ visibility: data.isLastStep ? 'hidden' : 'visible' }}
           />
-          <Handle
+          <SourceHandleComponent
             className={data.sourceHandle?.className}
             isConnectable={isConnectable}
             type="source"
             position={Position.Top}
             id="top-source"
             style={{ left: '40%', visibility: 'hidden' }}
+            nodeId={id}
+            cycleTo={!!data.cycleTo}
           />
-          <Handle
+          <SourceHandleComponent
             className={data.sourceHandle?.className}
             isConnectable={isConnectable}
             type="source"
             position={Position.Bottom}
             id="bottom-source"
             style={{ left: '40%', visibility: 'hidden' }}
-          />
+            nodeId={id}
+            cycleTo={!!data.cycleTo}
+            />
           <Handle
             className={data.sourceHandle?.className}
             isConnectable={isConnectable}
@@ -132,8 +138,9 @@ const MlCommonNode = ({ data, isConnectable, hideHandles = false }) => {
 
 MlCommonNode.propTypes = {
   data: REACT_FLOW_NODE_DATA.isRequired,
-  isConnectable: PropTypes.bool.isRequired,
-  hideHandles: PropTypes.bool
+  hideHandles: PropTypes.bool,
+  id: PropTypes.string.isRequired,
+  isConnectable: PropTypes.bool.isRequired
 }
 
 export default React.memo(MlCommonNode)

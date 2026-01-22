@@ -21,7 +21,7 @@ import React, { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { BaseEdge, getSmoothStepPath, useStore } from 'reactflow'
 
-import { getMarkerEnd } from '../mlReactFlow.util'
+import { getMarkerEnd, onEdgeHover } from '../mlReactFlow.util'
 import {
   alignPathToTarget,
   DIRECTION,
@@ -399,10 +399,12 @@ export default function SmartStepEdge({
         stroke="transparent"
         strokeWidth={interactionWidth}
         className="react-flow__edge-interaction"
+        strokeLinejoin="round"
+        strokeLinecap="round"
         style={{
           strokeWidth: interactionWidth,
           cursor: 'default',
-          pointerEvents: 'all'
+          pointerEvents: 'stroke',
         }}
         onMouseDownCapture={event => {
           event.stopPropagation()
@@ -412,6 +414,7 @@ export default function SmartStepEdge({
           event.stopPropagation()
           event.preventDefault()
         }}
+        onMouseOver={onEdgeHover}
       />
     </>
   )

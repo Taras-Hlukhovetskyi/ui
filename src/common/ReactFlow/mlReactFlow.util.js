@@ -343,3 +343,11 @@ const nodeStates = {
   running: 'Running',
   omitted: 'Omitted'
 }
+
+export const onEdgeHover = event => {
+  const edgeGroup = event.currentTarget.closest('.react-flow__edge')
+
+  if (edgeGroup && edgeGroup.parentNode && edgeGroup.nextSibling) {
+    edgeGroup.parentNode.appendChild(edgeGroup)
+  }
+}

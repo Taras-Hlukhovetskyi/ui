@@ -21,7 +21,7 @@ import React, { useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { BaseEdge, useNodes, getBezierPath, getSmoothStepPath } from 'reactflow'
 
-import { getEdgeParams, getMarkerEnd } from './mlReactFlow.util'
+import { getEdgeParams, getMarkerEnd, onEdgeHover } from './mlReactFlow.util'
 import {
   DEFAULT_EDGE,
   FLOATING_EDGE,
@@ -164,10 +164,12 @@ const MlReactFlowEdge = ({
         stroke="transparent"
         strokeWidth={interactionWidth}
         className="react-flow__edge-interaction"
+        strokeLinejoin="round"
+        strokeLinecap="round"
         style={{
           strokeWidth: interactionWidth,
           cursor: 'default',
-          pointerEvents: 'all'
+          pointerEvents: 'stroke',
         }}
         onMouseDownCapture={event => {
           event.stopPropagation()
@@ -177,6 +179,7 @@ const MlReactFlowEdge = ({
           event.stopPropagation()
           event.preventDefault()
         }}
+        onMouseOver={onEdgeHover}
       />
     </>
   )

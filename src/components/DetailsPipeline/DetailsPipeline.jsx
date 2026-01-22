@@ -179,8 +179,9 @@ const DetailsPipeline = ({ selectedItem }) => {
 
         if (stepData.after && Array.isArray(stepData.after) && stepData.after.length) {
           if (stepData.cycle_from?.length) {
-            const [cycledFrom] = stepData.cycle_from
-            const filteredAfter = stepData.after.filter(stepName => stepName !== cycledFrom)
+            const filteredAfter = stepData.after.filter(
+              stepName => !stepData.cycle_from.includes(stepName)
+            )
             if (filteredAfter.length) {
               edgesMap[stepName] = filteredAfter[0]
               nodesConnectionMap[filteredAfter[0]] = nodesConnectionMap[filteredAfter[0]]
@@ -200,7 +201,9 @@ const DetailsPipeline = ({ selectedItem }) => {
         }
 
         if (stepData.cycle_from?.length) {
-          cyclicEdgesMap[stepData.cycle_from[0]] = stepName
+          stepData.cycle_from.forEach(cycleFrom => {
+            cyclicEdgesMap[cycleFrom] = stepName
+          })
         }
       })
 
