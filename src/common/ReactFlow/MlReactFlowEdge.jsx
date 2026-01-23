@@ -128,6 +128,7 @@ const MlReactFlowEdge = ({
             strokeLinejoin="round"
             strokeWidth="2"
             points="-5,-4 0,0 -5,4 -5,-4"
+            style={{ strokeDasharray: 'none' }}
           />
         </marker>
         <marker
@@ -146,6 +147,7 @@ const MlReactFlowEdge = ({
             strokeWidth="1.5"
             fill="none"
             points="-5,-4 0,0 -5,4"
+            style={{ strokeDasharray: 'none' }}
           />
         </marker>
       </defs>
@@ -169,7 +171,7 @@ const MlReactFlowEdge = ({
         style={{
           strokeWidth: interactionWidth,
           cursor: 'default',
-          pointerEvents: 'stroke',
+          pointerEvents: 'stroke'
         }}
         onMouseDownCapture={event => {
           event.stopPropagation()

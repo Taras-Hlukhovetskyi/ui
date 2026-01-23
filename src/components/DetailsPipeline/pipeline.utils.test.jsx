@@ -223,12 +223,9 @@ describe('pipeline.utils - getStepDescriptionFields', () => {
 
     const result = getStepDescriptionFields(selectedStep, graph)
 
-    const maxIterationsRow = result.general.find(
-      row => row.label === 'Maximum allowed iterations:'
-    )
+    const maxIterationsRow = result.general.find(row => row.label === 'Maximum allowed iterations:')
 
     expect(maxIterationsRow.value).toBe(5)
     expect(maxIterationsRow.hidden).toBe(false)
   })
 })
-

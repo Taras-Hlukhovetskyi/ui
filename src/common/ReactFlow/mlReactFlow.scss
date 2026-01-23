@@ -119,6 +119,11 @@
   }
 }
 
+@keyframes dash-animation {
+  from { stroke-dashoffset: 20; }
+  to { stroke-dashoffset: 0; }
+}
+
 .react-flow__renderer,
 .react-flow__default-error-panel {
   z-index: 5;
@@ -279,11 +284,15 @@
       }
     }
 
-    &:hover {
+    &:hover,
+    &.forced-hover {
       path,
       polyline {
         cursor: grab;
         stroke: colors.$malibu;
+        stroke-width: 3px;
+        stroke-dasharray: 5;
+        animation: dash-animation 0.5s linear infinite;
       }
     }
   }

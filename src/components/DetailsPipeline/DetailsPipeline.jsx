@@ -273,18 +273,20 @@ const DetailsPipeline = ({ selectedItem }) => {
             }
           })
         }
-        return [{
-          type: ML_SMART_STEP_EDGE,
-          data: {
-            isBackward: true
-          },
-          id: `e.${source}.${target}`,
-          source: source,
-          target: target,
-          sourceHandle: 'top',
-          targetHandle: 'top',
-          weight: 1
-        }]
+        return [
+          {
+            type: ML_SMART_STEP_EDGE,
+            data: {
+              isBackward: true
+            },
+            id: `e.${source}.${target}`,
+            source: source,
+            target: target,
+            sourceHandle: 'top',
+            targetHandle: 'top',
+            weight: 1
+          }
+        ]
       }).flat()
 
       const groupedNodesEdges = groupBy(nodesEdges, 'source')

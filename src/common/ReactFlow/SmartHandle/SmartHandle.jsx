@@ -3,10 +3,10 @@ import PropTypes from 'prop-types'
 import { Handle, useStore } from 'reactflow'
 
 const useHandleConnections = ({ type, id, nodeId }) => {
-  const edges = useStore((state) => state.edges)
+  const edges = useStore(state => state.edges)
 
   return useMemo(() => {
-    return edges.filter((edge) => {
+    return edges.filter(edge => {
       if (type === 'target') {
         return edge.target === nodeId && edge.targetHandle === id
       } else {
@@ -26,7 +26,7 @@ const SmartHandle = ({ type, position, id, style, nodeId, ...props }) => {
   const isConnected = connections.length > 0
   const handleStyle = {
     ...style,
-    visibility: isConnected ? 'visible' : 'hidden',
+    visibility: isConnected ? 'visible' : 'hidden'
   }
 
   return (
@@ -47,20 +47,20 @@ SmartHandle.propTypes = {
   position: PropTypes.string.isRequired,
   props: PropTypes.object,
   style: PropTypes.object,
-  type: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired
 }
 
 export default SmartHandle
 
 export const SourceHandleComponent = ({ cycleTo, nodeId, ...props }) => {
-    if (cycleTo) {
-      return <SmartHandle {...props} nodeId={nodeId} />
-    }
-    return <Handle {...props} />
+  if (cycleTo) {
+    return <SmartHandle {...props} nodeId={nodeId} />
   }
-  
-  SourceHandleComponent.propTypes = {
-    cycleTo: PropTypes.bool.isRequired,
-    nodeId: PropTypes.string.isRequired,
-    props: PropTypes.object
-  }
+  return <Handle {...props} />
+}
+
+SourceHandleComponent.propTypes = {
+  cycleTo: PropTypes.bool.isRequired,
+  nodeId: PropTypes.string.isRequired,
+  props: PropTypes.object
+}

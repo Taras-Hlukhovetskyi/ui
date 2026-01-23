@@ -43,11 +43,11 @@ function MlQueueNode({ data, isConnectable }) {
             <div className="pipe__icon">
               {data?.customData?.path &&
                 (data.customData.path.startsWith('v3io') ? (
-                  <Tooltip template={<TextTooltipTemplate text='v3io' />}>
+                  <Tooltip template={<TextTooltipTemplate text="v3io" />}>
                     <V3ioIcon />
                   </Tooltip>
                 ) : (
-                  <Tooltip template={<TextTooltipTemplate text='kafka' />}>
+                  <Tooltip template={<TextTooltipTemplate text="kafka" />}>
                     <KafkaIcon />
                   </Tooltip>
                 ))}

@@ -380,15 +380,17 @@ export default function SmartStepEdge({
             strokeWidth="1.5"
             fill="none"
             points="-5,-4 0,0 -5,4"
+            style={{ strokeDasharray: 'none' }}
           />
         </marker>
       </defs>
 
       {/* The actual visible edge */}
       <BaseEdge
+        id={idConverted}
         path={svgPath}
         markerEnd={markerEnd}
-        style={{ ...style, strokeWidth: 2, fill: 'none', pointerEvents: 'none' }}
+        style={{ ...style, fill: 'none', pointerEvents: 'none' }}
       />
 
       {/* Invisible wider edge for easier user interactiong */}
@@ -404,7 +406,7 @@ export default function SmartStepEdge({
         style={{
           strokeWidth: interactionWidth,
           cursor: 'default',
-          pointerEvents: 'stroke',
+          pointerEvents: 'stroke'
         }}
         onMouseDownCapture={event => {
           event.stopPropagation()

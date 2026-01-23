@@ -19,7 +19,13 @@ such restriction.
 */
 import React, { useState, useEffect, useCallback } from 'react'
 import PropTypes from 'prop-types'
-import ReactFlow, { ReactFlowProvider, MiniMap, Controls, Background } from 'reactflow'
+import ReactFlow, {
+  ReactFlowProvider,
+  MiniMap,
+  Controls,
+  Background,
+  getConnectedEdges
+} from 'reactflow'
 
 import MlReactFlowNode from './MlReactFlowNode'
 import MlNodeWithSubItems from './MlNodeWithSubItems/MlNodeWithSubItems'
@@ -76,6 +82,36 @@ const MlReactFlow = ({
     const selectedEdges = edgesWrapper.getElementsByClassName('selected')
 
     edgesWrapper.append(...selectedEdges)
+  }
+
+  const onNodeMouseEnter = (_event, node) => {
+    const connectedEdges = getConnectedEdges([node], edges)
+
+    connectedEdges.forEach(edge => {
+      const pathElement = document.getElementById(edge.id?.replace(' ', '_'))
+      const edgeElement = pathElement?.parentElement
+
+      if (edgeElement) {
+        edgeElement.classList.add('forced-hover')
+
+        if (edgeElement.parentNode && edgeElement.nextSibling) {
+          edgeElement.parentNode.appendChild(edgeElement)
+        }
+      }
+    })
+  }
+
+  const onNodeMouseLeave = (_event, node) => {
+    const connectedEdges = getConnectedEdges([node], edges)
+
+    connectedEdges.forEach(edge => {
+      const pathElement = document.getElementById(edge.id?.replace(' ', '_'))
+      const edgeElement = pathElement?.parentElement
+
+      if (edgeElement) {
+        edgeElement.classList.remove('forced-hover')
+      }
+    })
   }
 
   const [reactFlowInstance, setReactFlowInstance] = useState(null)
@@ -142,6 +178,8 @@ const MlReactFlow = ({
       selectionKeyCode={null}
       defaultEdgeOptions={defaultEdgeOptions}
       disableKeyboardA11y
+      onNodeMouseEnter={onNodeMouseEnter}
+      onNodeMouseLeave={onNodeMouseLeave}
     >
       {defaultErrorHandlerData && (
         <MlDefaultErrorPanel data={defaultErrorHandlerData} onNodeClick={onNodeClick} />
