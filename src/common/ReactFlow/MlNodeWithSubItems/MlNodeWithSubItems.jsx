@@ -24,6 +24,7 @@ import { Form } from 'react-final-form'
 import arrayMutators from 'final-form-arrays'
 
 import { Tooltip, TextTooltipTemplate, FormChipCell } from 'igz-controls/components'
+import { SourceHandleComponent } from '../SmartHandle/SmartHandle'
 
 import { REACT_FLOW_NODE_DATA } from '../../../types'
 import { createForm } from 'final-form'
@@ -35,7 +36,7 @@ import MonitoringIcon from 'igz-controls/images/monitoring-icon.svg?react'
 
 import './MlNodeWithSubItems.scss'
 
-const MlNodeWithSubItems = ({ data, isConnectable }) => {
+const MlNodeWithSubItems = ({ data, isConnectable, id = '' }) => {
   const formRef = React.useRef(
     createForm({
       initialValues: {
@@ -83,7 +84,7 @@ const MlNodeWithSubItems = ({ data, isConnectable }) => {
               chipOptions={getChipOptions('metrics')}
               formState={formState}
               initialValues={formState.initialValues}
-              name='subItems'
+              name="subItems"
               withInitialParentWidth
             />
           </div>
@@ -127,7 +128,9 @@ const MlNodeWithSubItems = ({ data, isConnectable }) => {
             id="right"
             style={{ visibility: data.isLastStep ? 'hidden' : 'visible' }}
           />
-          <Handle
+          <SourceHandleComponent
+            nodeId={id}
+            cycleTo={!!data.cycleTo}
             className={data.sourceHandle?.className}
             isConnectable={isConnectable}
             type="source"
@@ -135,7 +138,9 @@ const MlNodeWithSubItems = ({ data, isConnectable }) => {
             id="top-source"
             style={{ left: '40%', visibility: 'hidden' }}
           />
-          <Handle
+          <SourceHandleComponent
+            nodeId={id}
+            cycleTo={!!data.cycleTo}
             className={data.sourceHandle?.className}
             isConnectable={isConnectable}
             type="source"
@@ -159,6 +164,7 @@ const MlNodeWithSubItems = ({ data, isConnectable }) => {
 
 MlNodeWithSubItems.propTypes = {
   data: REACT_FLOW_NODE_DATA.isRequired,
+  id: PropTypes.string,
   isConnectable: PropTypes.bool.isRequired
 }
 

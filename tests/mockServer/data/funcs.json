@@ -125,7 +125,7 @@
               "class_name": "LoopStep",
               "endpoint_type": 1,
               "function": "function-test",
-              "cycle_from": ["stream"]
+              "cycle_from": ["step2"]
             },
             "step-below-1": {
               "model_endpoint_creation_strategy": "skip",
@@ -143,15 +143,14 @@
               "class_args": {
                 "limit": 5
               },
-              "cycle_from": ["route"],
-              "function": "function-test"
+              "function": "function-test",
+              "cycle_from": ["route"]
             },
             "stream": {
               "after": ["step2"],
               "shards": 7,
               "kind": "queue",
-              "path": "v3io:///projects/mronetttbl//out-stream",
-              "cycle_from": ["exit"]
+              "path": "v3io:///projects/mronetttbl//out-stream"
             },
             "route": {
               "model_endpoint_creation_strategy": "skip",
@@ -301,6 +300,7 @@
               "kind": "task"
             },
             "custom_step": {
+              "after": ["remote_step"],
               "model_endpoint_creation_strategy": "skip",
               "endpoint_type": 1,
               "class_name": "CustomLogicStep",
@@ -310,9 +310,11 @@
               "kind": "task"
             },
             "queue_step": {
+              "after": ["router_step_mock"],
               "kind": "queue"
             },
             "final": {
+              "after": ["queue_step"],
               "responder": true,
               "model_endpoint_creation_strategy": "skip",
               "endpoint_type": 1,
@@ -354,6 +356,7 @@
               "base_step": "remote_step"
             },
             "router_step_mock": {
+              "after": ["custom_step"],
               "routes": {
                 "model_0": {
                   "model_endpoint_creation_strategy": "inplace",

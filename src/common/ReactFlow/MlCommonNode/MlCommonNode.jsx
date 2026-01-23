@@ -30,7 +30,7 @@ import ResponseIcon from 'igz-controls/images/response-indicator.svg?react'
 
 import './mlCommonNode.scss'
 
-const MlCommonNode = ({ data, isConnectable, hideHandles = false, id }) => {
+const MlCommonNode = ({ data, isConnectable, hideHandles = false, id = '' }) => {
   return (
     <>
       <div className="react-flow__node-content">
@@ -139,7 +139,7 @@ const MlCommonNode = ({ data, isConnectable, hideHandles = false, id }) => {
 MlCommonNode.propTypes = {
   data: REACT_FLOW_NODE_DATA.isRequired,
   hideHandles: PropTypes.bool,
-  id: PropTypes.string.isRequired,
+  id: PropTypes.string,
   isConnectable: PropTypes.bool.isRequired
 }
 
