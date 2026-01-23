@@ -42,13 +42,11 @@ import { Position, ReactFlowProvider, useStoreApi } from 'reactflow'
 import {
   DEFAULT_EDGE,
   ML_EDGE,
-  REAL_TIME_PIPELINES_TAB,
   ERROR_STEP_KIND,
   SMOOTH_STEP_EDGE,
   PRIMARY_PIPELINE_NODE,
   ML_SMART_STEP_EDGE
 } from '../../constants'
-import { fetchAndParseFunction } from '../ModelsPage/RealTimePipelines/realTimePipelines.util'
 import {
   addVisualFramesForGroups,
   getLayoutedElements
@@ -70,25 +68,13 @@ const DetailsPipeline = ({ selectedItem }) => {
   const [stepIsSelected, setStepIsSelected] = useState(false)
   const [defaultErrorHandlerData, setDefaultErrorHandlerData] = useState(null)
   const defaultErrorHandlerIdRef = React.useRef(null)
-  const params = useParams()
-  const dispatch = useDispatch()
   const functionsStore = useSelector(store => store.functionsStore)
   const { handleMonitoring, toggleConvertedYaml, frontendSpec } = useModelsPage()
   const reactFlowStoreApi = useStoreApi()
 
   useEffect(() => {
-    const selectedFunction = content.find(contentItem => contentItem.hash === params.pipelineId)
-
-    if (selectedFunction) {
-      fetchAndParseFunction(selectedFunction, dispatch).then(func => {
-        return setPipeline(func)
-      })
-    }
-  }, [content, dispatch, params.pipelineId])
-
-  useEffect(() => {
     if (selectedStep.data) {
-      setSelectedStepData(getStepDescriptionFields(selectedStep, pipeline.graph))
+      setSelectedStepData(getStepDescriptionFields(selectedStep, selectedItem.graph))
     }
 
     if (defaultErrorHandlerIdRef.current) {
@@ -109,7 +95,7 @@ const DetailsPipeline = ({ selectedItem }) => {
     }
 
     setStepIsSelected(Boolean(selectedStep.id))
-  }, [pipeline.graph, reactFlowStoreApi, selectedStep])
+  }, [selectedItem.graph, reactFlowStoreApi, selectedStep])
 
   useEffect(() => {
     const graph = selectedItem?.graph
