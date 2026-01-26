@@ -45,6 +45,8 @@ import { useTableScroll } from 'igz-controls/hooks/useTable.hook'
 
 const Alerts = () => {
   const [selectedAlert, setSelectedAlert] = useState({})
+  const [paginationConfig, setPaginationConfig] = useState({})
+
   const alertsStore = useSelector(state => state.alertsStore)
   const filtersStore = useSelector(store => store.filtersStore)
   const dispatch = useDispatch()
@@ -70,6 +72,13 @@ const Alerts = () => {
     searchParams,
     setSearchParams
   } = useAlertsPageData(alertsFilters, true)
+
+  // 2. Синхронізуємо Ref зі State
+  // Коли змінюються alerts або пагіновані дані, ми оновлюємо наш локальний стейт.
+  // Це гарантує, що Pagination компонент отримає актуальні дані і перерендериться.
+  useEffect(() => {
+    setPaginationConfig({ ...paginationConfigAlertsRef.current })
+  }, [paginatedAlerts, alertsStore.loading, paginationConfigAlertsRef])
 
   useTableScroll({
     content: paginatedAlerts,
@@ -180,7 +189,7 @@ const Alerts = () => {
               <Pagination
                 closeParamName={isCrossProjects ? MONITOR_ALERTS_PAGE : ALERTS_PAGE_PATH}
                 page={pageData.page}
-                paginationConfig={paginationConfigAlertsRef.current}
+                paginationConfig={paginationConfig}
               />
             </>
           )}

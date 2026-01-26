@@ -17,20 +17,19 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useMemo, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
 const wrapComponentForNavbarNavigationTracking = WrappedComponent => {
   const Wrap = props => {
     const location = useLocation()
-    const savedKeyRef = useRef(0)
-    const key = useMemo(() => {
-      if (location.state?.navbarNavigate) {
-        return ++savedKeyRef.current
-      }
+    const [key, setKey] = useState(0)
 
-      return savedKeyRef.current
-    }, [location.state?.navbarNavigate])
+    useEffect(() => {
+      if (location.state?.navbarNavigate) {
+        setKey(prevKey => prevKey + 1)
+      }
+    }, [location])
 
     return <WrappedComponent {...props} key={key} />
   }

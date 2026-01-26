@@ -117,13 +117,13 @@ const MonitorWorkflows = () => {
         )}
       </div>
       <WorkflowsTable
+        abortJobRef={abortJobRef}
         backLink={`/projects/${params.projectName}/jobs/${MONITOR_WORKFLOWS_TAB}${window.location.search}`}
         context={JobsContext}
         filters={filters}
         filtersConfig={workflowsFiltersConfig}
         getWorkflows={getWorkflows}
         itemIsSelected={itemIsSelected}
-        ref={{ abortJobRef }}
         requestErrorMessage={requestErrorMessage}
         selectedFunction={selectedFunction}
         selectedJob={selectedJob}

@@ -17,7 +17,6 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useLayoutEffect, useState } from 'react'
 
 /**
  * @hook
@@ -33,13 +32,7 @@ import { useLayoutEffect, useState } from 'react'
  */
 
 export const useNuclioMode = () => {
-  const [mode, setMode] = useState(window.mlrunConfig.nuclioMode)
-
-  useLayoutEffect(() => {
-    if (mode !== window.mlrunConfig.nuclioMode) {
-      setMode(window.mlrunConfig.nuclioMode)
-    }
-  }, [mode])
+  const mode = window.mlrunConfig.nuclioMode
 
   return {
     isNuclioModeDisabled: mode === 'disabled'

@@ -18,7 +18,7 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { isEmpty, isEqual, sum, throttle } from 'lodash-es'
+import { isEmpty, sum, throttle } from 'lodash-es'
 import { MAIN_TABLE_ID, MAIN_TABLE_BODY_ID } from 'igz-controls/constants'
 
 const HIDDEN_RENDER_ITEMS_LENGTH = 5
@@ -237,39 +237,30 @@ export const useVirtualization = ({
   ignoreHorizontalScroll = false
 }) => {
   const [virtualizationConfig, setVirtualizationConfig] = useState(virtualizationConfigInitialState)
-  const [rowsSizesLocal, setRowsSizesLocal] = useState(rowsSizes)
   const rowHeightLocal = useMemo(() => parseInt(rowHeight), [rowHeight])
   const extendedRowHeightLocal = useMemo(() => parseInt(rowHeightExtended), [rowHeightExtended])
   const headerRowHeightLocal = useMemo(() => parseInt(headerRowHeight), [headerRowHeight])
   const prevScrollTop = useRef(null)
 
-  useLayoutEffect(() => {
-    if (isEmpty(rowsData.content) && !isEqual(rowsSizes, rowsSizesLocal)) {
-      setRowsSizesLocal(rowsSizes)
-    }
-  }, [rowsSizesLocal, rowsData, rowsSizes])
-
-  useLayoutEffect(() => {
+  const rowsSizesLocal = useMemo(() => {
     if (!isEmpty(rowsData.content)) {
-      const newRowsSizes = getRowsSizes(
+      return getRowsSizes(
         rowsData.content,
         rowsData.selectedItem,
         rowsData.expandedRowsData,
         rowHeightLocal,
         extendedRowHeightLocal
       )
-
-      if (!isEqual(rowsSizesLocal, newRowsSizes)) {
-        setRowsSizesLocal(newRowsSizes)
-      }
     }
+
+    return rowsSizes
   }, [
-    extendedRowHeightLocal,
-    rowsSizesLocal,
-    rowHeightLocal,
     rowsData.content,
     rowsData.selectedItem,
-    rowsData.expandedRowsData
+    rowsData.expandedRowsData,
+    rowHeightLocal,
+    extendedRowHeightLocal,
+    rowsSizes
   ])
 
   useLayoutEffect(() => {
@@ -354,8 +345,6 @@ export const useVirtualization = ({
 
       tableElement.addEventListener('scroll', calculateVirtualizationConfig)
       window.addEventListener('resize', calculateVirtualizationConfig)
-    } else {
-      setVirtualizationConfig(virtualizationConfigInitialState)
     }
 
     return () => {
