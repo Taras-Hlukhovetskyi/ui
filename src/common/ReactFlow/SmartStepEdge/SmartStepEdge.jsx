@@ -29,7 +29,7 @@ import {
   generateRoundedSvgPath,
   getManhattanElbowPoint,
   MinHeap
-} from './smartStepdge.utils'
+} from './smartStepEdge.utils'
 
 /**
  * --- SMART STEP EDGE COMPONENT ---

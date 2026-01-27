@@ -169,16 +169,16 @@ const DetailsPipeline = ({ selectedItem }) => {
               stepName => !stepData.cycle_from.includes(stepName)
             )
             if (filteredAfter.length) {
-              edgesMap[stepName] = filteredAfter[0]
-              nodesConnectionMap[filteredAfter[0]] = nodesConnectionMap[filteredAfter[0]]
-                ? nodesConnectionMap[filteredAfter[0]].push?.(stepName)
-                : [stepName]
+              edgesMap[stepName] = filteredAfter
+              filteredAfter.forEach(after => {
+                ;(nodesConnectionMap[after] ??= []).push(stepName)
+              })
             }
           } else {
-            edgesMap[stepName] = stepData.after[0]
-            nodesConnectionMap[stepData.after[0]] = nodesConnectionMap[stepData.after[0]]
-              ? nodesConnectionMap[stepData.after[0]].push?.(stepName)
-              : [stepName]
+            edgesMap[stepName] = stepData.after
+            stepData.after.forEach(after => {
+              ;(nodesConnectionMap[after] ??= []).push(stepName)
+            })
           }
         }
 
@@ -208,8 +208,10 @@ const DetailsPipeline = ({ selectedItem }) => {
         }
       })
 
-      const nodesEdges = map(edgesMap, (source, target) => {
-        return {
+      const nodesEdges = map(edgesMap, (sources, target) => {
+        const sourcesArray = Array.isArray(sources) ? sources : [sources]
+
+        return sourcesArray.map(source => ({
           type: ML_EDGE,
           data: {
             subType: SMOOTH_STEP_EDGE,
@@ -217,13 +219,13 @@ const DetailsPipeline = ({ selectedItem }) => {
             arrowHeadType: 'arrow'
           },
           id: `e.${source}.${target}`,
-          source: source,
-          target: target,
+          source,
+          target,
           sourceHandle: 'right',
           targetHandle: 'left',
           weight: 10
-        }
-      })
+        }))
+      }).flat()
 
       const errorEdges = map(errorsMap, (target, source) => {
         return {
@@ -242,25 +244,11 @@ const DetailsPipeline = ({ selectedItem }) => {
         }
       })
 
-      const cyclicEdges = map(cyclicEdgesMap, (target, source) => {
-        if (Array.isArray(target)) {
-          return target.map(targetItem => {
-            return {
-              type: ML_SMART_STEP_EDGE,
-              data: {
-                isBackward: true
-              },
-              id: `e.${source}.${targetItem}`,
-              source: source,
-              target: targetItem,
-              sourceHandle: 'top',
-              targetHandle: 'top',
-              weight: 1
-            }
-          })
-        }
-        return [
-          {
+      const cyclicEdges = map(cyclicEdgesMap, (targets, source) => {
+        const targetsArray = Array.isArray(targets) ? targets : [targets]
+
+        return targetsArray.map(target => {
+          return {
             type: ML_SMART_STEP_EDGE,
             data: {
               isBackward: true
@@ -272,7 +260,7 @@ const DetailsPipeline = ({ selectedItem }) => {
             targetHandle: 'top',
             weight: 1
           }
-        ]
+        })
       }).flat()
 
       const groupedNodesEdges = groupBy(nodesEdges, 'source')
