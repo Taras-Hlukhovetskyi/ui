@@ -18,7 +18,6 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-
 import { isEmpty } from 'lodash-es'
 import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
@@ -112,20 +111,19 @@ const JobPopUp = ({ isOpen, jobData, onResolve }) => {
     selectedJob
   ])
 
-  const handleFetchJob = useCallback(() => {
-    setIsLoading(true)
-
+  const fetchJobData = useCallback(() => {
     return dispatch(fetchJob({ project: jobData.project, jobId: jobData.uid, iter: jobData.iter }))
       .unwrap()
       .then(job => {
         if (job) {
-          enrichRunWithFunctionFields(dispatch, parseJob(job), fetchJobFunctionsPromiseRef).then(
-            jobRun => {
-              setSelectedJob(jobRun)
-              setIsLoading(false)
-              fetchJobFunctionsPromiseRef.current = null
-            }
-          )
+          return enrichRunWithFunctionFields(
+            dispatch,
+            parseJob(job),
+            fetchJobFunctionsPromiseRef
+          ).then(jobRun => {
+            setSelectedJob(jobRun)
+            fetchJobFunctionsPromiseRef.current = null
+          })
         } else {
           showErrorNotification(dispatch, {}, '', 'Failed to retrieve job data')
           onResolve()
@@ -135,19 +133,27 @@ const JobPopUp = ({ isOpen, jobData, onResolve }) => {
         showErrorNotification(dispatch, error, '', 'Failed to retrieve job data')
         onResolve()
       })
+      .finally(() => {
+        setIsLoading(false)
+      })
   }, [dispatch, jobData.iter, jobData.project, jobData.uid, onResolve])
+
+  const handleRefresh = useCallback(() => {
+    setIsLoading(true)
+    fetchJobData()
+  }, [fetchJobData])
 
   useEffect(() => {
     if (isEmpty(selectedJob)) {
-      handleFetchJob()
+      fetchJobData()
     }
-  }, [handleFetchJob, selectedJob])
+  }, [fetchJobData, selectedJob])
 
   return (
     <DetailsPopUp
       actionsMenu={actionsMenu}
       formInitialValues={detailsFormInitialValues}
-      handleRefresh={handleFetchJob}
+      handleRefresh={handleRefresh}
       isLoading={isLoading}
       isOpen={isOpen}
       onResolve={onResolve}

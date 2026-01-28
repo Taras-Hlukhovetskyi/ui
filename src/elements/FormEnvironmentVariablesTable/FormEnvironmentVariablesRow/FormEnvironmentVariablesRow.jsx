@@ -55,7 +55,7 @@ const FormEnvironmentVariablesRow = ({
   setFieldValue,
   uniquenessValidator
 }) => {
-  const [fieldData, setFieldData] = useState(fields.value[index])
+  const fieldData = useMemo(() => fields.value[index], [fields.value, index])
   const { projectName } = useParams()
 
   const tableRowClassNames = classnames(
@@ -72,10 +72,6 @@ const FormEnvironmentVariablesRow = ({
         : fieldData.data.value,
     [fieldData.data.secretKey, fieldData.data.secretName, fieldData.data.type, fieldData.data.value]
   )
-
-  useEffect(() => {
-    setFieldData(fields.value[index])
-  }, [fields.value, index])
 
   const handleTypeChange = useCallback(
     type => {

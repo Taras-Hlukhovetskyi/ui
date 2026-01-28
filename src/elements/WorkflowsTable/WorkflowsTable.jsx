@@ -182,7 +182,7 @@ const WorkflowsTable = ({
         setDetailsLogs
       )
     },
-    [fetchFunctionLogsTimeout, dispatch]
+    [dispatch]
   )
 
   const handleFetchJobLogs = useCallback(

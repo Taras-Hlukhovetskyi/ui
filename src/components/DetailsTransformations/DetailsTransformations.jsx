@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 import { cloneDeep, concat, find, forEach, map, reject } from 'lodash-es'
 
@@ -40,167 +40,128 @@ import {
 import './detailsTransformations.scss'
 
 const DetailsTransformations = ({ selectedItem }) => {
-  const [states, setStates] = useState({})
-  const [targets, setTargets] = useState([])
-  const [nodes, setNodes] = useState([])
-  const [edges, setEdges] = useState([])
-  const [steps, setSteps] = useState([])
-  const [afterSteps, setAfterSteps] = useState([])
-  const [errorSteps, setErrorSteps] = useState([])
+  const [states, setStates] = useState(() => cloneDeep(selectedItem.graph?.steps))
+  const [targets, setTargets] = useState(() => cloneDeep(selectedItem.targets))
+
   const [selectedStep, setSelectedStep] = useState('')
   const [selectedAfterStep, setSelectedAfterStep] = useState('')
   const [selectedErrorStep, setSelectedErrorStep] = useState('')
-  const [selectedItemUid, setSelectedItemUid] = useState(null)
 
-  const generateGraphData = useCallback(() => {
-    queueMicrotask(() => {
-      let edgesMap = {}
-      let errorsMap = {}
-      let stepsList = []
-      let newNodes = map(states, (stepItem, stepName) => {
-        let nodeItem = {
-          type: ML_NODE,
-          data: { subType: PRIMARY_NODE, label: stepName },
-          id: stepName,
-          className: selectedStep === stepName ? 'selected' : '',
-          position: { x: 0, y: 0 }
-        }
-        if (stepItem.after && Array.isArray(stepItem.after) && stepItem.after.length) {
-          edgesMap[stepName] = stepItem.after[0]
-        } else if (!find(states, ['on_error', stepName])) {
-          edgesMap[stepName] = 'Source'
-        }
+  const [prevItemId, setPrevItemId] = useState(selectedItem.uid)
 
-        if (stepItem.on_error) {
-          errorsMap[stepName] = stepItem.on_error
-        }
-
-        stepsList.push({
-          id: stepName,
-          label: stepName
-        })
-
-        return nodeItem
-      })
-
-      newNodes.unshift({
-        type: ML_NODE,
-        data: { subType: INPUT_NODE, label: 'Source' },
-        id: 'Source',
-        position: { x: 0, y: 0 }
-      })
-
-      let nodesEdges = map(edgesMap, (source, target) => {
-        return {
-          type: ML_EDGE,
-          data: {
-            subType: DEFAULT_EDGE
-          },
-          id: `e.${source}.${target}`,
-          source: source,
-          target: target
-        }
-      })
-
-      forEach(targets, target => {
-        if (target.after_state) {
-          newNodes.push({
-            type: ML_NODE,
-            data: { subType: OUTPUT_NODE, label: target.name },
-            id: target.name,
-            position: { x: 0, y: 0 }
-          })
-          nodesEdges.push({
-            type: ML_EDGE,
-            data: {
-              subType: DEFAULT_EDGE
-            },
-            id: `e.${target.after_state}.${target.name}`,
-            source: target.after_state,
-            target: target.name
-          })
-        }
-      })
-
-      let errorEdges = map(errorsMap, (target, source) => {
-        let errorHandlerElement = find(newNodes, ['id', target])
-
-        if (errorHandlerElement) {
-          errorHandlerElement.data.subType = GREY_NODE
-        }
-
-        return {
-          type: ML_EDGE,
-          data: {
-            subType: DEFAULT_EDGE
-          },
-          id: `e.${source}.${target}`,
-          source: source,
-          target: target,
-          animated: true
-        }
-      })
-
-      const [layoutedNodes, layoutedEdges] = getLayoutedElements(
-        newNodes,
-        concat(nodesEdges, errorEdges)
-      )
-
-      setNodes(layoutedNodes)
-      setEdges(layoutedEdges)
-      setSteps(stepsList)
-      setAfterSteps(stepsList)
-      setErrorSteps(stepsList)
-    })
-  }, [states, targets, selectedStep])
-
-  useEffect(() => {
+  if (selectedItem.uid !== prevItemId) {
+    setPrevItemId(selectedItem.uid)
     setStates(cloneDeep(selectedItem.graph?.steps))
     setTargets(cloneDeep(selectedItem.targets))
-  }, [selectedItem.graph, selectedItem.targets])
+    setSelectedStep('')
+    setSelectedAfterStep('')
+    setSelectedErrorStep('')
+  }
 
-  useEffect(() => {
-    let stepsList = reject(steps, ['id', selectedStep])
+  const { nodes, edges, steps, afterSteps, errorSteps } = useMemo(() => {
+    let edgesMap = {}
+    let errorsMap = {}
+    let stepsList = []
 
-    setErrorSteps(reject(stepsList, ['id', 'Source']))
-    stepsList.unshift({
-      id: 'Source',
-      label: 'Source'
-    })
+    let newNodes = map(states, (stepItem, stepName) => {
+      let nodeItem = {
+        type: ML_NODE,
+        data: { subType: PRIMARY_NODE, label: stepName },
+        id: stepName,
+        className: selectedStep === stepName ? 'selected' : '',
+        position: { x: 0, y: 0 }
+      }
 
-    setAfterSteps(stepsList)
-  }, [steps, selectedStep])
+      if (stepItem.after && Array.isArray(stepItem.after) && stepItem.after.length) {
+        edgesMap[stepName] = stepItem.after[0]
+      } else if (!find(states, ['on_error', stepName])) {
+        edgesMap[stepName] = 'Source'
+      }
 
-  useEffect(() => {
-    setNodes(nodes => {
-      return map(nodes, node => {
-        return {
-          ...node,
-          className:
-            node.id === selectedStep
-              ? node.className
-                ? (node.className += ' selected')
-                : 'selected'
-              : node.className?.replace('selected', '')
-        }
+      if (stepItem.on_error) {
+        errorsMap[stepName] = stepItem.on_error
+      }
+
+      stepsList.push({
+        id: stepName,
+        label: stepName
       })
+
+      return nodeItem
     })
-  }, [selectedStep])
 
-  useEffect(() => {
-    generateGraphData()
-  }, [generateGraphData])
+    newNodes.unshift({
+      type: ML_NODE,
+      data: { subType: INPUT_NODE, label: 'Source' },
+      id: 'Source',
+      position: { x: 0, y: 0 }
+    })
 
-  useEffect(() => {
-    if (selectedItem.uid !== selectedItemUid) {
-      setSelectedItemUid(selectedItem.uid)
+    let nodesEdges = map(edgesMap, (source, target) => {
+      return {
+        type: ML_EDGE,
+        data: { subType: DEFAULT_EDGE },
+        id: `e.${source}.${target}`,
+        source: source,
+        target: target
+      }
+    })
+
+    forEach(targets, target => {
+      if (target.after_state) {
+        newNodes.push({
+          type: ML_NODE,
+          data: { subType: OUTPUT_NODE, label: target.name },
+          id: target.name,
+          position: { x: 0, y: 0 }
+        })
+        nodesEdges.push({
+          type: ML_EDGE,
+          data: { subType: DEFAULT_EDGE },
+          id: `e.${target.after_state}.${target.name}`,
+          source: target.after_state,
+          target: target.name
+        })
+      }
+    })
+
+    let errorEdges = map(errorsMap, (target, source) => {
+      let errorHandlerElement = find(newNodes, ['id', target])
+      if (errorHandlerElement) {
+        errorHandlerElement.data.subType = GREY_NODE
+      }
+      return {
+        type: ML_EDGE,
+        data: { subType: DEFAULT_EDGE },
+        id: `e.${source}.${target}`,
+        source: source,
+        target: target,
+        animated: true
+      }
+    })
+
+    const [layoutedNodes, layoutedEdges] = getLayoutedElements(
+      newNodes,
+      concat(nodesEdges, errorEdges)
+    )
+    let derivedStepsList = reject(stepsList, ['id', selectedStep])
+    let finalAfterSteps = [...derivedStepsList]
+    finalAfterSteps.unshift({ id: 'Source', label: 'Source' })
+    let finalErrorSteps = reject(derivedStepsList, ['id', 'Source'])
+
+    return {
+      nodes: layoutedNodes,
+      edges: layoutedEdges,
+      steps: stepsList,
+      afterSteps: finalAfterSteps,
+      errorSteps: finalErrorSteps
     }
-  }, [selectedItem, selectedItemUid])
+  }, [states, targets, selectedStep])
 
   return (
     <div className="graph-container transformations-tab">
       <div className="graph-view">
-        <MlReactFlow nodes={nodes} edges={edges} alignTriggerItem={selectedItemUid} />
+        <MlReactFlow nodes={nodes} edges={edges} alignTriggerItem={selectedItem.uid} />
       </div>
       <div className="graph-pane">
         <div className="graph-pane-scroll-container">

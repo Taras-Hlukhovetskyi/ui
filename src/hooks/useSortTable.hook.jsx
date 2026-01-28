@@ -33,9 +33,11 @@ export const useSortTable = ({ headers, content, sortConfig = {} }) => {
   const initialSortColumn = useMemo(() => {
     if (defaultSortBy === null) return ''
 
-    return isNumber(defaultSortBy) && headers[defaultSortBy]
-      ? headers[defaultSortBy].headerId
-      : defaultSortBy
+    if (isNumber(defaultSortBy) && headers && headers[defaultSortBy]) {
+      return headers[defaultSortBy].headerId
+    }
+
+    return isNumber(defaultSortBy) ? '' : defaultSortBy
   }, [defaultSortBy, headers])
 
   const [direction, setDirection] = useState(defaultDirection || '')
@@ -43,17 +45,17 @@ export const useSortTable = ({ headers, content, sortConfig = {} }) => {
 
   const isDateValid = date => {
     const dateString = String(date)
-
     if (Date.parse(dateString)) {
       return !(dateString.match(/-/g) && !dateString.split('-').every(char => isNumber(char)))
     }
-
     return false
   }
 
   const getValueByType = useCallback(
     columnIndex => rowData => {
       const rowDataContent = rowData.content ? rowData.content : rowData
+
+      if (!rowDataContent || columnIndex === -1) return null
 
       if (
         rowDataContent[columnIndex] instanceof Object &&
@@ -66,7 +68,6 @@ export const useSortTable = ({ headers, content, sortConfig = {} }) => {
             if (valueToTest[0].match(/:/g)) {
               return valueToTest[0].split(':')[0].trim()
             }
-
             return valueToTest[0]
           } else if (typeof valueToTest === 'string' && isDateValid(valueToTest)) {
             return new Date(valueToTest)
@@ -76,11 +77,12 @@ export const useSortTable = ({ headers, content, sortConfig = {} }) => {
         }
       }
 
-      return isNumber(parseFloat(rowData[columnIndex]))
-        ? parseFloat(rowData[columnIndex])
-        : isDateValid(rowData[columnIndex])
-          ? new Date(rowData[columnIndex])
-          : rowData[columnIndex]
+      const cellValue = rowDataContent[columnIndex]
+      return isNumber(parseFloat(cellValue))
+        ? parseFloat(cellValue)
+        : isDateValid(cellValue)
+          ? new Date(cellValue)
+          : cellValue
     },
     []
   )
@@ -159,7 +161,9 @@ export const useSortTable = ({ headers, content, sortConfig = {} }) => {
       return content
     }
 
-    const columnIndex = headers.findIndex(header => header.headerId === selectedColumnName)
+    const columnIndex = headers
+      ? headers.findIndex(header => header.headerId === selectedColumnName)
+      : -1
 
     if (columnIndex === -1) return content
 

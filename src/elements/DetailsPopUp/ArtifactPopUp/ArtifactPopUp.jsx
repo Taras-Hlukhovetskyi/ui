@@ -136,12 +136,11 @@ const ArtifactPopUp = ({ artifactData, isOpen, onResolve }) => {
   const fetchArtifact = useCallback(() => {
     const artifactMin = {
       name: artifactData.key,
+
       iter: artifactData.iteration,
       tree: artifactData.tree || artifactData.uid,
       tag: artifactData.tag
     }
-
-    setIsLoading(true)
 
     artifactContext
       .fetchArtifact(artifactData.project, artifactMin)
@@ -160,8 +159,6 @@ const ArtifactPopUp = ({ artifactData, isOpen, onResolve }) => {
               : artifacts.find(artifact => artifact.tag === 'latest' || maxBy(artifacts, 'updated'))
 
           setSelectedArtifact(selectedArtifact)
-
-          setIsLoading(false)
         } else {
           showArtifactErrorNotification(dispatch, {}, artifactContext.type)
 
@@ -172,6 +169,9 @@ const ArtifactPopUp = ({ artifactData, isOpen, onResolve }) => {
         showArtifactErrorNotification(dispatch, error, artifactContext.type)
 
         onResolve()
+      })
+      .finally(() => {
+        setIsLoading(false)
       })
   }, [
     artifactContext,
@@ -213,6 +213,11 @@ const ArtifactPopUp = ({ artifactData, isOpen, onResolve }) => {
     ]
   )
 
+  const handleRefresh = useCallback(() => {
+    setIsLoading(true)
+    fetchArtifact()
+  }, [fetchArtifact])
+
   useEffect(() => {
     if (isEmpty(selectedArtifact)) {
       fetchArtifact()
@@ -223,7 +228,7 @@ const ArtifactPopUp = ({ artifactData, isOpen, onResolve }) => {
     <DetailsPopUp
       actionsMenu={actionsMenu}
       formInitialValues={detailsFormInitialValues}
-      handleRefresh={fetchArtifact}
+      handleRefresh={handleRefresh}
       isLoading={isLoading}
       isOpen={isOpen}
       onResolve={onResolve}

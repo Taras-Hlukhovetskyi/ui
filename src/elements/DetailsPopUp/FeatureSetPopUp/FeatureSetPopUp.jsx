@@ -62,8 +62,6 @@ const FeatureSetPopUp = ({ featureSetData, isOpen, onResolve }) => {
   )
 
   const fetchFeatureSetData = useCallback(() => {
-    setIsLoading(true)
-
     dispatch(
       fetchFeatureSet({
         project: featureSetData.project,
@@ -87,7 +85,15 @@ const FeatureSetPopUp = ({ featureSetData, isOpen, onResolve }) => {
 
         onResolve()
       })
+      .finally(() => {
+        setIsLoading(false)
+      })
   }, [dispatch, featureSetData.name, featureSetData.project, featureSetData.tag, onResolve])
+
+  const handleRefresh = useCallback(() => {
+    setIsLoading(true)
+    fetchFeatureSetData()
+  }, [fetchFeatureSetData])
 
   useEffect(() => {
     if (isEmpty(selectedFeatureSet)) {
@@ -99,7 +105,7 @@ const FeatureSetPopUp = ({ featureSetData, isOpen, onResolve }) => {
     <DetailsPopUp
       actionsMenu={actionsMenu}
       formInitialValues={detailsFormInitialValues}
-      handleRefresh={fetchFeatureSetData}
+      handleRefresh={handleRefresh}
       isLoading={isLoading}
       isOpen={isOpen}
       onResolve={onResolve}

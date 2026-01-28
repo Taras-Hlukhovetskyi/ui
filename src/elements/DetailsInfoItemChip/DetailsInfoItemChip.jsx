@@ -55,25 +55,28 @@ const DetailsInfoItemChip = ({
     editableFieldType && editableFieldType !== 'chips' && 'details-item_disabled'
   )
 
+  const fieldName = item.fieldData.name
+  const editModeType = item?.editModeType
+
   const handleSetEditMode = useCallback(() => {
     if (
-      !formState.form.getFieldState(item.fieldData.name).pristine &&
+      !formState.form.getFieldState(fieldName).pristine &&
       !isFieldInEditMode &&
       !isEqual(
-        formState.values[item.fieldData.name],
-        commonDetailsStore.changes.data?.[item.fieldData.name]?.currentFieldValue
+        formState.values[fieldName],
+        commonDetailsStore.changes.data?.[fieldName]?.currentFieldValue
       )
     ) {
       detailsInfoDispatch({
         type: detailsInfoActions.SET_EDIT_MODE,
         payload: {
           field: currentField,
-          fieldType: item?.editModeType
+          fieldType: editModeType
         }
       })
       dispatch(setEditMode(true))
-    } else if (formState.form.getFieldState(item.fieldData.name).pristine && !isFieldInEditMode) {
-      handleFinishEdit(item.fieldData.name)
+    } else if (formState.form.getFieldState(fieldName).pristine && !isFieldInEditMode) {
+      handleFinishEdit(fieldName)
     }
   }, [
     currentField,
@@ -84,17 +87,17 @@ const DetailsInfoItemChip = ({
     formState.values,
     handleFinishEdit,
     isFieldInEditMode,
-    item?.editModeType,
-    item.fieldData.name
+    editModeType, // Тепер тут проста змінна
+    fieldName // Тепер тут проста змінна
   ])
 
   useEffect(() => {
     if (
-      !isEmpty(formState.values[item.fieldData.name]) &&
-      !formState.form.getFieldState(item.fieldData.name).pristine &&
+      !isEmpty(formState.values[fieldName]) &&
+      !formState.form.getFieldState(fieldName).pristine &&
       !isEqual(
-        formState.values[item.fieldData.name],
-        commonDetailsStore.changes.data?.[item.fieldData.name]?.currentFieldValue
+        formState.values[fieldName],
+        commonDetailsStore.changes.data?.[fieldName]?.currentFieldValue
       ) &&
       !isFieldInEditMode
     ) {
@@ -102,21 +105,21 @@ const DetailsInfoItemChip = ({
         type: detailsInfoActions.SET_EDIT_MODE,
         payload: {
           field: currentField,
-          fieldType: item?.editModeType
+          fieldType: editModeType
         }
       })
       dispatch(setEditMode(true))
     } else if (
-      !isEmpty(formState.initialValues[item.fieldData.name]) &&
-      isEmpty(formState.values[item.fieldData.name]) &&
-      !commonDetailsStore.changes.data?.[item.fieldData.name] &&
+      !isEmpty(formState.initialValues[fieldName]) &&
+      isEmpty(formState.values[fieldName]) &&
+      !commonDetailsStore.changes.data?.[fieldName] &&
       !isFieldInEditMode
     ) {
       detailsInfoDispatch({
         type: detailsInfoActions.SET_EDIT_MODE,
         payload: {
           field: currentField,
-          fieldType: item?.editModeType
+          fieldType: editModeType
         }
       })
       dispatch(setEditMode(true))
@@ -130,8 +133,8 @@ const DetailsInfoItemChip = ({
     formState.initialValues,
     formState.values,
     isFieldInEditMode,
-    item?.editModeType,
-    item.fieldData.name
+    editModeType,
+    fieldName
   ])
 
   const validationRules = useMemo(() => {
@@ -150,9 +153,9 @@ const DetailsInfoItemChip = ({
 
   const discardChanges = () => {
     formState.form.change(
-      item.fieldData.name,
-      commonDetailsStore.changes.data[item.fieldData.name]?.currentFieldValue ??
-        formState.initialValues[item.fieldData.name]
+      fieldName,
+      commonDetailsStore.changes.data[fieldName]?.currentFieldValue ??
+        formState.initialValues[fieldName]
     )
     dispatch(setEditMode(false))
     detailsInfoDispatch({
@@ -167,19 +170,19 @@ const DetailsInfoItemChip = ({
         formState={formState}
         initialValues={formState.initialValues}
         isEditable={isEditable}
-        name={item.fieldData.name}
+        name={fieldName}
         shortChips
         visibleChipsMaxLength="all"
         validationRules={validationRules}
       />
-      <FormOnChange name={item.fieldData.name} handler={handleSetEditMode} />
+      <FormOnChange name={fieldName} handler={handleSetEditMode} />
       {isFieldInEditMode && (
         <div className="details-item__buttons-block">
           <div className="details-item__apply-btn-wrapper">
             <RoundedIcon
               className="details-item__apply-btn"
               disabled={!formState.valid}
-              onClick={() => handleFinishEdit(item.fieldData.name)}
+              onClick={() => handleFinishEdit(fieldName)}
               tooltipText="Apply"
             >
               <Checkmark />

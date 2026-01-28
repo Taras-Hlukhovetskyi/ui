@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useEffect, useState } from 'react'
+import React, { useMemo } from 'react' // 1. Прибрали useEffect, useState, додали useMemo
 import { useDispatch, useSelector } from 'react-redux'
 
 import FunctionsPanelEnvironmentVariablesView from './FunctionsPanelEnvironmentVariablesView'
@@ -28,13 +28,11 @@ import { useMode } from '../../hooks/mode.hook'
 import { setNewFunctionEnv } from '../../reducers/functionReducer'
 
 const FunctionsPanelEnvironmentVariables = () => {
-  const [envVariables, setEnvVariables] = useState([])
   const { isStagingMode } = useMode()
   const dispatch = useDispatch()
   const functionsStore = useSelector(store => store.functionsStore)
-
-  useEffect(() => {
-    setEnvVariables(parseEnvVariables(functionsStore.newFunction.spec.env))
+  const envVariables = useMemo(() => {
+    return parseEnvVariables(functionsStore.newFunction.spec.env)
   }, [functionsStore.newFunction.spec.env])
 
   const handleAddNewEnv = env => {
@@ -57,10 +55,13 @@ const FunctionsPanelEnvironmentVariables = () => {
         setNewFunctionEnv(
           envVariables.map(item => {
             if (item.name === env.key) {
-              item.name = env.newKey || env.key
-              item.value = env.value
+              // Важливо: ми створюємо новий об'єкт, щоб не мутувати дані напряму
+              return {
+                ...item,
+                name: env.newKey || env.key,
+                value: env.value
+              }
             }
-
             return item
           })
         )

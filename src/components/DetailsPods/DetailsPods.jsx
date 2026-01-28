@@ -17,12 +17,11 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 import Prism from 'prismjs'
 import classnames from 'classnames'
-import { useParams } from 'react-router-dom'
 
 import NoData from '../../common/NoData/NoData'
 import { Tooltip, TextTooltipTemplate, Loader } from 'igz-controls/components'
@@ -33,28 +32,22 @@ import './detailsPods.scss'
 import { PENDING_STATE } from '../../constants'
 
 const DetailsPods = ({ isDetailsPopUp = false, noDataMessage = '' }) => {
-  const [selectedPod, setSelectedPod] = useState(null)
-  const [table, setTable] = useState([])
-  const params = useParams()
   const detailsStore = useSelector(store => store.detailsStore)
-
   const podsData = useMemo(() => {
     return isDetailsPopUp ? detailsStore.detailsJobPods : detailsStore.pods
   }, [detailsStore.detailsJobPods, detailsStore.pods, isDetailsPopUp])
 
-  useEffect(() => {
-    setTable(generatePods(podsData))
+  const [selectedPod, setSelectedPod] = useState(null)
+  const [prevPodsData, setPrevPodsData] = useState(podsData)
 
-    return () => {
-      setSelectedPod(null)
-    }
-  }, [podsData, params.jobId])
+  if (podsData !== prevPodsData) {
+    setPrevPodsData(podsData)
+    setSelectedPod(null)
+  }
 
-  useEffect(() => {
-    if (!selectedPod) {
-      setSelectedPod(table[0])
-    }
-  }, [selectedPod, table])
+  const table = useMemo(() => generatePods(podsData), [podsData])
+
+  const activePod = selectedPod || table[0]
 
   return (
     <>
@@ -67,10 +60,8 @@ const DetailsPods = ({ isDetailsPopUp = false, noDataMessage = '' }) => {
           <div className="pods__table">
             <div className="pods__table-body">
               {table.map((row, rowIndex) => {
-                const rowClassNames = classnames(
-                  'pods__table-row',
-                  selectedPod?.value === row.value && 'row_active'
-                )
+                const isActive = activePod?.value === row.value
+                const rowClassNames = classnames('pods__table-row', isActive && 'row_active')
                 const podStatus =
                   row.status?.phase?.toLowerCase() === PENDING_STATE
                     ? 'pending...'
@@ -98,14 +89,14 @@ const DetailsPods = ({ isDetailsPopUp = false, noDataMessage = '' }) => {
             </div>
           </div>
           <div className="pods__status">
-            {selectedPod?.status && (
+            {activePod?.status && (
               <div className="pods__status-view">
                 <div className="json">
                   <pre className="json-content">
                     <code
                       dangerouslySetInnerHTML={{
                         __html: Prism.highlight(
-                          JSON.stringify(selectedPod.status, null, 2),
+                          JSON.stringify(activePod.status, null, 2),
                           Prism.languages.json,
                           'json'
                         )

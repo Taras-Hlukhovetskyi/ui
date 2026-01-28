@@ -95,7 +95,7 @@ const JobWizard = ({
   prePopulatedData = {},
   wizardTitle = 'Batch run'
 }) => {
-  const formRef = React.useRef(
+  const [form] = useState(
     createForm({
       onSubmit: () => {},
       mutators: { ...arrayMutators, setFieldState },
@@ -106,7 +106,7 @@ const JobWizard = ({
   const isRunMode = useMemo(() => mode === PANEL_FUNCTION_CREATE_MODE, [mode])
   const projectIsLoading = useSelector(store => store.projectStore.project.loading)
   const [currentProject, setCurrentProject] = useState(null)
-  const [selectedFunctionData, setSelectedFunctionData] = useState({})
+  const [fetchedFunctionData, setFetchedFunctionData] = useState(null)
   const [filteredFunctions, setFilteredFunctions] = useState([])
   const [filteredTemplates, setFilteredTemplates] = useState([])
   const [functions, setFunctions] = useState([])
@@ -124,6 +124,21 @@ const JobWizard = ({
   const frontendSpec = useSelector(store => store.appStore.frontendSpec)
   const jobsStore = useSelector(store => store.jobsStore)
 
+  const selectedFunctionData = useMemo(() => {
+    if (!isEmpty(jobsStore.jobFunc)) {
+      return {
+        name: jobsStore.jobFunc.metadata.name,
+        functions: [jobsStore.jobFunc]
+      }
+    }
+
+    if (fetchedFunctionData) {
+      return fetchedFunctionData
+    }
+
+    return {}
+  }, [jobsStore.jobFunc, fetchedFunctionData])
+
   const closeModal = useCallback(() => {
     if (showSchedule) {
       setShowSchedule(false)
@@ -134,7 +149,7 @@ const JobWizard = ({
     onWizardClose && onWizardClose()
   }, [dispatch, onResolve, onWizardClose, showSchedule])
 
-  const { handleCloseModal, resolveModal } = useModalBlockHistory(closeModal, formRef.current)
+  const { handleCloseModal, resolveModal } = useModalBlockHistory(closeModal, form)
 
   useEffect(() => {
     if (!isEditMode) {
@@ -177,7 +192,7 @@ const JobWizard = ({
             dispatch(fetchFunctionTemplate({ path: functionTemplatePath }))
               .unwrap()
               .then(functionData => {
-                setSelectedFunctionData(functionData)
+                setFetchedFunctionData(functionData)
               })
           } else {
             resolveModal()
@@ -185,15 +200,6 @@ const JobWizard = ({
         })
     }
   }, [dispatch, isBatchInference, isTrain, resolveModal])
-
-  useEffect(() => {
-    if (!isEmpty(jobsStore.jobFunc)) {
-      setSelectedFunctionData({
-        name: jobsStore.jobFunc.metadata.name,
-        functions: [jobsStore.jobFunc]
-      })
-    }
-  }, [isEditMode, isRunMode, jobsStore.jobFunc])
 
   const setJobData = useCallback(
     (formState, jobFormData, jobAdditionalData) => {
@@ -467,7 +473,7 @@ const JobWizard = ({
   )
 
   return (
-    <Form form={formRef.current} onSubmit={() => {}}>
+    <Form form={form} onSubmit={() => {}}>
       {formState => {
         formStateRef.current = formState
 
@@ -505,7 +511,7 @@ const JobWizard = ({
                 setFilteredTemplates={setFilteredTemplates}
                 setFunctions={setFunctions}
                 setJobAdditionalData={setJobAdditionalData}
-                setSelectedFunctionData={setSelectedFunctionData}
+                setSelectedFunctionData={setFetchedFunctionData}
                 setSelectedFunctionTab={setSelectedFunctionTab}
                 setShowSchedule={setShowSchedule}
                 setTemplates={setTemplates}
