@@ -71,6 +71,7 @@ import './realTimePipelines.scss'
 const RealTimePipelines = () => {
   const [requestErrorMessage, setRequestErrorMessage] = useState('')
   const [pipelines, setPipelines] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
   const [selectedPipeline, setSelectedPipeline] = useState({})
   const [statistics, setStatistics] = useState({
     totalPipelines: 0,
@@ -78,7 +79,6 @@ const RealTimePipelines = () => {
     failedFunctions: 0,
     modelEndpoints: 0
   })
-  const artifactsStore = useSelector(store => store.artifactsStore)
   const filtersStore = useSelector(store => store.filtersStore)
   const params = useParams()
   const navigate = useNavigate()
@@ -127,6 +127,7 @@ const RealTimePipelines = () => {
       nuclioAbortControllerRef.current = new AbortController()
       lastCheckedPipelineIdRef.current = null
 
+      setIsLoading(true)
       Promise.allSettled([
         dispatch(
           fetchArtifactsFunctions({
@@ -206,6 +207,7 @@ const RealTimePipelines = () => {
             modelEndpoints
           }))
         }
+        setIsLoading(false)
       })
     },
     [dispatch, params.projectName]
@@ -280,7 +282,7 @@ const RealTimePipelines = () => {
 
   return (
     <>
-      {artifactsStore.pipelines.loading && <Loader />}
+      {isLoading && <Loader />}
       <div className="models" ref={pipelinesRef}>
         <div className="table-container">
           <div className={filterMenuClassNames}>
@@ -313,7 +315,7 @@ const RealTimePipelines = () => {
           </div>
           {!params.pipelineId && (
             <RealTimePipelinesCounters
-              loading={artifactsStore.pipelines.loading}
+              loading={isLoading}
               statistics={statistics}
             />
           )}
@@ -323,7 +325,7 @@ const RealTimePipelines = () => {
                 <span>All Serving Pipelines</span>
                 <Tip text="This data is relevant to the root function." />
               </div>
-              {artifactsStore.pipelines.loading ? null : pipelines.length === 0 ? (
+              {isLoading ? null : pipelines.length === 0 ? (
                 <NoData
                   message={getNoDataMessage(
                     filters,
