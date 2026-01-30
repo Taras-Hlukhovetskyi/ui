@@ -39,18 +39,17 @@ function MlQueueNode({ data, isConnectable }) {
         <div className="pipe__cap" />
         <div className="pipe">
           <div className="pipe__content">
-            {/* TODO get real condition for icon */}
             <div className="pipe__icon">
               {data?.customData?.path &&
-                (data.customData.path.startsWith('v3io') ? (
+                (data.customData.path.startsWith('v3io://') ? (
                   <Tooltip template={<TextTooltipTemplate text="v3io" />}>
                     <V3ioIcon />
                   </Tooltip>
-                ) : (
+                ) : data.customData.path.startsWith('kafka://') ? (
                   <Tooltip template={<TextTooltipTemplate text="kafka" />}>
                     <KafkaIcon />
                   </Tooltip>
-                ))}
+                ) : null)}
             </div>
             <Tooltip template={<TextTooltipTemplate text={label} />}>
               <span className="pipe__label">{label}</span>

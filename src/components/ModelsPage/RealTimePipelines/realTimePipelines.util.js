@@ -22,16 +22,38 @@ import { debounce, isEqual } from 'lodash'
 import { showErrorNotification } from 'igz-controls/utils/notification.util'
 import { fetchArtifactsFunction } from '../../../reducers/artifactsReducer'
 import {
+  DATES_FILTER,
   DETAILS_MODEL_ENDPOINTS_TAB,
   DETAILS_OVERVIEW_TAB,
   DETAILS_REALTIME_PIPELINE_TAB,
+  DISPLAY_SYSTEM_PIPELINES_FILTER,
+  FILTER_ALL_ITEMS,
   MODELS_PAGE,
   NAME_FILTER,
+  PIPELINE_TOPOLOGY_FILTER,
   REAL_TIME_PIPELINES_TAB
 } from '../../../constants'
+import {
+  ANY_TIME_DATE_OPTION,
+  datePickerPastOptions,
+  getDatePickerFilterValue
+} from '../../../utils/datePicker.util'
 
 export const filtersConfig = {
-  [NAME_FILTER]: { label: 'Name:', initialValue: '' }
+  [NAME_FILTER]: { label: 'Name:', initialValue: '' },
+  [DATES_FILTER]: {
+    label: 'Time range:',
+    initialValue: getDatePickerFilterValue(datePickerPastOptions, ANY_TIME_DATE_OPTION, true)
+  },
+  [DISPLAY_SYSTEM_PIPELINES_FILTER]: {
+    label: 'Display system pipelines:',
+    initialValue: false
+  },
+  [PIPELINE_TOPOLOGY_FILTER]: {
+    label: 'Topology:',
+    initialValue: FILTER_ALL_ITEMS,
+    isModal: true
+  }
 }
 
 const infoHeaders = [

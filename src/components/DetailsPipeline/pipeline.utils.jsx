@@ -17,6 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
+import { isEmpty, mapValues, omit, capitalize } from 'lodash'
 
 import {
   ML_NODE_WITH_SUB_ITEMS,
@@ -39,25 +40,24 @@ import ErrorStepIcon from 'igz-controls/images/error-step-badge.svg?react'
 import HubStepIcon from 'igz-controls/images/mlrun-hub-step-badge.svg?react'
 import ConnectionIcon from 'igz-controls/images/connections-icon.svg?react'
 import RouterStepIcon from 'igz-controls/images/router-step-badge.svg?react'
-import { mapValues } from 'lodash'
 
 export const STEPS_TYPES = {
-  MODEL_RUNNER: 'ModelRunner',
+  MODEL_RUNNER: 'Model runner',
   QUEUE: 'Queue',
-  ERROR_STEP: 'ErrorStep',
-  HUB_STEP: 'MLRunHub',
+  ERROR_STEP: 'Error handler',
+  HUB_STEP: 'MLRun hub',
   EXTEND: 'Extend',
-  FLAT_MAP: 'FlatMap',
+  FLAT_MAP: 'Flat Map',
   FLATTEN: 'Flatten',
-  MAP_WITH_STATE: 'MapWithState',
+  MAP_WITH_STATE: 'Map with state',
   CHOICE: 'Choice',
-  CHOICE_BY_FIELD: 'ChoiceByField',
+  CHOICE_BY_FIELD: 'Choice by field',
   BATCH: 'Batch',
-  FOR_EACH: 'ForEach',
+  FOR_EACH: 'For each',
   FILTER: 'Filter',
-  SAMPLE_WINDOW: 'SampleWindow',
-  REMOTE_HTTP_STEP: 'RemoteHttpStep',
-  CUSTOM_STEP: 'CustomStep',
+  SAMPLE_WINDOW: 'Sample window',
+  REMOTE_STEP: 'Remote',
+  CUSTOM_STEP: 'Custom',
   ROUTER_STEP: 'Router'
 }
 
@@ -99,7 +99,7 @@ const NODE_TYPE_DATA_BY_KIND_MAP = {
     badgeIcon: <HubStepIcon />,
     subLabel: 'MLRun hub',
     stepType: STEPS_TYPES.HUB_STEP
-  } // TODO mapping, clarify condition with BE HUB_STEP_KIND
+  }
 }
 
 const getNodeTypeDataByKind = step => {
@@ -129,22 +129,26 @@ const nodeTypeByClassMatchers = [
     regex: new RegExp(
       `(${STEPS_TYPES.EXTEND}|${STEPS_TYPES.FLAT_MAP}|${STEPS_TYPES.FLATTEN}|${STEPS_TYPES.MAP_WITH_STATE})$`
     ),
-    data: { nodeType: ML_COMMON_NODE, badgeIcon: <EventsStepIcon /> }
+    data: { nodeType: ML_COMMON_NODE, badgeIcon: <EventsStepIcon />, group_type: 'Event operation' }
   },
   {
     regex: new RegExp(`(${STEPS_TYPES.CHOICE}|${STEPS_TYPES.CHOICE_BY_FIELD})$`),
-    data: { nodeType: ML_COMMON_NODE, badgeIcon: <ChoiceStepIcon /> }
+    data: { nodeType: ML_COMMON_NODE, badgeIcon: <ChoiceStepIcon />, group_type: 'Choice' }
   },
   {
     regex: new RegExp(`(${STEPS_TYPES.BATCH}|${STEPS_TYPES.FOR_EACH})$`),
-    data: { nodeType: ML_COMMON_NODE, badgeIcon: <BatchStepIcon /> }
+    data: { nodeType: ML_COMMON_NODE, badgeIcon: <BatchStepIcon />, group_type: 'Batch operation' }
   },
   {
     regex: new RegExp(`(${STEPS_TYPES.FILTER}|${STEPS_TYPES.SAMPLE_WINDOW})$`),
-    data: { nodeType: ML_COMMON_NODE, badgeIcon: <FilterStepIcon /> }
+    data: {
+      nodeType: ML_COMMON_NODE,
+      badgeIcon: <FilterStepIcon />,
+      group_type: 'Filter operation'
+    }
   },
   {
-    regex: new RegExp(`(${STEPS_TYPES.REMOTE_HTTP_STEP})$`),
+    regex: new RegExp(`(${STEPS_TYPES.REMOTE_STEP})$`),
     data: { nodeType: ML_COMMON_NODE, badgeIcon: <RemoteStepIcon />, subLabel: 'Remote' }
   }
 ]
@@ -203,30 +207,23 @@ const STEPS_DESCRIPTIONS = {
     'Emits a single event in a window of window_size events, in accordance with emit_period and emit_before_termination.',
   [STEPS_TYPES.MODEL_RUNNER]:
     'Runs multiple models on each event. When used in a graph, MLRun automatically imports the default language model class (LLModel) during function deployment.',
-  [STEPS_TYPES.REMOTE_HTTP_STEP]: 'Class for calling remote HTTP endpoints.'
+  [STEPS_TYPES.REMOTE_STEP]: 'Class for calling remote HTTP endpoints.'
 }
-
-const BASE_OPERATORS_LIST = [
-  STEPS_TYPES.BATCH,
-  STEPS_TYPES.CHOICE,
-  STEPS_TYPES.EXTEND,
-  STEPS_TYPES.FILTER,
-  STEPS_TYPES.FLAT_MAP,
-  STEPS_TYPES.FLATTEN,
-  STEPS_TYPES.FOR_EACH,
-  STEPS_TYPES.MAP_WITH_STATE,
-  STEPS_TYPES.SAMPLE_WINDOW
-]
 
 const getDetailsGeneralData = selectedStepData => [
   {
     label: 'Type:',
-    value: selectedStepData.kind
+    value: selectedStepData.group_type || selectedStepData.stepType
   },
   {
     label: 'Class name:',
-    value: selectedStepData.class_name
+    value:
+      selectedStepData.stepType === STEPS_TYPES.HUB_STEP
+        ? selectedStepData.hub_step_class_name
+        : selectedStepData.class_name,
+    hidden: !selectedStepData.class_name && !selectedStepData.hub_step_class_name
   },
+  { label: 'Kind:', value: selectedStepData.kind },
   {
     label: 'Description:',
     value: selectedStepData.description,
@@ -236,44 +233,28 @@ const getDetailsGeneralData = selectedStepData => [
     label: 'Arguments:',
     value: selectedStepData.class_args,
     type: STEP_FIELD_TYPES.CODE_BLOCK,
-    hidden: selectedStepData.stepType !== STEPS_TYPES.CUSTOM_STEP
+    hidden: isEmpty(selectedStepData.class_args)
   },
   {
     label: 'Function name:',
-    value: selectedStepData.function
+    value: selectedStepData.function,
+    hidden: !selectedStepData.function
   },
+  // {
+  //   label: 'State:',
+  //   value: selectedStepData.state, // TODO mapping state for MapWithKey
+  //   hidden: selectedStepData.stepType !== STEPS_TYPES.MAP_WITH_STATE || !selectedStepData.state
+  // },
+  // {
+  //   label: 'Group by key:',
+  //   value: selectedStepData.group_by_key,
+  //   hidden: !selectedStepData.group_by_key
+  // },
   {
-    label: 'Handler:',
-    value: selectedStepData.handler,
-    hidden: selectedStepData.stepType === STEPS_TYPES.MODEL_RUNNER
-  },
-  {
-    label: 'Input path:',
-    value: selectedStepData.input_path
-  },
-  {
-    label: 'Result path:',
-    value: selectedStepData.result_path
-  },
-  {
-    label: 'Full event:',
-    value: Boolean(selectedStepData.full_event), // TODO mapping full_event
-    hidden: !BASE_OPERATORS_LIST.includes(selectedStepData.stepType)
-  },
-  {
-    label: 'State:',
-    value: selectedStepData.state, // TODO mapping state for MapWithKey
-    hidden: selectedStepData.stepType !== STEPS_TYPES.MAP_WITH_STATE
-  },
-  {
-    label: 'Group by key:',
-    value: Boolean(selectedStepData.group_by_key), // TODO mapping state for group_by_key
-    hidden: selectedStepData.stepType !== STEPS_TYPES.MAP_WITH_STATE
-  },
-  {
-    label: 'Link:', // link to the step on mlrun hub
-    value: selectedStepData.link, // TODO mapping state for link
-    hidden: selectedStepData.stepType !== STEPS_TYPES.HUB_STEP
+    label: 'Link:',
+    value: selectedStepData.class_name,
+    hidden: selectedStepData.stepType !== STEPS_TYPES.HUB_STEP || !selectedStepData.class_name,
+    type: STEP_FIELD_TYPES.COPY
   },
   {
     label: 'Maximum allowed iterations:',
@@ -282,19 +263,21 @@ const getDetailsGeneralData = selectedStepData => [
   },
   {
     label: 'Data store profiles:',
-    value: selectedStepData.profile, // TODO mapping queue profiles
-    hidden: selectedStepData.stepType !== STEPS_TYPES.QUEUE
+    value: selectedStepData.path,
+    hidden: selectedStepData.stepType !== STEPS_TYPES.QUEUE || !selectedStepData.path
   },
   {
     label: 'URL:',
     value: selectedStepData.class_args?.url,
-    hidden: selectedStepData.stepType !== STEPS_TYPES.REMOTE_HTTP_STEP,
+    hidden:
+      selectedStepData.stepType !== STEPS_TYPES.REMOTE_STEP || !selectedStepData.class_args?.url,
     type: STEP_FIELD_TYPES.COPY
   },
   {
     label: 'Method:',
     value: selectedStepData.class_args?.method,
-    hidden: selectedStepData.stepType !== STEPS_TYPES.REMOTE_HTTP_STEP
+    hidden:
+      selectedStepData.stepType !== STEPS_TYPES.REMOTE_STEP || !selectedStepData.class_args?.method
   }
 ]
 
@@ -404,11 +387,38 @@ export const getStepDescriptionFields = (selectedStep, graph) => {
     selectedStepData.maxIterations = selectedStepData.max_iterations || graph.max_iterations || ''
   }
 
-  const detailsGeneralData = getDetailsGeneralData(selectedStepData)
+  const predefinedGeneralData = getDetailsGeneralData(selectedStepData)
+  const fieldsToOmit = [
+    'description',
+    'maxIterations',
+    'track_models',
+    'class_args',
+    'after',
+    'class_name',
+    'function',
+    'hub_step_class_name',
+    'kind',
+    'group_by_key',
+    'cycle_from',
+    'cycle_to',
+    'shape',
+    'endpoint_type'
+  ]
+
+  if (selectedStepData.stepType === STEPS_TYPES.QUEUE) fieldsToOmit.push('path')
+  if (selectedStepData.stepType === STEPS_TYPES.REMOTE_STEP) fieldsToOmit.push('url', 'method')
+
+  const restOfGeneralData = Object.entries(omit(selectedStepData.customData, fieldsToOmit)).map(
+    ([key, value]) => ({
+      label: `${capitalize(key.replace(/_/g, ' '))}:`,
+      value: typeof value === 'object' ? value : String(value),
+      type: typeof value === 'object' ? STEP_FIELD_TYPES.CODE_BLOCK : undefined
+    })
+  )
   const subItemsData = getSubItemsData(selectedStepData)
 
   return {
-    general: detailsGeneralData,
+    general: [...predefinedGeneralData, ...restOfGeneralData],
     subItemsData
   }
 }
