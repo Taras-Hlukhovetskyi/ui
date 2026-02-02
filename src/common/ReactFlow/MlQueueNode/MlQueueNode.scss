@@ -5,18 +5,6 @@
     background-color: transparent;
     border: none;
 
-    &.selected {
-      border-color: none;
-      box-shadow: none;
-      stroke: none;
-
-      .pipe-node .pipe,
-      .pipe-node .pipe__cap {
-        border-color: colors.$malibu;
-        stroke: colors.$brightTurquoise;
-      }
-    }
-
     .pipe-node {
       position: relative;
       display: flex;
@@ -73,6 +61,17 @@
       .pipe__label {
         white-space: nowrap;
         text-align: center;
+      }
+    }
+
+    &.selected {
+      border-color: none;
+      box-shadow: none;
+      stroke: none;
+
+      .pipe-node .pipe,
+      .pipe-node .pipe__cap {
+        border-color: colors.$malibu;
       }
     }
   }

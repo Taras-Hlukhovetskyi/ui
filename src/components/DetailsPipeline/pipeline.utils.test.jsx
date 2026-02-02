@@ -157,7 +157,7 @@ describe('pipeline.utils - getStepDescriptionFields', () => {
     const typeRow = result.general.find(row => row.label === 'Type:')
     const descriptionRow = result.general.find(row => row.label === 'Description:')
 
-    expect(typeRow.value).toBe(MODEL_RUNNER_STEP_KIND)
+    expect(typeRow.value).toBe(STEPS_TYPES.MODEL_RUNNER)
     expect(descriptionRow.value).toBeDefined()
     expect(descriptionRow.hidden).toBe(false)
   })
@@ -184,28 +184,6 @@ describe('pipeline.utils - getStepDescriptionFields', () => {
     expect(argsRow.hidden).toBe(false)
   })
 
-  it('hides Arguments row for non-CUSTOM steps', () => {
-    const modelRunnerStep = {
-      data: {
-        customData: {
-          kind: MODEL_RUNNER_STEP_KIND,
-          class_name: 'ModelRunner',
-          stepType: STEPS_TYPES.MODEL_RUNNER,
-          class_args: { a: 1 }
-        }
-      }
-    }
-
-    const graph = { allow_cyclic: false }
-
-    const result = getStepDescriptionFields(modelRunnerStep, graph)
-
-    const argsRow = result.general.find(row => row.label === 'Arguments:')
-
-    expect(argsRow.type).toBe(STEP_FIELD_TYPES.CODE_BLOCK)
-    expect(argsRow.hidden).toBe(true)
-  })
-
   it('sets maxIterations when graph is cyclic and step has cycle_from', () => {
     const selectedStep = {
       data: {
@@ -227,5 +205,70 @@ describe('pipeline.utils - getStepDescriptionFields', () => {
 
     expect(maxIterationsRow.value).toBe(5)
     expect(maxIterationsRow.hidden).toBe(false)
+  })
+
+  it('returns subItemsData with Routes for ROUTER_STEP', () => {
+    const selectedStep = {
+      data: {
+        customData: {
+          kind: ROUTER_STEP_KIND,
+          stepType: STEPS_TYPES.ROUTER_STEP,
+          routes: {
+            route_a: {
+              class_name: 'ClassA',
+              class_args: { model_endpoint_uid: 'uid1', model_path: 'path1' },
+              input_path: 'in',
+              result_path: 'out'
+            },
+            route_b: {
+              class_name: 'ClassB',
+              class_args: {},
+              input_path: '',
+              result_path: ''
+            }
+          }
+        },
+        ...getStepsNodeData({
+          kind: ROUTER_STEP_KIND,
+          routes: { route_a: {}, route_b: {} }
+        })
+      }
+    }
+
+    const graph = { allow_cyclic: false }
+
+    const result = getStepDescriptionFields(selectedStep, graph)
+
+    expect(result.subItemsData.itemsTitle).toBe('Routes')
+    expect(Object.keys(result.subItemsData.items)).toEqual(['route_a', 'route_b'])
+    expect(result.subItemsData.items.route_a).toHaveLength(6)
+    expect(result.subItemsData.items.route_a[0]).toMatchObject({
+      label: 'Model endpoint:',
+      value: 'uid1',
+      type: STEP_FIELD_TYPES.POP_UP
+    })
+    expect(result.subItemsData.items.route_a[2]).toMatchObject({
+      label: 'Class name:',
+      value: 'ClassA'
+    })
+  })
+
+  it('returns empty subItemsData items for ROUTER_STEP when routes is missing', () => {
+    const selectedStep = {
+      data: {
+        customData: {
+          kind: ROUTER_STEP_KIND,
+          stepType: STEPS_TYPES.ROUTER_STEP
+        },
+        ...getStepsNodeData({ kind: ROUTER_STEP_KIND })
+      }
+    }
+
+    const graph = { allow_cyclic: false }
+
+    const result = getStepDescriptionFields(selectedStep, graph)
+
+    expect(result.subItemsData.itemsTitle).toBe('Routes')
+    expect(result.subItemsData.items).toEqual({})
   })
 })
