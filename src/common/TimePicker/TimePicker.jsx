@@ -143,8 +143,7 @@ const TimePicker = ({
         >
           <Caret />
         </div>
-      </div>
-      {isDropDownMenuOpen && (
+        {isDropDownMenuOpen && (
         <PopUpDialog
           key={selectKey}
           className="time-picker__dropdown"
@@ -154,11 +153,13 @@ const TimePicker = ({
             position: 'bottom-right'
           }}
           ref={dropdownRef}
-          style={{ width: '116px' }}
+          style={{ width: `${timePickerRef.current?.clientWidth || 116}px` }}
         >
           <TimePickerOptions key={selectKey} handleInputChange={handleInputChange} />
         </PopUpDialog>
       )}
+      </div>
+      
     </div>
   )
 }
