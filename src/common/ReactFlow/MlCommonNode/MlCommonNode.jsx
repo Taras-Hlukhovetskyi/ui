@@ -50,7 +50,6 @@ const MlCommonNode = ({ data, isConnectable, hideHandles = false, id = '' }) => 
             </Tooltip>
           </div>
         </div>
-        {/* TODO: add real condition for response icon */}
         {data.customData?.responder && (
           <div className="react-flow__node--content-response-icon">
             <Tooltip template={<TextTooltipTemplate text="Response indicator" />}>
