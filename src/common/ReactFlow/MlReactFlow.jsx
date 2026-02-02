@@ -75,7 +75,8 @@ const MlReactFlow = ({
   onNodeClick = () => {},
   defaultErrorHandlerData = null,
   withBackground = false,
-  withProvider = true
+  withProvider = true,
+  legend = null
 }) => {
   const domChangeHandler = () => {
     const edgesWrapper = document.querySelector('.react-flow__edges > g')
@@ -83,6 +84,10 @@ const MlReactFlow = ({
 
     edgesWrapper.append(...selectedEdges)
   }
+
+  const [reactFlowInstance, setReactFlowInstance] = useState(null)
+  const [observer] = useState(new MutationObserver(domChangeHandler))
+  const [initialGraphViewGenerated, setInitialGraphViewGenerated] = useState(false)
 
   const onNodeMouseEnter = (_event, node) => {
     const connectedEdges = getConnectedEdges([node], edges)
@@ -113,10 +118,6 @@ const MlReactFlow = ({
       }
     })
   }
-
-  const [reactFlowInstance, setReactFlowInstance] = useState(null)
-  const [observer] = useState(new MutationObserver(domChangeHandler))
-  const [initialGraphViewGenerated, setInitialGraphViewGenerated] = useState(false)
 
   const handleFitGraphView = useCallback(() => {
     setTimeout(() => {
@@ -190,7 +191,9 @@ const MlReactFlow = ({
         showInteractive={false}
         showZoom={true}
         orientation="horizontal"
-      />
+      >
+        {legend}
+      </Controls>
       <MiniMap
         nodeStrokeWidth={3}
         nodeClassName={getNodeClassName}
@@ -213,7 +216,8 @@ MlReactFlow.propTypes = {
   onNodeClick: PropTypes.func,
   defaultErrorHandlerData: PropTypes.object,
   withBackground: PropTypes.bool,
-  withProvider: PropTypes.bool
+  withProvider: PropTypes.bool,
+  legend: PropTypes.node
 }
 
 export default React.memo(MlReactFlow)

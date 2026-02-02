@@ -390,6 +390,7 @@ export const LABELS_FILTER = 'labels'
 export const NAME_FILTER = 'name'
 export const ME_MODE_FILTER = 'me-mode'
 export const DATES_FILTER = 'dates'
+export const DISPLAY_SYSTEM_PIPELINES_FILTER = 'systemPipelines'
 export const PROJECT_FILTER = 'project'
 export const REAL_TIME_FILTER = 'realTime'
 export const BATCH_FILTER = 'batch'
@@ -413,6 +414,7 @@ export const ENTITY_KIND = 'entity-kind'
 export const ENTITY_ID = 'entity'
 export const EVENT_TYPE = 'event-type'
 export const EVENT_KIND = 'event-kind'
+export const PIPELINE_TOPOLOGY_FILTER = 'topology'
 
 export const SEVERITY = 'severity'
 export const JOB = 'job'
@@ -424,6 +426,9 @@ export const FILTER_MENU = 'filterMenu'
 export const FILTER_MENU_MODAL = 'filterMenuModal'
 export const JOB_WIZARD_FILTERS = 'jobWizardFilters'
 export const HUB_CATEGORIES_FILTER = 'hubCategories'
+
+export const PIPELINE_FLOW_TOPOLOGY = 'flow'
+export const PIPELINE_ROUTER_TOPOLOGY = 'router'
 
 /*=========== PANEL =============*/
 

@@ -65,6 +65,7 @@ const ActionBar = ({
   autoRefreshIsEnabled = false,
   autoRefreshIsStopped = false,
   autoRefreshStopTrigger = false,
+  getCustomActions = null,
   cancelRequest = null,
   children,
   closeParamName = '',
@@ -389,6 +390,10 @@ const ActionBar = ({
       {formState => (
         <div className={actionBarClassNames}>
           <div className="action-bar__filters">
+            {getCustomActions &&
+              getCustomActions((value = {}) =>
+                applyFilters({ ...formState.values, ...value }, filterMenuModal)
+              )}
             {NAME_FILTER in filterMenu && !filtersConfig[NAME_FILTER].hidden && (
               <div key={NAME_FILTER} className="action-bar__filters-item">
                 <NameFilter
@@ -534,6 +539,7 @@ ActionBar.propTypes = {
   autoRefreshIsEnabled: PropTypes.bool,
   autoRefreshIsStopped: PropTypes.bool,
   autoRefreshStopTrigger: PropTypes.bool,
+  getCustomActions: PropTypes.func,
   cancelRequest: PropTypes.func,
   children: PropTypes.node,
   closeParamName: PropTypes.string,

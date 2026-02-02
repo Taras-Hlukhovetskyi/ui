@@ -22,6 +22,8 @@ import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import { groupBy, forEach, isEmpty, map } from 'lodash'
 import { useSelector } from 'react-redux'
+import { Group, Panel } from 'react-resizable-panels'
+import { Position, ReactFlowProvider, useStoreApi } from 'reactflow'
 
 import {
   Tooltip,
@@ -36,8 +38,10 @@ import CodeBlock from '../../common/CodeBlock/CodeBlock'
 import MlReactFlow from '../../common/ReactFlow/MlReactFlow'
 import ModelEndpointPopUp from '../../elements/DetailsPopUp/ModelEndpointPopUp/ModelEndpointPopUp'
 import NoData from '../../common/NoData/NoData'
+import PipelineLegend from './PipelineLegend'
+import RouterList from './RouterList'
+
 import { getStepDescriptionFields, getStepsNodeData, STEP_FIELD_TYPES } from './pipeline.utils'
-import { Position, ReactFlowProvider, useStoreApi } from 'reactflow'
 
 import {
   DEFAULT_EDGE,
@@ -110,24 +114,6 @@ const DetailsPipeline = ({ selectedItem }) => {
       const nodesConnectionMap = {} // [after]: [step]
 
       defaultErrorHandlerIdRef.current = defaultErrorHandlerStepId
-
-      if (graph.kind === 'router') {
-        const nodeTypeData = getStepsNodeData(graph)
-        const mainRouterStepId = graph.class_args?.name || graph.name || 'Router'
-
-        newNodes.push({
-          id: mainRouterStepId,
-          type: nodeTypeData.nodeType,
-          data: {
-            ...nodeTypeData,
-            subType: PRIMARY_PIPELINE_NODE,
-            label: graph.class_args?.name ?? 'Router',
-            isSelectable: true,
-            customData: graph
-          },
-          position: { x: 0, y: 0 }
-        })
-      }
 
       forEach(steps, (step, stepName) => {
         if (!step.kind) return
@@ -308,130 +294,151 @@ const DetailsPipeline = ({ selectedItem }) => {
 
   return (
     <div className="pipeline-container">
-      <div className="pipeline-header"></div>
       {!isEmpty(selectedItem?.graph) ? (
-        <div className="graph-container pipeline-content">
-          <div className="graph-view">
-            <MlReactFlow
-              nodes={nodes}
-              edges={edges}
-              alignTriggerItem={stepIsSelected}
-              onNodeClick={(event, node) => {
-                if (node.data?.customData) {
-                  setSelectedStep(node)
-                }
-              }}
-              defaultErrorHandlerData={defaultErrorHandlerData}
-              withBackground
-              withProvider={false}
-            />
-          </div>
-          {stepIsSelected && (
-            <div className="graph-pane">
-              <div className="graph-pane-scroll-container">
-                <div className="graph-pane__title">
-                  {selectedStep.data?.badgeIcon && (
-                    <div className="graph-pane__title-icon">{selectedStep.data?.badgeIcon}</div>
-                  )}
-                  <Tooltip
-                    className="graph-pane__title-label"
-                    hidden={!selectedStep.id}
-                    template={<TextTooltipTemplate text={selectedStep.id || ''} />}
-                  >
-                    {selectedStep.id || ''}
-                  </Tooltip>
-                  <RoundedIcon onClick={() => setSelectedStep({})} tooltipText="Close">
-                    <CloseIcon />
-                  </RoundedIcon>
+        selectedItem.graph.kind === 'router' ? (
+          <RouterList graph={selectedItem.graph} />
+        ) : (
+          <div className="graph-container pipeline-content">
+            <Group direction="horizontal">
+              <Panel id="graph-panel" data-testid="graph-panel" minSize="30%">
+                <div className="graph-view">
+                  <MlReactFlow
+                    nodes={nodes}
+                    edges={edges}
+                    onNodeClick={(event, node) => {
+                      if (node.data?.customData) {
+                        setSelectedStep(node)
+                      }
+                    }}
+                    defaultErrorHandlerData={defaultErrorHandlerData}
+                    withBackground
+                    withProvider={false}
+                    legend={<PipelineLegend />}
+                  />
                 </div>
-                <div className="graph-pane__section">
-                  <div className="graph-pane__section-title">General</div>
-                  {selectedStepData.general.map(
-                    rowData =>
-                      !rowData.hidden && (
-                        <div
-                          className={classnames(
-                            'graph-pane__row',
-                            rowData.type === STEP_FIELD_TYPES.CODE_BLOCK && 'graph-pane__row_wrap'
-                          )}
-                          key={rowData.label}
+              </Panel>
+              {stepIsSelected && (
+                <Panel
+                  id="graph-details-panel"
+                  data-testid="graph-details-panel"
+                  minSize={320}
+                  defaultSize="30%"
+                >
+                  <div className="graph-pane">
+                    <div className="graph-pane-scroll-container">
+                      <div className="graph-pane__title">
+                        {selectedStep.data?.badgeIcon && (
+                          <div className="graph-pane__title-icon">
+                            {selectedStep.data?.badgeIcon}
+                          </div>
+                        )}
+                        <Tooltip
+                          className="graph-pane__title-label"
+                          hidden={!selectedStep.id}
+                          template={<TextTooltipTemplate text={selectedStep.id || ''} />}
                         >
-                          <div className="graph-pane__row-label">{rowData.label}</div>
-                          {rowData.type === STEP_FIELD_TYPES.CODE_BLOCK ? (
-                            <CodeBlock codeData={rowData.value} />
-                          ) : (
-                            <div className="graph-pane__row-value">
-                              {rowData.type === STEP_FIELD_TYPES.COPY ? (
-                                <CopyToClipboard
-                                  className="graph-pane__row-value__copy-to-clipboard"
-                                  textToCopy={rowData.value}
-                                  tooltipText="Click to copy"
-                                >
-                                  {rowData.value}
-                                </CopyToClipboard>
-                              ) : (
-                                <Tooltip
-                                  template={<TextTooltipTemplate text={rowData.value || ''} />}
-                                >
-                                  {rowData.value || ''}
-                                </Tooltip>
-                              )}
-                            </div>
+                          {selectedStep.id || ''}
+                        </Tooltip>
+                        <RoundedIcon onClick={() => setSelectedStep({})} tooltipText="Close">
+                          <CloseIcon />
+                        </RoundedIcon>
+                      </div>
+                      <div className="graph-pane__section">
+                        <div className="graph-pane__section-title">General</div>
+                        {selectedStepData.general.map(
+                          rowData =>
+                            !rowData.hidden && (
+                              <div
+                                className={classnames(
+                                  'graph-pane__row',
+                                  rowData.type === STEP_FIELD_TYPES.CODE_BLOCK &&
+                                    'graph-pane__row_wrap'
+                                )}
+                                key={rowData.label}
+                              >
+                                <div className="graph-pane__row-label">{rowData.label}</div>
+                                {rowData.type === STEP_FIELD_TYPES.CODE_BLOCK ? (
+                                  <CodeBlock codeData={rowData.value} />
+                                ) : (
+                                  <div className="graph-pane__row-value">
+                                    {rowData.type === STEP_FIELD_TYPES.COPY ? (
+                                      <CopyToClipboard
+                                        className="graph-pane__row-value__copy-to-clipboard"
+                                        textToCopy={rowData.value}
+                                        tooltipText="Click to copy"
+                                      >
+                                        {rowData.value}
+                                      </CopyToClipboard>
+                                    ) : (
+                                      <Tooltip
+                                        template={
+                                          <TextTooltipTemplate text={rowData.value || ''} />
+                                        }
+                                      >
+                                        {rowData.value || ''}
+                                      </Tooltip>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )
+                        )}
+                      </div>
+                      {Object.keys(selectedStepData.subItemsData?.items).length > 0 && (
+                        <div className="graph-pane__section">
+                          <div className="graph-pane__section-title">
+                            {selectedStepData.subItemsData.itemsTitle} (
+                            {Object.keys(selectedStepData.subItemsData.items).length})
+                          </div>
+                          {Object.entries(selectedStepData.subItemsData?.items).map(
+                            ([itemName, itemData]) => (
+                              <Accordion
+                                key={itemName}
+                                accordionClassName="graph-pane__expand-item"
+                                icon={<Arrow />}
+                                iconClassName="graph-pane__expand-icon"
+                              >
+                                <div className="graph-pane__expand-title">{itemName}</div>
+                                <div className="graph-pane__expand-content">
+                                  {itemData.map(rowData => {
+                                    return (
+                                      <div className="graph-pane__row" key={rowData.label}>
+                                        <div className="graph-pane__row-label">{rowData.label}</div>
+                                        <div
+                                          className="graph-pane__row-value"
+                                          onClick={
+                                            rowData.type === STEP_FIELD_TYPES.POP_UP
+                                              ? () => openModelPopUp(rowData)
+                                              : null
+                                          }
+                                        >
+                                          <Tooltip
+                                            template={
+                                              <TextTooltipTemplate text={rowData.value || ''} />
+                                            }
+                                            className={classnames({
+                                              link: rowData.type === STEP_FIELD_TYPES.POP_UP
+                                            })}
+                                          >
+                                            {rowData.value || ''}
+                                          </Tooltip>
+                                        </div>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              </Accordion>
+                            )
                           )}
                         </div>
-                      )
-                  )}
-                </div>
-                {Object.keys(selectedStepData.subItemsData?.items).length > 0 && (
-                  <div className="graph-pane__section">
-                    <div className="graph-pane__section-title">
-                      {selectedStepData.subItemsData.itemsTitle} (
-                      {Object.keys(selectedStepData.subItemsData.items).length})
+                      )}
                     </div>
-                    {Object.entries(selectedStepData.subItemsData?.items).map(
-                      ([itemName, itemData]) => (
-                        <Accordion
-                          key={itemName}
-                          accordionClassName="graph-pane__expand-item"
-                          icon={<Arrow />}
-                          iconClassName="graph-pane__expand-icon"
-                        >
-                          <div className="graph-pane__expand-title">{itemName}</div>
-                          <div className="graph-pane__expand-content">
-                            {itemData.map(rowData => {
-                              return (
-                                <div className="graph-pane__row" key={rowData.label}>
-                                  <div className="graph-pane__row-label">{rowData.label}</div>
-                                  <div
-                                    className="graph-pane__row-value"
-                                    onClick={
-                                      rowData.type === STEP_FIELD_TYPES.POP_UP
-                                        ? () => openModelPopUp(rowData)
-                                        : null
-                                    }
-                                  >
-                                    <Tooltip
-                                      template={<TextTooltipTemplate text={rowData.value || ''} />}
-                                      className={classnames({
-                                        link: rowData.type === STEP_FIELD_TYPES.POP_UP
-                                      })}
-                                    >
-                                      {rowData.value || ''}
-                                    </Tooltip>
-                                  </div>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        </Accordion>
-                      )
-                    )}
                   </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+                </Panel>
+              )}
+            </Group>
+          </div>
+        )
       ) : functionsStore.funcLoading ? (
         <Loader />
       ) : (
