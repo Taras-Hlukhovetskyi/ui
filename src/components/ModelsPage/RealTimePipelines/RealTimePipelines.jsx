@@ -30,7 +30,7 @@ import Details from '../../Details/Details'
 import RealTimePipelinesTableRow from '../../../elements/RealTimePipelinesTableRow/RealTimePipelinesTableRow'
 import Table from '../../Table/Table'
 import RealTimePipelinesFilters from './RealTimePipelinesFilters'
-import { Loader, Tip, FormCheckBox } from 'igz-controls/components'
+import { Loader, Tip, FormToggle } from 'igz-controls/components'
 
 import {
   GROUP_BY_NAME,
@@ -297,11 +297,10 @@ const RealTimePipelines = () => {
               withoutExpandButton
               getCustomActions={applyFilters => [
                 <Fragment key={DISPLAY_SYSTEM_PIPELINES_FILTER}>
-                  <FormCheckBox
+                  <FormToggle
                     className="action-bar__filters-item"
                     name={DISPLAY_SYSTEM_PIPELINES_FILTER}
                     label={filtersConfig[DISPLAY_SYSTEM_PIPELINES_FILTER].label}
-                    variant="toggle"
                     labelTip="Default display shows only user-created pipelines"
                     onClick={event =>
                       applyFilters({ [DISPLAY_SYSTEM_PIPELINES_FILTER]: event.target.checked })
