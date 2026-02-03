@@ -24,7 +24,7 @@ import classNames from 'classnames'
 
 import MlCommonNode from '../MlCommonNode/MlCommonNode'
 
-import './mlDefaultErrorPanel.scss'
+import './MlDefaultErrorPanel.scss'
 
 const MlDefaultErrorPanel = ({ data, onNodeClick }) => {
   const nodeClassName = classNames(
