@@ -281,8 +281,6 @@ const RealTimePipelines = () => {
     }
   })
 
-  console.log(params)
-
   return (
     <>
       {isLoading && <Loader />}
