@@ -320,7 +320,8 @@ const RealTimePipelines = () => {
             <div
               className={classnames(
                 'real-time-pipelines__section-item',
-                params.tab === DETAILS_REALTIME_PIPELINE_TAB && 'real-time-pipelines__section-item-full-space'
+                params.tab === DETAILS_REALTIME_PIPELINE_TAB &&
+                  'real-time-pipelines__section-item-full-space'
               )}
             >
               <div className="section-item_title">
