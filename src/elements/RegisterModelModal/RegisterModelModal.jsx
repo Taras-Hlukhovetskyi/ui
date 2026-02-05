@@ -71,15 +71,15 @@ function RegisterModelModal({ actions = null, isOpen, onResolve, params, refresh
       }
     }
   }
-  const formRef = React.useRef(
-    createForm({
+  const [form] = useState(() => {
+    return createForm({
       initialValues,
       mutators: { ...arrayMutators, setFieldState },
       onSubmit: () => {}
     })
-  )
+  })
   const location = useLocation()
-  const { handleCloseModal, resolveModal } = useModalBlockHistory(onResolve, formRef.current)
+  const { handleCloseModal, resolveModal } = useModalBlockHistory(onResolve, form)
   const dispatch = useDispatch()
 
   const registerModel = values => {
@@ -161,7 +161,7 @@ function RegisterModelModal({ actions = null, isOpen, onResolve, params, refresh
   }
 
   return (
-    <Form form={formRef.current} onSubmit={registerModel}>
+    <Form form={form} onSubmit={registerModel}>
       {formState => {
         return (
           <>

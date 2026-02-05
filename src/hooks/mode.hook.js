@@ -17,7 +17,8 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useLayoutEffect, useState } from 'react'
+import { useLayoutEffect } from 'react'
+
 import localStorageService from '../utils/localStorageService'
 import { getUrlMode } from '../utils/helper'
 
@@ -37,15 +38,15 @@ import { getUrlMode } from '../utils/helper'
  */
 
 export const useMode = () => {
-  const [mode, setMode] = useState(localStorageService.getStorageValue('mode'))
   const urlMode = getUrlMode(window.location.search)
 
   useLayoutEffect(() => {
     if (urlMode) {
       localStorageService.setStorageValue('mode', urlMode)
-      setMode(urlMode)
     }
   }, [urlMode])
+
+  const mode = urlMode || localStorageService.getStorageValue('mode')
 
   return {
     isDemoMode: mode === 'demo',

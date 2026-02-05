@@ -48,25 +48,22 @@ const ScheduledJobsCounters = () => {
     setShowPopup(false)
   }
 
+  const pendingJobs = projectStore.projectSummary?.data?.distinct_scheduled_jobs_pending_count
+  const pendingWorkflows =
+    projectStore.projectSummary?.data?.distinct_scheduled_pipelines_pending_count
+  const scheduledMonitoring = projectStore.jobsMonitoringData?.scheduled
+
   const scheduledData = useMemo(() => {
     if (projectName) {
-      const jobs = projectStore.projectSummary?.data?.distinct_scheduled_jobs_pending_count
-      const workflows =
-        projectStore.projectSummary?.data?.distinct_scheduled_pipelines_pending_count
-
       return {
-        jobs,
-        workflows,
-        total: countTotalValue([jobs, workflows])
+        jobs: pendingJobs,
+        workflows: pendingWorkflows,
+        total: countTotalValue([pendingJobs, pendingWorkflows])
       }
     }
-    return projectStore?.jobsMonitoringData.scheduled || {}
-  }, [
-    projectName,
-    projectStore.projectSummary?.data?.distinct_scheduled_jobs_pending_count,
-    projectStore.projectSummary?.data?.distinct_scheduled_pipelines_pending_count,
-    projectStore.jobsMonitoringData?.scheduled
-  ])
+
+    return scheduledMonitoring || {}
+  }, [projectName, pendingJobs, pendingWorkflows, scheduledMonitoring])
 
   const scheduledStats = useMemo(
     () =>

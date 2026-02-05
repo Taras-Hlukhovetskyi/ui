@@ -48,12 +48,6 @@ const NewFunctionPopUp = ({
   isOpened = false,
   setFunctionsPanelIsOpen
 }) => {
-  const [data, setData] = useState({
-    name: '',
-    runtime: FUNCTION_TYPE_JOB,
-    tag: ''
-  })
-  const [isPopUpOpen, setIsPopUpOpen] = useState(isOpened ?? false)
   const [validation, setValidation] = useState({
     isNameValid: true,
     isTagValid: true
@@ -62,7 +56,12 @@ const NewFunctionPopUp = ({
   const openPanelByDefault = useOpenPanel()
   const newFunctionBtn = useRef(null)
   const location = useLocation()
-  const runtime = new URLSearchParams(location.search).get('runtime') // TODO: Delete after new wizard implemented
+  const runtimeFromUrl = new URLSearchParams(location.search).get('runtime')
+  const [data, setData] = useState({
+    name: '',
+    runtime: runtimeFromUrl || FUNCTION_TYPE_JOB,
+    tag: ''
+  })
   const dispatch = useDispatch()
   const functionsStore = useSelector(store => store.functionsStore)
 
@@ -70,6 +69,10 @@ const NewFunctionPopUp = ({
     'new-function__pop-up',
     isCustomPosition && 'new-function__pop-up_short'
   )
+
+  const [isPopUpOpen, setIsPopUpOpen] = useState(() => {
+    return isOpened || openPanelByDefault
+  })
 
   const handleClosePopUp = () => {
     closePopUp ? closePopUp() : setIsPopUpOpen(false)
@@ -109,14 +112,10 @@ const NewFunctionPopUp = ({
   )
 
   useEffect(() => {
-    if (openPanelByDefault) {
-      setIsPopUpOpen(true)
+    if (runtimeFromUrl) {
+      dispatch(setNewFunctionKind(runtimeFromUrl))
     }
-
-    if (runtime) {
-      selectRuntime(runtime)
-    }
-  }, [openPanelByDefault, selectRuntime, runtime])
+  }, [dispatch, runtimeFromUrl])
 
   return (
     <div className="new-function">

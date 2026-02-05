@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 import arrayMutators from 'final-form-arrays'
 import classnames from 'classnames'
@@ -85,9 +85,10 @@ const ActionBar = ({
   withRefreshButton = true,
   withoutExpandButton
 }) => {
-  const [internalAutoRefreshPrevValue, setInternalAutoRefreshPrevValue] = useState(
-    internalAutoRefreshIsEnabled
-  )
+  // FIX: Використовуємо useRef замість useState, щоб уникнути зайвих рендерів
+  // і синхронного виклику setState всередині useEffect
+  const internalAutoRefreshPrevValue = useRef(internalAutoRefreshIsEnabled)
+
   const filtersStore = useSelector(store => store.filtersStore)
   const changes = useSelector(store => store.commonDetailsStore.changes)
   const dispatch = useDispatch()
@@ -136,7 +137,7 @@ const ActionBar = ({
     return initialValues
   }, [autoRefreshIsEnabled, formFiltersInitialValues, internalAutoRefreshIsEnabled])
 
-  const formRef = React.useRef(
+  const [form] = useState(
     createForm({
       initialValues: formInitialValues,
       mutators: { ...arrayMutators, setFieldState },
@@ -278,14 +279,14 @@ const ActionBar = ({
   }
 
   useEffect(() => {
-    if (!isEqual(formRef.current?.getState().values, filterMenu)) {
-      formRef.current?.batch(() => {
+    if (!isEqual(form?.getState().values, filterMenu)) {
+      form?.batch(() => {
         for (const filterName in filterMenu) {
-          formRef.current?.change(filterName, filterMenu[filterName])
+          form?.change(filterName, filterMenu[filterName])
         }
       })
     }
-  }, [filterMenu, filtersConfig])
+  }, [filterMenu, filtersConfig, form])
 
   useEffect(() => {
     if (
@@ -295,13 +296,14 @@ const ActionBar = ({
     ) {
       const intervalId = setInterval(() => {
         if (!autoRefreshIsStopped) {
-          refresh(formRef.current.getState())
+          refresh(form.getState())
         }
       }, 30000)
 
       return () => clearInterval(intervalId)
     }
   }, [
+    form,
     autoRefreshIsStopped,
     hidden,
     refresh,
@@ -310,20 +312,22 @@ const ActionBar = ({
     filtersStore.autoRefresh
   ])
 
+  // FIX: Оновлений ефект з використанням .current замість setVariable
   useEffect(() => {
     if (autoRefreshStopTrigger && filtersStore.internalAutoRefresh) {
-      formRef.current?.change(INTERNAL_AUTO_REFRESH_ID, false)
-      setInternalAutoRefreshPrevValue(true)
+      form?.change(INTERNAL_AUTO_REFRESH_ID, false)
+      internalAutoRefreshPrevValue.current = true
       dispatch(toggleInternalAutoRefresh(false))
       handleAutoRefreshPrevValueChange && handleAutoRefreshPrevValueChange(true)
-    } else if (!autoRefreshStopTrigger && internalAutoRefreshPrevValue) {
-      setInternalAutoRefreshPrevValue(false)
+    } else if (!autoRefreshStopTrigger && internalAutoRefreshPrevValue.current) {
+      internalAutoRefreshPrevValue.current = false
       dispatch(toggleInternalAutoRefresh(true))
-      formRef.current?.change(INTERNAL_AUTO_REFRESH_ID, true)
+      form?.change(INTERNAL_AUTO_REFRESH_ID, true)
       handleAutoRefreshPrevValueChange && handleAutoRefreshPrevValueChange(false)
     }
   }, [
-    internalAutoRefreshPrevValue,
+    form,
+    // internalAutoRefreshPrevValue видалено із залежностей, оскільки це ref
     autoRefreshStopTrigger,
     handleAutoRefreshPrevValueChange,
     dispatch,
@@ -332,26 +336,26 @@ const ActionBar = ({
 
   useEffect(() => {
     return () => {
-      setInternalAutoRefreshPrevValue(false)
+      internalAutoRefreshPrevValue.current = false
     }
   }, [])
 
   useLayoutEffect(() => {
-    const prevValues = formRef.current.getState().values
+    const prevValues = form.getState().values
     const valuesToReset = {
       [INTERNAL_AUTO_REFRESH_ID]: prevValues[INTERNAL_AUTO_REFRESH_ID],
       [AUTO_REFRESH_ID]: prevValues[AUTO_REFRESH_ID],
       ...formFiltersInitialValues
     }
-    formRef.current.reset(valuesToReset)
-  }, [formFiltersInitialValues])
+    form.reset(valuesToReset)
+  }, [form, formFiltersInitialValues])
 
   useLayoutEffect(() => {
-    formRef.current?.batch(() => {
-      formRef.current?.change(AUTO_REFRESH_ID, autoRefreshIsEnabled)
-      formRef.current?.change(INTERNAL_AUTO_REFRESH_ID, internalAutoRefreshIsEnabled)
+    form?.batch(() => {
+      form?.change(AUTO_REFRESH_ID, autoRefreshIsEnabled)
+      form?.change(INTERNAL_AUTO_REFRESH_ID, internalAutoRefreshIsEnabled)
     })
-  }, [autoRefreshIsEnabled, internalAutoRefreshIsEnabled])
+  }, [autoRefreshIsEnabled, internalAutoRefreshIsEnabled, form])
 
   useEffect(() => {
     dispatch(toggleAutoRefresh(false))
@@ -359,7 +363,7 @@ const ActionBar = ({
   }, [dispatch, params.projectName])
 
   return (
-    <Form form={formRef.current} onSubmit={() => {}}>
+    <Form form={form} onSubmit={() => {}}>
       {formState => (
         <div className={actionBarClassNames}>
           <div className="action-bar__filters">

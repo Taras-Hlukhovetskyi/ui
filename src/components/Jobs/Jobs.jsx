@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useEffect, useState, useMemo, useLayoutEffect, useCallback } from 'react'
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate, useParams, Outlet, useLocation } from 'react-router-dom'
 import { defaultsDeep, isEmpty } from 'lodash-es'
@@ -39,8 +39,6 @@ import {
 } from '../../constants'
 import { TERTIARY_BUTTON, PRIMARY_BUTTON } from 'igz-controls/constants'
 import { actionButtonHeader, tabs } from './jobs.util'
-// import { TERTIARY_BUTTON } from 'igz-controls/constants'
-// import { actionsMenuHeader, monitorJob, rerunJob, tabs } from './jobs.util'
 import { isPageTabValid } from '../../utils/link-helper.util'
 import {
   getJobsFiltersConfig,
@@ -61,18 +59,29 @@ export const JobsContext = React.createContext({})
 
 const Jobs = () => {
   const [confirmData, setConfirmData] = useState(null)
-  const [selectedTab, setSelectedTab] = useState(null)
   const [autoRefreshPrevValue, setAutoRefreshPrevValue] = useState(false)
   const [selectedJob, setSelectedJob] = useState({})
+
   const params = useParams()
   const navigate = useNavigate()
   const location = useLocation()
+
   const functionsStore = useSelector(store => store.functionsStore)
   const jobsStore = useSelector(store => store.jobsStore)
   const workflowsStore = useSelector(store => store.workflowsStore)
   const artifactsStore = useSelector(store => store.artifactsStore)
   const appStore = useSelector(store => store.appStore)
   const filtersStore = useSelector(store => store.filtersStore)
+
+  const selectedTab = useMemo(() => {
+    if (location.pathname.includes(`${JOBS_PAGE_PATH}/${MONITOR_JOBS_TAB}`)) {
+      return MONITOR_JOBS_TAB
+    } else if (location.pathname.includes(`${JOBS_PAGE_PATH}/${SCHEDULE_TAB}`)) {
+      return SCHEDULE_TAB
+    } else {
+      return MONITOR_WORKFLOWS_TAB
+    }
+  }, [location.pathname])
 
   const initialTabData = useMemo(() => {
     return {
@@ -135,7 +144,6 @@ const Jobs = () => {
 
   const handleTabChange = useCallback(
     tabName => {
-      setSelectedTab(tabName)
       navigate(`/projects/${params.projectName}/${JOBS_PAGE.toLowerCase()}/${tabName}`)
     },
     [navigate, params.projectName]
@@ -161,22 +169,11 @@ const Jobs = () => {
     )
   }, [getWorkflows, handleRefreshJobs, initialTabData, refreshScheduled])
 
-  useLayoutEffect(() => {
-    setSelectedTab(
-      location.pathname.includes(`${JOBS_PAGE_PATH}/${MONITOR_JOBS_TAB}`)
-        ? MONITOR_JOBS_TAB
-        : location.pathname.includes(`${JOBS_PAGE_PATH}/${SCHEDULE_TAB}`)
-          ? SCHEDULE_TAB
-          : MONITOR_WORKFLOWS_TAB
-    )
-  }, [location.pathname])
-
   useEffect(() => {
     const urlPathArray = location.pathname.split('/')
     const monitorJobsIndex = urlPathArray.indexOf(PROJECTS_PAGE_PATH) + 3
 
     if (urlPathArray[monitorJobsIndex] === INACTIVE_JOBS_TAB) {
-      /*/!* Adding the next redirect for backwards compatability *!/*/
       urlPathArray[monitorJobsIndex] = MONITOR_JOBS_TAB
       navigate(urlPathArray.join('/'), { replace: true })
     } else {

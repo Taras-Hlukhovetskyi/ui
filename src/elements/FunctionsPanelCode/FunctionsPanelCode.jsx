@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 import { isNil } from 'lodash-es'
@@ -54,21 +54,65 @@ const FunctionsPanelCode = ({
   setValidation,
   validation
 }) => {
-  const [data, setData] = useState({
-    default_class: defaultData.default_class ?? '',
-    entry: DEFAULT_ENTRY,
-    handler: defaultData.default_handler ?? FUNCTION_DEFAULT_HANDLER,
-    image: defaultData.image ?? '',
-    base_image: defaultData.build?.base_image ?? '',
-    requirements: (defaultData.build?.requirements || []).join(', ') ?? '',
-    commands: (defaultData.build?.commands || []).join('\n') ?? '',
-    build_image: defaultData.build?.image ?? ''
-  })
-  const [editCode, setEditCode] = useState(false)
   const params = useParams()
   const dispatch = useDispatch()
   const functionsStore = useSelector(store => store.functionsStore)
   const appStore = useSelector(store => store.appStore)
+
+  const initialFormData = useMemo(() => {
+    const baseData = {
+      default_class: defaultData.default_class ?? '',
+      entry: DEFAULT_ENTRY,
+      handler: defaultData.default_handler ?? FUNCTION_DEFAULT_HANDLER,
+      image: defaultData.image ?? '',
+      base_image: defaultData.build?.base_image ?? '',
+      requirements: (defaultData.build?.requirements || []).join(', ') ?? '',
+      commands: (defaultData.build?.commands || []).join('\n') ?? '',
+      build_image: defaultData.build?.image ?? ''
+    }
+
+    if (mode === PANEL_CREATE_MODE && imageType.length === 0) {
+      if (appStore.frontendSpec.default_function_image_by_kind?.[functionsStore.newFunction.kind]) {
+        baseData.image =
+          appStore.frontendSpec.default_function_image_by_kind[functionsStore.newFunction.kind]
+      } else {
+        const buildImage = (appStore.frontendSpec?.function_deployment_target_image_template || '')
+          .replace('{project}', params.projectName)
+          .replace('{name}', functionsStore.newFunction.metadata.name)
+          .replace('{tag}', functionsStore.newFunction.metadata.tag || TAG_LATEST)
+
+        baseData.requirements = appStore.frontendSpec?.function_deployment_mlrun_requirement ?? ''
+        baseData.base_image =
+          appStore.frontendSpec?.default_function_image_by_kind?.[
+            functionsStore.newFunction.kind
+          ] ?? ''
+        baseData.build_image = buildImage
+      }
+    } else if (
+      (defaultData.image?.length > 0 ||
+        (defaultData.build?.base_image?.length === 0 &&
+          defaultData.build?.commands?.length === 0 &&
+          defaultData.build?.image?.length === 0 &&
+          defaultData.image?.length === 0)) &&
+      imageType.length === 0
+    ) {
+      baseData.image = defaultData.image || DEFAULT_IMAGE
+    }
+
+    return baseData
+  }, [
+    appStore.frontendSpec,
+    defaultData,
+    functionsStore.newFunction.kind,
+    functionsStore.newFunction.metadata.name,
+    functionsStore.newFunction.metadata.tag,
+    imageType.length,
+    mode,
+    params.projectName
+  ])
+
+  const [data, setData] = useState(initialFormData)
+  const [editCode, setEditCode] = useState(false)
 
   useEffect(() => {
     if (
@@ -93,11 +137,6 @@ const FunctionsPanelCode = ({
           )
         )
         setImageType(EXISTING_IMAGE)
-        setData(state => ({
-          ...state,
-          image:
-            appStore.frontendSpec?.default_function_image_by_kind?.[functionsStore.newFunction.kind]
-        }))
       } else {
         const buildImage = (appStore.frontendSpec?.function_deployment_target_image_template || '')
           .replace('{project}', params.projectName)
@@ -118,15 +157,6 @@ const FunctionsPanelCode = ({
           )
         )
         dispatch(setNewFunctionBuildImage(buildImage))
-        setData(state => ({
-          ...state,
-          requirements: appStore.frontendSpec?.function_deployment_mlrun_requirement ?? '',
-          base_image:
-            appStore.frontendSpec?.default_function_image_by_kind?.[
-              functionsStore.newFunction.kind
-            ] ?? '',
-          build_image: buildImage
-        }))
       }
     } else if (
       (defaultData.image?.length > 0 ||
@@ -138,10 +168,6 @@ const FunctionsPanelCode = ({
     ) {
       dispatch(setNewFunctionImage(defaultData.image || DEFAULT_IMAGE))
       setImageType(EXISTING_IMAGE)
-      setData(state => ({
-        ...state,
-        image: defaultData.image || DEFAULT_IMAGE
-      }))
     } else if (imageType.length === 0) {
       setImageType(NEW_IMAGE)
     }

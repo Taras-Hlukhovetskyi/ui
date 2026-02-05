@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { memo, useMemo } from 'react'
+import React, { memo, useMemo, useId } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 
@@ -29,6 +29,7 @@ import { getScssVariableValue } from 'igz-controls/utils/common.util'
 import './detailsStatistics.scss'
 
 const DetailsStatisticsTableRow = ({ statisticsItem, headers, chartConfig }) => {
+  const id = useId()
   const amethystColor = useMemo(() => getScssVariableValue('--amethystColor'), [])
 
   return (
@@ -79,7 +80,7 @@ const DetailsStatisticsTableRow = ({ statisticsItem, headers, chartConfig }) => 
         }
 
         return (
-          <div key={Date.now() + index} className={statisticsItemClassNames}>
+          <div key={id + index} className={statisticsItemClassNames}>
             {statisticsValue.type.match(/icon/) && !statisticsValue.hidden && statisticsValue.value}
             {statisticsValue.type === 'chart' && statisticsValue.value[1]?.length > 0 && (
               <HistogramChart config={config} showLoader={false} />

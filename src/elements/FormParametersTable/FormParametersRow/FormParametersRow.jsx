@@ -69,8 +69,8 @@ const FormParametersRow = ({
   withHyperparameters = false,
   withRequiredParameters = true
 }) => {
-  const [fieldData, setFieldData] = useState(fields.value[index])
   const [typeIsChanging, setTypeIsChanging] = useState(false)
+  const fieldData = useMemo(() => fields.value[index], [fields.value, index])
   const tableRowClassNames = classnames(
     'form-table__row',
     !fieldData.data?.isChecked && 'form-table__row_excluded'
@@ -263,10 +263,6 @@ const FormParametersRow = ({
   const isRowDisabled = () => {
     return disabled || !fieldData.data?.isChecked
   }
-
-  useEffect(() => {
-    setFieldData(fields.value[index])
-  }, [fields.value, index])
 
   return (
     <>

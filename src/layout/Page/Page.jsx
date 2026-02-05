@@ -39,15 +39,30 @@ import { fetchProjects } from '../../reducers/projectReducer'
 import './Page.scss'
 
 const Page = () => {
-  const [isNavbarPinned, setIsNavbarPinned] = useState(false)
-  const [isProjectsFetched, setProjectFetched] = useState(false)
   const { projectName } = useParams()
-  const mainRef = useRef()
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
+
+  const { projectsNames } = useSelector(store => store.projectStore)
+  const { frontendSpec, frontendSpecPopupIsOpened, convertedYaml } = useSelector(
+    store => store.appStore
+  )
+
+  const projectsList = useMemo(() => {
+    return generateProjectsList(projectsNames.data)
+  }, [projectsNames.data])
+
+  const [isProjectsFetched, setProjectFetched] = useState(() => {
+    return projectsList.length > 0 || location.pathname === '/projects'
+  })
+
+  const [isNavbarPinned, setIsNavbarPinned] = useState(false)
+  const mainRef = useRef()
+
   const transitionEndEventName = useMemo(() => getTransitionEndEventName(), [])
   const pinnedClasses = classNames(!(isNavbarPinned && projectName) && 'unpinned')
+
   const mainStyles = {
     marginLeft: !projectName
       ? 0
@@ -55,14 +70,6 @@ const Page = () => {
         ? `${NAVBAR_WIDTH_OPENED}px`
         : `${NAVBAR_WIDTH_CLOSED}px`
   }
-  const { frontendSpec, frontendSpecPopupIsOpened, convertedYaml } = useSelector(
-    store => store.appStore
-  )
-  const { projectsNames } = useSelector(store => store.projectStore)
-
-  const projectsList = useMemo(() => {
-    return generateProjectsList(projectsNames.data)
-  }, [projectsNames.data])
 
   useEffect(() => {
     if (projectsList.length === 0 && location.pathname !== '/projects') {
@@ -76,17 +83,23 @@ const Page = () => {
           setProjectFetched(true)
           navigate('/projects')
         })
-    } else {
-      setProjectFetched(true)
     }
   }, [dispatch, location.pathname, navigate, projectName, projectsList.length])
 
   useEffect(() => {
-    if (mainRef) {
-      mainRef.current.addEventListener(transitionEndEventName, event => {
-        if (event.target !== mainRef.current) return
+    const node = mainRef.current
+    if (node) {
+      const handleResize = event => {
+        if (event.target !== node) return
+
         window.dispatchEvent(new CustomEvent('mainResize'))
-      })
+      }
+
+      node.addEventListener(transitionEndEventName, handleResize)
+
+      return () => {
+        node.removeEventListener(transitionEndEventName, handleResize)
+      }
     }
   }, [isNavbarPinned, transitionEndEventName])
 

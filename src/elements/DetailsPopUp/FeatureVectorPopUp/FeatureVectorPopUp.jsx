@@ -58,10 +58,8 @@ const FeatureVectorPopUp = ({ featureVectorData, isOpen, onResolve }) => {
     [frontendSpec.internal_labels, selectedFeatureVector]
   )
 
-  const fetchFeatureVector = useCallback(() => {
-    setIsLoading(true)
-
-    featureStoreApi
+  const fetchFeatureVectorData = useCallback(() => {
+    return featureStoreApi
       .getFeatureVector(featureVectorData.project, featureVectorData.key, featureVectorData.tag)
       .then(response => {
         if (response.data?.feature_vectors.length > 0) {
@@ -75,32 +73,36 @@ const FeatureVectorPopUp = ({ featureVectorData, isOpen, onResolve }) => {
                 )
 
           setSelectedFeatureVector(selectedFeatureVector)
-
-          setIsLoading(false)
         } else {
           showErrorNotification(dispatch, {}, '', 'Failed to retrieve feature vector data')
-
           onResolve()
         }
       })
       .catch(error => {
         showErrorNotification(dispatch, error, '', 'Failed to retrieve feature vector data')
-
         onResolve()
+      })
+      .finally(() => {
+        setIsLoading(false)
       })
   }, [dispatch, onResolve, featureVectorData.key, featureVectorData.project, featureVectorData.tag])
 
+  const handleRefresh = useCallback(() => {
+    setIsLoading(true)
+    fetchFeatureVectorData()
+  }, [fetchFeatureVectorData])
+
   useEffect(() => {
     if (isEmpty(selectedFeatureVector)) {
-      fetchFeatureVector()
+      fetchFeatureVectorData()
     }
-  }, [fetchFeatureVector, selectedFeatureVector])
+  }, [fetchFeatureVectorData, selectedFeatureVector])
 
   return (
     <DetailsPopUp
       actionsMenu={actionsMenu}
       formInitialValues={detailsFormInitialValues}
-      handleRefresh={fetchFeatureVector}
+      handleRefresh={handleRefresh}
       isLoading={isLoading}
       isOpen={isOpen}
       onResolve={onResolve}

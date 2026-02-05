@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useEffect, useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -35,14 +35,22 @@ const FeatureSetsPanelTitle = ({
   setValidation,
   validation
 }) => {
+  const dispatch = useDispatch()
+  const featureStore = useSelector(state => state.featureStore)
+
   const [data, setData] = useState({
     name: '',
     description: '',
     passthrough: '',
     version: ''
   })
-  const dispatch = useDispatch()
-  const featureStore = useSelector(state => state.featureStore)
+
+  const viewData = useMemo(() => {
+    return {
+      ...data,
+      passthrough: featureStore.newFeatureSet.spec.passthrough ? 'passthrough' : ''
+    }
+  }, [data, featureStore.newFeatureSet.spec.passthrough])
 
   const handleNameOnBlur = () => {
     if (data.name !== featureStore.newFeatureSet.metadata.name) {
@@ -60,19 +68,10 @@ const FeatureSetsPanelTitle = ({
     }))
   }
 
-  useEffect(() => {
-    if (featureStore.newFeatureSet.spec.passthrough !== Boolean(data.passthrough)) {
-      setData(state => ({
-        ...state,
-        passthrough: featureStore.newFeatureSet.spec.passthrough ? 'passthrough' : ''
-      }))
-    }
-  }, [data.passthrough, featureStore.newFeatureSet.spec.passthrough])
-
   return (
     <FeatureSetsPanelTitleView
       closePanel={closePanel}
-      data={data}
+      data={viewData}
       featureStore={featureStore}
       formState={formState}
       frontendSpec={frontendSpec}
