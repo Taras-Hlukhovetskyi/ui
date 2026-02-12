@@ -32,6 +32,7 @@ import { getScssVariableValue } from 'igz-controls/utils/common.util'
 import ArrowUp from 'igz-controls/images/arrow-up.svg?react'
 import ArrowDown from 'igz-controls/images/arrow-down.svg?react'
 import DoubleArrow from 'igz-controls/images/double-arrow.svg?react'
+import { formatDatetime } from 'igz-controls/utils/datetime.util'
 
 const doveGrayColor = getScssVariableValue('--doveGrayColor')
 const brightTurquoiseColor = getScssVariableValue('--brightTurquoiseColor')
@@ -126,30 +127,21 @@ const driftStatusConfig = {
 const timeFormatters = {
   hours: {
     handler: date =>
-      new Date(date).toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: TWO_DIGIT,
-        hour12: true
+      formatDatetime(date, 'N/A', {
+        hour: TWO_DIGIT,
+        minute: TWO_DIGIT
       })
   },
   days: {
     handler: date =>
-      new Date(date).toLocaleDateString('en-US', {
+      formatDatetime(date, 'N/A', {
         year: TWO_DIGIT,
         month: TWO_DIGIT,
         day: TWO_DIGIT
       })
   },
   full: {
-    handler: date =>
-      new Date(date).toLocaleDateString('en-US', {
-        year: TWO_DIGIT,
-        month: TWO_DIGIT,
-        day: TWO_DIGIT,
-        hour: 'numeric',
-        minute: TWO_DIGIT,
-        hour12: true
-      })
+    handler: date => formatDatetime(date, 'N/A')
   }
 }
 
@@ -245,9 +237,10 @@ export const parseMetrics = (data, timeUnit) => {
       resultKind,
       app: getAppName(full_name),
       id: index,
-      labels: [],
+      formatedDates: [],
       dates: [],
       points: [],
+      timeUnit: timeUnit,
       title: getMetricTitle(full_name),
       driftStatusList: [],
       totalDriftStatus: null,
@@ -278,8 +271,8 @@ export const parseMetrics = (data, timeUnit) => {
       }
 
       metricsValueSum += parsedValue
-      parsedMetric.labels.push(timeFormatters[timeUnit].handler(date))
-      parsedMetric.dates.push(timeFormatters['full'].handler(date))
+      parsedMetric.dates.push(date)
+      parsedMetric.formatedDates.push(timeFormatters['full'].handler(date))
     })
 
     if (highestDrift) {

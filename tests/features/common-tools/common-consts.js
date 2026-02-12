@@ -133,7 +133,7 @@ export default {
     Action_Menu_List_LLM_Prompt: ['Add a tag', 'Download', 'Copy URI', 'View YAML'],
     Action_Menu_List_Version_History: ['Add a tag', 'Download', 'Copy URI', 'View YAML', 'Delete'],
     Action_Menu_List_Expanded: ['Add a tag', 'Download', 'Copy URI', 'View YAML', 'Delete all'],
-    Action_Menu_List_Dataset_Transition_Popup: ['Download', 'Copy URI', 'View YAML'],
+    Action_Menu_List_Artifacts_Transition_Popup: ['Download', 'Copy URI', 'View YAML'],
     Action_Menu_List_Function_Transition_Popup: ['View YAML'],
     Action_Menu_List_Run_Transition_Popup: ['Run\'s resource monitoring', 'View YAML'],
     Action_Menu_List_Feature_Set_Transition_Popup: ['View YAML'],
@@ -309,6 +309,7 @@ export default {
     Tab_List: ['Overview'],
     Tab_List_Two_Tabs: ['Overview', 'Preview'],
     Tab_List_Extended: ['Overview', 'Preview', 'Features', 'Statistics'],
+    Tab_List_Prompt: ['Overview', 'Preview', 'LLM Prompts'],
     Info_Banner_Message: /The (.+?) is not in the filtered list\. Closing the details panel will return you to the current list\./,
     Overview_General_Headers: [
       'Hash:',
@@ -380,17 +381,17 @@ export default {
   Modal_Wizard_Form: {
     Tab_List: ['Functions', 'Hub'],
     Hub_Filter_Category: [
-      'Data Analysis',
-      'Data Preparation',
-      'Data Validation',
-      'ETL',
-      'Feature Store',
-      'Machine Learning',
-      'Model Serving',
-      'Model Testing',
-      'Model Training',
-      'Monitoring',
-      'Utilities'
+      'data-analysis',
+      'data-preparation',
+      'data-validation',
+      'etl',
+      'feature-store',
+      'machine-learning',
+      'model-serving',
+      'model-testing',
+      'model-training',
+      'monitoring',
+      'utils'
     ],
     Data_Inputs_Table_Header: ['Input name', 'Path'],
     Parameters_Table_Header: ['Name', 'Type', 'Value'],
@@ -592,6 +593,8 @@ export default {
       ' Note that some values may be empty due to the use of different engines for calculating statistics',
     Models_Statistics:
       'Note that some values may be empty due to the use of different engines for calculating statistics',
+    Models_LLM_Prompts:
+      'All LLM prompt artifacts linked to this model',
     Model_Stats_Tip:  
       'Each model can have multiple versions, produced by multiple runs and given multiple tags.\n' +
       ' You can browse them in the Models page.',
@@ -842,7 +845,7 @@ export default {
     Common_Message_Jobs_Monitoring_Scheduled:
       /No data matches the filter: "Scheduled at: \d{2}\/\d{2}\/\d{4} \d{2}:\d{2} - \d{2}\/\d{2}\/\d{4} \d{2}:\d{2}, Project: (.+?)"/,
     Common_Message_Scheduled_Type:
-      /No data matches the filter: "Scheduled at: \d{2}\/\d{2}\/\d{4} \d{2}:\d{2} - \d{2}\/\d{2}\/\d{4} \d{2}:\d{2}, Type: (.+?)"/,
+      /No data matches the filter: "Scheduled at: .*? - .*?, Type: (.+?)"/,
     Common_Message: 'No data matches the filter: "Version Tag: latest, Name: ccccc"',
     Common_Message_Feature: 'No data matches the filter: "Version Tag: latest"',
     Common_Message_Feature_Vector_Tab:

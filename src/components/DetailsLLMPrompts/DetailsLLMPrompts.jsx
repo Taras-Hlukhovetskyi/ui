@@ -19,7 +19,7 @@ such restriction.
 */
 import React, { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import classnames from 'classnames'
 import PropTypes from 'prop-types'
 
@@ -27,14 +27,21 @@ import { Loader, TextTooltipTemplate, Tooltip } from 'igz-controls/components'
 import NoData from '../../common/NoData/NoData'
 
 import { fetchLLMPromptArtifacts, removeDetailsLLMPrompts } from '../../reducers/detailsReducer'
-import { generateLLMPromptsTabContent } from './detailsLLMPrompts.util'
+import {
+  generateLLMPromptsTabContent,
+  LLM_PROMPTS_DISPLAY_LIMIT,
+  navigateToLLMPromptsPage
+} from './detailsLLMPrompts.util'
 import { REQUEST_CANCELED } from '../../constants'
+
+import ExclamationMarkIcon from 'igz-controls/images/exclamation-mark.svg?react'
 
 import './detailsLLMPrompts.scss'
 
 const DetailsLLMPrompts = ({ selectedItem, isDetailsPopUp = false }) => {
   const dispatch = useDispatch()
   const params = useParams()
+  const navigate = useNavigate()
   const { llmPromptsArtifacts } = useSelector(state => state.detailsStore)
   const [requestErrorMessage, setRequestErrorMessage] = useState('')
 
@@ -50,12 +57,17 @@ const DetailsLLMPrompts = ({ selectedItem, isDetailsPopUp = false }) => {
       dispatch(
         fetchLLMPromptArtifacts({
           project: selectedItem.project,
-          filters: { parent: `${selectedItem.db_key || selectedItem.key}:${selectedItem.tag}` },
+          filters: {
+            parent: selectedItem.URI
+              ? `${selectedItem.URI}`
+              : `${selectedItem.db_key || selectedItem.key}:${selectedItem.tag}`
+          },
           config: {
             ui: {
               controller: abortController,
               setRequestErrorMessage
-            }
+            },
+            params: { page: 1, 'page-size': LLM_PROMPTS_DISPLAY_LIMIT }
           }
         })
       )
@@ -73,6 +85,18 @@ const DetailsLLMPrompts = ({ selectedItem, isDetailsPopUp = false }) => {
     <NoData message={requestErrorMessage} />
   ) : (
     <div className="llm-artifacts">
+      {llmPromptsContent.length >= LLM_PROMPTS_DISPLAY_LIMIT && (
+        <div className="alerts-container__content-info">
+          <ExclamationMarkIcon />
+          <div>{`Displays only ${LLM_PROMPTS_DISPLAY_LIMIT} LLM prompts. View all prompts in the`}</div>
+          <span
+            className="link"
+            onClick={() => navigateToLLMPromptsPage(navigate, params.projectName, selectedItem)}
+          >
+            LLM prompts screen
+          </span>
+        </div>
+      )}
       <div className="table">
         <div className="table-header">
           <div className="table-row table-header-row">

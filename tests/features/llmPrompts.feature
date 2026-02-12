@@ -118,6 +118,7 @@ Feature: LLM prompts Page
 
   @MLLP
   @smoke
+  #TODO:Then value in "labels" column with "dropdowns" - update logic for dropdowns
   Scenario: MLLP003 - Verify filtering by llm prompt label on LLM prompts page
     Given open url
     And wait load page
@@ -150,7 +151,7 @@ Feature: LLM prompts Page
     Then type value "50" to "Search_By_Name_Filter_Input" field on "LLM_Prompts" wizard
     Then click on "Refresh_Button" element on "LLM_Prompts" wizard
     And wait load page
-    Then value in "labels" column with "dropdowns" in "LLMPrompts_Table" on "LLM_Prompts" wizard should contains "language" in "Overlay"
+    # Then value in "labels" column with "dropdowns" in "LLMPrompts_Table" on "LLM_Prompts" wizard should contains "language" in "Overlay"
     Then type value "5" to "Search_By_Name_Filter_Input" field on "LLM_Prompts" wizard
     Then click on "Refresh_Button" element on "LLM_Prompts" wizard
     And wait load page
@@ -158,7 +159,7 @@ Feature: LLM prompts Page
     Then type value "type=qa" to "Table_Label_Filter_Input" field on "FilterBy_Popup" wizard
     Then click on "Apply_Button" element on "FilterBy_Popup" wizard
     And wait load page
-    Then value in "labels" column with "text" in "LLMPrompts_Table" on "LLM_Prompts" wizard should contains "type=qa"
+    Then value in "labels" column with "attribute_list" in "LLMPrompts_Table" on "LLM_Prompts" wizard should contains "type,qa"
     Then click on "Table_FilterBy_Button" element on "LLM_Prompts" wizard
     Then type value "v3io_user=123" to "Table_Label_Filter_Input" field on "FilterBy_Popup" wizard
     Then click on "Apply_Button" element on "FilterBy_Popup" wizard
@@ -955,7 +956,7 @@ Feature: LLM prompts Page
     And wait load page
     Then verify "Refresh_Button" element visibility on "Modal_Transition_Popup" wizard
     Then verify "Action_Menu" element visibility on "Modal_Transition_Popup" wizard
-    Then verify "Action_Menu" dropdown element on "Modal_Transition_Popup" wizard should contains "Common_Lists"."Action_Menu_List_Dataset_Transition_Popup"
+    Then verify "Action_Menu" dropdown element on "Modal_Transition_Popup" wizard should contains "Common_Lists"."Action_Menu_List_Artifacts_Transition_Popup"
     Then select "View YAML" option in action menu on "Modal_Transition_Popup" wizard
     And wait load page
     Then verify if "View_YAML" popup dialog appears

@@ -18,14 +18,15 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.jest,
-        ...globals.node
+        ...globals.node,
+        ...viteGlobals
       },
       parserOptions: {
         ecmaFeatures: {
           jsx: true
         }
       },
-      sourceType: 'module' // ✅ Optional, helps with ESM imports
+      sourceType: 'module'
     },
     plugins: {
       react: react,
@@ -50,6 +51,12 @@ export default [
       'no-console': process.env.NODE_ENV === 'production' ? 2 : 1,
       quotes: ['error', 'single', { avoidEscape: true, allowTemplateLiterals: false }],
       semi: ['error', 'never']
+    }
+  },
+  {
+    files: ['**/*.test.jsx'],
+    rules: {
+      'import/named': 'off'
     }
   }
 ]
