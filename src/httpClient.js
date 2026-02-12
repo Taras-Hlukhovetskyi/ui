@@ -29,8 +29,13 @@ const headers = {
   'Cache-Control': 'no-cache'
 }
 
-// serialize a param with an array value as a repeated param, for example:
-// { label: ['host', 'owner=admin'] } => 'label=host&label=owner%3Dadmin'
+/**
+ * Resolve auth bridge provided by igz-ui (host).
+ * - Primary: injected via Module Federation
+ * - Fallback: host global (timing safety)
+ */
+export const getHostAuth = () => window.__mlrunHostServices?.auth || window.__igzAuth || null
+
 const paramsSerializer = params => qs.stringify(params, { arrayFormat: 'repeat' })
 
 const MAX_CONSECUTIVE_ERRORS_COUNT = 2
@@ -65,6 +70,57 @@ export const iguazioHttpClient = axios.create({
   baseURL: import.meta.env.MODE === 'production' ? '/api' : '/iguazio/api',
   headers
 })
+
+/**
+ * Module Federation auth:
+ * token injection and refresh are handled by the igz-ui host
+ */
+
+const attachHostAuth = client => {
+  const auth = getHostAuth()
+  if (!auth) return
+
+  client.interceptors.request.use(config => {
+    const token = auth.getAccessToken?.()
+    if (token) {
+      config.headers = config.headers ?? {}
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  })
+
+  client.interceptors.response.use(
+    res => res,
+    async err => {
+      const status = err?.response?.status
+      const req = err?.config
+      if (!req) throw err
+
+      if ((status === 401 || status === 403) && !req._retry) {
+        req._retry = true
+
+        const token = await auth.refreshAccessToken?.()
+        if (!token) {
+          auth.redirectToLogin?.()
+          throw err
+        }
+
+        req.headers = req.headers ?? {}
+        req.headers.Authorization = `Bearer ${token}`
+
+        return client(req)
+      }
+
+      throw err
+    }
+  )
+}
+
+attachHostAuth(mainHttpClient)
+attachHostAuth(mainHttpClientV2)
+attachHostAuth(functionTemplatesHttpClient)
+attachHostAuth(nuclioHttpClient)
+attachHostAuth(iguazioHttpClient)
 
 const getAbortSignal = (controller, abortCallback, timeoutMs) => {
   let timeoutId = null
@@ -105,7 +161,6 @@ const requestLargeDataOnFulfill = config => {
     )
 
     config.signal = signal
-
     requestTimeouts[requestId] = timeoutId
     config.ui.requestId = requestId
     requestId++
@@ -113,9 +168,8 @@ const requestLargeDataOnFulfill = config => {
 
   return config
 }
-const requestLargeDataOnReject = error => {
-  return Promise.reject(error)
-}
+const requestLargeDataOnReject = error => Promise.reject(error)
+
 const responseFulfillInterceptor = response => {
   consecutiveErrorsCount = 0
 
@@ -133,7 +187,6 @@ const responseFulfillInterceptor = response => {
         response.config.ui.setRequestErrorMessage,
         response.config.ui.customErrorMessage
       )
-
       throw new Error(LARGE_REQUEST_CANCELED)
     } else {
       response.config.ui.setRequestErrorMessage('')
@@ -142,6 +195,7 @@ const responseFulfillInterceptor = response => {
 
   return response
 }
+
 const responseRejectInterceptor = error => {
   if (error.config?.ui?.requestId) {
     clearTimeout(requestTimeouts[error.config.ui.requestId])
@@ -167,11 +221,9 @@ const responseRejectInterceptor = error => {
   return Promise.reject(error)
 }
 
-// Request interceptors
 mainHttpClient.interceptors.request.use(requestLargeDataOnFulfill, requestLargeDataOnReject)
 mainHttpClientV2.interceptors.request.use(requestLargeDataOnFulfill, requestLargeDataOnReject)
 
-// Response interceptors
 mainHttpClient.interceptors.response.use(responseFulfillInterceptor, responseRejectInterceptor)
 mainHttpClientV2.interceptors.response.use(responseFulfillInterceptor, responseRejectInterceptor)
 

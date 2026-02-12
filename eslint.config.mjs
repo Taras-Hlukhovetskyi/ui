@@ -26,7 +26,7 @@ export default [
           jsx: true
         }
       },
-      sourceType: 'module' // ✅ Optional, helps with ESM imports
+      sourceType: 'module'
     },
     plugins: {
       react: react,
@@ -54,9 +54,9 @@ export default [
     }
   },
   {
-    files: ["**/*.test.jsx"],
+    files: ['**/*.test.jsx'],
     rules: {
-      "import/named": "off"
+      'import/named': 'off'
     }
   }
 ]
