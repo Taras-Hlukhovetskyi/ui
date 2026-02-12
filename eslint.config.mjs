@@ -25,7 +25,8 @@ export default [
         ecmaFeatures: {
           jsx: true
         }
-      }
+      },
+      sourceType: 'module' // ✅ Optional, helps with ESM imports
     },
     plugins: {
       react: react,
@@ -37,6 +38,7 @@ export default [
         version: 'detect'
       }
     },
+
     rules: {
       ...reactHooks.configs.recommended.rules,
       ...react.configs.recommended.rules,
