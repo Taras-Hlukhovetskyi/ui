@@ -92,6 +92,7 @@ const RealTimePipelines = () => {
   const { toggleConvertedYaml } = useModelsPage()
   const [, setSearchParams] = useSearchParams()
   const filters = useFiltersFromSearchParams(filtersConfig)
+  const isPipelineLoading = useSelector(store => store.artifactsStore.pipelines.loading)
 
   const pipelinesRowHeight = useMemo(() => getScssVariableValue('--pipelinesRowHeight'), [])
   const pipelinesRowHeightExtended = useMemo(
@@ -103,10 +104,7 @@ const RealTimePipelines = () => {
     []
   )
 
-  const filterMenuClassNames = classnames(
-    'content__action-bar-wrapper',
-    params.pipelineId && 'content__action-bar-wrapper_hidden'
-  )
+  const filterMenuClassNames = classnames('content__action-bar-wrapper')
 
   const actionsMenu = useMemo(
     () => [
@@ -313,20 +311,12 @@ const RealTimePipelines = () => {
               <RealTimePipelinesFilters />
             </ActionBar>
           </div>
-          {!params.pipelineId && (
-            <RealTimePipelinesCounters loading={isLoading} statistics={statistics} />
-          )}
+          <RealTimePipelinesCounters loading={isLoading} statistics={statistics} />
           <div className="real-time-pipelines__section">
-            <div
-              className={classnames(
-                'real-time-pipelines__section-item',
-                params.tab === DETAILS_REALTIME_PIPELINE_TAB &&
-                  'real-time-pipelines__section-item-full-space'
-              )}
-            >
+            <div className="real-time-pipelines__section-item">
               <div className="section-item_title">
                 <span>All Serving Pipelines</span>
-                <Tip text="This data is relevant to the root function." />
+                <Tip text="This data is relevant to the root function" />
               </div>
               {isLoading ? null : pipelines.length === 0 ? (
                 <NoData
@@ -362,6 +352,7 @@ const RealTimePipelines = () => {
                         )
                     )}
                   </Table>
+                  {isPipelineLoading && isEmpty(selectedPipeline) && <Loader />}
                   {!isEmpty(selectedPipeline) && (
                     <Details
                       actionsMenu={actionsMenu}

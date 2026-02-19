@@ -442,7 +442,7 @@ const DetailsPipeline = ({ selectedItem }) => {
       ) : functionsStore.funcLoading ? (
         <Loader />
       ) : (
-        <NoData message="The ingestion function has no steps and therefore no graph." />
+        <NoData message="The ingestion function has no steps and therefore no graph" />
       )}
     </div>
   )
