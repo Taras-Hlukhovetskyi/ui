@@ -42,21 +42,21 @@ import ConnectionIcon from 'igz-controls/images/connections-icon.svg?react'
 import RouterStepIcon from 'igz-controls/images/router-step-badge.svg?react'
 
 export const STEPS_TYPES = {
-  MODEL_RUNNER: 'Model runner',
+  MODEL_RUNNER: 'ModelRunner',
   QUEUE: 'Queue',
-  ERROR_STEP: 'Error handler',
-  HUB_STEP: 'MLRun hub',
+  ERROR_STEP: 'ErrorHandler',
+  HUB_STEP: 'MLRunHub',
   EXTEND: 'Extend',
-  FLAT_MAP: 'Flat Map',
+  FLAT_MAP: 'FlatMap',
   FLATTEN: 'Flatten',
-  MAP_WITH_STATE: 'Map with state',
+  MAP_WITH_STATE: 'MapWithState',
   CHOICE: 'Choice',
-  CHOICE_BY_FIELD: 'Choice by field',
+  CHOICE_BY_FIELD: 'ChoiceByField',
   BATCH: 'Batch',
-  FOR_EACH: 'For each',
+  FOR_EACH: 'ForEach',
   FILTER: 'Filter',
-  SAMPLE_WINDOW: 'Sample window',
-  REMOTE_STEP: 'Remote',
+  SAMPLE_WINDOW: 'SampleWindow',
+  REMOTE_STEP: 'RemoteStep',
   CUSTOM_STEP: 'Custom',
   ROUTER_STEP: 'Router'
 }
@@ -92,7 +92,8 @@ const NODE_TYPE_DATA_BY_KIND_MAP = {
   [ERROR_STEP_KIND]: {
     nodeType: ML_COMMON_NODE,
     badgeIcon: <ErrorStepIcon />,
-    stepType: STEPS_TYPES.ERROR_STEP
+    stepType: STEPS_TYPES.ERROR_STEP,
+    subLabel: 'Error handler'
   },
   [HUB_STEP_KIND]: {
     nodeType: ML_COMMON_NODE,
