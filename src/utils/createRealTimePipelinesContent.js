@@ -53,7 +53,8 @@ const createRealTimePipelinesContent = (pipelines, projectName) =>
           className: 'table-cell-2 link-blue',
           showStatus: true,
           showTag: true,
-          getLink: () => generateNuclioLink(`/projects/${projectName}/functions/${nuclioFunctionName}`)
+          getLink: () =>
+            generateNuclioLink(`/projects/${projectName}/functions/${nuclioFunctionName}`)
         },
         {
           id: `topology.${pipeline.ui.identifierUnique}`,

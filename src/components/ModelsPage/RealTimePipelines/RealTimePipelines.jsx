@@ -43,8 +43,7 @@ import {
   DISPLAY_SYSTEM_PIPELINES_FILTER,
   PIPELINE_TOPOLOGY_FILTER,
   FILTER_ALL_ITEMS,
-  PIPELINE_FLOW_TOPOLOGY,
-  DETAILS_REALTIME_PIPELINE_TAB
+  PIPELINE_FLOW_TOPOLOGY
 } from '../../../constants'
 import createRealTimePipelinesContent from '../../../utils/createRealTimePipelinesContent'
 import {
