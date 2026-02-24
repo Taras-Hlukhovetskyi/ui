@@ -43,7 +43,8 @@ import {
   DISPLAY_SYSTEM_PIPELINES_FILTER,
   PIPELINE_TOPOLOGY_FILTER,
   FILTER_ALL_ITEMS,
-  PIPELINE_FLOW_TOPOLOGY
+  PIPELINE_FLOW_TOPOLOGY,
+  ROUTER_STEP_KIND
 } from '../../../constants'
 import createRealTimePipelinesContent from '../../../utils/createRealTimePipelinesContent'
 import {
@@ -181,16 +182,28 @@ const RealTimePipelines = () => {
               failedFunctions += 1
             }
 
-            const modelEndpointsCount =
+            const modelEndpointsMainCount =
               Object.keys(func.graph?.routes || {}).length ||
-              func.graph?.model_endpoints_names?.length // in the future we will get models endpoints count from the BE
-            if (modelEndpointsCount > 0) {
-              modelEndpoints += modelEndpointsCount
-            }
+              func.graph?.model_endpoints_names?.length ||
+              0 // in the future we will get models endpoints count from the BE
+
+            const routesInFlowCount = Object.values(func.graph?.steps || {}).reduce(
+              (count, step) => {
+                if (step?.kind === ROUTER_STEP_KIND) {
+                  count += Object.keys(step.routes || {}).length + 1 // routes + step itself
+                }
+                return count
+              },
+              0
+            )
+            const modelEndpointsCount = modelEndpointsMainCount + routesInFlowCount
+
+            modelEndpoints += modelEndpointsCount
 
             pipelinesList.push({
               ...func,
-              nuclioFunc
+              nuclioFunc,
+              modelEndpointsCount
             })
 
             return pipelinesList
