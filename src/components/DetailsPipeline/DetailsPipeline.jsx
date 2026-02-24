@@ -52,7 +52,7 @@ import {
   ML_SMART_STEP_EDGE
 } from '../../constants'
 import {
-  addVisualFramesForGroups,
+  addVisualFramesForFunctions,
   getLayoutedElements
 } from '../../common/ReactFlow/mlReactFlow.util'
 import { openPopUp } from 'igz-controls/utils/common.util'
@@ -130,7 +130,10 @@ const DetailsPipeline = ({ selectedItem }) => {
             isSelectable: true,
             customData: stepData
           })
+        } else if (step.kind === ERROR_STEP_KIND && !step.function && step.base_step) {
+          stepData.function = steps[step.base_step]?.function || ''
         }
+        
 
         const newNode = {
           id: stepName,
@@ -266,7 +269,7 @@ const DetailsPipeline = ({ selectedItem }) => {
         true
       )
 
-      const groupedNodes = addVisualFramesForGroups(
+      const groupedNodes = addVisualFramesForFunctions(
         layoutedNodes,
         node => node.data?.customData?.function
       )
