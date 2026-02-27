@@ -317,7 +317,7 @@ export const generateRealTimePipelinesContent = selectedItem => {
       link: generateNuclioLink(`/projects/${selectedItem.project}/functions/${nuclioFunctionName}`)
     },
     childFunction: {
-      value: (selectedItem.childFunctions ?? selectedItem.function_refs ?? []),
+      value: selectedItem.childFunctions ?? selectedItem.function_refs ?? [],
       listOfFunctions: true
     },
     topology: {

@@ -44,7 +44,8 @@ import {
   PIPELINE_TOPOLOGY_FILTER,
   FILTER_ALL_ITEMS,
   PIPELINE_FLOW_TOPOLOGY,
-  ROUTER_STEP_KIND
+  ROUTER_STEP_KIND,
+  FUNCTIONS_PAGE
 } from '../../../constants'
 import createRealTimePipelinesContent from '../../../utils/createRealTimePipelinesContent'
 import {
@@ -207,7 +208,7 @@ const RealTimePipelines = () => {
               failedFunctions += 1
             }
 
-            set(func, 'state', getState(state, 'FUNCTIONS', 'function'))
+            set(func, 'state', getState(state, FUNCTIONS_PAGE, 'nuclioFunctions'))
 
             const modelEndpointsMainCount =
               Object.keys(func.graph?.routes || {}).length ||

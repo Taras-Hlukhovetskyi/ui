@@ -133,7 +133,6 @@ const DetailsPipeline = ({ selectedItem }) => {
         } else if (step.kind === ERROR_STEP_KIND && !step.function && step.base_step) {
           stepData.function = steps[step.base_step]?.function || ''
         }
-        
 
         const newNode = {
           id: stepName,

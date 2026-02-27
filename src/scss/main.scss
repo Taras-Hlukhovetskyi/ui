@@ -196,6 +196,11 @@ main {
   @include mixins.statusState(colors.$topaz, false);
 }
 
+.state-deploying-nuclioFunctions,
+.state-building-nuclioFunctions {
+  @include mixins.statusState(colors.$grandis, false);
+}
+
 /* =========== ERROR ============= */
 
 .error-container {
