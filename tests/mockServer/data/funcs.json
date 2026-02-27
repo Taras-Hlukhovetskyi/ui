@@ -292,7 +292,7 @@
               "on_error": "remote_step_error_handler",
               "after": [],
               "endpoint_type": 1,
-              "class_name": "mlrun.serving.RemoteHttpStep",
+              "class_name": "mlrun.serving.RemoteStep",
               "class_args": {
                 "url": "https://httpbin.org/post",
                 "method": "POST"
