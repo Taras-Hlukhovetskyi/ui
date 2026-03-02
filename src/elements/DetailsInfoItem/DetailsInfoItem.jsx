@@ -219,6 +219,13 @@ const DetailsInfoItem = React.forwardRef(
             return item.link ? (
               <Link className="details-item__data details-item__link" to={item.link} key={index}>
                 <Tooltip template={<TextTooltipTemplate text={infoItem} />}>{infoItem}</Tooltip>
+                {item.status && (
+                  <div className="details-item__data details-item__status">
+                    <Tooltip template={<TextTooltipTemplate text={item.status} />}>
+                      <i className={`state-${item.status}-function status-icon`} />
+                    </Tooltip>
+                  </div>
+                )}
               </Link>
             ) : (
               <a
@@ -276,6 +283,28 @@ const DetailsInfoItem = React.forwardRef(
               )}
             </>
           )}
+        </div>
+      )
+    } else if (item.listOfFunctions && Array.isArray(item.value)) {
+      return (
+        <div className="details-item__functions-wrapper">
+          {item.value.map((itemFunc, index) => {
+            let name = itemFunc.func?.name || itemFunc.name || ''
+            let status = itemFunc.nuclioFunc?.status?.state || itemFunc.state?.value || ''
+            return (
+              <span key={index} className="details-item__functions-item">
+                <Tooltip template={<TextTooltipTemplate text={name} />}>{name}</Tooltip>
+                {status && (
+                  <Tooltip template={<TextTooltipTemplate text={status} />}>
+                    <i className={`state-${status}-function status-icon`} />
+                  </Tooltip>
+                )}
+                {index < item.value.length - 1 && (
+                  <span className="details-item__functions-comma">,</span>
+                )}
+              </span>
+            )
+          })}
         </div>
       )
     } else if (Array.isArray(info)) {

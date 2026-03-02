@@ -96,6 +96,8 @@ const functionStateLabels = {
   ready: 'Ready',
   running: 'Running',
   succeeded: 'Succeeded',
+  standby: 'Standby',
+  scaledToZero: 'Scaled to zero',
   unhealthy: 'Unhealthy'
 }
 
