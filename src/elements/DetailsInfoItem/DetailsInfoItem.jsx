@@ -217,16 +217,29 @@ const DetailsInfoItem = React.forwardRef(
             if (!infoItem) return null
 
             return item.link ? (
-              <Link className="details-item__data details-item__link" to={item.link} key={index}>
-                <Tooltip template={<TextTooltipTemplate text={infoItem} />}>{infoItem}</Tooltip>
-                {item.status && (
-                  <div className="details-item__data details-item__status">
-                    <Tooltip template={<TextTooltipTemplate text={item.status} />}>
-                      <i className={`state-${item.status}-function status-icon`} />
-                    </Tooltip>
-                  </div>
-                )}
-              </Link>
+              item.linkIsExternal ? (
+                <a href={item.link} className="details-item__data details-item__link" target="_top">
+                  <Tooltip template={<TextTooltipTemplate text={infoItem} />}>{infoItem}</Tooltip>
+                  {item.status && (
+                    <div className="details-item__data details-item__status">
+                      <Tooltip template={<TextTooltipTemplate text={item.status} />}>
+                        <i className={`state-${item.status}-function status-icon`} />
+                      </Tooltip>
+                    </div>
+                  )}
+                </a>
+              ) : (
+                <Link className="details-item__data details-item__link" to={item.link} key={index}>
+                  <Tooltip template={<TextTooltipTemplate text={infoItem} />}>{infoItem}</Tooltip>
+                  {item.status && (
+                    <div className="details-item__data details-item__status">
+                      <Tooltip template={<TextTooltipTemplate text={item.status} />}>
+                        <i className={`state-${item.status}-function status-icon`} />
+                      </Tooltip>
+                    </div>
+                  )}
+                </Link>
+              )
             ) : (
               <a
                 key={index}

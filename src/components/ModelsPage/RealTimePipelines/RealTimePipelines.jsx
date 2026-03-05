@@ -198,7 +198,9 @@ const RealTimePipelines = () => {
 
             totalPipelines += 1
 
-            const nuclioFuncState = (getNuclioFuncState(nuclioFunc) || '').toLocaleLowerCase()
+            const nuclioFuncState = !isEmpty(nuclioFunc)
+              ? (getNuclioFuncState(nuclioFunc) || '').toLocaleLowerCase()
+              : ''
 
             const state = nuclioFuncState || func.state?.value || func.status?.state
 
