@@ -46,9 +46,10 @@ const createRealTimePipelinesContent = (pipelines, projectName) =>
           headerId: 'rootFunction',
           headerLabel: 'Root function',
           value: pipeline.name,
-          className: 'table-cell-2 link-blue',
+          className: 'table-cell-2',
           showStatus: true,
           showTag: true,
+          linkIsExternal: true,
           getLink: () =>
             generateNuclioLink(`/projects/${projectName}/functions/${nuclioFunctionName}`)
         },
