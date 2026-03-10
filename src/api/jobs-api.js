@@ -76,8 +76,10 @@ const jobsApi = {
       params = `?attempt=${attempt}`
     }
 
-    return mainHttpClient.get(`/projects/${project}/logs/${id}`, {
-      params,
+    // when we use adapter: 'fetch' in axios, we need to pass params as query string, because axios drops params in this case
+    const queryParams = new URLSearchParams(params).toString()
+
+    return mainHttpClient.get(`/projects/${project}/logs/${id}${queryParams ? '?' + queryParams : ''}`, {
       signal,
       responseType: 'stream',
       adapter: 'fetch'
