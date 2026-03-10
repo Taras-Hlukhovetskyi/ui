@@ -14,7 +14,7 @@
 #
 # build stage
 # node:20.18.2-alpine used as 20-alpine
-FROM quay.io/mlrun/node:22-alpine	 as build-stage
+FROM quay.io/mlrun/node:22-alpine AS build-stage
 
 RUN apk update && \
 	apk upgrade && \
@@ -34,7 +34,7 @@ RUN echo ${COMMIT_HASH} > ./build/COMMIT_HASH && \
     echo ${DATE} > ./build/BUILD_DATE
 
 # production stage
-FROM gcr.io/iguazio/nginx-unprivileged:1.29-alpine as production-stage
+FROM gcr.io/iguazio/nginx-unprivileged:1.28-alpine AS production-stage
 
 # align UID & GID with nginx-unprivileged image UID & GID
 ARG UID=101
