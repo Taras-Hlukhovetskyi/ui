@@ -201,7 +201,13 @@ const MembersPopUp = ({ changeMembersCallback, membersDispatch, membersState }) 
         const groups = groupsResponse.data.items || []
         const suggestionList = [
           ...users.map(user => toSuggestionItem(user.username, user.username, USER_ROLE)),
-          ...groups.map(group => toSuggestionItem(group.groupId, group.path.replace(/^\//, '') ?? group.groupId, USER_GROUP_ROLE))
+          ...groups.map(group =>
+            toSuggestionItem(
+              group.groupId,
+              group.path.replace(/^\//, '') ?? group.groupId,
+              USER_GROUP_ROLE
+            )
+          )
         ]
 
         setNewMembersSuggestionList(suggestionList)
