@@ -104,7 +104,7 @@ const MonitoringApplications = () => {
           {operatingFunctions.length === 0 && !loading ? (
             <NoData message={error ? error : MONITORING_APPLICATIONS_NO_DATA_MESSAGE} />
           ) : (
-            <SectionTable loading={loading} params={params} table={operatingFunctionsTable} />
+            <SectionTable loading={loading} table={operatingFunctionsTable} />
           )}
         </div>
       </div>

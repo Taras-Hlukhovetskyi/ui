@@ -179,7 +179,8 @@ const RealTimePipelines = () => {
               key.includes('parent-function')
             )?.[1]
             const showSystems = filters[DISPLAY_SYSTEM_PIPELINES_FILTER]
-            const isMonitoringInfra = func.labels['mlrun__type'] === 'mlrun__model-monitoring-infra'
+            const isMonitoringInfra =
+              func.labels?.['mlrun__type'] === 'mlrun__model-monitoring-infra'
             const topology = (func.graph?.kind || PIPELINE_FLOW_TOPOLOGY).toLowerCase()
             const isCorrectTopology =
               topology === filters[PIPELINE_TOPOLOGY_FILTER] ||
