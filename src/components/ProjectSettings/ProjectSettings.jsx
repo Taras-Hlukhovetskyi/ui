@@ -76,6 +76,13 @@ const ProjectSettings = () => {
     return Boolean(activeUsername && activeUsername === ownerUsername)
   }, [membersState])
 
+  const userIsSystemAdmin = useMemo(
+    () =>
+      membersState?.activeUser?.data?.attributes?.user_policies_collection?.has('System Admin') ??
+      false,
+    [membersState?.activeUser?.data?.attributes?.user_policies_collection]
+  )
+
   const projectMembersTabIsShown = useMemo(
     () => isProjectMembersTabShown(projectMembershipIsEnabled, userIsProjectOwner, membersState),
     [userIsProjectOwner, membersState, projectMembershipIsEnabled]
@@ -148,13 +155,14 @@ const ProjectSettings = () => {
     const projectId = membersState?.projectInfo?.id
 
     if (activeUsername && projectId) {
-      setProjectOwnerIsShown(userIsProjectOwner)
+      setProjectOwnerIsShown(userIsProjectOwner || userIsSystemAdmin)
       setProjectMembersIsShown(projectMembersTabIsShown)
     }
   }, [
     membersState?.activeUser?.data?.attributes?.username,
     membersState?.projectInfo?.id,
     userIsProjectOwner,
+    userIsSystemAdmin,
     projectMembersTabIsShown
   ])
 
