@@ -132,7 +132,6 @@ export const generateLLMPromptsTabContent = (artifacts, params, isDetailsPopUp =
 export const navigateToLLMPromptsPage = (navigate, projectName, selectedItem, handleCancel) => {
   const filters = {
     [MODEL_NAME_FILTER]: selectedItem.db_key || selectedItem.key,
-    [MODEL_TAG_FILTER]: selectedItem.tag,
     [FORCE_REFRESH]: true
   }
 
