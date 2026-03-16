@@ -52,7 +52,7 @@ export const generateOperatingFunctionsTable = (functions, projectName) => {
     return {
       name: {
         value: func.name,
-        href: generateNuclioLink(`/projects/${projectName}/functions/${nuclioFunctionName}`),
+        href: generateNuclioLink(`/projects/${projectName}/real-time-functions/${nuclioFunctionName}`),
         className: 'table-cell_big'
       },
       status: {
