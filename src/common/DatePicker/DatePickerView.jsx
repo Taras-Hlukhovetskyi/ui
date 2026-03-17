@@ -175,7 +175,10 @@ const DatePickerView = React.forwardRef(
                   name={option.id}
                   key={option.id}
                   onClick={() => {
-                    if (option.id !== selectedOption?.id || option.id === CUSTOM_RANGE_DATE_OPTION) {
+                    if (
+                      option.id !== selectedOption?.id ||
+                      option.id === CUSTOM_RANGE_DATE_OPTION
+                    ) {
                       onSelectOption(option)
                     }
                   }}
