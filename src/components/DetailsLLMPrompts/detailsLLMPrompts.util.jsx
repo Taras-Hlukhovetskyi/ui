@@ -29,8 +29,7 @@ import JobPopUp from '../../elements/DetailsPopUp/JobPopUp/JobPopUp'
 import {
   FORCE_REFRESH,
   LLM_PROMPTS_PAGE,
-  MODEL_NAME_FILTER,
-  MODEL_TAG_FILTER
+  MODEL_NAME_FILTER
 } from '../../constants'
 
 export const LLM_PROMPTS_DISPLAY_LIMIT = 100
