@@ -400,7 +400,7 @@ const RealTimePipelines = () => {
                         )
                     )}
                   </Table>
-                  {isPipelineLoading && isEmpty(selectedPipelineWithChildren) && <Loader />}
+                  {isPipelineLoading && <Loader />}
                   {!isEmpty(selectedPipelineWithChildren) && (
                     <Details
                       actionsMenu={actionsMenu}

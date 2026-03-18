@@ -29,7 +29,6 @@ import {
   Tooltip,
   TextTooltipTemplate,
   RoundedIcon,
-  Loader,
   CopyToClipboard
 } from 'igz-controls/components'
 import Accordion from '../../common/Accordion/Accordion'
@@ -441,12 +440,11 @@ const DetailsPipeline = ({ selectedItem }) => {
             </Group>
           </div>
         )
-      ) : isPipelineLoading ? (
-        <Loader />
       ) : (
-        <NoData message="The ingestion function has no steps and therefore no graph" />
+        !isPipelineLoading && (
+          <NoData message="The ingestion function has no steps and therefore no graph" />
+        )
       )}
-      {isPipelineLoading && !isEmpty(selectedItem?.graph) && <Loader />}
     </div>
   )
 }
