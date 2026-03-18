@@ -224,7 +224,12 @@ const DetailsInfoItem = React.forwardRef(
 
             return item.link ? (
               item.linkIsExternal ? (
-                <a href={item.link} className="details-item__data details-item__link" target="_top">
+                <a
+                  href={item.link}
+                  className="details-item__data details-item__link"
+                  target="_top"
+                  key={index}
+                >
                   <Tooltip template={<TextTooltipTemplate text={infoItem} />}>{infoItem}</Tooltip>
                   {item.status && (
                     <div className="details-item__data details-item__status">
