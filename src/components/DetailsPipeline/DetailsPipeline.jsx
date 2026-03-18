@@ -25,12 +25,7 @@ import { useSelector } from 'react-redux'
 import { Group, Panel } from 'react-resizable-panels'
 import { Position, ReactFlowProvider, useStoreApi } from 'reactflow'
 
-import {
-  Tooltip,
-  TextTooltipTemplate,
-  RoundedIcon,
-  CopyToClipboard
-} from 'igz-controls/components'
+import { Tooltip, TextTooltipTemplate, RoundedIcon, CopyToClipboard } from 'igz-controls/components'
 import Accordion from '../../common/Accordion/Accordion'
 import ArtifactPopUp from '../../elements/DetailsPopUp/ArtifactPopUp/ArtifactPopUp'
 import CodeBlock from '../../common/CodeBlock/CodeBlock'
