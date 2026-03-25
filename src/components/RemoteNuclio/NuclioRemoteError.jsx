@@ -17,31 +17,20 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useLayoutEffect, useState } from 'react'
+import React from 'react'
 
-/**
- * @hook
- * Returns a Nuclio `mode` object
- *
- * isNuclioModeDisabled = The Nuclio backend is not deployed
- *
- * @returns {{isNuclioModeDisabled: boolean}}
- *
- * @example
- *
- * { isNuclioModeDisabled: true }
- */
-
-export const useNuclioMode = () => {
-  const [mode, setMode] = useState(window?.mlrunConfig?.nuclioMode)
-
-  useLayoutEffect(() => {
-    if (mode !== window?.mlrunConfig?.nuclioMode) {
-      setMode(window?.mlrunConfig?.nuclioMode)
-    }
-  }, [mode])
-
-  return {
-    isNuclioModeDisabled: mode === 'disabled'
-  }
+const NuclioRemoteError = () => {
+  return (
+    <div className="remote-error-card" data-testid="nuclio-remote-error">
+      <h2 className="title">Nuclio App Unavailable</h2>
+      <p className="description">
+        The Nuclio remote app could not be loaded.
+        <span className="subtext">
+          Please check your network connection or make sure the remote is running.
+        </span>
+      </p>
+    </div>
+  )
 }
+
+export default NuclioRemoteError

@@ -17,31 +17,25 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useLayoutEffect, useState } from 'react'
+import projectsIguazioApi from '../api/projects-iguazio-api'
 
-/**
- * @hook
- * Returns a Nuclio `mode` object
- *
- * isNuclioModeDisabled = The Nuclio backend is not deployed
- *
- * @returns {{isNuclioModeDisabled: boolean}}
- *
- * @example
- *
- * { isNuclioModeDisabled: true }
- */
+const WRITE_ROLES = ['Owner', 'Admin', 'Editor']
 
-export const useNuclioMode = () => {
-  const [mode, setMode] = useState(window?.mlrunConfig?.nuclioMode)
+export const getActiveUsername = async () => {
+  const response = await projectsIguazioApi.getActiveUser()
+  return response.data.metadata?.username
+}
 
-  useLayoutEffect(() => {
-    if (mode !== window?.mlrunConfig?.nuclioMode) {
-      setMode(window?.mlrunConfig?.nuclioMode)
-    }
-  }, [mode])
-
-  return {
-    isNuclioModeDisabled: mode === 'disabled'
+export const checkProjectWriteAccess = async (projectName, activeUsername = null) => {
+  if (!activeUsername) {
+    activeUsername = await getActiveUsername()
   }
+
+  const policiesResponse = await projectsIguazioApi.getProjectPolicies(projectName)
+  const policies = policiesResponse.data.items || []
+  return policies.some(
+    policy =>
+      WRITE_ROLES.includes(policy.spec.displayName) &&
+      policy.status?.assignedMembers?.some(member => member.id === activeUsername)
+  )
 }
