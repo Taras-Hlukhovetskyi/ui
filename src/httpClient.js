@@ -29,6 +29,13 @@ const headers = {
   'Cache-Control': 'no-cache'
 }
 
+/**
+ * Resolve auth bridge provided by igz-ui (host).
+ * - Primary: injected via Module Federation
+ * - Fallback: host global (timing safety)
+ */
+export const getHostAuth = () => window.__mlrunHostServices?.auth || window.__igzAuth || null
+
 // serialize a param with an array value as a repeated param, for example:
 // { label: ['host', 'owner=admin'] } => 'label=host&label=owner%3Dadmin'
 const paramsSerializer = params => qs.stringify(params, { arrayFormat: 'repeat' })
@@ -62,9 +69,60 @@ export const nuclioHttpClient = axios.create({
 })
 
 export const iguazioHttpClient = axios.create({
-  baseURL: import.meta.env.MODE === 'production' ? '/api' : '/iguazio/api',
+  baseURL: import.meta.env.MODE === 'production' ? '/igz/api' : '/iguazio/api',
   headers
 })
+
+/**
+ * Module Federation auth:
+ * token injection and refresh are handled by the igz-ui host
+ */
+
+const attachHostAuth = client => {
+  const auth = getHostAuth()
+  if (!auth) return
+
+  client.interceptors.request.use(config => {
+    const token = auth.getAccessToken?.()
+    if (token) {
+      config.headers = config.headers ?? {}
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  })
+
+  client.interceptors.response.use(
+    res => res,
+    async err => {
+      const status = err?.response?.status
+      const req = err?.config
+      if (!req) throw err
+
+      if (status === 401 && !req._retry) {
+        req._retry = true
+
+        const token = await auth.refreshAccessToken?.()
+        if (!token) {
+          auth.redirectToLogin?.()
+          throw err
+        }
+
+        req.headers = req.headers ?? {}
+        req.headers.Authorization = `Bearer ${token}`
+
+        return client(req)
+      }
+
+      throw err
+    }
+  )
+}
+
+attachHostAuth(mainHttpClient)
+attachHostAuth(mainHttpClientV2)
+attachHostAuth(functionTemplatesHttpClient)
+attachHostAuth(nuclioHttpClient)
+attachHostAuth(iguazioHttpClient)
 
 const getAbortSignal = (controller, abortCallback, timeoutMs) => {
   let timeoutId = null
