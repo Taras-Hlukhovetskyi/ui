@@ -25,7 +25,8 @@ import { generateNuclioLink } from './parseUri'
 
 const createRealTimePipelinesContent = (pipelines, projectName) =>
   pipelines.map(pipeline => {
-    const nuclioFunctionName = `${projectName}-${pipeline.name.toLowerCase()}`.slice(0, 63)
+    const nuclioFunctionName =
+      pipeline.nuclio_name || `${projectName}-${pipeline.name.toLowerCase()}`.slice(0, 63)
 
     return {
       data: {
