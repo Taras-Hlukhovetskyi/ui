@@ -63,7 +63,8 @@ import {
   JOBS_MONITORING_JOBS_TAB,
   JOBS_MONITORING_WORKFLOWS_TAB,
   JOBS_MONITORING_SCHEDULED_TAB,
-  INACTIVE_JOBS_TAB
+  INACTIVE_JOBS_TAB,
+  IS_MF_MODE
 } from './constants'
 
 import 'reactflow/dist/style.css'
@@ -159,12 +160,14 @@ const App = () => {
       <>
         <Route path="" element={<Page isHeaderShown={isHeaderShown} />}>
           <Route path="projects" element={<Projects />} />
-          <Route path="projects/:projectName">
-            <Route index element={<Navigate replace to={PROJECT_MONITOR} />} />
-            <Route path="real-time-functions/*" element={<RemoteNuclioRouteWrapper />} />
-            <Route path="create-function/*" element={<RemoteNuclioRouteWrapper />} />
-            <Route path="api-gateways/*" element={<RemoteNuclioRouteWrapper />} />
-          </Route>
+          {IS_MF_MODE && (
+            <Route path="projects/:projectName">
+              <Route index element={<Navigate replace to={PROJECT_MONITOR} />} />
+              <Route path="real-time-functions/*" element={<RemoteNuclioRouteWrapper />} />
+              <Route path="create-function/*" element={<RemoteNuclioRouteWrapper />} />
+              <Route path="api-gateways/*" element={<RemoteNuclioRouteWrapper />} />
+            </Route>
+          )}
           <Route path={`projects/*/${JOBS_MONITORING_PAGE}/*`} element={<ProjectsJobsMonitoring />}>
             {[
               `${JOBS_MONITORING_JOBS_TAB}/:jobName/:jobId/:tab`,

@@ -118,10 +118,14 @@ const generateLinkPath = (uri = '') => {
 
 const generateNuclioLink = pathname => {
   const base = window.mlrunConfig?.nuclioUiUrl || window.location.origin
-
   const cleanPath = pathname.startsWith('/') ? pathname : `/${pathname}`
+  const linkUrl = new URL(`${base}${cleanPath}`)
 
-  return new URL(`${base}${cleanPath}`).toString()
+  if (import.meta.env.VITE_FEDERATION !== 'true' && window.location.origin !== base) {
+    linkUrl.searchParams.set('origin', window.location.origin)
+  }
+
+  return linkUrl.toString()
 }
 
 export { generateLinkPath, generateNuclioLink, parseUri, parseIdentifier }

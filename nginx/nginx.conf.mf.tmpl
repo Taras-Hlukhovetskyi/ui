@@ -1,0 +1,30 @@
+server {
+    listen      8090;
+    server_name localhost;
+
+    root /usr/share/nginx/html;
+
+    # Basic Gzip as per standard defaults
+    gzip on;
+
+    # CRITICAL: Allow the Global Host (IGZ) to fetch these assets
+    add_header Access-Control-Allow-Origin *;
+    add_header Access-Control-Allow-Methods 'GET, OPTIONS';
+    add_header Access-Control-Allow-Headers 'Content-Type, Authorization';
+
+    location / {
+        # Show landing page when accessing the remote directly
+        index landing.html;
+        try_files $uri $uri/ /landing.html;
+
+        # Ensure remote assets are always fresh
+        if ($request_filename ~* .*\.(?:js|json)$ ) {
+            add_header Cache-Control "no-cache, no-store, must-revalidate";
+        }
+    }
+
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+        root /usr/share/nginx/html;
+    }
+}

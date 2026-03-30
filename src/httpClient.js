@@ -69,7 +69,12 @@ export const nuclioHttpClient = axios.create({
 })
 
 export const iguazioHttpClient = axios.create({
-  baseURL: import.meta.env.MODE === 'production' ? '/igz/api' : '/iguazio/api',
+  baseURL:
+    import.meta.env.MODE === 'production'
+      ? import.meta.env.VITE_FEDERATION === 'true'
+        ? '/igz/api'
+        : '/api'
+      : '/iguazio/api',
   headers
 })
 

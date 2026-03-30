@@ -32,7 +32,8 @@ import {
   FAILED_STATE,
   FUNCTION_READY_STATE,
   REQUEST_CANCELED,
-  RUNNING_STATE
+  RUNNING_STATE,
+  NUCLIO_FUNCTIONS_PATH
 } from '../../constants'
 import { fetchApiGateways } from '../../reducers/nuclioReducer'
 import { generateNuclioLink } from '../../utils'
@@ -82,7 +83,7 @@ const ProjectFunctions = ({ nuclioStreamsAreEnabled, project }) => {
         label: 'Running',
         className: RUNNING_STATE,
         status: RUNNING_STATE,
-        href: generateNuclioLink(`/projects/${params.projectName}/real-time-functions`),
+        href: generateNuclioLink(`/projects/${params.projectName}/${NUCLIO_FUNCTIONS_PATH}`),
         loading: nuclioStore.loading
       },
       failed: {
@@ -91,7 +92,7 @@ const ProjectFunctions = ({ nuclioStreamsAreEnabled, project }) => {
         label: 'Failed',
         status: FAILED_STATE,
         className: functionsFailed > 0 ? FAILED_STATE : RUNNING_STATE,
-        href: generateNuclioLink(`/projects/${params.projectName}/real-time-functions`),
+        href: generateNuclioLink(`/projects/${params.projectName}/${NUCLIO_FUNCTIONS_PATH}`),
         loading: nuclioStore.loading
       },
       apiGateways: {
@@ -150,7 +151,7 @@ const ProjectFunctions = ({ nuclioStreamsAreEnabled, project }) => {
                 func.metadata.name.slice(params.projectName.length + 1)
               : func.metadata.name,
             href: generateNuclioLink(
-              `/projects/${params.projectName}/real-time-functions/${func.metadata.name}`
+              `/projects/${params.projectName}/${NUCLIO_FUNCTIONS_PATH}/${func.metadata.name}`
             ),
             className: 'table-cell_big'
           },
@@ -177,7 +178,7 @@ const ProjectFunctions = ({ nuclioStreamsAreEnabled, project }) => {
         loading: nuclioStore.loading
       }}
       footerLinkText="All real-time functions"
-      href={generateNuclioLink(`/projects/${params.projectName}/real-time-functions`)}
+      href={generateNuclioLink(`/projects/${params.projectName}/${NUCLIO_FUNCTIONS_PATH}`)}
       statistics={functions}
       subTitle="Recent real-time functions"
       table={functionsTable}
