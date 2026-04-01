@@ -203,12 +203,6 @@ const RealTimePipelines = () => {
 
             const state = nuclioFuncState || func.state?.value || func.status?.state
 
-            if (state === FUNCTION_READY_STATE || state === 'running') {
-              runningFunctions += 1
-            } else if (state === ERROR_STATE || state === UNHEALTHY_STATE) {
-              failedFunctions += 1
-            }
-
             set(func, 'state', getState(state, FUNCTIONS_PAGE, 'nuclioFunctions'))
 
             const filteredFunc = !parent && (showSystems || !isMonitoringInfra) && isCorrectTopology
@@ -216,6 +210,12 @@ const RealTimePipelines = () => {
             if (!filteredFunc) return pipelinesList
 
             totalPipelines += 1
+
+            if (state === FUNCTION_READY_STATE || state === 'running') {
+              runningFunctions += 1
+            } else if (state === ERROR_STATE || state === UNHEALTHY_STATE) {
+              failedFunctions += 1
+            }
 
             const modelEndpointsMainCount =
               Object.keys(func.graph?.routes || {}).length ||
