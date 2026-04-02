@@ -785,7 +785,6 @@ const parseRequests = (requests = {}, defaultRequests = {}) => {
 }
 
 const parseEnvironmentVariables = envVariables => {
-  console.log('parseEnvironmentVariables', { envVariables })
   return envVariables
     .filter(envVariable => {
       if (envVariable?.valueFrom?.secretKeyRef) {

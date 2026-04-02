@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -l \"$l\" build/assets/*.js)"
+    ]
+  }
+}
