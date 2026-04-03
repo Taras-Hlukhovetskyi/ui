@@ -21,16 +21,6 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-
-# build arg
-ARG IS_MF=false
-
-RUN echo ">>> IS_MF ARG = $IS_MF" && \
-    sed -i "/^VITE_FEDERATION=/d" .env.production && \
-    echo "VITE_FEDERATION=$IS_MF" >> .env.production && \
-    sed -i "s|^VITE_PUBLIC_URL=/mlrun|VITE_PUBLIC_URL=|" .env.production && \
-    echo ">>> Final .env.production:" && grep '^VITE_' .env.production
-
 RUN npm run build
 
 ARG COMMIT_HASH
@@ -48,7 +38,6 @@ LABEL org.opencontainers.image.revision=$GIT_COMMIT_SHA
 # align UID & GID with nginx-unprivileged image UID & GID
 ARG UID=101
 ARG GID=101
-ARG IS_MF=false
 
 USER root
 RUN apk update --no-cache && apk upgrade --no-cache \
@@ -57,20 +46,13 @@ RUN apk update --no-cache && apk upgrade --no-cache \
 USER $UID
 
 COPY --from=build-stage /app/build /usr/share/nginx/html
-COPY --from=build-stage /app/.env.production /usr/share/nginx/html/
+COPY config.json.tmpl /usr/share/nginx/html/
 
 COPY nginx/nginx.conf.tmpl /etc/nginx/conf.d/
 COPY nginx/run_nginx /etc/nginx/
 
 USER root
-RUN if [ "$IS_MF" \
-    = "true" ]; then \
-      INDEX=/usr/share/nginx/html/index.html; \
-      [ -f "$INDEX" ] && sed -i 's|<base href="/mlrun"|<base href="/projects"|g' "$INDEX"; \
-    fi && \
-    chown -R $UID:0 /usr/share/nginx/html && \
-    chmod -R g+w /usr/share/nginx/html && \
-    chmod 777 /etc/nginx/run_nginx
+RUN chown -R $UID:0 /usr/share/nginx/html && chmod -R g+w /usr/share/nginx/html && chmod 777 /etc/nginx/run_nginx
 
 USER $UID
 
