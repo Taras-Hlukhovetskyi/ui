@@ -40,7 +40,9 @@ import {
   FUNCTION_TYPE_LOCAL,
   MODEL_ENDPOINTS_TAB,
   MODELS_TAB,
-  TAG_LATEST
+  TAG_LATEST,
+  IS_MF_MODE,
+  NUCLIO_FUNCTIONS_PATH
 } from '../../constants'
 import { generateLinkPath, generateNuclioLink, parseUri } from '../../utils'
 import { getFunctionImage } from '../FunctionsPage/functions.util'
@@ -315,8 +317,9 @@ export const generateRealTimePipelinesContent = selectedItem => {
       status: selectedItem.state.value,
       className: selectedItem.state.className,
       link: generateNuclioLink(
-        `/projects/${selectedItem.project}/real-time-functions/${nuclioFunctionName}`
-      )
+        `/projects/${selectedItem.project}/${NUCLIO_FUNCTIONS_PATH}/${nuclioFunctionName}`
+      ),
+      linkIsExternal: !IS_MF_MODE
     },
     childFunction: {
       value: selectedItem.childFunctions ?? selectedItem.function_refs ?? [],

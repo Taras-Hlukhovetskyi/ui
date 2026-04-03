@@ -1,9 +1,9 @@
 # feature/ig4 vs development — Deep Comparison & Merge Plan
-# UPDATED 3/20/2045
-# NOTE it may contains some redundant changes such as after many merges comparing diffs are not accurate in git
-**103 files changed | +2,921 / -1,885 lines**
+# UPDATED 2026-03-25 (post-rebase on development)
+# NOTE: Many bug fixes from feature/ig4 are already in development after the rebase and are no longer listed here.
+**62 files changed | +3,238 / -816 lines**
 
-The app in `feature/ig4` runs as a **Module Federation remote** consumed by the Iguazio Dashboard (IGZ4).
+The app in this branch runs as a **Module Federation remote** consumed by the Iguazio Dashboard (IGZ4).
 The `development` branch is the **standalone app** for IGZ3.
 
 The user clarified: **MLRun API is unchanged**. Only the **Iguazio platform API** changed for IGZ4.
@@ -16,71 +16,67 @@ The user clarified: **MLRun API is unchanged**. Only the **Iguazio platform API*
 
 | File | What changes | Why safe |
 |------|-------------|---------|
-| [`src/loadRemoteConfig.js`](#2-config-loading) | New file — loads config from host or file | Has IGZ3 fallback built in |
-| [`src/index.jsx`](#2-config-loading) | Uses `loadRemoteConfig()` | `loadRemoteConfig()` handles both paths |
-| [`src/main.jsx`](#2-config-loading) | New MF entry point | Additive, only used when imported as remote |
-| [`src/components/RemoteNuclio/*`](#8-nuclio-navigation) | New MF Nuclio wrapper | Additive, only routed in IGZ4 |
-| [`src/utils/nuclio.remotes.utils.js`](#13-module-federation-build) | MF remote loader utils | Additive |
-| [`src/utils/getNuclioFuncState.js`](#9-real-time-pipelines) | Nuclio state mapping | Additive util |
+| [`.env.production`](#10-builddeploy-infrastructure) | `VITE_FEDERATION=false` default | In IGZ4 Dockerfile, `sed` overwrites to `true` |
+| [`.gitignore`](#13-module-federation-build) | Ignore `.__mf__temp/`, `*.tar` | MF build artifacts |
+| [`README.md`](#10-builddeploy-infrastructure) | Documents `IS_MF` build arg, MF run modes | Documentation only |
+| [`config.json.tmpl`](#10-builddeploy-infrastructure) | Added `nuclioRemoteEntryUrl` field | Additive; empty in IGZ3 |
+| [`config/loadDevProxyConfig.js`](#13-module-federation-build) | Dev proxy via DRC file | Only affects dev server |
+| [`eslint.config.mjs`](#13-module-federation-build) + [`eslint.mlrun-globals.mjs`](#13-module-federation-build) | ESLint config for MF globals | Tooling only |
+| [`package.json`](#13-module-federation-build) + `package-lock.json` | Added `@module-federation/*`, `react-error-boundary`, `dotenv-cli`; `preview:federation` script | Federation plugin only activates when `VITE_FEDERATION=true` |
+| [`public/config.json`](#2-config-loading) | `nuclioUiUrl` → `localhost:4000`; added `nuclioRemoteEntryUrl` | Local dev config only |
 | [`public/landing.html`](#10-builddeploy-infrastructure) | MF landing page | Only served in IGZ4 nginx |
-| [`config/loadDevProxyConfig.js`](#13-module-federation-build) | Dev proxy via DRC | Only affects dev server |
 | [`scripts/previewLocalBuildMF.mjs`](#13-module-federation-build) | MF preview script | Dev tooling |
-| [`eslint.mlrun-globals.mjs`](#14-bug-fixes) | ESLint config | Tooling |
-| [`src/constants.js`](#2-config-loading) | `FORCE_REFRESH`, `API_TOKEN_TIP` | Additive constants |
-| [`config.json.tmpl`](#10-builddeploy-infrastructure) | Added `nuclioRemoteEntryUrl` field | Additive; env var empty in IGZ3 |
-| [`.env.production`](#10-builddeploy-infrastructure) | Added `VITE_FEDERATION=false` | Safe default |
-| [`src/hooks/nuclioMode.hook.js`](#14-bug-fixes) | Optional chaining on `window?.mlrunConfig` | Defensive improvement |
-| [`src/utils/getState.js`](#14-bug-fixes) | Added `standby`, `scaledToZero`, `initialized` | Additive states |
 | [`src/api/jobs-api.js`](#14-bug-fixes) | Stream via axios adapter | Bug fix, works in both |
-| [`src/utils/getJobLogs.util.js`](#14-bug-fixes) | `res.body` → `res.data` | Pairs with jobs-api.js |
-| [`src/reducers/artifactsReducer.js`](#14-bug-fixes) | Error message callback | Bug fix |
-| [`src/reducers/functionReducer.js`](#14-bug-fixes) | `return thunkAPI.rejectWithValue` | Bug fix |
-| [`src/components/Datasets/datasets.util.jsx`](#14-bug-fixes) | Optional chaining `artifact_limits?.max_download_size` | Bug fix |
-| [`src/common/Download/Download.jsx`](#14-bug-fixes) | Optional chaining | Bug fix |
-| [`src/utils/getArtifactPreview.jsx`](#14-bug-fixes) | Optional chaining | Bug fix |
-| [`src/components/FunctionsPage/Functions.jsx`](#14-bug-fixes) | `!isEmpty(selectedFunction)` guard | Bug fix |
-| [`src/common/DatePicker/DatePicker.jsx`](#14-bug-fixes) | `dateTo` null safety | Bug fix |
-| [`src/common/ReactFlow/mlReactFlow.util.js`](#14-bug-fixes) | Rename + margin 16→34 | UI improvement |
-| [`src/utils/getNoDataMessage.js`](#14-bug-fixes) | Added filter, removed trailing periods | Minor |
-| [`src/elements/PanelCredentialsAccessKey/PanelCredentialsAccessKey.jsx`](#7-job-wizard-access-key--api-token) | CE version guard | Already conditional on `!frontendSpec.ce?.version` |
-| [`src/elements/SectionTable/SectionTable.jsx`](#8-nuclio-navigation) | Removed `params` prop; name-slicing moved upstream | Logic relocated to `ProjectFunctions.jsx`, behaviour unchanged |
-| [`src/hooks/usePagination.hook.js`](#14-bug-fixes) | `FORCE_REFRESH` URL param support | Forces re-fetch without changing bePage; IGZ3-safe |
-| [`src/utils/generateTemplatesCategories.js`](#14-bug-fixes) | Category name mapping + case-insensitive deduplication | Pure fix, no API dependency |
-| [`src/components/ModelsPage/RealTimePipelines/RealTimePipelinesCounters.jsx`](#9-real-time-pipelines) | Tooltip wrappers on stats cards | UI improvement |
-| [`src/components/Details/DetailsTabsContent/DetailsTabsContent.jsx`](#14-bug-fixes) | `handleCancel` prop forwarded; `refresh` on ModelEndpoints | Minor prop additions |
-| [`src/elements/DetailsInfoItem/DetailsInfoItem.jsx`](#9-real-time-pipelines) | `linkIsExternal` flag; status icon inline; `listOfFunctions` renderer | Additive rendering modes |
-| [`src/components/DetailsPipeline/DetailsPipeline.jsx`](#14-bug-fixes) | Loading from `artifactsStore`; error-step fix | Bug fix |
-| [`src/reducers/jobReducer.js`](#7-job-wizard-access-key--api-token) | Removed `function.metadata.credentials.access_key` from initial state | Pairs with access-key removal |
-| [`src/components/JobWizard/JobWizard.jsx`](#7-job-wizard-access-key--api-token) | Removed `credentials` from `editJob` dispatch | Pairs with access-key removal |
-| [`src/elements/JobsTable/JobsTable.jsx`](#14-bug-fixes) | `!isEmpty(selectedJob)` guard on `isDetailsTabExists` | Bug fix |
-| [`src/elements/WorkflowsTable/WorkflowsTable.jsx`](#14-bug-fixes) | `!isEmpty(selectedJob)` guard on `isDetailsTabExists` | Bug fix |
-| [`src/components/FunctionsPageOld/FunctionsOld.jsx`](#14-bug-fixes) | `!isEmpty(selectedFunction)` guard | Bug fix |
-| [`src/components/FeatureStore/FeatureSets/FeatureSets.jsx`](#14-bug-fixes) | `!isEmpty(selectedFeatureSet)` guard | Bug fix |
-| [`src/components/FeatureStore/FeatureVectors/FeatureVectors.jsx`](#14-bug-fixes) | `!isEmpty(selectedFeatureVector)` guard | Bug fix |
-| [`src/components/DetailsInputs/DetailsInputs.jsx`](#14-bug-fixes) | Recursive nested-input handling via `getInputsContent` callback | Bug fix — handles object-typed inputs |
-| [`vite.config.mjs`](#13-module-federation-build) | MF plugin + proxy config refactor | MF plugin only enabled when `VITE_FEDERATION=true` |
+| [`src/common/Download/Download.jsx`](#14-bug-fixes) | Optional chaining | Defensive, IGZ3-safe |
+| [`src/components/Datasets/datasets.util.jsx`](#14-bug-fixes) | `artifact_limits?.max_download_size` | Optional chaining |
+| [`src/components/LLMPrompts/llmPrompts.util.jsx`](#14-bug-fixes) | `artifact_limits?.max_download_size` | Optional chaining |
+| [`src/components/ProjectsPage/projects.util.jsx`](#14-bug-fixes) | `window.mlrunConfig?.nuclioMode`, `project?.metadata?.name` | Optional chaining |
+| [`src/components/RemoteNuclio/NuclioRemoteError.jsx`](#8-nuclio-navigation) | New MF Nuclio error fallback component | Additive, only routed in IGZ4 |
+| [`src/components/RemoteNuclio/RemoteNuclio.scss`](#8-nuclio-navigation) | Styles for MF Nuclio wrapper | Additive |
+| [`src/components/RemoteNuclio/RemoteNuclioRouteWrapper.jsx`](#8-nuclio-navigation) | New MF Nuclio route wrapper | Additive, only routed in IGZ4 |
+| [`src/constants.js`](#2-config-loading) | `FORCE_REFRESH`, `API_TOKEN_TIP` | Additive constants |
+| [`src/elements/BreadcrumbsDropdown/breadcrumbsDropdown.scss`](#8-nuclio-navigation) | z-index 7 → 100 | UI fix |
+| [`src/hooks/nuclioMode.hook.js`](#14-bug-fixes) | `window?.mlrunConfig` optional chaining | Defensive |
+| [`src/index.jsx`](#2-config-loading) | Uses `loadRemoteConfig()` | `loadRemoteConfig()` handles both IGZ3 and IGZ4 |
+| [`src/loadRemoteConfig.js`](#2-config-loading) | New file — loads config from host or file | IGZ3 fallback: fetches `config.json` from disk |
+| [`src/main.jsx`](#2-config-loading) | MF entry point | Only used when imported as remote |
+| [`src/utils/getArtifactPreview.jsx`](#14-bug-fixes) | Optional chaining | Defensive |
+| [`src/utils/getJobLogs.util.js`](#14-bug-fixes) | `res.body` → `res.data` | Pairs with jobs-api.js fix |
+| [`src/utils/nuclio.remotes.utils.js`](#13-module-federation-build) | MF remote loader utils | Additive |
+| [`vite.config.mjs`](#13-module-federation-build) | MF plugin + proxy config refactor; `build.target: 'esnext'` | MF plugin only enabled when `VITE_FEDERATION=true` |
 
 ### ⚠️ Needs conditional logic (`VITE_FEDERATION` / `IS_MF`)
 
 | File | What to make conditional | Mechanism |
 |------|--------------------------|-----------|
-| [`src/httpClient.js`](#1-http-client) | `iguazioHttpClient` baseURL (`/api` vs `/igz/api`) | `VITE_FEDERATION` build-time env |
-| [`src/api/projects-iguazio-api.js`](#3-iguazio-platform-api) | Entire API — IGZ3 vs IGZ4 endpoints | Export based on `VITE_FEDERATION` |
-| [`src/elements/MembersPopUp/membersReducer.js`](#4-members-state) | Restore `users`/`userGroups` state for IGZ3 | Keep both, or conditional |
-| [`src/components/ProjectSettings/ProjectSettings.jsx`](#5-project-settings) | Data-fetch strategy, job polling, visibility checks | `VITE_FEDERATION` branch |
+| [`src/httpClient.js`](#1-http-client) | `iguazioHttpClient` baseURL (`/api` vs `/igz/api`) — `attachHostAuth` is safe as-is | `VITE_FEDERATION` build-time env |
+| [`src/api/projects-iguazio-api.js`](#3-iguazio-platform-api) | Entire API — IGZ3 endpoints removed, IGZ4 endpoints added | Export based on `VITE_FEDERATION` |
+| [`src/elements/MembersPopUp/membersReducer.js`](#4-members-state) | `users`/`userGroups` state removed — needed by IGZ3 `generateMembers()` | Restore for IGZ3 |
+| [`src/components/ProjectSettings/ProjectSettings.jsx`](#5-project-settings) | Data-fetch strategy, job polling, owner identity, system-admin check | `VITE_FEDERATION` branch |
 | [`src/components/ProjectSettings/projectSettings.util.jsx`](#5-project-settings) | `generateMembers()` and `isProjectMembersTabShown()` — IGZ4 rewrite | `VITE_FEDERATION` branch |
 | [`src/elements/MembersPopUp/MembersPopUp.jsx`](#6-members-pop-up) | User search API + response parsing + apply changes | `VITE_FEDERATION` branch |
 | [`src/elements/ChangeOwnerPopUp/ChangeOwnerPopUp.jsx`](#11-change-owner-pop-up) | Owner search API + apply changes | `VITE_FEDERATION` branch |
 | [`src/utils/projectAuth.util.js`](#12-project-authorization-utility) | IGZ4-only — needs IGZ3 fallback added | `VITE_FEDERATION` branch |
-| [`src/components/Workflow/workflow.util.js`](#12-project-authorization-utility) | Permission check: two-call IGZ3 vs `checkProjectWriteAccess` IGZ4 | `VITE_FEDERATION` branch |
-| [`src/App.jsx`](#8-nuclio-navigation) | RemoteNuclio routes (fail in IGZ3) | Only add when `VITE_FEDERATION=true` |
+| [`src/components/Workflow/workflow.util.js`](#12-project-authorization-utility) | Calls `checkProjectWriteAccess` (IGZ4-only) — needs IGZ3 two-call fallback in auth util | Add IGZ3 path to `projectAuth.util.js` |
+| [`src/App.jsx`](#8-nuclio-navigation) | RemoteNuclio routes (will fail in IGZ3) | Only add when `VITE_FEDERATION=true` |
 | [`src/common/Breadcrumbs/breadcrumbs.util.js`](#8-nuclio-navigation) | External vs internal Nuclio links | `VITE_FEDERATION` branch |
-| [`src/elements/ProjectFunctions/ProjectFunctions.jsx`](#8-nuclio-navigation) | Nuclio link path `/functions/` vs `/real-time-functions/` | `VITE_FEDERATION` branch |
+| [`src/elements/ProjectFunctions/ProjectFunctions.jsx`](#8-nuclio-navigation) | Nuclio link path `/functions/` → `/real-time-functions/` | `VITE_FEDERATION` branch |
+| [`src/layout/Navbar/navbar.util.jsx`](#8-nuclio-navigation) | Nuclio link path `/functions` → `/real-time-functions` | `VITE_FEDERATION` branch |
 | [`src/components/Project/project.utils.jsx`](#8-nuclio-navigation) | "Create real-time function" link path + `window.top` navigation | `VITE_FEDERATION` branch |
+| [`src/components/Project/ProjectOverview/ProjectOverview.util.jsx`](#8-nuclio-navigation) | Nuclio link paths | `VITE_FEDERATION` branch |
+| [`src/components/MonitoringApplicationsPage/MonitoringApplications/monitoringApplications.util.js`](#8-nuclio-navigation) | Nuclio link path `/functions/` → `/real-time-functions/` | `VITE_FEDERATION` branch |
+| [`src/utils/createApplicationContent.jsx`](#8-nuclio-navigation) | Nuclio link path `/functions/` → `/real-time-functions/` | `VITE_FEDERATION` branch |
+| [`src/utils/createConsumerGroupsContent.js`](#8-nuclio-navigation) | Nuclio link path `/functions/` → `/real-time-functions/` | `VITE_FEDERATION` branch |
+| [`src/utils/createRealTimePipelinesContent.js`](#8-nuclio-navigation) | Nuclio link path `/functions/` → `/real-time-functions/` | `VITE_FEDERATION` branch |
+| [`src/components/Details/details.util.js`](#8-nuclio-navigation) | Nuclio link path `/functions/` → `/real-time-functions/`; removed `linkIsExternal: true` | `VITE_FEDERATION` branch |
+| [`src/utils/parseUri.js`](#8-nuclio-navigation) | `generateNuclioLink()`: removed `?origin` param (needed by IGZ3) + null-safe base URL | Restore `?origin` for IGZ3 |
 | [`src/components/JobWizard/JobWizardSteps/JobWizardAdvanced/JobWizardAdvanced.jsx`](#7-job-wizard-access-key--api-token) | Access key UI vs API Token UI | `VITE_FEDERATION` |
-| [`src/components/JobWizard/JobWizard.util.js`](#7-job-wizard-access-key--api-token) | `outputPath` fallback; request body shape | `VITE_FEDERATION` |
-| [`src/components/Jobs/jobs.util.js`](#7-job-wizard-access-key--api-token) | Rerun job: credentials vs auth.token_name | `VITE_FEDERATION` |
-| [`nginx/nginx.conf.tmpl`](#10-builddeploy-infrastructure) | Create `.mf.tmpl` version; keep IGZ3 original | `IS_MF` in `run_nginx` |
+| [`src/components/JobWizard/JobWizard.util.js`](#7-job-wizard-access-key--api-token) | `outputPath` fallback; form defaults; request body shape | `VITE_FEDERATION` |
+| [`src/components/JobWizard/JobWizard.jsx`](#7-job-wizard-access-key--api-token) | Removed `credentials` from `editJob` dispatch | `VITE_FEDERATION` branch |
+| [`src/components/Jobs/jobs.util.js`](#7-job-wizard-access-key--api-token) | Rerun job: removed `credentials`, added `auth.token_name` | `VITE_FEDERATION` branch |
+| [`src/reducers/jobReducer.js`](#7-job-wizard-access-key--api-token) | Removed `function.metadata.credentials.access_key` from initial state | Restore for IGZ3 (pairs with JobWizard changes) |
+| [`src/components/JobWizard/JobWizardSteps/JobWizardAdvanced/jobWizardAdvanced.scss`](#7-job-wizard-access-key--api-token) | `.access-key-checkbox` → `.api-token-field` styles | Keep both classes or conditioned at build time |
+| [`nginx/nginx.conf.tmpl`](#10-builddeploy-infrastructure) | Create `.mf.tmpl` version; restore IGZ3 original | `IS_MF` in `run_nginx` |
 | [`nginx/run_nginx`](#10-builddeploy-infrastructure) | envsubst+resolver (IGZ3) vs cp (IGZ4) | `IS_MF` branch |
 | [`Dockerfile`](#10-builddeploy-infrastructure) | Restore `COPY config.json.tmpl` for IGZ3 path | `IS_MF` |
 
@@ -88,7 +84,10 @@ The user clarified: **MLRun API is unchanged**. Only the **Iguazio platform API*
 
 | File | Question |
 |------|----------|
-| [`Dockerfile`](#10-builddeploy-infrastructure) | Base image `node:20.19.2-slim` — should it be updated to 22 or 24? |
+| [`Dockerfile`](#10-builddeploy-infrastructure) | Base image `node:20-alpine` → `node:20.19.2-slim` — should it be updated to 22 or 24? Coordinate with DevOps. |
+| [`src/common/ActionsMenu/ActionsMenu.jsx`](#spurious) | Empty 0-byte file created — this **overwrites** the existing component. Revert before PR: `git checkout development -- src/common/ActionsMenu/ActionsMenu.jsx` |
+| [`src/utils/parseUri.js`](#8-nuclio-navigation) | Does IGZ3's Nuclio UI still require `?origin=...` param? If yes, restore it for the IGZ3 path. |
+| Job wizard auth | Does IGZ3's MLRun support `task.spec.auth.token_name`? If yes, the conditional may be simpler. |
 
 ---
 
@@ -145,7 +144,7 @@ attachHostAuth(iguazioHttpClient)
 
 ### 2. Config Loading
 
-**Files:** `src/index.jsx`, `src/loadRemoteConfig.js`, `src/constants.js`, `src/main.jsx`
+**Files:** `src/index.jsx`, `src/loadRemoteConfig.js`, `src/constants.js`, `src/main.jsx`, `public/config.json`
 
 #### What changed
 `index.jsx` replaced inline `fetch('/config.json')` + protocol normalization with a call to `loadRemoteConfig()`:
@@ -166,11 +165,18 @@ attachHostAuth(iguazioHttpClient)
 
 `src/constants.js` adds `FORCE_REFRESH` (used by usePagination) and `API_TOKEN_TIP`.
 
+`public/config.json` — local dev config updated:
+```diff
+- "nuclioUiUrl": "http://localhost:8070"
++ "nuclioUiUrl": "http://localhost:4000",
++ "nuclioRemoteEntryUrl": "http://localhost:5189"
+```
+
 #### Why
-In IGZ4, the Iguazio Dashboard (host) injects `window.mlrunConfig` before mounting the remote app. The standalone fetch is only a fallback for IGZ3 / local dev.
+In IGZ4, the Iguazio Dashboard (host) injects `window.mlrunConfig` before mounting the remote app. The standalone fetch is only a fallback for IGZ3 / local dev. `nuclioUiUrl` changed port because in IGZ4 dev, Nuclio runs at 4000. `nuclioRemoteEntryUrl` is the MF remote entry for loading Nuclio as a federated module.
 
 #### How to merge
-**SAFE TO MERGE AS-IS.** `loadRemoteConfig.js` already handles both cases. The fallback to `fetch('/config.json')` preserves IGZ3 behavior exactly.
+**SAFE TO MERGE AS-IS.** `loadRemoteConfig.js` already handles both cases. The fallback to `fetch('/config.json')` preserves IGZ3 behavior exactly. `public/config.json` is only used in local dev — each developer sets their own ports.
 
 ---
 
@@ -423,16 +429,6 @@ The `userIsSystemAdmin` check and `changeMembersCallback` also need the same bra
 // IGZ4
 + const getUsersPromise = projectsIguazioApi.searchUsersMetadata(searchQuery)
 // Response: { data: { items: [{ username: 'john', ... }] } }
-
-// IGZ3 groups
-- const getUserGroupsPromise = projectsIguazioApi.getScrubbedUserGroups({
--   params: { 'filter[name]': '[$match-i]^.*query.*$', 'page[size]': 200 }
-- })
-// Response: { data: { data: [{ id: 'uuid', type: 'user_group', attributes: { name: '/group/path' } }] } }
-
-// IGZ4 groups
-+ const getUserGroupsPromise = projectsIguazioApi.searchGroupsMetadata(searchQuery)
-// Response: { data: { items: [{ groupId: 'id', path: '/group/path' }] } }
 ```
 
 **B. Member identity: UUID → username**
@@ -475,7 +471,7 @@ Wrap the three concerns in `VITE_FEDERATION` conditionals within `generateUsersS
 
 ### 7. Job Wizard: Access Key → API Token
 
-**Files:** `src/components/JobWizard/JobWizardSteps/JobWizardAdvanced/JobWizardAdvanced.jsx`, `src/components/JobWizard/JobWizard.util.js`, `src/components/JobWizard/JobWizard.jsx`, `src/components/Jobs/jobs.util.js`, `src/elements/PanelCredentialsAccessKey/PanelCredentialsAccessKey.jsx`, `src/reducers/jobReducer.js`
+**Files:** `src/components/JobWizard/JobWizardSteps/JobWizardAdvanced/JobWizardAdvanced.jsx`, `src/components/JobWizard/JobWizard.util.js`, `src/components/JobWizard/JobWizard.jsx`, `src/components/Jobs/jobs.util.js`, `src/reducers/jobReducer.js`, `src/components/JobWizard/JobWizardSteps/JobWizardAdvanced/jobWizardAdvanced.scss`
 
 #### What changed
 
@@ -588,7 +584,7 @@ outputPath: currentProject?.spec?.artifact_path
 
 ### 8. Nuclio Navigation
 
-**Files:** `src/App.jsx`, `src/common/Breadcrumbs/breadcrumbs.util.js`, `src/layout/Navbar/navbar.util.jsx`, `src/utils/parseUri.js`, `src/utils/createRealTimePipelinesContent.js`, `src/components/Details/details.util.js`, `src/elements/ProjectFunctions/ProjectFunctions.jsx`, `src/elements/SectionTable/SectionTable.jsx`, `src/components/Project/project.utils.jsx`, `src/components/RemoteNuclio/*`
+**Files:** `src/App.jsx`, `src/common/Breadcrumbs/breadcrumbs.util.js`, `src/layout/Navbar/navbar.util.jsx`, `src/utils/parseUri.js`, `src/elements/ProjectFunctions/ProjectFunctions.jsx`, `src/components/Project/project.utils.jsx`, `src/components/Project/ProjectOverview/ProjectOverview.util.jsx`, `src/components/MonitoringApplicationsPage/MonitoringApplications/monitoringApplications.util.js`, `src/utils/createApplicationContent.jsx`, `src/utils/createConsumerGroupsContent.js`, `src/utils/createRealTimePipelinesContent.js`, `src/components/Details/details.util.js`, `src/components/RemoteNuclio/NuclioRemoteError.jsx`, `src/components/RemoteNuclio/RemoteNuclio.scss`, `src/components/RemoteNuclio/RemoteNuclioRouteWrapper.jsx`
 
 #### What changed
 
@@ -603,23 +599,31 @@ outputPath: currentProject?.spec?.artifact_path
 - <Route path="projects/:projectName" element={<Navigate replace to={PROJECT_MONITOR} />} />
 ```
 
-**B. `src/common/Breadcrumbs/breadcrumbs.util.js` — external links removed**
-```diff
-// IGZ3: breadcrumbs had external links to Nuclio UI
-- { label: 'Real-time functions', id: 'Real-time functions',
--   link: generateNuclioLink(`/projects/${params.projectName}/functions`) }
+**B. Nuclio link path: `/functions/` → `/real-time-functions/` (9 files)**
 
-// IGZ4: breadcrumbs use internal route IDs (React Router handles navigation)
-+ { label: 'Real-time functions', id: 'real-time-functions' }
+All of the following files changed the same Nuclio link path segment. In IGZ4, the Nuclio MF app is mounted at `/real-time-functions/`. In IGZ3, the external Nuclio UI expects `/functions/`.
+
+| File | What changed |
+|------|-------------|
+| `src/common/Breadcrumbs/breadcrumbs.util.js` | External links removed; uses internal route id `real-time-functions` instead |
+| `src/layout/Navbar/navbar.util.jsx` | `generateNuclioLink('.../functions')` → `generateNuclioLink('.../real-time-functions')` |
+| `src/elements/ProjectFunctions/ProjectFunctions.jsx` | Nuclio function link path + name slicing logic |
+| `src/components/Project/project.utils.jsx` | "Create real-time function" link path + `window.top` navigation |
+| `src/components/Project/ProjectOverview/ProjectOverview.util.jsx` | "Create real-time function" and "Nuclio functions" link paths |
+| `src/components/MonitoringApplicationsPage/MonitoringApplications/monitoringApplications.util.js` | Function name link |
+| `src/utils/createApplicationContent.jsx` | Application function link |
+| `src/utils/createConsumerGroupsContent.js` | Consumer group function link |
+| `src/utils/createRealTimePipelinesContent.js` | Pipeline function link |
+| `src/components/Details/details.util.js` | Real-time pipeline function link; also removes `linkIsExternal: true` (link becomes internal in IGZ4) |
+
+All 10 need the same pattern (and `details.util.js` also needs `linkIsExternal` restored for IGZ3):
+```js
+generateNuclioLink(
+  `/projects/${projectName}/${import.meta.env.VITE_FEDERATION === 'true' ? 'real-time-functions' : 'functions'}/${name}`
+)
 ```
 
-**C. `src/layout/Navbar/navbar.util.jsx` — path updated**
-```diff
-- link: generateNuclioLink(`${pathname}/functions`)
-+ link: generateNuclioLink(`${pathname}/real-time-functions`)
-```
-
-**D. `src/utils/parseUri.js` — `generateNuclioLink()` simplified**
+**C. `src/utils/parseUri.js` — `generateNuclioLink()` simplified**
 ```diff
 // IGZ3: sets `?origin=...` param so Nuclio UI knows where mlrun UI is hosted
 - const linkUrl = new URL(`${window.mlrunConfig.nuclioUiUrl}${pathname}`)
@@ -627,37 +631,12 @@ outputPath: currentProject?.spec?.artifact_path
 -   linkUrl.searchParams.set?.('origin', window.location.origin)
 - }
 
-// IGZ4: simple URL construction
+// IGZ4: simple URL construction + null-safe base URL
 + const base = window.mlrunConfig?.nuclioUiUrl || window.location.origin
 + return new URL(`${base}${cleanPath}`).toString()
 ```
 
-**E. `src/elements/ProjectFunctions/ProjectFunctions.jsx` — links + name slicing**
-```diff
-// Nuclio function links: /functions/ → /real-time-functions/
-- href: generateNuclioLink(`/projects/${params.projectName}/functions/${func.metadata.name}`)
-+ href: generateNuclioLink(`/projects/${params.projectName}/real-time-functions/${func.metadata.name}`)
-
-// MLRun-generated function names (prefixed with project name) are sliced:
-+ value: has(func.metadata.labels || {}, 'mlrun/class')
-+   ? func.metadata.name.slice(params.projectName.length + 1)
-+   : func.metadata.name
-
-// Status via getNuclioFuncState() utility instead of inline logic
-- value: func?.status?.state === FUNCTION_READY_STATE && !func?.spec?.disable ? 'Running' : ...
-+ value: getNuclioFuncState(func)
-```
-
-**F. `src/elements/SectionTable/SectionTable.jsx` — `params` prop removed**
-
-The name-slicing logic (removing project prefix from function names) was previously done in `SectionTable.jsx` using the `params` prop. This was moved upstream to `ProjectFunctions.jsx`, so `SectionTable` no longer needs `params`:
-```diff
-- const SectionTable = ({ loading = false, params, table }) => {
-+ const SectionTable = ({ loading = false, table }) => {
-  // No longer extracts project name prefix — value is already sliced in ProjectFunctions.jsx
-```
-
-**G. `src/components/Project/project.utils.jsx` — "Create real-time function" link**
+**D. `src/components/Project/project.utils.jsx` — `window.top` navigation**
 ```diff
 // IGZ3: direct window.location.assign
 - handler: () => window.location.assign(generateNuclioLink(`/projects/${params.projectName}/create-function`))
@@ -690,32 +669,28 @@ import.meta.env.VITE_FEDERATION === 'true'
       link: generateNuclioLink(`/projects/${params.projectName}/functions`) }
 ```
 
-**`ProjectFunctions.jsx` link path**: `/real-time-functions/` breaks IGZ3 if Nuclio UI doesn't recognize that path. Needs:
+**All 9 link-path files**: Apply the conditional path pattern shown in section B above.
+
+**`generateNuclioLink()`**: The null-safety fix (`window.mlrunConfig?.nuclioUiUrl`) is safe to keep. Restore `?origin` for IGZ3:
 ```js
-href: generateNuclioLink(
-  `/projects/${params.projectName}/${import.meta.env.VITE_FEDERATION === 'true' ? 'real-time-functions' : 'functions'}/${func.metadata.name}`
-)
+const generateNuclioLink = pathname => {
+  const base = window.mlrunConfig?.nuclioUiUrl || window.location.origin
+  const cleanPath = pathname.startsWith('/') ? pathname : `/${pathname}`
+  const linkUrl = new URL(`${base}${cleanPath}`)
+  if (import.meta.env.VITE_FEDERATION !== 'true' && window.location.origin !== base) {
+    linkUrl.searchParams.set('origin', window.location.origin)
+  }
+  return linkUrl.toString()
+}
 ```
 
-**`project.utils.jsx`**: The `window.top` fallback is safe; the path change needs the same conditional as above.
-
-**`generateNuclioLink()`**: The removal of `origin` param might break IGZ3 if the Nuclio UI requires it to function correctly. Needs clarification: does IGZ3's Nuclio UI use `?origin` to redirect back?
-
-**`SectionTable.jsx`**: Safe to merge — the name-slicing responsibility was just moved upstream, behaviour is identical.
+**`project.utils.jsx`**: The `window.top` fallback is safe as-is in IGZ3 (not in an iframe). The path change still needs the conditional.
 
 ---
 
-### 9. Real-Time Pipelines
+### 9. Build/Deploy Infrastructure
 
-**Files:** `src/components/ModelsPage/RealTimePipelines/RealTimePipelines.jsx`, `src/utils/createRealTimePipelinesContent.js`, `src/components/Details/details.util.js`, `src/elements/DetailsInfoItem/DetailsInfoItem.jsx`, `src/components/ModelsPage/RealTimePipelines/RealTimePipelinesCounters.jsx`
-
-#### How to merge
-Accept all changes from development
----
-
-### 10. Build/Deploy Infrastructure
-
-**Files:** `nginx/nginx.conf.tmpl`, `nginx/run_nginx`, `Dockerfile`, `.env.production`
+**Files:** `nginx/nginx.conf.tmpl`, `nginx/run_nginx`, `Dockerfile`, `.env.production`, `config.json.tmpl`, `public/landing.html`, `README.md`
 
 #### `nginx/nginx.conf.tmpl` — complete rewrite
 | | IGZ3 (dev branch) | IGZ4 (feature/ig4) |
@@ -758,7 +733,7 @@ exec nginx -g 'daemon off;'
 - `CMD` simplified (DNS resolver setup moved to `run_nginx`)
 - `COPY config.json.tmpl` removed — in IGZ3 it's still needed for runtime config generation
 
-**Merge plan**: `IS_MF=false` default makes the standard build safe. Restore `COPY config.json.tmpl` for IGZ3 path (inside `IS_MF` conditional in Dockerfile). The DNS resolver trick should remain in `run_nginx` for IGZ3.
+**Merge plan**: `IS_MF=false` default makes the standard build safe. Restore `COPY config.json.tmpl` for IGZ3 path. The DNS resolver trick should remain in `run_nginx` for IGZ3.
 
 #### `.env.production`
 ```diff
@@ -766,9 +741,21 @@ exec nginx -g 'daemon off;'
 ```
 **SAFE TO MERGE**. In IGZ4 Dockerfile, the `sed` command overwrites this with `true`.
 
+#### `config.json.tmpl`
+```diff
++ "nuclioRemoteEntryUrl": "${MLRUN_NUCLIO_REMOTE_ENTRY_URL}"
+```
+Additive field. In IGZ3, `MLRUN_NUCLIO_REMOTE_ENTRY_URL` is unset so the value is an empty string — harmless because `loadRemoteConfig.js` only uses it when `nuclioRemoteEntryUrl` is non-empty.
+
+#### `public/landing.html`
+New file — the MF build's HTML entry point. When `IS_MF=true`, nginx's fallback route serves `landing.html` instead of `index.html`. The landing page loads the MF remote entry (`remoteEntry.js`) and waits for the host to call `mount()`. Has no effect on the IGZ3 build (nginx still serves `index.html`).
+
+#### `README.md`
+Documents the new `IS_MF` Docker build arg, the `MLRUN_IGZ_UI_ALLOWED_ORIGIN` env var (for CORS), and the `npm run preview:federation` command. Documentation only.
+
 ---
 
-### 11. Change Owner Pop-Up
+### 10. Change Owner Pop-Up
 
 **File:** `src/elements/ChangeOwnerPopUp/ChangeOwnerPopUp.jsx`
 
@@ -795,19 +782,15 @@ exec nginx -g 'daemon off;'
 -   params['filter[username]'] = `[$contains_istr]${memberName}`
 - }
 - const response = await projectsIguazioApi.getScrubbedUsers({ params })
-- const { data: { data: users } } = response
 - formattedUsers = users.map(user => ({
 -   name: `${user.attributes.first_name} ${user.attributes.last_name}`,
--   username: user.attributes.username,
 -   id: user.id,  // UUID
 - }))
 
 // IGZ4: search-users-metadata endpoint, flat response
 + const response = await projectsIguazioApi.searchUsersMetadata(memberName)
-+ const users = response.data.items || []
 + formattedUsers = users.map(user => ({
 +   name: `${user.firstName} ${user.lastName}`,
-+   username: user.username,
 +   id: user.username,  // username as ID
 + }))
 ```
@@ -833,19 +816,17 @@ const applyChanges = () => {
 const generateSuggestionList = async (memberName, resolve) => {
   if (import.meta.env.VITE_FEDERATION === 'true') {
     const response = await projectsIguazioApi.searchUsersMetadata(memberName)
-    const users = response.data.items || []
-    formattedUsers = users.map(user => ({ ..., id: user.username }))
+    formattedUsers = (response.data.items || []).map(user => ({ ..., id: user.username }))
   } else {
     const response = await projectsIguazioApi.getScrubbedUsers({ params: { ... } })
-    const users = response.data.data
-    formattedUsers = users.map(user => ({ ..., id: user.id }))
+    formattedUsers = response.data.data.map(user => ({ ..., id: user.id }))
   }
 }
 ```
 
 ---
 
-### 12. Project Authorization Utility
+### 11. Project Authorization Utility
 
 **Files:** `src/utils/projectAuth.util.js` (new), `src/components/Workflow/workflow.util.js`
 
@@ -856,7 +837,7 @@ const generateSuggestionList = async (memberName, resolve) => {
 // IGZ4 only: checks if the active user has write access to a project
 export const checkProjectWriteAccess = async projectName => {
   // calls GET /v1/authorization/projects/{name}/policies
-  // returns true if active user is owner, admin, or security admin
+  // returns true if active user is owner, admin, or editor
 }
 ```
 
@@ -876,13 +857,19 @@ Both `fetchMissingProjectsPermissions()` and `fetchMissingProjectPermission()` w
 IGZ4's new auth model provides a single policies endpoint that contains all permission information. The old two-endpoint chain (`getProjectOwnerVisibility` + `getProjectWorkflowsUpdateAuthorization`) is gone. The new utility centralizes this logic.
 
 #### How to merge
-`projectAuth.util.js` currently contains only IGZ4 logic. Two options:
-
-**Option A** — Add IGZ3 fallback inside `projectAuth.util.js`:
+**Option A** — Add IGZ3 fallback inside `projectAuth.util.js` (preferred — keeps `workflow.util.js` unchanged):
 ```js
 export const checkProjectWriteAccess = async projectName => {
   if (import.meta.env.VITE_FEDERATION === 'true') {
     // IGZ4: GET /v1/authorization/projects/{name}/policies
+    const activeUsername = await getActiveUsername()
+    const policiesResponse = await projectsIguazioApi.getProjectPolicies(projectName)
+    const policies = policiesResponse.data.items || []
+    return policies.some(
+      policy =>
+        WRITE_ROLES.includes(policy.spec.displayName) &&
+        policy.status?.assignedMembers?.some(member => member.id === activeUsername)
+    )
   } else {
     // IGZ3: try getProjectOwnerVisibility, fall back to getProjectWorkflowsUpdateAuthorization
     return projectsIguazioApi
@@ -896,17 +883,14 @@ export const checkProjectWriteAccess = async projectName => {
   }
 }
 ```
-This keeps `workflow.util.js` unchanged after merge.
 
 **Option B** — Branch in `workflow.util.js` directly, keeping `projectAuth.util.js` IGZ4-only.
 
-Option A is cleaner — it isolates the platform-specific logic in the auth utility.
-
 ---
 
-### 13. Module Federation Build
+### 12. Module Federation Build
 
-**Files:** `vite.config.mjs`, `config/loadDevProxyConfig.js`, `src/utils/nuclio.remotes.utils.js`, `scripts/previewLocalBuildMF.mjs`
+**Files:** `vite.config.mjs`, `config/loadDevProxyConfig.js`, `src/utils/nuclio.remotes.utils.js`, `scripts/previewLocalBuildMF.mjs`, `.gitignore`, `eslint.config.mjs`, `eslint.mlrun-globals.mjs`, `package.json`
 
 #### What changed
 
@@ -920,112 +904,56 @@ Option A is cleaner — it isolates the platform-specific logic in the auth util
        })
      : null
    ```
-2. Dev proxy config moved to `loadDevProxyConfig.js` (replaces hardcoded proxy object):
-   ```diff
-   - proxy: {
-   -   '/api': env.VITE_MLRUN_API_URL ? { target: ..., headers: { 'x-v3io-session-key': ... } } : undefined,
-   -   '/nuclio': ...,
-   -   '/iguazio': ...,
-   -   '/function-catalog': ...
-   - }
-   + proxy: { ...mlrunProxyConfig(env) }
-   ```
-3. Added `build.target: 'esnext'` (required for top-level `await` in MF entry points).
+2. Dev proxy config moved to `loadDevProxyConfig.js` (replaces hardcoded proxy object)
+3. Added `build.target: 'esnext'` (required for top-level `await` in MF entry points)
 
-**`config/loadDevProxyConfig.js`** — reads proxy configuration from a DRC (Dev Remote Config) file, allowing dynamic proxy targets without rebuilding. Falls back to env vars.
+**`config/loadDevProxyConfig.js`** — reads proxy configuration from a DRC file, allowing dynamic proxy targets without rebuilding. Falls back to env vars.
 
 **`src/utils/nuclio.remotes.utils.js`** — utilities for loading Nuclio as a Module Federation remote at runtime.
 
 #### Why
-Module Federation requires the MF Vite plugin to expose `remoteEntry.js`. The `build.target: 'esnext'` is needed because MF entry points use top-level `await`. Proxy config was externalized to support the DRC (Dev Remote Config) tooling used in IGZ4 development.
+Module Federation requires the MF Vite plugin to expose `remoteEntry.js`. The `build.target: 'esnext'` is needed because MF entry points use top-level `await`. Proxy config was externalized to support the DRC tooling used in IGZ4 development.
+
+**`.gitignore`**
+```diff
++ .__mf__temp/
++ *.tar
+```
+MF build outputs a temp directory and optionally a `.tar` archive. Both are build artifacts and should not be committed.
+
+**`eslint.config.mjs`** — four changes: ignores `.__mf__temp/`; adds `.mjs` to linted extensions; imports and spreads `viteGlobals` from `eslint.mlrun-globals.mjs` (so `VITE_FEDERATION` etc. are recognized as globals); adds `sourceType: 'module'` (required for ESM entry points like `main.jsx`).
+
+**`eslint.mlrun-globals.mjs`** — new file, exports `viteGlobals` object declaring all `VITE_*` env vars as ESLint globals (`readonly`). Prevents "undefined variable" lint errors in MF entry points.
+
+**`package.json`**
+- Added `@module-federation/runtime` and `@module-federation/vite` — the MF plugin and runtime
+- Added `dotenv-cli` — needed by the `preview:federation` script to inject env vars at preview time
+- Added `preview:federation` script — builds and serves in MF mode at `localhost:5179`
+- `docker` script updated: uses `buildx` and passes `IS_MF` build arg
 
 #### How to merge
 **SAFE TO MERGE AS-IS.** The federation plugin is only instantiated when `VITE_FEDERATION=true`. When `false`, `federationPlugin` is `null` and Vite ignores it. The proxy config now comes from `loadDevProxyConfig.js` which falls back to env vars — same behavior as before for IGZ3 dev.
 
 ---
 
-### 14. Bug Fixes
+### 13. Bug Fixes
 
-Various files with pure bug fixes and safe improvements that require no conditional logic.
-
-#### A. `isDetailsTabExists` guard — 5 components
-
-`src/elements/JobsTable/JobsTable.jsx`, `src/elements/WorkflowsTable/WorkflowsTable.jsx`, `src/components/FunctionsPageOld/FunctionsOld.jsx`, `src/components/FeatureStore/FeatureSets/FeatureSets.jsx`, `src/components/FeatureStore/FeatureVectors/FeatureVectors.jsx`
-
-All five had the same race condition: `isDetailsTabExists()` was called when a URL param was set but before the selected item was loaded, causing wrong tab redirects. Fix: added `!isEmpty(selectedXxx)` guard.
-
-```diff
-- if (params.jobId && pageData.details.menu.length > 0) {
-+ if (params.jobId && !isEmpty(selectedJob) && pageData.details.menu.length > 0) {
-    isDetailsTabExists(params.tab, pageData.details.menu, navigate, location)
-  }
-```
-
-#### B. `usePagination.hook.js` — FORCE_REFRESH support
-
-Added a `FORCE_REFRESH` URL search param that forces a content re-fetch even when the `BE_PAGE` number hasn't changed. The param is consumed and deleted after use (single-use trigger). Useful for explicit refresh actions after mutations.
-
-```js
-// Forces re-fetch regardless of bePage
-if (!bePage && !forceRefreshData.isForce) return
-if (lastRequestedPageRef.current === bePage && !forceRefreshData.isForce) return
-```
-
-#### C. `DetailsInputs.jsx` — nested inputs + refactor
-
-Input processing was refactored from an inline `useEffect` body into a `getInputsContent` useCallback. More importantly, it now handles inputs where the value is a nested object (recursive call), which previously would throw on `.startsWith()`:
-
-```diff
-+ if (inputPath && typeof inputPath === 'object') {
-+   getInputsContent(inputPath)
-+   return
-+ }
-```
-
-#### D. `DetailsPipeline.jsx` — loading state + error step fix
-
-1. Loading state now comes from `artifactsStore.pipelines.loading` instead of `functionsStore.funcLoading` — the pipeline data is fetched as an artifact, not a function.
-2. `addVisualFramesForGroups` renamed to `addVisualFramesForFunctions` (matches actual semantics).
-3. Error steps with a `base_step` now inherit the base step's function:
-   ```diff
-   + } else if (step.kind === ERROR_STEP_KIND && !step.function && step.base_step) {
-   +   stepData.function = steps[step.base_step]?.function || ''
-   + }
-   ```
-
-#### E. `generateTemplatesCategories.js` — category deduplication
-
-1. Added `categoryMap` to normalize category names (e.g., `genai` → `GenAI`).
-2. Category deduplication is now case-insensitive (previously two entries with different cases could coexist).
-
-```diff
-+ const categoryMap = { genai: 'GenAI' }
-+ categories: template.metadata?.categories?.map(cat => categoryMap[cat.toLowerCase()] || cat)
-
-// Deduplication:
-- if (!hubFunctionsCategories.includes(category)) {
-+ const isDuplicate = hubFunctionsCategories.some(
-+   existing => existing.toLowerCase() === category.toLowerCase()
-+ )
-+ if (!isDuplicate) {
-```
-
-#### F. Other safe fixes
+The following bug fixes are still present in this branch and safe to merge. Note: the majority of bug fixes from the original feature/ig4 branch (some 20+ files) are already in `development` after the rebase and are not listed here.
 
 | File | Fix |
 |------|-----|
 | `src/hooks/nuclioMode.hook.js` | Optional chaining on `window?.mlrunConfig` |
-| `src/utils/getState.js` | Added `standby`, `scaledToZero`, `initialized` states |
 | `src/api/jobs-api.js` | Stream via axios adapter instead of fetch |
 | `src/utils/getJobLogs.util.js` | `res.body` → `res.data` (pairs with jobs-api.js) |
-| `src/reducers/artifactsReducer.js` | Error message callback |
-| `src/reducers/functionReducer.js` | `return thunkAPI.rejectWithValue` |
 | `src/components/Datasets/datasets.util.jsx` | Optional chaining `artifact_limits?.max_download_size` |
+| `src/components/LLMPrompts/llmPrompts.util.jsx` | Optional chaining `artifact_limits?.max_download_size` |
+| `src/components/ProjectsPage/projects.util.jsx` | Optional chaining `window.mlrunConfig?.nuclioMode`, `project?.metadata?.name` |
 | `src/common/Download/Download.jsx` | Optional chaining |
 | `src/utils/getArtifactPreview.jsx` | Optional chaining |
-| `src/components/FunctionsPage/Functions.jsx` | `!isEmpty(selectedFunction)` guard |
-| `src/common/DatePicker/DatePicker.jsx` | `dateTo` null safety |
-| `src/common/ReactFlow/mlReactFlow.util.js` | Rename `addVisualFramesForGroups` → `addVisualFramesForFunctions`; margin 16→34 |
-| `src/utils/getNoDataMessage.js` | Added filter message, removed trailing periods |
-| `src/components/ModelsPage/RealTimePipelines/RealTimePipelinesCounters.jsx` | Tooltip wrappers on stats cards |
-| `src/components/Details/DetailsTabsContent/DetailsTabsContent.jsx` | `handleCancel` forwarded to `DetailsLLMPrompts`; `refresh` prop on `DetailsModelEndpoints` |
+| `src/elements/BreadcrumbsDropdown/breadcrumbsDropdown.scss` | z-index 7 → 100 (dropdown was hidden behind other elements in MF context) |
+
+### Spurious {#spurious}
+
+| File | Issue |
+|------|-------|
+| `src/common/ActionsMenu/ActionsMenu.jsx` | Empty 0-byte file was created — overwrites the real component. **Revert before PR**: `git checkout development -- src/common/ActionsMenu/ActionsMenu.jsx` |
