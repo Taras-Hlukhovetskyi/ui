@@ -121,7 +121,8 @@ const Functions = ({ isAllVersions = false }) => {
         hidden: !isAllVersions
       }
     }
-  }, [isAllVersions])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAllVersions, params.projectName])
 
   const detailsFormInitialValues = useMemo(() => {
     return {

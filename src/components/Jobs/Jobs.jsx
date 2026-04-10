@@ -92,7 +92,8 @@ const Jobs = () => {
         parseQueryParamsCallback: parseScheduledQueryParamsCallback
       }
     }
-  }, [params.jobName])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.jobName, params.projectName, selectedTab])
 
   const {
     abortControllerRef,

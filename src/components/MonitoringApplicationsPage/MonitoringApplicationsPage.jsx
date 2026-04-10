@@ -48,7 +48,8 @@ const MonitoringApplicationsPage = () => {
   const dispatch = useDispatch()
   const params = useParams()
   const navigate = useNavigate()
-  const filtersConfig = useMemo(() => getFiltersConfig(), [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const filtersConfig = useMemo(() => getFiltersConfig(), [params.projectName])
   const filters = useFiltersFromSearchParams(filtersConfig)
   const [, setSearchParams] = useSearchParams()
   const contentRef = useRef(null)
