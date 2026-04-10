@@ -204,7 +204,7 @@ const ActionBar = ({
       ) {
         const isFuture = filtersConfig[DATES_FILTER]?.isFuture
         const options = isFuture ? datePickerFutureOptions : datePickerPastOptions
-        
+
         filters[DATES_FILTER] = getDatePickerFilterValue(
           options,
           filters[DATES_FILTER].initialSelectedOptionId,
