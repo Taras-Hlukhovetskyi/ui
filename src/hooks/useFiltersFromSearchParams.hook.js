@@ -98,7 +98,7 @@ export const useFiltersFromSearchParams = (
   const relativeDateChange = useSelector(store => store.filtersStore.relativeDateChange)
   const [searchParams] = useSearchParams()
   const filters = useMemo(() => {
-    // triggerKey and relativeDateChange are added to dependencies to trigger date (timestamp for relative time) filter recalculation 
+    // triggerKey and relativeDateChange are added to dependencies to trigger date (timestamp for relative time) filter recalculation
     return getFiltersFromSearchParams(
       filtersConfig,
       searchParams,
