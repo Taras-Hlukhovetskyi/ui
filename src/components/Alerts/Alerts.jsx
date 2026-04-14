@@ -53,12 +53,12 @@ const Alerts = () => {
   const params = useParams()
 
   const isCrossProjects = useMemo(() => projectId === '*', [projectId])
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const alertsFiltersConfig = useMemo(() => getAlertsFiltersConfig(), [params.projectName])
+  const alertsFiltersConfig = useMemo(() => getAlertsFiltersConfig(), [])
 
   const alertsFilters = useFiltersFromSearchParams(
     alertsFiltersConfig,
-    parseAlertsQueryParamsCallback
+    parseAlertsQueryParamsCallback,
+    params.projectName
   )
 
   const {

@@ -92,16 +92,21 @@ export const getInitialFiltersByConfig = (filtersConfig = {}) => {
 
 export const useFiltersFromSearchParams = (
   filtersConfig = null,
-  paramsParsingCallback = defaultParamsParsingCallback
+  paramsParsingCallback = defaultParamsParsingCallback,
+  triggerKey = ''
 ) => {
   const relativeDateChange = useSelector(store => store.filtersStore.relativeDateChange)
   const [searchParams] = useSearchParams()
   const filters = useMemo(() => {
-    return getFiltersFromSearchParams(filtersConfig, searchParams, paramsParsingCallback)
-    // relativeDateChange is a signal-only dep: it forces re-execution so that relative date
-    // options (e.g. "Last week") are recalculated with fresh timestamps on each apply.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtersConfig, paramsParsingCallback, searchParams, relativeDateChange])
+    // triggerKey and relativeDateChange are added to dependencies to trigger date (timestamp for relative time) filter recalculation 
+    return getFiltersFromSearchParams(
+      filtersConfig,
+      searchParams,
+      paramsParsingCallback,
+      triggerKey,
+      relativeDateChange
+    )
+  }, [filtersConfig, paramsParsingCallback, searchParams, relativeDateChange, triggerKey])
 
   return filters
 }

@@ -121,8 +121,7 @@ const Functions = ({ isAllVersions = false }) => {
         hidden: !isAllVersions
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAllVersions, params.projectName])
+  }, [isAllVersions])
 
   const detailsFormInitialValues = useMemo(() => {
     return {
@@ -132,7 +131,11 @@ const Functions = ({ isAllVersions = false }) => {
     }
   }, [selectedFunction.node_selector])
 
-  const functionsFilters = useFiltersFromSearchParams(functionsFiltersConfig)
+  const functionsFilters = useFiltersFromSearchParams(
+    functionsFiltersConfig,
+    undefined,
+    params.projectName
+  )
 
   const terminateDeleteTasksPolling = useCallback(() => {
     terminatePollRef?.current?.()

@@ -198,7 +198,8 @@ const Jobs = () => {
 
   const filters = useFiltersFromSearchParams(
     initialTabData[selectedTab]?.filtersConfig,
-    initialTabData[selectedTab]?.parseQueryParamsCallback
+    initialTabData[selectedTab]?.parseQueryParamsCallback,
+    `${params.projectName}+${selectedTab}`
   )
 
   return (

@@ -121,10 +121,13 @@ const Functions = () => {
       },
       [SHOW_UNTAGGED_FILTER]: { label: 'Show untagged:', initialValue: false, isModal: true }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.projectName])
+  }, [])
 
-  const functionsFilters = useFiltersFromSearchParams(functionsFiltersConfig)
+  const functionsFilters = useFiltersFromSearchParams(
+    functionsFiltersConfig,
+    undefined,
+    params.projectName
+  )
 
   const terminateDeleteTasksPolling = useCallback(() => {
     terminatePollRef?.current?.()
