@@ -24,7 +24,6 @@ import {
 } from '../utils/getUniqueIdentifier'
 import featureStoreApi from '../api/featureStore-api'
 import { FORBIDDEN_ERROR_STATUS_CODE } from 'igz-controls/constants'
-import { PANEL_DEFAULT_ACCESS_KEY } from '../constants'
 import { REDISNOSQL } from '../components/FeatureSetsPanel/FeatureSetsPanelTargetStore/featureSetsPanelTargetStore.util'
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { hideLoading, showLoading } from './redux.util'
@@ -67,7 +66,7 @@ const initialState = {
   loading: false,
   newFeatureSet: {
     credentials: {
-      access_key: PANEL_DEFAULT_ACCESS_KEY
+      access_key: 'default' // TODO should be conditional based on env for igz3 PANEL_DEFAULT_ACCESS_KEY
     },
     metadata: {
       name: '',
