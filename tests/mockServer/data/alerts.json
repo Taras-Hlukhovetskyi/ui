@@ -102,7 +102,63 @@
           }
         }
       ],
-      "reset_time": "2024-12-17T09:52:19.580000+00:00"
+      "reset_time": "2024-12-17T09:52:19.580000+00:00",
+      "reset_policy": "auto",
+      "cooldown_period": "1d"
+    },
+    {
+      "id": 100,
+      "name": "manual-reset-alert",
+      "project": "default",
+      "severity": "high",
+      "activation_time": "2026-04-28T10:00:00.000000+00:00",
+      "entity_id": "default-mm_myApp",
+      "entity_kind": "model-monitoring-application",
+      "criteria": {
+        "count": 1,
+        "period": null
+      },
+      "event_kind": "mm-app-failed",
+      "number_of_events": 1,
+      "notifications": [
+        {
+          "kind": "slack",
+          "err": "",
+          "summary": {
+            "failed": 0,
+            "succeeded": 1
+          }
+        }
+      ],
+      "reset_time": "2026-04-28T10:00:00.000000+00:00",
+      "reset_policy": "manual"
+    },
+    {
+      "id": 101,
+      "name": "auto-reset-no-cooldown-alert",
+      "project": "default",
+      "severity": "low",
+      "activation_time": "2026-04-28T11:00:00.000000+00:00",
+      "entity_id": "default-mm_myApp",
+      "entity_kind": "model-monitoring-application",
+      "criteria": {
+        "count": 1,
+        "period": null
+      },
+      "event_kind": "mm-app-failed",
+      "number_of_events": 1,
+      "notifications": [
+        {
+          "kind": "webhook",
+          "err": "",
+          "summary": {
+            "failed": 0,
+            "succeeded": 1
+          }
+        }
+      ],
+      "reset_time": "2026-04-28T11:00:00.000000+00:00",
+      "reset_policy": "auto"
     },
     {
       "id": 9,
@@ -362,7 +418,9 @@
               }
           }
       ],
-      "reset_time": "2025-03-05T15:50:55.190000+00:00"
+      "reset_time": "2025-03-05T15:50:55.190000+00:00",
+      "reset_policy": "auto",
+      "cooldown_period": "5m"
     },
     {
       "id": 18,
@@ -388,7 +446,9 @@
               }
           }
       ],
-      "reset_time": "2025-03-05T15:50:54.207000+00:00"
+      "reset_time": "2025-03-05T15:50:54.207000+00:00",
+      "reset_policy": "auto",
+      "cooldown_period": "1h"
     },
     {
       "id": 14,
@@ -414,7 +474,9 @@
               }
           }
       ],
-      "reset_time": "2025-03-05T15:48:57.907000+00:00"
+      "reset_time": "2025-03-05T15:48:57.907000+00:00",
+      "reset_policy": "auto",
+      "cooldown_period": "2h"
     },
     {
       "id": 13,
@@ -440,7 +502,8 @@
               }
           }
       ],
-      "reset_time": "2025-03-05T15:48:56.440000+00:00"
+      "reset_time": "2025-03-05T15:48:56.440000+00:00",
+      "reset_policy": "manual"
     },
     {
       "id": 3395,
@@ -474,7 +537,9 @@
               }
           }
       ],
-      "reset_time": "2025-09-04T12:46:17.816000+00:00"
+      "reset_time": "2025-09-04T12:46:17.816000+00:00",
+      "reset_policy": "auto",
+      "cooldown_period": "30m"
     }
   ],
   "pagination": {
