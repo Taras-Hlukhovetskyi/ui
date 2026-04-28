@@ -49,7 +49,7 @@ const CodePreview = ({ preview, popupButton = null }) => {
 
   return (
     <div className="code-preview">
-      {(artifact.kind) && (
+      {artifact.kind && (
         <div className="code-preview__header">
           <div className="code-preview__header-title">
             <div className="code-preview__header-title-container">
