@@ -281,7 +281,12 @@ export const checkForSelectedAlert = ({
             { replace: true }
           )
 
-          showErrorNotification(dispatch, activationResult.reason, '', 'Failed to retrieve alert data')
+          showErrorNotification(
+            dispatch,
+            activationResult.reason,
+            '',
+            'Failed to retrieve alert data'
+          )
 
           return
         }
