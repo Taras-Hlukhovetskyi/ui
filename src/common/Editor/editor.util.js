@@ -17,21 +17,47 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { mainHttpClient } from '../httpClient'
-
-const alertsApi = {
-  getAlerts: (project, newConfig) => {
-    return mainHttpClient.get(`/projects/${project}/alert-activations`, newConfig)
-  },
-  getAlert: (project, alertName, newConfig) => {
-    return mainHttpClient.get(`/projects/${project}/alerts/${alertName}/activations`, newConfig)
-  },
-  getAlertById: (project, id) => {
-    return mainHttpClient.get(`/projects/${project}/alert-activations/${id}`)
-  },
-  getAlertConfig: (project, alertName) => {
-    return mainHttpClient.get(`/projects/${project}/alerts/${alertName}`)
-  }
+export const commonLanguages = {
+  cpp: 'cpp',
+  c: 'cpp',
+  h: 'cpp',
+  cc: 'cpp',
+  cxx: 'cpp',
+  hpp: 'cpp',
+  hh: 'cpp',
+  hxx: 'cpp',
+  csharp: 'csharp',
+  cs: 'csharp',
+  go: 'go',
+  java: 'java',
+  javascript: 'javascript',
+  js: 'javascript',
+  jsx: 'javascript',
+  python: 'python',
+  py: 'python',
+  r: 'r',
+  ruby: 'ruby',
+  rb: 'ruby',
+  scala: 'scala',
+  shell: 'shell',
+  sh: 'shell',
+  bash: 'shell',
+  sql: 'sql',
+  mysql: 'sql',
+  pgsql: 'sql',
+  typescript: 'typescript',
+  ts: 'typescript',
+  tsx: 'typescript'
 }
 
-export default alertsApi
+export const getEditorLanguage = (fileFormat, descriptiveLanguage) => {
+  if (commonLanguages[fileFormat]) {
+    return commonLanguages[fileFormat]
+  }
+
+  if (descriptiveLanguage) {
+    return descriptiveLanguage.split(':')[0]
+  }
+
+  return 'plaintext'
+}
