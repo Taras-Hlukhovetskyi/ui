@@ -26,45 +26,45 @@ const ApplicationCounters = () => {
 
   return (
     <div className="flex gap-5 mt-6">
-      <StatsCard className="w-[164px] flex-none bg-white border rounded-lg shadow-[0px_3px_10px_rgba(0,0,0,0.07)]">
+      <StatsCard className="w-[164px] flex-none bg-background border rounded-lg shadow-card">
         <div className="p-5 flex flex-col h-full">
-          <span className="text-[13px] font-medium text-slate-500 mb-1">Applications</span>
-          <span className="text-[32px] font-semibold text-slate-900 leading-tight">
+          <span className="text-[13px] font-medium text-igz-secondary mb-1">Applications</span>
+          <span className="text-[32px] font-bold text-igz-primary leading-tight">
             {loading ? '...' : summary.total}
           </span>
         </div>
       </StatsCard>
 
-      <StatsCard className="w-[420px] flex-none bg-white border rounded-lg shadow-[0px_3px_10px_rgba(0,0,0,0.07)]">
+      <StatsCard className="w-[420px] flex-none bg-background border rounded-lg shadow-card">
         <div className="p-5 flex flex-col h-full">
-          <span className="text-[13px] font-medium text-slate-500 mb-3">Applications status</span>
+          <span className="text-[13px] font-medium text-igz-secondary mb-3">Applications status</span>
           <div className="flex items-center gap-8 flex-1">
             <div className="flex items-center gap-2">
-              <span className="text-[28px] font-semibold text-slate-900 leading-none">
+              <span className="text-[28px] font-bold text-igz-primary leading-none">
                 {loading ? '...' : summary.running}
               </span>
               <div className="flex items-center gap-1.5 pt-1">
-                <span className="text-sm text-slate-500">Running</span>
+                <span className="text-sm text-igz-secondary">Running</span>
                 <div className="w-2 h-2 rounded-full bg-status-running" />
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-[28px] font-semibold text-slate-900 leading-none">
+              <span className="text-[28px] font-bold text-igz-primary leading-none">
                 {loading ? '...' : summary.failed}
               </span>
               <div className="flex items-center gap-1.5 pt-1">
-                <span className="text-sm text-slate-500">Failed</span>
+                <span className="text-sm text-igz-secondary">Failed</span>
                 <div className="w-2 h-2 rounded-full bg-status-failed" />
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-[28px] font-semibold text-slate-900 leading-none">
+              <span className="text-[28px] font-bold text-igz-primary leading-none">
                 {loading ? '...' : summary.building || 0}
               </span>
               <div className="flex items-center gap-1.5 pt-1">
-                <span className="text-sm text-slate-500">Deploying</span>
+                <span className="text-sm text-igz-secondary">Deploying</span>
                 <div className="w-2 h-2 rounded-full bg-status-deploying" />
               </div>
             </div>

@@ -20,10 +20,4 @@ such restriction.
 
 export const COPY_SUCCESS_DURATION_MS = 3_000
 export const RESIZE_THROTTLE_MS = 500
-export const TOOLTIP_MAX_HEIGHT_PX = 260
 export const COPY_BTN_WIDTH_PX = 24
-
-export const LINK_COLOR = {
-  default: '#2563eb',
-  dark: 'rgba(255,255,255,0.9)'
-}

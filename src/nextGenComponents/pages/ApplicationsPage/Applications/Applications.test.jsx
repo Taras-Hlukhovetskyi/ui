@@ -25,13 +25,28 @@ import Applications from './Applications'
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
+const mockNavigate = vi.fn()
+const mockDispatch = vi.fn(() => ({ unwrap: () => Promise.resolve(null) }))
+const mockSetSearchParams = vi.fn()
+
 vi.mock('react-router-dom', () => ({
   Link: ({ children, to }) => <a href={to}>{children}</a>,
   useOutletContext: () => ({
     applications: SAMPLE_APPLICATIONS,
-    paginationConfigRef: { current: {} }
+    paginatedApplications: SAMPLE_APPLICATIONS,
+    paginationConfigRef: { current: {} },
+    searchParams: new URLSearchParams(),
+    setSearchParams: mockSetSearchParams,
+    setIsDetailsReady: vi.fn()
   }),
-  useParams: () => ({ projectName: 'my-project' })
+  useParams: () => ({ projectName: 'my-project' }),
+  useNavigate: () => mockNavigate,
+  useSearchParams: () => [new URLSearchParams(), mockSetSearchParams]
+}))
+
+vi.mock('react-redux', () => ({
+  useDispatch: () => mockDispatch,
+  useSelector: vi.fn(selector => selector({ applicationsStore: { applications: SAMPLE_APPLICATIONS, loading: false } }))
 }))
 
 vi.mock('igz-controls/nextGenComponents', () => ({
@@ -63,7 +78,7 @@ vi.mock('../../../../common/Pagination/Pagination', () => ({
   default: () => <div data-testid="pagination" />
 }))
 
-vi.mock('./UrlCell', () => ({
+vi.mock('../../../shared/UrlCell', () => ({
   default: ({ items }) => (
     <div data-testid="url-cell">{items.map(i => i.url).join(', ')}</div>
   ),
@@ -73,11 +88,34 @@ vi.mock('./UrlCell', () => ({
   ]
 }))
 
+vi.mock('../ApplicationDetails/ApplicationDetails', () => ({
+  default: ({ application, onClose }) => (
+    <div data-testid="application-details">
+      <span data-testid="details-app-name">{application.name}</span>
+      <button data-testid="details-close" onClick={onClose}>Close</button>
+    </div>
+  )
+}))
+
+vi.mock('../../../../reducers/appReducer', () => ({
+  toggleYaml: vi.fn(data => ({ type: 'toggleYaml', payload: data }))
+}))
+
+vi.mock('../../../../reducers/functionReducer', () => ({
+  fetchFunction: vi.fn(() => ({ type: 'fetchFunction' }))
+}))
+
+vi.mock('../applicationsPage.util', () => ({
+  checkForSelectedApplication: vi.fn()
+}))
+
 // ── Test data ─────────────────────────────────────────────────────────────────
 
 const SAMPLE_APPLICATIONS = [
   {
     name: 'app-alpha',
+    hash: 'abc123',
+    tag: 'latest',
     state: { value: 'running', label: 'Running', className: 'state-running-nuclioFunctions' },
     external_invocation_urls: ['host-a.example.com:8080'],
     internal_invocation_urls: [],
@@ -86,6 +124,8 @@ const SAMPLE_APPLICATIONS = [
   },
   {
     name: 'app-beta',
+    hash: 'def456',
+    tag: '',
     state: { value: 'failed', label: 'Error', className: 'state-failed-nuclioFunctions' },
     external_invocation_urls: [],
     internal_invocation_urls: [],
@@ -137,10 +177,22 @@ describe('Applications', () => {
       expect(screen.getByText('app-beta')).toBeInTheDocument()
     })
 
-    it('links to the application detail page', () => {
+    it('links to the application detail page with tag and hash identifier', () => {
       renderApplications()
       const link = screen.getByText('app-alpha').closest('a')
-      expect(link).toHaveAttribute('href', '/projects/my-project/applications/app-alpha/overview')
+      expect(link).toHaveAttribute(
+        'href',
+        '/projects/my-project/applications/app-alpha/:latest@abc123/overview'
+      )
+    })
+
+    it('links with hash-only identifier when tag is empty', () => {
+      renderApplications()
+      const link = screen.getByText('app-beta').closest('a')
+      expect(link).toHaveAttribute(
+        'href',
+        '/projects/my-project/applications/app-beta/@def456/overview'
+      )
     })
 
     it('renders a status dot for each row', () => {

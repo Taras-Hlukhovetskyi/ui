@@ -30,6 +30,9 @@ module.exports = {
   },
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Roboto', 'sans-serif']
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
@@ -50,7 +53,8 @@ module.exports = {
           secondary: 'var(--igz-secondary, #7F7989)',
           gray: 'var(--igz-gray, #C4C2C8)',
           'gray-light': 'var(--igz-gray-light, #E9E8EB)',
-          'hover-bg': 'var(--igz-hover-bg, #483F561F)'
+          'hover-bg': 'var(--igz-hover-bg, #483F561F)',
+          link: 'var(--igz-link, #2563eb)'
         },
         status: {
           running: 'var(--igz-status-running)',
@@ -60,7 +64,7 @@ module.exports = {
           error: 'var(--igz-status-error)',
           completed: 'var(--igz-status-completed)'
         },
-        'border-secondary': '#ccc',
+        'border-secondary': 'var(--igz-border-secondary, #ccc)',
         // ── shadcn/ui semantic tokens ─────────────────────────────────────────
         card: {
           DEFAULT: 'hsl(var(--card))',
@@ -122,7 +126,8 @@ module.exports = {
       },
       boxShadow: {
         dropdown: '0 0 30px 0 rgba(0, 0, 0, 0.15)',
-        'stat-card': '0 8px 30px 0 rgba(127, 121, 137, 0.06)'
+        'stat-card': '0 8px 30px 0 rgba(127, 121, 137, 0.06)',
+        card: '0px 3px 10px rgba(0, 0, 0, 0.07)'
       }
     }
   },

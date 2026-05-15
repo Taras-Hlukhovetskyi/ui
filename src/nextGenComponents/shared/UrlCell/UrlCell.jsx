@@ -26,9 +26,7 @@ import { URL_ITEM_VARIANT } from '../UrlItem/urlItem.constants'
 import {
   COPY_BTN_WIDTH_PX,
   COPY_SUCCESS_DURATION_MS,
-  LINK_COLOR,
-  RESIZE_THROTTLE_MS,
-  TOOLTIP_MAX_HEIGHT_PX
+  RESIZE_THROTTLE_MS
 } from './urlCell.constants'
 import { calculateVisibleCount, measureTextWidth } from './urlCell.utils'
 
@@ -94,7 +92,7 @@ const UrlCell = ({ items = [] }) => {
 
   if (!items.length) {
     return (
-      <span className="text-slate-400 italic text-[13px]" data-testid="url-cell-empty">
+      <span className="text-igz-gray italic text-[13px]" data-testid="url-cell-empty">
         N/A
       </span>
     )
@@ -112,7 +110,7 @@ const UrlCell = ({ items = [] }) => {
       {visibleItems.map(({ url, isExternal }, index) => (
         <React.Fragment key={url}>
           {index > 0 && (
-            <span className="text-[13px] text-slate-500 shrink-0 mr-2 ml-1">,</span>
+            <span className="text-[13px] text-igz-gray shrink-0 mr-2 ml-1">,</span>
           )}
           <UrlItem
             url={url}
@@ -124,13 +122,12 @@ const UrlCell = ({ items = [] }) => {
       ))}
       {overflowItems.length > 0 && (
         <>
-          <span className="text-[13px] text-slate-500 shrink-0 mr-2 ml-1">,</span>
+          <span className="text-[13px] text-igz-gray shrink-0 mr-2 ml-1">,</span>
 
           <Tooltip delayDuration={100}>
             <TooltipTrigger asChild>
               <span
-                className="text-[13px] shrink-0 cursor-pointer select-none"
-                style={{ color: LINK_COLOR.default }}
+                className="text-[13px] text-igz-link shrink-0 cursor-pointer select-none"
                 data-testid="overflow-badge"
               >
                 +{overflowItems.length}
@@ -143,8 +140,7 @@ const UrlCell = ({ items = [] }) => {
               className="p-2 max-w-sm"
             >
               <div
-                className="flex flex-col gap-1.5 overflow-y-auto"
-                style={{ maxHeight: TOOLTIP_MAX_HEIGHT_PX }}
+                className="flex flex-col gap-1.5 overflow-y-auto max-h-[260px]"
                 data-testid="tooltip-url-list"
               >
                 {overflowItems.map(({ url, isExternal }) => (

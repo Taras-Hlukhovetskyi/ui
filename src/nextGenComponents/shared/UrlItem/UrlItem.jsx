@@ -31,7 +31,7 @@ const UrlItem = ({ url, isExternal, isCopied, onCopy, variant = URL_ITEM_VARIANT
 
   return (
     <div
-      className="flex items-center gap-1 min-w-0"
+      className="flex items-center gap-1 min-w-0 leading-5"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       data-testid="url-item"
@@ -40,8 +40,8 @@ const UrlItem = ({ url, isExternal, isCopied, onCopy, variant = URL_ITEM_VARIANT
         href={isExternal ? toHref(url) : url}
         {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         className={classnames(
-          'truncate text-[13px] hover:underline',
-          isDark ? '!text-white/90' : '!text-blue-600'
+          'truncate text-[13px] leading-5 hover:underline',
+          isDark ? '!text-white/90' : '!text-igz-link'
         )}
         data-testid="url-link"
       >
@@ -60,7 +60,7 @@ const UrlItem = ({ url, isExternal, isCopied, onCopy, variant = URL_ITEM_VARIANT
                   'text-white/80 hover:text-white'
                 )
               : classnames(
-                  'text-blue-600 hover:text-blue-700',
+                  'text-igz-link hover:opacity-80',
                   isHovered ? 'inline-flex' : 'hidden'
                 )
           )}

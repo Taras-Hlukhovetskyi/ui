@@ -157,7 +157,7 @@ describe('UrlItem', () => {
       expect(screen.getByTestId('copy-button')).toHaveClass('inline-flex')
     })
 
-    it('hides the copy button (hidden) when the item is not hovered — default variant', () => {
+    it('hides the copy button when the item is not hovered — default variant', () => {
       renderUrlItem({ isExternal: true, variant: URL_ITEM_VARIANT.DEFAULT })
       expect(screen.getByTestId('copy-button')).toHaveClass('hidden')
     })

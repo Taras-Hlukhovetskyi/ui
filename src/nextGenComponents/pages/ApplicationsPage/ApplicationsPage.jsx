@@ -41,6 +41,7 @@ const ApplicationsPage = () => {
   const dispatch = useDispatch()
   const { applications, loading } = useSelector(store => store.applicationsStore)
   const paginationConfigRef = useRef({})
+  const [isDetailsReady, setIsDetailsReady] = useState(false)
 
   const urlFilters = useFiltersFromSearchParams(APPLICATIONS_FILTERS_CONFIG)
   const [filters, setFilters] = useState(urlFilters)
@@ -74,7 +75,12 @@ const ApplicationsPage = () => {
     [applications, filters]
   )
 
-  const [handlePaginatedRefresh, paginatedApplications] = usePagination({
+  const [
+    handlePaginatedRefresh,
+    paginatedApplications,
+    searchParams,
+    setSearchParams
+  ] = usePagination({
     content: filteredApplications,
     refreshContent: handleRefresh,
     filters,
@@ -99,74 +105,89 @@ const ApplicationsPage = () => {
   }, [])
 
   return (
-    <div className="tw-scope h-screen overflow-hidden bg-[#fff] flex flex-col w-full">
+    <div className="mlrun-tw-scope h-screen overflow-hidden bg-background flex flex-col w-full">
       <TooltipProvider>
         <div className="flex flex-col h-full">
           <div className="px-6 py-4 flex items-center justify-between shrink-0">
             <Breadcrumbs />
           </div>
 
-          <div className="px-6 shrink-0">
-            <ActionBar
-              filtersConfig={APPLICATIONS_FILTERS_CONFIG}
-              filters={filters}
-              setFilters={setFilters}
-              onRefresh={handlePaginatedRefresh}
-            >
-              {({ filters: activeFilters, setFilterValue, applyFilter, applyMultipleFilters }) => (
-                <>
-                  <div className="relative w-[280px]">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9ca3af] pointer-events-none z-10" />
-                    <Input
-                      placeholder="Search by name..."
-                      className="pl-9 h-10"
-                      value={activeFilters.name}
-                      onChange={e => setFilterValue('name', e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') applyFilter('name', e.target.value)
-                      }}
-                    />
-                  </div>
+          {!isDetailsReady && (
+            <>
+              <div className="px-6 shrink-0 [&_[data-testid='entity-table-refresh-button']_svg]:!size-5 [&_[data-testid='filter-popover-button']_svg]:!size-5">
+                <ActionBar
+                  filtersConfig={APPLICATIONS_FILTERS_CONFIG}
+                  filters={filters}
+                  setFilters={setFilters}
+                  onRefresh={handlePaginatedRefresh}
+                >
+                  {({ filters: activeFilters, setFilterValue, applyFilter, applyMultipleFilters }) => (
+                    <>
+                      <div className="relative w-[280px]">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-igz-gray pointer-events-none z-10" />
+                        <Input
+                          placeholder="Search by name..."
+                          className="pl-9 h-10"
+                          value={activeFilters.name}
+                          onChange={e => setFilterValue('name', e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') applyFilter('name', e.target.value)
+                          }}
+                        />
+                      </div>
 
-                  <TimeFilterDropdown
-                    value={activeFilters.time}
-                    options={TIME_FILTER_OPTIONS}
-                    onChange={value => applyFilter('time', value)}
-                    onCustomRange={range =>
-                      applyMultipleFilters({
-                        time: 'custom',
-                        customSince: range.since,
-                        customUntil: range.until
-                      })
-                    }
-                    initialCustomRange={
-                      activeFilters.time === 'custom' && activeFilters.customSince
-                        ? { since: activeFilters.customSince, until: activeFilters.customUntil }
-                        : undefined
-                    }
-                  />
+                      <TimeFilterDropdown
+                        value={activeFilters.time}
+                        options={TIME_FILTER_OPTIONS}
+                        onChange={value => applyFilter('time', value)}
+                        onCustomRange={range =>
+                          applyMultipleFilters({
+                            time: 'custom',
+                            customSince: range.since,
+                            customUntil: range.until
+                          })
+                        }
+                        initialCustomRange={
+                          activeFilters.time === 'custom' && activeFilters.customSince
+                            ? { since: activeFilters.customSince, until: activeFilters.customUntil }
+                            : undefined
+                        }
+                      />
 
-                  <FilterPopover
-                    schema={filterPopoverSchema}
-                    title="Filter by"
-                    onApply={draft => handlePopoverApply(draft, applyMultipleFilters)}
-                    onClear={() => handlePopoverClear(applyMultipleFilters)}
-                  />
-                </>
-              )}
-            </ActionBar>
-          </div>
+                      <FilterPopover
+                        schema={filterPopoverSchema}
+                        title="Filter by"
+                        onApply={draft => handlePopoverApply(draft, applyMultipleFilters)}
+                        onClear={() => handlePopoverClear(applyMultipleFilters)}
+                      />
+                    </>
+                  )}
+                </ActionBar>
+              </div>
 
-          <div className="flex flex-col flex-1 overflow-hidden px-6 pb-6 pt-0">
-            <ApplicationCounters />
-            <div className="flex flex-col flex-1 overflow-hidden mt-4 p-[20px] text-[#7f7989] bg-white border rounded-[8px] shadow-[0px_3px_10px_rgba(0,0,0,0.07)]">
-              {loading ? (
+            </>
+          )}
+
+          <div className={isDetailsReady
+            ? 'flex flex-col flex-1 overflow-hidden'
+            : 'flex flex-col flex-1 overflow-hidden px-6 pb-6 pt-0'
+          }>
+            {!isDetailsReady && <ApplicationCounters />}
+            <div className={isDetailsReady
+              ? 'flex flex-col flex-1 overflow-hidden'
+              : 'flex flex-col flex-1 overflow-hidden mt-4 p-[20px] text-igz-secondary bg-background border rounded-lg shadow-card'
+            }>
+              {loading && !isDetailsReady ? (
                 <Loader />
               ) : (
                 <Outlet
                   context={{
-                    applications: paginatedApplications,
-                    paginationConfigRef
+                    applications: filteredApplications,
+                    paginatedApplications,
+                    paginationConfigRef,
+                    searchParams,
+                    setSearchParams,
+                    setIsDetailsReady
                   }}
                 />
               )}

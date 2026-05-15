@@ -106,7 +106,6 @@ describe('applicationsPage.util', () => {
       expect(optionValues).toContain(APPLICATION_STATUS.RUNNING)
       expect(optionValues).toContain(APPLICATION_STATUS.BUILDING)
       expect(optionValues).toContain(APPLICATION_STATUS.FAILED)
-      expect(optionValues).toContain(APPLICATION_STATUS.ERROR)
     })
 
     it('each option has value, label and color', () => {
@@ -134,11 +133,6 @@ describe('applicationsPage.util', () => {
     it('uses CSS variable for failed color', () => {
       const opt = APPLICATION_STATUS_OPTIONS.find(o => o.value === APPLICATION_STATUS.FAILED)
       expect(opt.color).toBe('var(--igz-status-failed)')
-    })
-
-    it('uses CSS variable for error color', () => {
-      const opt = APPLICATION_STATUS_OPTIONS.find(o => o.value === APPLICATION_STATUS.ERROR)
-      expect(opt.color).toBe('var(--igz-status-error)')
     })
   })
 

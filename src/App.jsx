@@ -382,7 +382,7 @@ const App = () => {
             element={<ApplicationsPage />}
           >
             <Route path="" element={<ApplicationsComponent />} />
-            <Route path=":name/:tab" element={<ApplicationsComponent />} />
+            <Route path=":name/:id/:tab" element={<ApplicationsComponent />} />
           </Route>
           {[
             'projects/:projectName/documents',

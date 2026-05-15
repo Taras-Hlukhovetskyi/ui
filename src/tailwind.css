@@ -4,7 +4,6 @@
 
 @layer base {
   :root {
-    /* ── igz design-system color variables ────────────────────────────────── */
     --igz-light-purple: #869cff;
     --igz-purple: #5f52cc;
     --igz-dark-purple: #5f52cc;
@@ -15,25 +14,21 @@
     --igz-gray: #c4c2c8;
     --igz-gray-light: #e9e8eb;
     --igz-hover-bg: #483f561f;
-    /* Status colours — mirror igz-controls SCSS palette used in main.scss */
+    --igz-link: #2563eb;
+    --igz-border-secondary: #ccc;
     --igz-status-running: #50b1e7;
-    /* pictonBlue  — state-running  */
     --igz-status-ready: #0fddaf;
-    /* brightTurquoise — state-ready */
     --igz-status-deploying: #ffd077;
-    /* grandis     — state-building (nuclio style) */
     --igz-status-failed: #eb5757;
-    /* burntSienna — state-failed   */
     --igz-status-error: #f98b0a;
-    /* sorbus      — state-error    */
     --igz-status-completed: #0fddaf;
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --foreground: 250 15% 33%;
     --primary-color: 250, 15%, 33%;
     --card: 0 0% 100%;
     --card-foreground: 250 15% 33%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
+    --popover-foreground: 250 15% 33%;
     --primary: 229 100% 76%;
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 100%;
@@ -63,63 +58,50 @@
     --sidebar-active-accent-foreground: 0 0% 100%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-    /* tooltip */
     --tooltip: 250 15% 20%;
     --tooltip-foreground: 0 0% 100%;
-    /* dropdown */
     --dropdown-border: 260, 7%, 88%, 1;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
+  .mlrun-tw-scope {
+    font-family: Roboto, sans-serif;
+    font-size: 15px;
+    font-weight: normal;
+    font-style: normal;
+    line-height: 18px;
+    color: var(--igz-primary);
   }
 
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
-@layer base {
-  .tw-scope *,
-  .tw-scope ::before,
-  .tw-scope ::after {
+  .mlrun-tw-scope *,
+  .mlrun-tw-scope ::before,
+  .mlrun-tw-scope ::after {
     box-sizing: border-box;
     border-width: 0;
     border-style: solid;
     border-color: hsl(var(--border));
   }
 
-  .tw-scope h1,
-  .tw-scope h2,
-  .tw-scope h3,
-  .tw-scope h4,
-  .tw-scope h5,
-  .tw-scope h6 {
-    font-size: inherit;
-    font-weight: inherit;
-  }
-
-  .tw-scope a {
+  .mlrun-tw-scope a {
     color: inherit;
     text-decoration: inherit;
   }
 
-  .tw-scope img,
-  .tw-scope svg,
-  .tw-scope video {
+  .mlrun-tw-scope img,
+  .mlrun-tw-scope svg,
+  .mlrun-tw-scope video {
     display: block;
   }
 
-  .tw-scope img,
-  .tw-scope video {
+  .mlrun-tw-scope img,
+  .mlrun-tw-scope video {
     max-width: 100%;
     height: auto;
   }
 
-  .tw-scope ul,
-  .tw-scope ol {
+  .mlrun-tw-scope ul,
+  .mlrun-tw-scope ol {
     list-style: none;
     margin: 0;
     padding: 0;

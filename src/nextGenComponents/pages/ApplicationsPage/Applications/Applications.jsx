@@ -17,19 +17,156 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { DataTable, Tooltip, TooltipContent, TooltipTrigger } from 'igz-controls/nextGenComponents'
-import { Link, useOutletContext, useParams } from 'react-router-dom'
-import { format } from 'date-fns'
-import { HelpCircle } from 'lucide-react'
+import { Link, useNavigate, useOutletContext, useParams } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { isEmpty } from 'lodash'
+import { formatDatetime } from 'igz-controls/utils/datetime.util'
+import { HelpCircle, FileCode2 } from 'lucide-react'
 
+import { Loader } from 'igz-controls/components'
+import ApplicationDetails from '../ApplicationDetails/ApplicationDetails'
 import Pagination from '../../../../common/Pagination/Pagination'
 import UrlCell, { buildUrlItems } from '../../../shared/UrlCell'
 import { APPLICATIONS_PAGE_PATH } from '../../../../constants'
+import { toggleYaml } from '../../../../reducers/appReducer'
+import { fetchFunction } from '../../../../reducers/functionReducer'
+import { checkForSelectedApplication } from '../applicationsPage.util'
+import { DEFAULT_APPLICATION_DETAILS_TAB } from '../ApplicationDetails/applicationDetails.constants'
 
 const Applications = () => {
-  const { applications, paginationConfigRef } = useOutletContext()
+  const { applications, paginatedApplications, paginationConfigRef, searchParams, setSearchParams, setIsDetailsReady } =
+    useOutletContext()
   const params = useParams()
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const lastCheckedApplicationIdRef = useRef(null)
+  const [selectedApplication, setSelectedApplication] = useState({})
+
+  const isDetailsOpen = !isEmpty(selectedApplication)
+  const isLoadingDetails = Boolean(params.name && params.id && !isDetailsOpen)
+
+  const handleCloseDetails = useCallback(() => {
+    setSelectedApplication({})
+    navigate(
+      `/projects/${params.projectName}/${APPLICATIONS_PAGE_PATH}${window.location.search}`,
+      { replace: true }
+    )
+  }, [navigate, params.projectName])
+
+  const handleTabChange = useCallback(
+    tabId => {
+      if (params.name && params.id) {
+        navigate(
+          `/projects/${params.projectName}/${APPLICATIONS_PAGE_PATH}/${params.name}/${params.id}/${tabId}${window.location.search}`,
+          { replace: true }
+        )
+      }
+    },
+    [navigate, params.projectName, params.name, params.id]
+  )
+
+  const handleRefreshDetails = useCallback(() => {
+    lastCheckedApplicationIdRef.current = null
+    checkForSelectedApplication({
+      applicationName: params.name,
+      applicationId: params.id,
+      applications,
+      paginatedApplications,
+      paginationConfigRef,
+      searchParams,
+      setSearchParams,
+      navigate,
+      projectName: params.projectName,
+      setSelectedApplication,
+      dispatch,
+      lastCheckedApplicationIdRef
+    })
+  }, [
+    applications,
+    dispatch,
+    navigate,
+    paginatedApplications,
+    paginationConfigRef,
+    params.id,
+    params.name,
+    params.projectName,
+    searchParams,
+    setSearchParams
+  ])
+
+  const handleViewYaml = useCallback(
+    application => {
+      if (application.ui?.originalContent) {
+        dispatch(toggleYaml(application.ui.originalContent))
+      } else {
+        dispatch(
+          fetchFunction({
+            project: params.projectName,
+            name: application.name,
+            hash: application.hash,
+            tag: application.tag
+          })
+        )
+          .unwrap()
+          .then(func => {
+            if (func) {
+              dispatch(toggleYaml(func))
+            }
+          })
+      }
+    },
+    [dispatch, params.projectName]
+  )
+
+  const rowActions = useCallback(
+    application => [
+      {
+        label: 'View YAML',
+        icon: FileCode2,
+        onClick: () => handleViewYaml(application)
+      }
+    ],
+    [handleViewYaml]
+  )
+
+  useEffect(() => {
+    checkForSelectedApplication({
+      applicationName: params.name,
+      applicationId: params.id,
+      applications,
+      paginatedApplications,
+      paginationConfigRef,
+      searchParams,
+      setSearchParams,
+      navigate,
+      projectName: params.projectName,
+      setSelectedApplication,
+      dispatch,
+      lastCheckedApplicationIdRef
+    })
+  }, [
+    applications,
+    dispatch,
+    navigate,
+    paginatedApplications,
+    paginationConfigRef,
+    params.id,
+    params.name,
+    params.projectName,
+    searchParams,
+    setSearchParams
+  ])
+
+  useEffect(() => {
+    if (isEmpty(selectedApplication)) {
+      lastCheckedApplicationIdRef.current = null
+      setIsDetailsReady(false)
+    } else {
+      setIsDetailsReady(true)
+    }
+  }, [selectedApplication, setIsDetailsReady])
 
   const columns = useMemo(
     () => [
@@ -40,12 +177,15 @@ const Applications = () => {
         cell: ({ row }) => {
           const state = row.original.state ?? {}
           const stateLabel = state.label ?? state.value ?? 'Unknown'
+          const tag = row.original.tag || ''
+          const hash = row.original.hash || ''
+          const identifier = tag ? `:${tag}@${hash}` : `@${hash}`
 
           return (
             <div className="flex items-center gap-2">
               <Link
-                to={`/projects/${params.projectName}/applications/${row.original.name}/overview`}
-                className="text-slate-900 font-medium hover:text-blue-600 transition-colors"
+                to={`/projects/${params.projectName}/${APPLICATIONS_PAGE_PATH}/${row.original.name}/${identifier}/${DEFAULT_APPLICATION_DETAILS_TAB}`}
+                className="text-igz-primary font-medium hover:underline"
               >
                 {row.original.name}
               </Link>
@@ -56,9 +196,7 @@ const Applications = () => {
                     data-testid="status-dot"
                   />
                 </TooltipTrigger>
-                <TooltipContent side="top">
-                  {stateLabel}
-                </TooltipContent>
+                <TooltipContent side="top">{stateLabel}</TooltipContent>
               </Tooltip>
             </div>
           )
@@ -84,24 +222,18 @@ const Applications = () => {
         header: 'Endpoints',
         size: 10,
         cell: ({ row }) => (
-          <Link to="#" className="text-blue-600 font-medium hover:underline text-[13px]">
+          <span className="text-igz-light-purple font-medium text-[13px]">
             {row.original.external_invocation_urls?.length ?? 0}
-          </Link>
+          </span>
         )
       },
       {
         accessorKey: 'updated',
         size: 17,
-        header: () => (
-          <div className="flex items-center gap-1">
-            <span>Updated</span>
-          </div>
-        ),
+        header: 'Updated',
         cell: ({ row }) => (
-          <span className="text-slate-600 text-[13px]">
-            {row.original.updated
-              ? format(row.original.updated, 'MMM d, yyyy, HH:mm:ss aa')
-              : 'N/A'}
+          <span className="text-igz-secondary text-[13px]">
+            {formatDatetime(row.original.updated, 'N/A')}
           </span>
         )
       },
@@ -110,7 +242,7 @@ const Applications = () => {
         header: 'Owner',
         size: 12,
         cell: ({ row }) => (
-          <span className="text-slate-700 text-[13px]">
+          <span className="text-igz-primary text-[13px]">
             {row.original.labels?.owner || 'N/A'}
           </span>
         )
@@ -119,14 +251,30 @@ const Applications = () => {
     [params.projectName]
   )
 
+  if (isDetailsOpen) {
+    return (
+      <ApplicationDetails
+        application={selectedApplication}
+        activeTab={params.tab ?? DEFAULT_APPLICATION_DETAILS_TAB}
+        onTabChange={handleTabChange}
+        onClose={handleCloseDetails}
+        onRefresh={handleRefreshDetails}
+      />
+    )
+  }
+
+  if (isLoadingDetails) {
+    return <Loader />
+  }
+
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-white">
+    <div className="flex flex-col h-full overflow-hidden bg-background relative">
       <div className="flex items-center gap-1.5 mb-3 shrink-0">
-        <h2 className="text-base font-semibold text-slate-900">All Applications</h2>
+        <h2 className="text-base font-medium text-igz-primary">All Applications</h2>
         <Tooltip delayDuration={200}>
           <TooltipTrigger asChild>
-            <HelpCircle
-              className="h-4 w-4 text-slate-400 cursor-default"
+                <HelpCircle
+                  className="h-4 w-4 text-igz-gray cursor-default"
               data-testid="help-icon"
             />
           </TooltipTrigger>
@@ -136,7 +284,11 @@ const Applications = () => {
         </Tooltip>
       </div>
       <div className="flex-1 min-h-0 flex flex-col [&_thead_tr]:z-[1]">
-        <DataTable data={applications} columns={columns} />
+        <DataTable
+          data={paginatedApplications}
+          columns={columns}
+          rowActions={rowActions}
+        />
       </div>
       <Pagination
         paginationConfig={paginationConfigRef.current}

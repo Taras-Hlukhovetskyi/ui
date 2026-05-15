@@ -17,8 +17,15 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { datePickerPastOptions } from '../../../utils/datePicker.util'
+import { debounce, isEqual } from 'lodash'
 
+import { datePickerPastOptions } from '../../../utils/datePicker.util'
+import { parseIdentifier } from '../../../utils/parseUri'
+import { parseFunction } from '../../../utils/parseFunction'
+import { showErrorNotification } from 'igz-controls/utils/notification.util'
+import { fetchFunction } from '../../../reducers/functionReducer'
+import { BE_PAGE, FE_PAGE, APPLICATIONS_PAGE_PATH, FUNCTIONS_PAGE } from '../../../constants'
+import getState from '../../../utils/getState'
 import {
   APPLICATION_STATUS,
   FAILED_API_STATES,
@@ -93,3 +100,100 @@ export const filterApplications = (applications, { status, owner }) => {
     return true
   })
 }
+
+const DEBOUNCE_DELAY_MS = 30
+
+const fetchAndParseApplication = (dispatch, projectName, applicationName, hash, tag) => {
+  return dispatch(fetchFunction({ project: projectName, name: applicationName, hash, tag }))
+    .unwrap()
+    .then(rawFunc => {
+      if (!rawFunc) return null
+
+      const application = parseFunction(rawFunc, projectName)
+      const apiState = rawFunc.status?.state
+      const normalizedState =
+        apiState === APPLICATION_STATUS.READY ? APPLICATION_STATUS.RUNNING : apiState
+
+      return {
+        ...application,
+        state: getState(normalizedState, FUNCTIONS_PAGE, 'nuclioFunctions')
+      }
+    })
+}
+
+export const checkForSelectedApplication = debounce(
+  ({
+    applicationName,
+    applicationId,
+    applications,
+    paginatedApplications,
+    paginationConfigRef,
+    searchParams,
+    setSearchParams,
+    navigate,
+    projectName,
+    setSelectedApplication,
+    dispatch,
+    lastCheckedApplicationIdRef
+  }) => {
+    if (applicationId) {
+      const searchBePage = parseInt(searchParams.get(BE_PAGE))
+      const configBePage = paginationConfigRef.current[BE_PAGE]
+
+      if (
+        applications &&
+        searchBePage === configBePage &&
+        lastCheckedApplicationIdRef.current !== applicationId
+      ) {
+        const { tag, uid: hash } = parseIdentifier(applicationId)
+        lastCheckedApplicationIdRef.current = applicationId
+
+        fetchAndParseApplication(dispatch, projectName, applicationName, hash, tag)
+          .then(selectedApplication => {
+            if (!selectedApplication) {
+              navigate(
+                `/projects/${projectName}/${APPLICATIONS_PAGE_PATH}${window.location.search}`,
+                { replace: true }
+              )
+            } else {
+              const findApplicationIndex = list =>
+                list.findIndex(app => {
+                  const appData = app.data ?? app
+                  return tag
+                    ? isEqual(appData.tag, tag) && isEqual(appData.name, applicationName)
+                    : isEqual(appData.hash, hash) && isEqual(appData.name, applicationName)
+                })
+
+              const indexInPaginatedList = findApplicationIndex(paginatedApplications)
+              const indexInMainList =
+                indexInPaginatedList !== -1 ? indexInPaginatedList : findApplicationIndex(applications)
+
+              if (indexInPaginatedList === -1 && indexInMainList > -1) {
+                const { fePageSize } = paginationConfigRef.current
+
+                setSearchParams(prevSearchParams => {
+                  prevSearchParams.set(FE_PAGE, Math.ceil((indexInMainList + 1) / fePageSize))
+                  return prevSearchParams
+                })
+              }
+
+              setSelectedApplication(prevState =>
+                isEqual(prevState, selectedApplication) ? prevState : selectedApplication
+              )
+            }
+          })
+          .catch(error => {
+            setSelectedApplication({})
+            navigate(
+              `/projects/${projectName}/${APPLICATIONS_PAGE_PATH}${window.location.search}`,
+              { replace: true }
+            )
+            showErrorNotification(dispatch, error, '', 'Failed to retrieve application data')
+          })
+      }
+    } else {
+      setSelectedApplication({})
+    }
+  },
+  DEBOUNCE_DELAY_MS
+)
