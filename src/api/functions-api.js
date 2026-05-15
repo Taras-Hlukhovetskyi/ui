@@ -78,6 +78,30 @@ const functionsApi = {
 
     return mainHttpClient.get(`/projects/${project}/functions`, newConfig)
   },
+  getApplications: (project, filters = {}, config = {}) => {
+    const params = { ...config.params, kind: 'application', tag: '*' }
+
+    if (filters.name) {
+      params.name = `~${filters.name}`
+    }
+
+    if (filters.since) {
+      params.since = filters.since
+    }
+
+    if (filters.until) {
+      params.until = filters.until
+    }
+
+    if (Array.isArray(filters.state) && filters.state.length > 0) {
+      params.state = filters.state
+    }
+
+    return mainHttpClient.get(`/projects/${project}/functions`, {
+      ...config,
+      params
+    })
+  },
   getFunction: (project, functionName, hash, tag, uid) => {
     const params = {}
 

@@ -34,6 +34,7 @@ import 'prismjs/components/prism-json.min.js'
 import 'prismjs/components/prism-python.min.js'
 
 import { LoaderForSuspenseFallback } from 'igz-controls/components'
+import { TooltipProvider } from 'igz-controls/nextGenComponents'
 import Header from './layout/Header/Header'
 import Notifications from './common/Notifications/Notifications'
 
@@ -45,6 +46,7 @@ import wrapComponentForNavbarNavigationTracking from './utils/wrapComponentForNa
 
 import {
   ALERTS_PAGE_PATH,
+  APPLICATIONS_PAGE_PATH,
   ALL_VERSIONS_PATH,
   FEATURE_SETS_TAB,
   FEATURE_VECTORS_TAB,
@@ -68,6 +70,7 @@ import {
 
 import 'reactflow/dist/style.css'
 import 'igz-controls/index.css'
+import './tailwind.css'
 import './scss/main.scss'
 
 const Page = lazyRetry(() => import('./layout/Page/Page'))
@@ -139,6 +142,10 @@ const MonitoringApplication = lazyRetry(
   () =>
     import('./components/MonitoringApplicationsPage/MonitoringApplications/MonitoringApplication/MonitoringApplication')
 )
+const ApplicationsPage = lazyRetry(() => import('./nextGenComponents/pages/ApplicationsPage/ApplicationsPage'))
+const Applications = lazyRetry(
+  () => import('./nextGenComponents/pages/ApplicationsPage/Applications/Applications')
+)
 
 const App = () => {
   const { isNuclioModeDisabled } = useNuclioMode()
@@ -150,6 +157,7 @@ const App = () => {
   const DatasetsComponent = wrapComponentForNavbarNavigationTracking(Datasets)
   const DocumentsComponent = wrapComponentForNavbarNavigationTracking(Documents)
   const LLMPromptsComponent = wrapComponentForNavbarNavigationTracking(LLMPrompts)
+  const ApplicationsComponent = wrapComponentForNavbarNavigationTracking(Applications)
   const FunctionsOldComponent = wrapComponentForNavbarNavigationTracking(FunctionsOld)
   const FunctionsComponent = wrapComponentForNavbarNavigationTracking(Functions)
 
@@ -369,6 +377,13 @@ const App = () => {
               </Fragment>
             ))}
           </Route>
+          <Route
+            path={`projects/:projectName/${APPLICATIONS_PAGE_PATH}/*`}
+            element={<ApplicationsPage />}
+          >
+            <Route path="" element={<ApplicationsComponent />} />
+            <Route path=":name/:tab" element={<ApplicationsComponent />} />
+          </Route>
           {[
             'projects/:projectName/documents',
             'projects/:projectName/documents/:artifactName/:id/:tab',
@@ -407,9 +422,11 @@ const App = () => {
     <div className="ml-app">
       {isHeaderShown && <Header />}
       <div className={mlAppContainerClasses}>
-        <Suspense fallback={<LoaderForSuspenseFallback />}>
-          <RouterProvider router={router} />
-        </Suspense>
+        <TooltipProvider>
+          <Suspense fallback={<LoaderForSuspenseFallback />}>
+            <RouterProvider router={router} />
+          </Suspense>
+        </TooltipProvider>
         {createPortal(<Notifications />, document.getElementById('overlay_container'))}
       </div>
     </div>

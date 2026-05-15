@@ -98,6 +98,8 @@ export const JOBS_MONITORING_SCHEDULED_TAB = 'scheduled'
 
 export const ALERTS_PAGE = 'ALERTS'
 export const MONITOR_ALERTS_PAGE = 'alerts-monitoring'
+export const APPLICATIONS_PAGE = 'APPLICATIONS'
+export const APPLICATIONS_PAGE_PATH = 'applications'
 export const ALERTS_PAGE_PATH = 'alerts'
 export const ALERTS_FILTERS = 'alerts'
 export const MODEL_ENDPOINT_RESULT = 'model-endpoint-result'

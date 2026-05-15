@@ -1,9 +1,12 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react-swc'
+import svgr from 'vite-plugin-svgr'
 import path from 'path'
 
+const drcDist = path.resolve(__dirname, './node_modules/iguazio.dashboard-react-controls/dist')
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), svgr()],
   test: {
     globals: true,
     environment: 'jsdom',
@@ -12,13 +15,19 @@ export default defineConfig({
     exclude: ['node_modules', 'build', 'dist'],
     server: {
       deps: {
-        inline: ['iguazio.dashboard-react-controls']
+        inline: ['iguazio.dashboard-react-controls'],
+        moduleDirectories: ['node_modules']
       },
     },
+    alias: [
+      { find: /^igz-controls\/images\/(.+)\.svg\?react$/, replacement: path.join(__dirname, 'src/__mocks__/svgMock.jsx') }
+    ],
   },
   resolve: {
-    alias: {
-      'igz-controls': path.resolve(__dirname, './node_modules/iguazio.dashboard-react-controls/dist')
-    }
+    alias: [
+      { find: 'igz-controls/nextGenComponents', replacement: path.join(drcDist, 'nextGenComponents/index.mjs') },
+      { find: 'igz-controls', replacement: drcDist },
+      { find: '@', replacement: path.resolve(__dirname, './src/nextGenComponents') }
+    ]
   }
 })

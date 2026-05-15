@@ -1972,6 +1972,10 @@ function getFuncs(req, res) {
     })
   }
 
+  if (req.query['kind']) {
+    collectedFuncs = collectedFuncs.filter(func => func.kind === req.query['kind'])
+  }
+
   if (req.query['format'] === 'minimal') {
     collectedFuncs = collectedFuncs.map(func => {
       const specFields = [

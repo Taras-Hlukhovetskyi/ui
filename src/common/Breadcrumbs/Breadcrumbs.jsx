@@ -25,7 +25,7 @@ import { useSelector } from 'react-redux'
 import BreadcrumbsStep from './BreadcrumbsStep/BreadcrumbsStep'
 
 import { generateMlrunScreens, generateTabsList } from './breadcrumbs.util'
-import { MONITORING_APP_PAGE, PROJECTS_PAGE_PATH } from '../../constants'
+import { APPLICATIONS_PAGE_PATH, MONITORING_APP_PAGE, PROJECTS_PAGE_PATH } from '../../constants'
 import { generateProjectsList } from '../../utils/projects'
 
 import './breadcrumbs.scss'
@@ -62,7 +62,7 @@ const Breadcrumbs = ({ onClick = () => {} }) => {
           .find(pathItem => pathItem === tab.id)
       )
 
-      if (screen.id === MONITORING_APP_PAGE) {
+      if (screen?.id === MONITORING_APP_PAGE || screen?.id === APPLICATIONS_PAGE_PATH) {
         tab = {}
       }
 

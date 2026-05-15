@@ -17,12 +17,5 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import '@testing-library/jest-dom'
-
-if (typeof global.ResizeObserver === 'undefined') {
-  global.ResizeObserver = class ResizeObserver {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  }
-}
+export { default } from './UrlCell'
+export { buildUrlItems } from './urlCell.utils'

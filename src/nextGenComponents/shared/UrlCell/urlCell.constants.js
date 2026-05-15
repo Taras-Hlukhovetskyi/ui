@@ -17,12 +17,13 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import '@testing-library/jest-dom'
 
-if (typeof global.ResizeObserver === 'undefined') {
-  global.ResizeObserver = class ResizeObserver {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  }
+export const COPY_SUCCESS_DURATION_MS = 3_000
+export const RESIZE_THROTTLE_MS = 500
+export const TOOLTIP_MAX_HEIGHT_PX = 260
+export const COPY_BTN_WIDTH_PX = 24
+
+export const LINK_COLOR = {
+  default: '#2563eb',
+  dark: 'rgba(255,255,255,0.9)'
 }

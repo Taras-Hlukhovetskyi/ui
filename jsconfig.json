@@ -2,6 +2,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@/*": [
+        "src/nextGenComponents/*"
+      ],
       "igz-controls/*": [
         "node_modules/iguazio.dashboard-react-controls/dist/*"
       ]
