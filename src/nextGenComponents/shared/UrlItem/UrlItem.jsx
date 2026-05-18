@@ -40,7 +40,7 @@ const UrlItem = ({ url, isExternal, isCopied, onCopy, variant = URL_ITEM_VARIANT
         href={isExternal ? toHref(url) : url}
         {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         className={classnames(
-          'truncate text-[13px] leading-5 hover:underline',
+          'truncate text-[15px] leading-5 hover:underline',
           isDark ? '!text-white/90' : '!text-igz-link'
         )}
         data-testid="url-link"

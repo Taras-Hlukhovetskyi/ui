@@ -46,7 +46,7 @@ vi.mock('react-router-dom', () => ({
 
 vi.mock('react-redux', () => ({
   useDispatch: () => mockDispatch,
-  useSelector: vi.fn(selector => selector({ applicationsStore: { applications: SAMPLE_APPLICATIONS, loading: false } }))
+  useSelector: vi.fn(selector => selector({ functionsStore: { funcLoading: false } }))
 }))
 
 vi.mock('igz-controls/nextGenComponents', () => ({
@@ -213,15 +213,6 @@ describe('Applications', () => {
       renderApplications()
       const updatedCell = screen.getAllByTestId('cell-updated')[1]
       expect(updatedCell).toHaveTextContent('N/A')
-    })
-  })
-
-  // ── Owner cell ─────────────────────────────────────────────────────────────
-
-  describe('owner cell', () => {
-    it('renders the owner label when present', () => {
-      renderApplications()
-      expect(screen.getByText('alice')).toBeInTheDocument()
     })
   })
 

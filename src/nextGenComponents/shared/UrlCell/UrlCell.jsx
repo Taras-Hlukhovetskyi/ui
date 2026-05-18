@@ -41,7 +41,7 @@ const UrlCell = ({ items = [] }) => {
 
     const containerWidth = containerEl.offsetWidth
     const { fontWeight, fontFamily } = getComputedStyle(containerEl)
-    const font = `${fontWeight} 13px ${fontFamily}`
+    const font = `${fontWeight} 15px ${fontFamily}`
 
     const sep = measureTextWidth(', ', font)
 
@@ -92,7 +92,7 @@ const UrlCell = ({ items = [] }) => {
 
   if (!items.length) {
     return (
-      <span className="text-igz-gray italic text-[13px]" data-testid="url-cell-empty">
+      <span className="text-igz-gray italic text-[15px]" data-testid="url-cell-empty">
         N/A
       </span>
     )
@@ -110,7 +110,7 @@ const UrlCell = ({ items = [] }) => {
       {visibleItems.map(({ url, isExternal }, index) => (
         <React.Fragment key={url}>
           {index > 0 && (
-            <span className="text-[13px] text-igz-gray shrink-0 mr-2 ml-1">,</span>
+            <span className="text-[15px] text-igz-gray shrink-0 mr-2 ml-1">,</span>
           )}
           <UrlItem
             url={url}
@@ -122,12 +122,12 @@ const UrlCell = ({ items = [] }) => {
       ))}
       {overflowItems.length > 0 && (
         <>
-          <span className="text-[13px] text-igz-gray shrink-0 mr-2 ml-1">,</span>
+          <span className="text-[15px] text-igz-gray shrink-0 mr-2 ml-1">,</span>
 
           <Tooltip delayDuration={100}>
             <TooltipTrigger asChild>
               <span
-                className="text-[13px] text-igz-link shrink-0 cursor-pointer select-none"
+                className="text-[15px] text-igz-link shrink-0 cursor-pointer select-none"
                 data-testid="overflow-badge"
               >
                 +{overflowItems.length}

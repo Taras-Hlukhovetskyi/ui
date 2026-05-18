@@ -20,7 +20,6 @@ such restriction.
 import { configureStore } from '@reduxjs/toolkit'
 
 import alertsStore from '../reducers/alertsReducer'
-import applicationsStore from '../reducers/applicationsReducer'
 import appStore from '../reducers/appReducer'
 import artifactsStore from '../reducers/artifactsReducer'
 import detailsStore from '../reducers/detailsReducer'
@@ -41,7 +40,6 @@ import notificationStore from 'igz-controls/reducers/notificationReducer'
 const toolkitStore = configureStore({
   reducer: {
     alertsStore,
-    applicationsStore,
     appStore,
     artifactsStore,
     commonDetailsStore,

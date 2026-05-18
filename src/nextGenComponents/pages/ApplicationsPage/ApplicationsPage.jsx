@@ -22,7 +22,7 @@ import { Outlet, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { isEmpty } from 'lodash'
 import { Input, TooltipProvider, TimeFilterDropdown, FilterPopover } from 'igz-controls/nextGenComponents'
-import { Loader } from 'igz-controls/components'
+import { Loader } from 'igz-controls/nextGenComponents'
 import { Search } from 'lucide-react'
 
 import Breadcrumbs from '../../../common/Breadcrumbs/Breadcrumbs'
@@ -31,24 +31,42 @@ import ActionBar from '../../shared/ActionBar/ActionBar'
 
 import { useFiltersFromSearchParams } from '../../../hooks/useFiltersFromSearchParams.hook'
 import { usePagination } from '../../../hooks/usePagination.hook'
-import { fetchApplications } from '../../../reducers/applicationsReducer'
-import { BE_PAGE, BE_PAGE_SIZE } from '../../../constants'
-import { APPLICATIONS_FILTERS_CONFIG, TIME_FILTER_OPTIONS } from './applications.constants'
-import { buildApiFilters, buildFilterPopoverSchema, filterApplications } from './applicationsPage.util'
+import { fetchFunctions } from '../../../reducers/functionReducer'
+import { parseFunction } from '../../../utils/parseFunction'
+import getState from '../../../utils/getState'
+import { BE_PAGE, BE_PAGE_SIZE, FUNCTIONS_PAGE } from '../../../constants'
+import { APPLICATIONS_FILTERS_CONFIG, TIME_FILTER_OPTIONS, STATUS_POPOVER_OPTIONS, APPLICATION_STATUS, FILTER_ALL_APPLICATIONS_STATUS } from './applications.constants'
+import { buildApiFilters, filterApplications } from './applicationsPage.util'
 
 const ApplicationsPage = () => {
   const params = useParams()
   const dispatch = useDispatch()
-  const { applications, loading } = useSelector(store => store.applicationsStore)
+  const { functions, loading } = useSelector(store => store.functionsStore)
   const paginationConfigRef = useRef({})
   const [isDetailsReady, setIsDetailsReady] = useState(false)
 
   const urlFilters = useFiltersFromSearchParams(APPLICATIONS_FILTERS_CONFIG)
   const [filters, setFilters] = useState(urlFilters)
 
+  const applications = useMemo(
+    () =>
+      functions.map(rawFunc => {
+        const application = parseFunction(rawFunc, params.projectName)
+        const apiState = rawFunc.status?.state
+        const normalizedState =
+          apiState === APPLICATION_STATUS.READY ? APPLICATION_STATUS.RUNNING : apiState
+        return {
+          ...application,
+          state: getState(normalizedState, FUNCTIONS_PAGE, 'nuclioFunctions')
+        }
+      }),
+    [functions, params.projectName]
+  )
+
   const handleRefresh = useCallback(
     currentFilters => {
-      const requestParams = {}
+      const apiFilters = buildApiFilters(currentFilters)
+      const requestParams = { ...apiFilters, kind: 'application', tag: '*' }
 
       if (!isEmpty(paginationConfigRef.current)) {
         requestParams.page = paginationConfigRef.current[BE_PAGE]
@@ -56,15 +74,15 @@ const ApplicationsPage = () => {
       }
 
       return dispatch(
-        fetchApplications({
+        fetchFunctions({
           project: params.projectName,
-          filters: buildApiFilters(currentFilters),
+          filters: {},
           config: { params: requestParams }
         })
       )
         .unwrap()
-        .then(({ pagination }) => {
-          paginationConfigRef.current.paginationResponse = pagination
+        .then(data => {
+          paginationConfigRef.current.paginationResponse = data?.pagination ?? null
         })
     },
     [dispatch, params.projectName]
@@ -88,21 +106,25 @@ const ApplicationsPage = () => {
     resetPaginationTrigger: params.projectName
   })
 
-  const filterPopoverSchema = useMemo(
-    () => buildFilterPopoverSchema(filters.owner, filters.status),
-    [filters.owner, filters.status]
-  )
-
-  const handlePopoverApply = useCallback((draft, applyMultiple) => {
-    applyMultiple({
-      status: Array.isArray(draft?.status) ? draft.status : [],
-      owner: draft?.owner ?? ''
-    })
-  }, [])
-
-  const handlePopoverClear = useCallback(applyMultiple => {
-    applyMultiple({ status: [], owner: '' })
-  }, [])
+  const filterPopoverSchema = useMemo(() => ({
+    status: {
+      key: 'status',
+      label: 'Status',
+      kind: 'multi-select',
+      placeholder: 'All',
+      defaultValue: filters.status,
+      options: STATUS_POPOVER_OPTIONS,
+      computeDisabled: (optValue, currentValues) =>
+        optValue === FILTER_ALL_APPLICATIONS_STATUS &&
+        currentValues.includes(FILTER_ALL_APPLICATIONS_STATUS),
+      resolveValue: (next, prev) => {
+        if (next.length === 0) return [FILTER_ALL_APPLICATIONS_STATUS]
+        const addedAll = !prev.includes(FILTER_ALL_APPLICATIONS_STATUS) && next.includes(FILTER_ALL_APPLICATIONS_STATUS)
+        if (addedAll) return [FILTER_ALL_APPLICATIONS_STATUS]
+        return next.filter(v => v !== FILTER_ALL_APPLICATIONS_STATUS)
+      }
+    }
+  }), [filters.status])
 
   return (
     <div className="mlrun-tw-scope h-screen overflow-hidden bg-background flex flex-col w-full">
@@ -114,7 +136,7 @@ const ApplicationsPage = () => {
 
           {!isDetailsReady && (
             <>
-              <div className="px-6 shrink-0 [&_[data-testid='entity-table-refresh-button']_svg]:!size-5 [&_[data-testid='filter-popover-button']_svg]:!size-5">
+              <div className="px-6 shrink-0">
                 <ActionBar
                   filtersConfig={APPLICATIONS_FILTERS_CONFIG}
                   filters={filters}
@@ -156,9 +178,8 @@ const ApplicationsPage = () => {
 
                       <FilterPopover
                         schema={filterPopoverSchema}
-                        title="Filter by"
-                        onApply={draft => handlePopoverApply(draft, applyMultipleFilters)}
-                        onClear={() => handlePopoverClear(applyMultipleFilters)}
+                        onApply={vals => applyFilter('status', vals?.status ?? [FILTER_ALL_APPLICATIONS_STATUS])}
+                        onClear={() => applyFilter('status', [FILTER_ALL_APPLICATIONS_STATUS])}
                       />
                     </>
                   )}
@@ -178,7 +199,7 @@ const ApplicationsPage = () => {
               : 'flex flex-col flex-1 overflow-hidden mt-4 p-[20px] text-igz-secondary bg-background border rounded-lg shadow-card'
             }>
               {loading && !isDetailsReady ? (
-                <Loader />
+                <Loader mode="fullscreen" />
               ) : (
                 <Outlet
                   context={{

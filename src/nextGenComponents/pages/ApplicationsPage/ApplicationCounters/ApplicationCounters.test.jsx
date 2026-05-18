@@ -32,24 +32,31 @@ vi.mock('igz-controls/nextGenComponents', () => ({
     <div data-testid="stats-card" className={className}>
       {children}
     </div>
-  )
+  ),
+  Tooltip: ({ children }) => <>{children}</>,
+  TooltipTrigger: ({ children, asChild }) => <>{children}</>,
+  TooltipContent: ({ children }) => <div data-testid="tooltip-content">{children}</div>
 }))
 
 // ── Store factory ─────────────────────────────────────────────────────────────
 
-const makeStore = (applicationsStore) =>
+const makeStore = (functionsStore) =>
   configureStore({
-    reducer: { applicationsStore: () => applicationsStore }
+    reducer: { functionsStore: () => functionsStore }
   })
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const DEFAULT_SUMMARY = { total: 12, running: 7, failed: 3, building: 2 }
+const makeFunctions = ({ running = 7, failed = 3, building = 2 } = {}) => [
+  ...Array(running).fill({ status: { state: 'running' } }),
+  ...Array(failed).fill({ status: { state: 'error' } }),
+  ...Array(building).fill({ status: { state: 'building' } })
+]
 
 const renderCounters = (storeOverrides = {}) => {
   const storeState = {
     loading: false,
-    summary: DEFAULT_SUMMARY,
+    functions: makeFunctions(),
     ...storeOverrides
   }
   const store = makeStore(storeState)
@@ -114,9 +121,9 @@ describe('ApplicationCounters', () => {
       expect(screen.getByText('Failed')).toBeInTheDocument()
     })
 
-    it('renders "Deploying" status label', () => {
+    it('renders "Building" status label', () => {
       renderCounters()
-      expect(screen.getByText('Deploying')).toBeInTheDocument()
+      expect(screen.getByText('Building')).toBeInTheDocument()
     })
   })
 
@@ -124,12 +131,12 @@ describe('ApplicationCounters', () => {
 
   describe('loading state', () => {
     it('shows "..." placeholders while loading', () => {
-      renderCounters({ loading: true })
+      renderCounters({ loading: true, functions: makeFunctions() })
       expect(screen.getAllByText('...')).toHaveLength(4)
     })
 
     it('does not show numeric counts while loading', () => {
-      renderCounters({ loading: true, summary: DEFAULT_SUMMARY })
+      renderCounters({ loading: true, functions: makeFunctions() })
       expect(screen.queryByText('12')).not.toBeInTheDocument()
     })
   })
@@ -137,8 +144,8 @@ describe('ApplicationCounters', () => {
   // ── Zero counts ────────────────────────────────────────────────────────────
 
   describe('zero counts', () => {
-    it('renders 0 for building when summary.building is 0', () => {
-      renderCounters({ summary: { total: 10, running: 5, failed: 3, building: 0 } })
+    it('renders 0 for building when there are no building functions', () => {
+      renderCounters({ functions: makeFunctions({ running: 5, failed: 3, building: 0 }) })
       expect(screen.getAllByText('0')).toHaveLength(1)
     })
   })

@@ -29,7 +29,7 @@ import getState from '../../../utils/getState'
 import {
   APPLICATION_STATUS,
   FAILED_API_STATES,
-  STATUS_POPOVER_OPTIONS,
+  FILTER_ALL_APPLICATIONS_STATUS,
   TIME_FILTER_CUSTOM_VALUE
 } from './applications.constants'
 
@@ -44,7 +44,7 @@ export const buildApiFilters = filters => {
   const apiFilters = {}
 
   if (filters.name) {
-    apiFilters.name = filters.name
+    apiFilters.name = `~${filters.name}`
   }
 
   if (filters.time === TIME_FILTER_CUSTOM_VALUE) {
@@ -58,8 +58,12 @@ export const buildApiFilters = filters => {
     }
   }
 
-  if (Array.isArray(filters.status) && filters.status.length > 0) {
-    apiFilters.state = filters.status.flatMap(uiStatus => {
+  const activeStatuses = Array.isArray(filters.status)
+    ? filters.status.filter(s => s !== FILTER_ALL_APPLICATIONS_STATUS)
+    : []
+
+  if (activeStatuses.length > 0) {
+    apiFilters.state = activeStatuses.flatMap(uiStatus => {
       if (uiStatus === APPLICATION_STATUS.RUNNING) return [APPLICATION_STATUS.READY]
       if (uiStatus === APPLICATION_STATUS.FAILED) return FAILED_API_STATES
       return [uiStatus]
@@ -69,32 +73,13 @@ export const buildApiFilters = filters => {
   return apiFilters
 }
 
-export const buildFilterPopoverSchema = (currentOwner, currentStatus) => ({
-  status: {
-    key: 'status',
-    label: 'Status',
-    kind: 'multi-select',
-    placeholder: 'All statuses',
-    defaultValue: Array.isArray(currentStatus) ? currentStatus : [],
-    options: STATUS_POPOVER_OPTIONS
-  },
-  owner: {
-    key: 'owner',
-    label: 'Owner',
-    kind: 'text',
-    placeholder: 'Search owner name...',
-    defaultValue: currentOwner ?? ''
-  }
-})
-
-export const filterApplications = (applications, { status, owner }) => {
-  const selectedStatuses = Array.isArray(status) ? status : []
+export const filterApplications = (applications, { status }) => {
+  const selectedStatuses = Array.isArray(status)
+    ? status.filter(s => s !== FILTER_ALL_APPLICATIONS_STATUS)
+    : []
 
   return applications.filter(app => {
     if (selectedStatuses.length > 0 && !selectedStatuses.includes(app.state?.value)) {
-      return false
-    }
-    if (owner && !app.labels?.owner?.toLowerCase().includes(owner.toLowerCase())) {
       return false
     }
     return true

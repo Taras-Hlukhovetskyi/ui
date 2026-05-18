@@ -30,7 +30,7 @@ export const APPLICATION_DETAILS_TABS = [
   { id: APPLICATION_DETAILS_TAB.OVERVIEW, label: 'Overview' },
   { id: APPLICATION_DETAILS_TAB.CONFIGURATION, label: 'Configuration', disabled: true },
   { id: APPLICATION_DETAILS_TAB.MONITORING_ENDPOINTS, label: 'Monitoring Endpoints', disabled: true },
-  { id: APPLICATION_DETAILS_TAB.BUILD_LOGS, label: 'Build Logs', disabled: true },
+  { id: APPLICATION_DETAILS_TAB.BUILD_LOGS, label: 'Build Logs' },
   { id: APPLICATION_DETAILS_TAB.API_GATEWAYS, label: 'API Gateways', disabled: true }
 ]
 
@@ -50,3 +50,19 @@ export const OVERVIEW_FIELD = {
   COMMANDS: 'Commands',
   ARGUMENTS: 'Arguments'
 }
+
+export const LOGS_SECTION_KEY = {
+  APPLICATION: 'application',
+  FUNCTION: 'function'
+}
+
+export const BUILD_LOGS_POLLING_INTERVAL_MS = 2_000
+
+export const COPY_RESET_TIMEOUT_MS = 2_000
+
+export const FUNCTION_STATUS_HEADER = 'x-mlrun-function-status'
+
+// Values mirror src/constants.js to avoid a cross-layer import from nextGenComponents into legacy.
+export const TRANSIENT_FUNCTION_STATUSES = ['pending', 'running']
+
+export const VIEW_YAML_LABEL = 'View YAML'

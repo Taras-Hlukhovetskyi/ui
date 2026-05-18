@@ -24,28 +24,29 @@ import { FileCode2 } from 'lucide-react'
 
 import DetailsTabs from '../../../shared/DetailsTabs/DetailsTabs'
 import ApplicationOverview from './ApplicationOverview'
+import ApplicationBuildLogs from './ApplicationBuildLogs'
 import { toggleYaml } from '../../../../reducers/appReducer'
 import {
   APPLICATION_DETAILS_TABS,
-  APPLICATION_DETAILS_TAB
+  APPLICATION_DETAILS_TAB,
+  VIEW_YAML_LABEL
 } from './applicationDetails.constants'
 
 const ApplicationDetails = ({ application, activeTab, onTabChange, onClose, onRefresh }) => {
   const dispatch = useDispatch()
 
-  const OverviewTab = useCallback(
-    () => <ApplicationOverview application={application} />,
-    [application]
-  )
+  // Tab components are closures over `application`. They are recreated only when
+  // `application` changes, which is the correct time to remount the tab content.
+  const tabsWithComponents = useMemo(() => {
+    const OverviewTab = () => <ApplicationOverview application={application} />
+    const BuildLogsTab = () => <ApplicationBuildLogs application={application} />
 
-  const tabsWithComponents = useMemo(
-    () =>
-      APPLICATION_DETAILS_TABS.map(tab => ({
-        ...tab,
-        component: tab.id === APPLICATION_DETAILS_TAB.OVERVIEW ? OverviewTab : tab.component
-      })),
-    [OverviewTab]
-  )
+    return APPLICATION_DETAILS_TABS.map(tab => {
+      if (tab.id === APPLICATION_DETAILS_TAB.OVERVIEW) return { ...tab, component: OverviewTab }
+      if (tab.id === APPLICATION_DETAILS_TAB.BUILD_LOGS) return { ...tab, component: BuildLogsTab }
+      return tab
+    })
+  }, [application])
 
   const handleViewYaml = useCallback(() => {
     dispatch(toggleYaml(application.ui?.originalContent))
@@ -54,7 +55,7 @@ const ApplicationDetails = ({ application, activeTab, onTabChange, onClose, onRe
   const actionsMenu = useMemo(
     () => [
       {
-        label: 'View YAML',
+        label: VIEW_YAML_LABEL,
         icon: <FileCode2 className="w-4 h-4" />,
         onClick: handleViewYaml
       }

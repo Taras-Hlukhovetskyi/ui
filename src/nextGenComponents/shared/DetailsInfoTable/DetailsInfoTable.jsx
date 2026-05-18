@@ -38,10 +38,10 @@ const DetailsInfoTable = ({ className = '', items }) => {
             className="flex py-2 min-h-[38px]"
             data-testid={item.testId ?? `info-row-${item.label}`}
           >
-            <span className="w-[140px] shrink-0 text-igz-secondary">
+            <span className="w-[140px] shrink-0 text-[15px] text-igz-secondary">
               {item.label}
             </span>
-            <div className="flex-1 text-igz-primary break-words min-w-0">
+            <div className="flex-1 text-[15px] text-igz-primary break-words min-w-0">
               {item.value ?? EMPTY_VALUE_PLACEHOLDER}
             </div>
           </div>

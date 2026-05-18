@@ -32,6 +32,8 @@ export const APPLICATION_STATUS = {
   UNHEALTHY: 'unhealthy'
 }
 
+export const FILTER_ALL_APPLICATIONS_STATUS = 'all'
+
 export const FAILED_API_STATES = [APPLICATION_STATUS.ERROR, APPLICATION_STATUS.UNHEALTHY]
 
 export const APPLICATION_STATUS_OPTIONS = [
@@ -40,11 +42,14 @@ export const APPLICATION_STATUS_OPTIONS = [
   { value: APPLICATION_STATUS.FAILED, label: 'Failed', color: 'var(--igz-status-failed)' }
 ]
 
-export const STATUS_POPOVER_OPTIONS = APPLICATION_STATUS_OPTIONS.map(option => ({
-  value: option.value,
-  label: option.label,
-  meta: { color: option.color }
-}))
+export const STATUS_POPOVER_OPTIONS = [
+  { value: FILTER_ALL_APPLICATIONS_STATUS, label: 'All', meta: {} },
+  ...APPLICATION_STATUS_OPTIONS.map(option => ({
+    value: option.value,
+    label: option.label,
+    meta: { color: option.color }
+  }))
+]
 
 export const TIME_FILTER_CUSTOM_VALUE = 'custom'
 
@@ -67,14 +72,10 @@ export const APPLICATIONS_FILTERS_CONFIG = {
     initialValue: DEFAULT_TIME_FILTER
   },
   status: {
-    defaultValue: [],
-    initialValue: [],
+    defaultValue: [FILTER_ALL_APPLICATIONS_STATUS],
+    initialValue: [FILTER_ALL_APPLICATIONS_STATUS],
     serializeUrl: values => (Array.isArray(values) ? values.join(',') : ''),
-    parseUrl: str => (str ? str.split(',') : [])
-  },
-  owner: {
-    defaultValue: '',
-    initialValue: ''
+    parseUrl: str => (str ? str.split(',') : [FILTER_ALL_APPLICATIONS_STATUS])
   },
   customSince: {
     defaultValue: '',

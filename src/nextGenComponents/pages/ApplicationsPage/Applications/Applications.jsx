@@ -20,12 +20,12 @@ such restriction.
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { DataTable, Tooltip, TooltipContent, TooltipTrigger } from 'igz-controls/nextGenComponents'
 import { Link, useNavigate, useOutletContext, useParams } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { isEmpty } from 'lodash'
 import { formatDatetime } from 'igz-controls/utils/datetime.util'
 import { HelpCircle, FileCode2 } from 'lucide-react'
 
-import { Loader } from 'igz-controls/components'
+import { Loader } from 'igz-controls/nextGenComponents'
 import ApplicationDetails from '../ApplicationDetails/ApplicationDetails'
 import Pagination from '../../../../common/Pagination/Pagination'
 import UrlCell, { buildUrlItems } from '../../../shared/UrlCell'
@@ -41,11 +41,12 @@ const Applications = () => {
   const params = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const { funcLoading } = useSelector(store => store.functionsStore)
   const lastCheckedApplicationIdRef = useRef(null)
   const [selectedApplication, setSelectedApplication] = useState({})
+  const [detailsRefreshKey, setDetailsRefreshKey] = useState(Date.now())
 
   const isDetailsOpen = !isEmpty(selectedApplication)
-  const isLoadingDetails = Boolean(params.name && params.id && !isDetailsOpen)
 
   const handleCloseDetails = useCallback(() => {
     setSelectedApplication({})
@@ -68,7 +69,9 @@ const Applications = () => {
   )
 
   const handleRefreshDetails = useCallback(() => {
+    setDetailsRefreshKey(Date.now())
     lastCheckedApplicationIdRef.current = null
+
     checkForSelectedApplication({
       applicationName: params.name,
       applicationId: params.id,
@@ -222,7 +225,7 @@ const Applications = () => {
         header: 'Endpoints',
         size: 10,
         cell: ({ row }) => (
-          <span className="text-igz-light-purple font-medium text-[13px]">
+          <span className="text-igz-light-purple font-medium">
             {row.original.external_invocation_urls?.length ?? 0}
           </span>
         )
@@ -232,39 +235,33 @@ const Applications = () => {
         size: 17,
         header: 'Updated',
         cell: ({ row }) => (
-          <span className="text-igz-secondary text-[13px]">
+          <span className="text-igz-secondary">
             {formatDatetime(row.original.updated, 'N/A')}
           </span>
         )
       },
-      {
-        accessorKey: 'labels',
-        header: 'Owner',
-        size: 12,
-        cell: ({ row }) => (
-          <span className="text-igz-primary text-[13px]">
-            {row.original.labels?.owner || 'N/A'}
-          </span>
-        )
-      }
     ],
     [params.projectName]
   )
 
   if (isDetailsOpen) {
     return (
-      <ApplicationDetails
-        application={selectedApplication}
-        activeTab={params.tab ?? DEFAULT_APPLICATION_DETAILS_TAB}
-        onTabChange={handleTabChange}
-        onClose={handleCloseDetails}
-        onRefresh={handleRefreshDetails}
-      />
+      <div className="relative h-full">
+        <ApplicationDetails
+          key={detailsRefreshKey}
+          application={selectedApplication}
+          activeTab={params.tab ?? DEFAULT_APPLICATION_DETAILS_TAB}
+          onTabChange={handleTabChange}
+          onClose={handleCloseDetails}
+          onRefresh={handleRefreshDetails}
+        />
+        {funcLoading && isDetailsOpen && <Loader mode="fullscreen" />}
+      </div>
     )
   }
 
-  if (isLoadingDetails) {
-    return <Loader />
+  if (funcLoading && !isDetailsOpen) {
+    return <Loader mode="fullscreen" />
   }
 
   return (
@@ -283,7 +280,7 @@ const Applications = () => {
           </TooltipContent>
         </Tooltip>
       </div>
-      <div className="flex-1 min-h-0 flex flex-col [&_thead_tr]:z-[1]">
+      <div className="flex-1 min-h-[200px] flex flex-col [&_thead_tr]:z-[1]">
         <DataTable
           data={paginatedApplications}
           columns={columns}

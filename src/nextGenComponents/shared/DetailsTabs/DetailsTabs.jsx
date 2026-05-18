@@ -73,7 +73,7 @@ const DetailsTabs = ({
           {headerContent}
         </div>
 
-        <div className="flex items-center gap-1 shrink-0 [&_[data-testid='entity-table-refresh-button']_svg]:!size-5">
+        <div className="flex items-center gap-1 shrink-0">
           {onRefresh && <RefreshButton onClick={onRefresh} />}
           {actionsMenu.length > 0 && (
             <DropdownMenu>

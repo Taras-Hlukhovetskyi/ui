@@ -104,10 +104,6 @@ const ApplicationOverview = ({ application }) => {
         value: application.build?.source || null
       },
       {
-        label: OVERVIEW_FIELD.OWNER,
-        value: application.labels?.owner || null
-      },
-      {
         label: OVERVIEW_FIELD.TAG,
         value: application.tag || null
       },
@@ -148,9 +144,6 @@ ApplicationOverview.propTypes = {
     external_invocation_urls: PropTypes.arrayOf(PropTypes.string),
     image: PropTypes.string,
     internal_invocation_urls: PropTypes.arrayOf(PropTypes.string),
-    labels: PropTypes.shape({
-      owner: PropTypes.string
-    }),
     name: PropTypes.string,
     state: PropTypes.shape({
       className: PropTypes.string,

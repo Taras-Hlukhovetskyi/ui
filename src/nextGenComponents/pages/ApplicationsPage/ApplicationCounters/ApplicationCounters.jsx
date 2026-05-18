@@ -17,54 +17,76 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { StatsCard } from 'igz-controls/nextGenComponents'
+import { StatsCard, Tooltip, TooltipContent, TooltipTrigger } from 'igz-controls/nextGenComponents'
+import { Loader2 } from 'lucide-react'
+
+import { APPLICATION_STATUS, FAILED_API_STATES } from '../applications.constants'
+
+const FAILED_TOOLTIP_TEXT = 'Error, Unhealthy'
 
 const ApplicationCounters = () => {
-  const { summary, loading } = useSelector(store => store.applicationsStore)
+  const { functions, loading } = useSelector(store => store.functionsStore)
+
+  const summary = useMemo(() => ({
+    total: functions.length,
+    running: functions.filter(f => {
+      const state = f.status?.state === APPLICATION_STATUS.READY ? APPLICATION_STATUS.RUNNING : f.status?.state
+      return state === APPLICATION_STATUS.RUNNING
+    }).length,
+    failed: functions.filter(f => FAILED_API_STATES.includes(f.status?.state)).length,
+    building: functions.filter(f => f.status?.state === APPLICATION_STATUS.BUILDING).length
+  }), [functions])
+
+  const spinner = <Loader2 size={18} className="animate-spin text-igz-secondary" />
 
   return (
     <div className="flex gap-5 mt-6">
-      <StatsCard className="w-[164px] flex-none bg-background border rounded-lg shadow-card">
-        <div className="p-5 flex flex-col h-full">
-          <span className="text-[13px] font-medium text-igz-secondary mb-1">Applications</span>
-          <span className="text-[32px] font-bold text-igz-primary leading-tight">
-            {loading ? '...' : summary.total}
+      <StatsCard className="flex-none bg-background border rounded-lg shadow-card">
+        <div className="p-5 pr-14 flex flex-col gap-3">
+          <span className="text-[15px] font-bold text-igz-primary">Applications</span>
+          <span className="text-[28px] font-bold text-igz-primary leading-none">
+            {loading ? spinner : summary.total}
           </span>
         </div>
       </StatsCard>
 
-      <StatsCard className="w-[420px] flex-none bg-background border rounded-lg shadow-card">
-        <div className="p-5 flex flex-col h-full">
-          <span className="text-[13px] font-medium text-igz-secondary mb-3">Applications status</span>
-          <div className="flex items-center gap-8 flex-1">
-            <div className="flex items-center gap-2">
+      <StatsCard className="flex-none bg-background border rounded-lg shadow-card">
+        <div className="p-5 pr-14 flex flex-col gap-3">
+          <span className="text-[15px] font-bold text-igz-primary">Applications status</span>
+          <div className="flex items-baseline gap-6">
+            <div className="flex items-end gap-1.5">
               <span className="text-[28px] font-bold text-igz-primary leading-none">
-                {loading ? '...' : summary.running}
+                {loading ? spinner : summary.running}
               </span>
-              <div className="flex items-center gap-1.5 pt-1">
+              <div className="flex items-center gap-1">
                 <span className="text-sm text-igz-secondary">Running</span>
                 <div className="w-2 h-2 rounded-full bg-status-running" />
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-end gap-1.5">
               <span className="text-[28px] font-bold text-igz-primary leading-none">
-                {loading ? '...' : summary.failed}
+                {loading ? spinner : summary.failed}
               </span>
-              <div className="flex items-center gap-1.5 pt-1">
-                <span className="text-sm text-igz-secondary">Failed</span>
-                <div className="w-2 h-2 rounded-full bg-status-failed" />
-              </div>
+              <Tooltip delayDuration={100}>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1 cursor-default">
+                    <span className="text-sm text-igz-secondary">Failed</span>
+                    <div className="w-2 h-2 rounded-full bg-status-failed" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{FAILED_TOOLTIP_TEXT}</TooltipContent>
+              </Tooltip>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-end gap-1.5">
               <span className="text-[28px] font-bold text-igz-primary leading-none">
-                {loading ? '...' : summary.building || 0}
+                {loading ? spinner : summary.building || 0}
               </span>
-              <div className="flex items-center gap-1.5 pt-1">
-                <span className="text-sm text-igz-secondary">Deploying</span>
+              <div className="flex items-center gap-1">
+                <span className="text-sm text-igz-secondary">Building</span>
                 <div className="w-2 h-2 rounded-full bg-status-deploying" />
               </div>
             </div>
