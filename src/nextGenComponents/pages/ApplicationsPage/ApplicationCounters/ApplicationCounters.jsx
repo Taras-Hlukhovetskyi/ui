@@ -42,11 +42,11 @@ const ApplicationCounters = () => {
   const spinner = <Loader2 size={18} className="animate-spin text-igz-secondary" />
 
   return (
-    <div className="flex gap-5 mt-6">
+    <div className="flex gap-5 mt-6" data-testid="application-counters">
       <StatsCard className="flex-none bg-background border rounded-lg shadow-card">
         <div className="p-5 pr-14 flex flex-col gap-3">
           <span className="text-[15px] font-bold text-igz-primary">Applications</span>
-          <span className="text-[28px] font-bold text-igz-primary leading-none">
+          <span className="text-[28px] font-bold text-igz-primary leading-none" data-testid="total-count">
             {loading ? spinner : summary.total}
           </span>
         </div>
@@ -57,7 +57,7 @@ const ApplicationCounters = () => {
           <span className="text-[15px] font-bold text-igz-primary">Applications status</span>
           <div className="flex items-baseline gap-6">
             <div className="flex items-end gap-1.5">
-              <span className="text-[28px] font-bold text-igz-primary leading-none">
+              <span className="text-[28px] font-bold text-igz-primary leading-none" data-testid="running-count">
                 {loading ? spinner : summary.running}
               </span>
               <div className="flex items-center gap-1">
@@ -67,7 +67,7 @@ const ApplicationCounters = () => {
             </div>
 
             <div className="flex items-end gap-1.5">
-              <span className="text-[28px] font-bold text-igz-primary leading-none">
+              <span className="text-[28px] font-bold text-igz-primary leading-none" data-testid="failed-count">
                 {loading ? spinner : summary.failed}
               </span>
               <Tooltip delayDuration={100}>
@@ -82,11 +82,11 @@ const ApplicationCounters = () => {
             </div>
 
             <div className="flex items-end gap-1.5">
-              <span className="text-[28px] font-bold text-igz-primary leading-none">
+              <span className="text-[28px] font-bold text-igz-primary leading-none" data-testid="building-count">
                 {loading ? spinner : summary.building || 0}
               </span>
               <div className="flex items-center gap-1">
-                <span className="text-sm text-igz-secondary">Building</span>
+                <span className="text-sm text-igz-secondary">Deploying</span>
                 <div className="w-2 h-2 rounded-full bg-status-deploying" />
               </div>
             </div>

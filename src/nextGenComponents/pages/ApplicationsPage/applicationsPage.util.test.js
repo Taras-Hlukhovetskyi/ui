@@ -21,17 +21,14 @@ import { vi, describe, it, expect, beforeEach } from 'vitest'
 
 import {
   APPLICATION_STATUS,
-  APPLICATION_STATUS_OPTIONS,
-  TIME_FILTER_CUSTOM_VALUE
+  APPLICATION_STATUS_OPTIONS
 } from './applications.constants'
-import { buildApiFilters, buildFilterPopoverSchema, filterApplications } from './applicationsPage.util'
+import { buildApiFilters, filterApplications } from './applicationsPage.util'
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
-vi.mock('../../../utils/datePicker.util', () => ({
-  ANY_TIME_DATE_OPTION: 'anyTime',
-  CUSTOM_RANGE_DATE_OPTION: 'customRange',
-  datePickerPastOptions: [
+vi.mock('../../../utils/datePicker.util', () => {
+  const options = [
     {
       id: 'anyTime',
       label: 'Any time',
@@ -55,13 +52,32 @@ vi.mock('../../../utils/datePicker.util', () => ({
       label: 'Custom range'
     }
   ]
-}))
+
+  return {
+    ANY_TIME_DATE_OPTION: 'anyTime',
+    CUSTOM_RANGE_DATE_OPTION: 'customRange',
+    datePickerPastOptions: options,
+    getDatePickerFilterValue: (opts, optionId) => {
+      const match = opts.find(o => o.id === optionId)
+      return {
+        value: match?.handler?.() ?? [null],
+        isPredefined: match?.isPredefined ?? false,
+        initialSelectedOptionId: optionId
+      }
+    }
+  }
+})
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-const makeApp = (stateValue, owner = '') => ({
-  state: { value: stateValue },
-  labels: { owner }
+const makeApp = stateValue => ({
+  state: { value: stateValue }
+})
+
+const makeDateFilter = (dates, isPredefined = true) => ({
+  value: dates,
+  isPredefined,
+  initialSelectedOptionId: isPredefined ? 'past24hours' : 'customRange'
 })
 
 // ── Tests ──────────────────────────────────────────────────────────────────────
@@ -140,159 +156,125 @@ describe('applicationsPage.util', () => {
 
   describe('buildApiFilters', () => {
     it('returns an empty object when no filters are active', () => {
-      expect(buildApiFilters({ name: '', time: 'anyTime' })).toEqual({})
+      expect(buildApiFilters({ name: '', dates: { value: [null], isPredefined: false } })).toEqual({})
     })
 
-    it('includes name when provided', () => {
-      const result = buildApiFilters({ name: 'my-app', time: 'anyTime' })
-      expect(result.name).toBe('my-app')
+    it('includes name with ~ prefix when provided', () => {
+      const result = buildApiFilters({ name: 'my-app', dates: { value: [null], isPredefined: false } })
+      expect(result.name).toBe('~my-app')
     })
 
     it('does not include name when empty', () => {
-      const result = buildApiFilters({ name: '', time: 'anyTime' })
+      const result = buildApiFilters({ name: '', dates: { value: [null], isPredefined: false } })
       expect(result).not.toHaveProperty('name')
     })
 
-    it('includes since for a predefined time filter', () => {
-      const result = buildApiFilters({ name: '', time: 'past24hours' })
+    it('includes since for a predefined date filter', () => {
+      const sinceDate = new Date('2026-05-12T15:00:00.000Z')
+      const untilDate = new Date('2026-05-13T15:00:00.000Z')
+      const result = buildApiFilters({
+        name: '',
+        dates: makeDateFilter([sinceDate, untilDate], true)
+      })
       expect(result.since).toBe('2026-05-12T15:00:00.000Z')
     })
 
-    it('does not include since for anyTime', () => {
-      const result = buildApiFilters({ name: '', time: 'anyTime' })
-      expect(result).not.toHaveProperty('since')
-    })
-
-    it('uses customSince when time is "custom"', () => {
+    it('does not include until for predefined date filters', () => {
+      const sinceDate = new Date('2026-05-12T15:00:00.000Z')
+      const untilDate = new Date('2026-05-13T15:00:00.000Z')
       const result = buildApiFilters({
         name: '',
-        time: TIME_FILTER_CUSTOM_VALUE,
-        customSince: '2026-01-01T00:00:00.000Z'
+        dates: makeDateFilter([sinceDate, untilDate], true)
+      })
+      expect(result).not.toHaveProperty('until')
+    })
+
+    it('includes both since and until for custom range', () => {
+      const sinceDate = new Date('2026-01-01T00:00:00.000Z')
+      const untilDate = new Date('2026-01-02T00:00:00.000Z')
+      const result = buildApiFilters({
+        name: '',
+        dates: makeDateFilter([sinceDate, untilDate], false)
       })
       expect(result.since).toBe('2026-01-01T00:00:00.000Z')
+      expect(result.until).toBe('2026-01-02T00:00:00.000Z')
     })
 
-    it('does not include since when time is "custom" but customSince is empty', () => {
-      const result = buildApiFilters({
-        name: '',
-        time: TIME_FILTER_CUSTOM_VALUE,
-        customSince: ''
-      })
+    it('does not include since when date value is null', () => {
+      const result = buildApiFilters({ name: '', dates: { value: [null], isPredefined: false } })
       expect(result).not.toHaveProperty('since')
     })
 
     it('includes both name and since when both are set', () => {
-      const result = buildApiFilters({ name: 'app', time: 'past24hours' })
-      expect(result.name).toBe('app')
+      const sinceDate = new Date('2026-05-12T15:00:00.000Z')
+      const result = buildApiFilters({
+        name: 'app',
+        dates: makeDateFilter([sinceDate], true)
+      })
+      expect(result.name).toBe('~app')
       expect(result.since).toBe('2026-05-12T15:00:00.000Z')
+    })
+
+    it('maps running status to ready for the API', () => {
+      const result = buildApiFilters({
+        name: '',
+        dates: { value: [null], isPredefined: false },
+        state: ['running']
+      })
+      expect(result.state).toEqual(['ready'])
+    })
+
+    it('excludes "all" from status filter', () => {
+      const result = buildApiFilters({
+        name: '',
+        dates: { value: [null], isPredefined: false },
+        state: ['all', 'building']
+      })
+      expect(result.state).toEqual(['building'])
     })
   })
 
   // ── filterApplications ─────────────────────────────────────────────────────
 
   describe('filterApplications', () => {
-    // Note: the reducer maps 'ready' → 'running' before data reaches the store,
-    // so 'ready' never appears as state.value in real app data.
     const apps = [
-      makeApp('running', 'alice'),
-      makeApp('failed', 'bob'),
-      makeApp('building', 'alice'),
-      makeApp('error', 'carol')
+      makeApp('running'),
+      makeApp('failed'),
+      makeApp('building'),
+      makeApp('error')
     ]
 
-    it('returns all apps when status and owner are empty', () => {
-      expect(filterApplications(apps, { status: [], owner: '' })).toHaveLength(4)
+    it('returns all apps when status filter is "all"', () => {
+      expect(filterApplications(apps, { state: ['all'] })).toHaveLength(4)
+    })
+
+    it('returns all apps when status filter is empty', () => {
+      expect(filterApplications(apps, { state: [] })).toHaveLength(4)
     })
 
     it('filters by a single status', () => {
-      const result = filterApplications(apps, { status: ['running'], owner: '' })
+      const result = filterApplications(apps, { state: ['running'] })
       expect(result).toHaveLength(1)
       expect(result[0].state.value).toBe('running')
     })
 
     it('filters by multiple statuses', () => {
-      const result = filterApplications(apps, { status: ['running', 'failed'], owner: '' })
+      const result = filterApplications(apps, { state: ['running', 'failed'] })
       expect(result).toHaveLength(2)
     })
 
     it('returns no apps when the selected status matches nothing', () => {
-      const result = filterApplications(apps, { status: ['ready'], owner: '' })
-      expect(result).toHaveLength(0)
-    })
-
-    it('filters by owner (case-insensitive)', () => {
-      const result = filterApplications(apps, { status: [], owner: 'ALICE' })
-      expect(result).toHaveLength(2)
-    })
-
-    it('filters by partial owner match', () => {
-      const result = filterApplications(apps, { status: [], owner: 'ali' })
-      expect(result).toHaveLength(2)
-    })
-
-    it('combines status and owner filters', () => {
-      const result = filterApplications(apps, { status: ['running'], owner: 'alice' })
-      expect(result).toHaveLength(1)
-      expect(result[0].state.value).toBe('running')
-    })
-
-    it('returns empty array when nothing matches combined filters', () => {
-      const result = filterApplications(apps, { status: ['failed'], owner: 'alice' })
+      const result = filterApplications(apps, { state: ['ready'] })
       expect(result).toHaveLength(0)
     })
 
     it('handles undefined status gracefully (treats as empty)', () => {
-      const result = filterApplications(apps, { status: undefined, owner: '' })
+      const result = filterApplications(apps, { state: undefined })
       expect(result).toHaveLength(4)
     })
 
     it('returns empty array for empty applications list', () => {
-      expect(filterApplications([], { status: ['running'], owner: '' })).toHaveLength(0)
-    })
-  })
-
-  // ── buildFilterPopoverSchema ───────────────────────────────────────────────
-
-  describe('buildFilterPopoverSchema', () => {
-    it('returns a schema with status and owner fields', () => {
-      const schema = buildFilterPopoverSchema('', [])
-      expect(schema).toHaveProperty('status')
-      expect(schema).toHaveProperty('owner')
-    })
-
-    it('status field has kind multi-select', () => {
-      const { status } = buildFilterPopoverSchema('', [])
-      expect(status.kind).toBe('multi-select')
-    })
-
-    it('owner field has kind text', () => {
-      const { owner } = buildFilterPopoverSchema('', [])
-      expect(owner.kind).toBe('text')
-    })
-
-    it('populates status defaultValue from currentStatus', () => {
-      const { status } = buildFilterPopoverSchema('', ['running', 'failed'])
-      expect(status.defaultValue).toEqual(['running', 'failed'])
-    })
-
-    it('populates owner defaultValue from currentOwner', () => {
-      const { owner } = buildFilterPopoverSchema('alice', [])
-      expect(owner.defaultValue).toBe('alice')
-    })
-
-    it('defaults status to empty array when currentStatus is not an array', () => {
-      const { status } = buildFilterPopoverSchema('', null)
-      expect(status.defaultValue).toEqual([])
-    })
-
-    it('defaults owner to empty string when currentOwner is undefined', () => {
-      const { owner } = buildFilterPopoverSchema(undefined, [])
-      expect(owner.defaultValue).toBe('')
-    })
-
-    it('includes the full list of status options', () => {
-      const { status } = buildFilterPopoverSchema('', [])
-      expect(status.options).toHaveLength(APPLICATION_STATUS_OPTIONS.length)
+      expect(filterApplications([], { state: ['running'] })).toHaveLength(0)
     })
   })
 })

@@ -83,8 +83,8 @@ vi.mock('../../../shared/UrlCell', () => ({
     <div data-testid="url-cell">{items.map(i => i.url).join(', ')}</div>
   ),
   buildUrlItems: (external = [], internal = []) => [
-    ...external.map(url => ({ url, isExternal: true })),
-    ...internal.map(url => ({ url, isExternal: false }))
+    ...external.map(url => ({ url, allowCopy: true, openInNewTab: true })),
+    ...internal.map(url => ({ url }))
   ]
 }))
 

@@ -49,6 +49,16 @@ vi.mock('igz-controls/utils/notification.util', () => ({
   showErrorNotification: vi.fn()
 }))
 
+vi.mock('igz-controls/nextGenComponents', () => ({
+  Loader: props => (
+    <div
+      data-testid={props['data-testid'] || 'loader'}
+      role="status"
+      aria-label={props['aria-label'] || 'Loading'}
+    />
+  )
+}))
+
 vi.mock('../../../shared/LogsBlock/LogsBlock', () => ({
   default: ({ logs }) => (
     <div data-testid="logs-block">

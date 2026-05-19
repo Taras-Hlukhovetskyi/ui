@@ -121,18 +121,18 @@ describe('ApplicationCounters', () => {
       expect(screen.getByText('Failed')).toBeInTheDocument()
     })
 
-    it('renders "Building" status label', () => {
+    it('renders "Deploying" status label', () => {
       renderCounters()
-      expect(screen.getByText('Building')).toBeInTheDocument()
+      expect(screen.getByText('Deploying')).toBeInTheDocument()
     })
   })
 
   // ── Loading state ──────────────────────────────────────────────────────────
 
   describe('loading state', () => {
-    it('shows "..." placeholders while loading', () => {
-      renderCounters({ loading: true, functions: makeFunctions() })
-      expect(screen.getAllByText('...')).toHaveLength(4)
+    it('shows loading spinners while loading', () => {
+      const { container } = renderCounters({ loading: true, functions: makeFunctions() })
+      expect(container.querySelectorAll('.animate-spin')).toHaveLength(4)
     })
 
     it('does not show numeric counts while loading', () => {

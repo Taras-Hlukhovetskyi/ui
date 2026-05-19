@@ -58,11 +58,6 @@ const getFiltersFromSearchParams = (filtersConfig, searchParams, paramsParsingCa
       return filterConfig.initialValue
     }
 
-    // If the filter config declares a URL parser, use it before any other processing.
-    if (filterConfig.parseUrl) {
-      return filterConfig.parseUrl(searchParamValue)
-    }
-
     let parsedValue = paramsParsingCallback(filterName, searchParamValue)
 
     if (searchParamValue === parsedValue) {

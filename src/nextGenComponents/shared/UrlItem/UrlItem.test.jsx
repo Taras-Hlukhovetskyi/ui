@@ -29,7 +29,8 @@ import { URL_ITEM_VARIANT } from './urlItem.constants'
 const renderUrlItem = (overrides = {}) => {
   const props = {
     url: 'example.com:8080',
-    isExternal: true,
+    allowCopy: true,
+    openInNewTab: true,
     isCopied: false,
     onCopy: vi.fn(),
     ...overrides
@@ -56,13 +57,13 @@ describe('UrlItem', () => {
       expect(screen.getByTestId('url-link')).toHaveTextContent('host.example.com:9090')
     })
 
-    it('renders the copy button for external urls', () => {
-      renderUrlItem({ isExternal: true })
+    it('renders the copy button when allowCopy is true', () => {
+      renderUrlItem({ allowCopy: true })
       expect(screen.getByTestId('copy-button')).toBeInTheDocument()
     })
 
-    it('does not render the copy button for internal urls', () => {
-      renderUrlItem({ isExternal: false })
+    it('does not render the copy button when allowCopy is false', () => {
+      renderUrlItem({ allowCopy: false })
       expect(screen.queryByTestId('copy-button')).not.toBeInTheDocument()
     })
 
@@ -80,23 +81,23 @@ describe('UrlItem', () => {
   // ── Link href ──────────────────────────────────────────────────────────────
 
   describe('link href', () => {
-    it('prepends https:// for bare hostnames', () => {
-      renderUrlItem({ url: 'host.example.com:8080', isExternal: true })
+    it('prepends https:// for bare hostnames when openInNewTab is true', () => {
+      renderUrlItem({ url: 'host.example.com:8080', openInNewTab: true })
       expect(screen.getByTestId('url-link')).toHaveAttribute('href', 'https://host.example.com:8080')
     })
 
     it('preserves existing https:// prefix', () => {
-      renderUrlItem({ url: 'https://host.example.com/path', isExternal: true })
+      renderUrlItem({ url: 'https://host.example.com/path', openInNewTab: true })
       expect(screen.getByTestId('url-link')).toHaveAttribute('href', 'https://host.example.com/path')
     })
 
     it('preserves existing http:// prefix', () => {
-      renderUrlItem({ url: 'http://internal.local/api', isExternal: true })
+      renderUrlItem({ url: 'http://internal.local/api', openInNewTab: true })
       expect(screen.getByTestId('url-link')).toHaveAttribute('href', 'http://internal.local/api')
     })
 
-    it('uses the url as-is for internal links', () => {
-      renderUrlItem({ url: '/projects/my-project', isExternal: false })
+    it('uses the url as-is when openInNewTab is false', () => {
+      renderUrlItem({ url: '/projects/my-project', openInNewTab: false })
       expect(screen.getByTestId('url-link')).toHaveAttribute('href', '/projects/my-project')
     })
   })
@@ -104,18 +105,18 @@ describe('UrlItem', () => {
   // ── Link target ────────────────────────────────────────────────────────────
 
   describe('link target', () => {
-    it('opens external links in a new tab', () => {
-      renderUrlItem({ isExternal: true })
+    it('opens in a new tab when openInNewTab is true', () => {
+      renderUrlItem({ openInNewTab: true })
       expect(screen.getByTestId('url-link')).toHaveAttribute('target', '_blank')
     })
 
-    it('adds rel="noopener noreferrer" for external links', () => {
-      renderUrlItem({ isExternal: true })
+    it('adds rel="noopener noreferrer" when openInNewTab is true', () => {
+      renderUrlItem({ openInNewTab: true })
       expect(screen.getByTestId('url-link')).toHaveAttribute('rel', 'noopener noreferrer')
     })
 
-    it('does not set target for internal links', () => {
-      renderUrlItem({ isExternal: false })
+    it('does not set target when openInNewTab is false', () => {
+      renderUrlItem({ openInNewTab: false })
       expect(screen.getByTestId('url-link')).not.toHaveAttribute('target')
     })
   })
@@ -125,25 +126,25 @@ describe('UrlItem', () => {
   describe('copy button', () => {
     it('calls onCopy with the url when clicked', () => {
       const onCopy = vi.fn()
-      renderUrlItem({ url: 'host.example.com', isExternal: true, onCopy })
+      renderUrlItem({ url: 'host.example.com', allowCopy: true, onCopy })
       fireEvent.click(screen.getByTestId('copy-button'))
       expect(onCopy).toHaveBeenCalledWith('host.example.com')
     })
 
     it('calls onCopy exactly once per click', () => {
       const onCopy = vi.fn()
-      renderUrlItem({ isExternal: true, onCopy })
+      renderUrlItem({ allowCopy: true, onCopy })
       fireEvent.click(screen.getByTestId('copy-button'))
       expect(onCopy).toHaveBeenCalledTimes(1)
     })
 
     it('has aria-label "Copy URL" when not yet copied', () => {
-      renderUrlItem({ isExternal: true, isCopied: false })
+      renderUrlItem({ allowCopy: true, isCopied: false })
       expect(screen.getByTestId('copy-button')).toHaveAttribute('aria-label', 'Copy URL')
     })
 
     it('has aria-label "Copied!" when isCopied is true', () => {
-      renderUrlItem({ isExternal: true, isCopied: true })
+      renderUrlItem({ allowCopy: true, isCopied: true })
       expect(screen.getByTestId('copy-button')).toHaveAttribute('aria-label', 'Copied!')
     })
   })
@@ -152,31 +153,31 @@ describe('UrlItem', () => {
 
   describe('hover behaviour', () => {
     it('shows the copy button (inline-flex) when the item is hovered — default variant', () => {
-      renderUrlItem({ isExternal: true, variant: URL_ITEM_VARIANT.DEFAULT })
+      renderUrlItem({ allowCopy: true, variant: URL_ITEM_VARIANT.DEFAULT })
       fireEvent.mouseEnter(screen.getByTestId('url-item'))
       expect(screen.getByTestId('copy-button')).toHaveClass('inline-flex')
     })
 
     it('hides the copy button when the item is not hovered — default variant', () => {
-      renderUrlItem({ isExternal: true, variant: URL_ITEM_VARIANT.DEFAULT })
+      renderUrlItem({ allowCopy: true, variant: URL_ITEM_VARIANT.DEFAULT })
       expect(screen.getByTestId('copy-button')).toHaveClass('hidden')
     })
 
     it('hides the copy button again after mouse leaves — default variant', () => {
-      renderUrlItem({ isExternal: true, variant: URL_ITEM_VARIANT.DEFAULT })
+      renderUrlItem({ allowCopy: true, variant: URL_ITEM_VARIANT.DEFAULT })
       fireEvent.mouseEnter(screen.getByTestId('url-item'))
       fireEvent.mouseLeave(screen.getByTestId('url-item'))
       expect(screen.getByTestId('copy-button')).toHaveClass('hidden')
     })
 
     it('makes the copy button fully opaque when hovered — dark variant', () => {
-      renderUrlItem({ isExternal: true, variant: URL_ITEM_VARIANT.DARK })
+      renderUrlItem({ allowCopy: true, variant: URL_ITEM_VARIANT.DARK })
       fireEvent.mouseEnter(screen.getByTestId('url-item'))
       expect(screen.getByTestId('copy-button')).toHaveClass('opacity-100')
     })
 
     it('makes the copy button transparent when not hovered — dark variant', () => {
-      renderUrlItem({ isExternal: true, variant: URL_ITEM_VARIANT.DARK })
+      renderUrlItem({ allowCopy: true, variant: URL_ITEM_VARIANT.DARK })
       expect(screen.getByTestId('copy-button')).toHaveClass('opacity-0')
     })
   })

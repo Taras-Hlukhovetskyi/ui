@@ -30,6 +30,10 @@ vi.mock('react-router-dom', () => ({
   useSearchParams: () => [new URLSearchParams(), mockSetSearchParams]
 }))
 
+vi.mock('react-redux', () => ({
+  useDispatch: () => vi.fn()
+}))
+
 vi.mock('igz-controls/nextGenComponents', () => ({
   RefreshButton: ({ onClick }) => (
     <button data-testid="refresh-button" onClick={onClick}>
@@ -38,11 +42,22 @@ vi.mock('igz-controls/nextGenComponents', () => ({
   )
 }))
 
+vi.mock('../../../utils/datePicker.util', () => ({
+  ANY_TIME_DATE_OPTION: 'anyTime',
+  CUSTOM_RANGE_DATE_OPTION: 'customRange',
+  datePickerPastOptions: [],
+  getDatePickerFilterValue: vi.fn(() => ({ value: [null], isPredefined: false, initialSelectedOptionId: 'anyTime' }))
+}))
+
+vi.mock('../../../reducers/filtersReducer', () => ({
+  setFilters: vi.fn(payload => ({ type: 'filters/setFilters', payload }))
+}))
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const FILTERS_CONFIG = {
-  name: { defaultValue: '' },
-  time: { defaultValue: 'any' }
+  name: { initialValue: '' },
+  time: { initialValue: 'any' }
 }
 
 const DEFAULT_FILTERS = { name: '', time: 'any' }
@@ -201,18 +216,19 @@ describe('ActionBar', () => {
       expect(onRefresh).toHaveBeenCalledWith(filters)
     })
 
-    it('does not call setFilters when refresh is clicked', () => {
+    it('calls setFilters with current filters when refresh is clicked', () => {
       const setFilters = vi.fn()
-      renderActionBar({ setFilters })
+      const filters = { name: 'app-x', time: '24h' }
+      renderActionBar({ setFilters, filters })
       fireEvent.click(screen.getByTestId('refresh-button'))
-      expect(setFilters).not.toHaveBeenCalled()
+      expect(setFilters).toHaveBeenCalledWith(filters)
     })
   })
 
   // ── URL serialisation ──────────────────────────────────────────────────────
 
   describe('URL serialisation', () => {
-    it('removes default-value keys from the URL', () => {
+    it('removes keys from the URL when value equals initialValue', () => {
       let capturedUpdater = null
       mockSetSearchParams.mockImplementation(updater => {
         capturedUpdater = updater
@@ -240,22 +256,25 @@ describe('ActionBar', () => {
       expect(next.get('name')).toBe('my-app')
     })
 
-    it('uses serializeUrl when provided in filtersConfig', () => {
+    it('removes keys when initialValue is nil (no baseline to compare)', () => {
       let capturedUpdater = null
       mockSetSearchParams.mockImplementation(updater => {
         capturedUpdater = updater
       })
 
       const config = {
-        name: { defaultValue: '', serializeUrl: v => v.toUpperCase() },
-        time: { defaultValue: 'any' }
+        name: { initialValue: '' },
+        extra: {}
       }
-      const { getCtx } = renderActionBar({ filtersConfig: config })
-      act(() => getCtx().applyFilter('name', 'hello'))
+      const { getCtx } = renderActionBar({
+        filtersConfig: config,
+        filters: { name: '', extra: 'value' }
+      })
+      act(() => getCtx().applyFilter('extra', 'value'))
 
-      const prev = new URLSearchParams()
+      const prev = new URLSearchParams('extra=old')
       const next = capturedUpdater(prev)
-      expect(next.get('name')).toBe('HELLO')
+      expect(next.has('extra')).toBe(false)
     })
   })
 

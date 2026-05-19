@@ -25,7 +25,15 @@ import { URL_ITEM_VARIANT, toHref } from './urlItem.constants'
 import Copy from 'igz-controls/images/copy-to-clipboard-icon.svg?react'
 import Check from 'igz-controls/images/double-check.svg?react'
 
-const UrlItem = ({ url, isExternal, isCopied, onCopy, variant = URL_ITEM_VARIANT.DEFAULT }) => {
+const UrlItem = ({
+  url,
+  allowCopy = false,
+  openInNewTab = false,
+  asPlainText = false,
+  isCopied,
+  onCopy,
+  variant = URL_ITEM_VARIANT.DEFAULT
+}) => {
   const isDark = variant === URL_ITEM_VARIANT.DARK
   const [isHovered, setIsHovered] = useState(false)
 
@@ -36,19 +44,31 @@ const UrlItem = ({ url, isExternal, isCopied, onCopy, variant = URL_ITEM_VARIANT
       onMouseLeave={() => setIsHovered(false)}
       data-testid="url-item"
     >
-      <a
-        href={isExternal ? toHref(url) : url}
-        {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-        className={classnames(
-          'truncate text-[15px] leading-5 hover:underline',
-          isDark ? '!text-white/90' : '!text-igz-link'
-        )}
-        data-testid="url-link"
-      >
-        {url}
-      </a>
+      {asPlainText ? (
+        <span
+          className={classnames(
+            'truncate text-[15px] leading-5',
+            isDark ? '!text-white/90' : 'text-igz-primary'
+          )}
+          data-testid="url-path"
+        >
+          {url}
+        </span>
+      ) : (
+        <a
+          href={openInNewTab ? toHref(url) : url}
+          {...(openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          className={classnames(
+            'truncate text-[15px] leading-5 hover:underline',
+            isDark ? '!text-white/90' : '!text-igz-link'
+          )}
+          data-testid="url-link"
+        >
+          {url}
+        </a>
+      )}
 
-      {isExternal && (
+      {allowCopy && (
         <button
           onClick={() => onCopy(url)}
           className={classnames(
@@ -59,10 +79,15 @@ const UrlItem = ({ url, isExternal, isCopied, onCopy, variant = URL_ITEM_VARIANT
                   isHovered ? 'opacity-100' : 'opacity-0',
                   'text-white/80 hover:text-white'
                 )
-              : classnames(
-                  'text-igz-link hover:opacity-80',
-                  isHovered ? 'inline-flex' : 'hidden'
-                )
+              : asPlainText
+                ? classnames(
+                    'text-igz-secondary hover:opacity-80',
+                    isHovered ? 'inline-flex' : 'hidden'
+                  )
+                : classnames(
+                    'text-igz-link hover:opacity-80',
+                    isHovered ? 'inline-flex' : 'hidden'
+                  )
           )}
           aria-label={isCopied ? 'Copied!' : 'Copy URL'}
           data-testid="copy-button"
@@ -79,9 +104,11 @@ const UrlItem = ({ url, isExternal, isCopied, onCopy, variant = URL_ITEM_VARIANT
 }
 
 UrlItem.propTypes = {
+  allowCopy: PropTypes.bool,
+  asPlainText: PropTypes.bool,
   isCopied: PropTypes.bool.isRequired,
-  isExternal: PropTypes.bool.isRequired,
   onCopy: PropTypes.func.isRequired,
+  openInNewTab: PropTypes.bool,
   url: PropTypes.string.isRequired,
   variant: PropTypes.oneOf(Object.values(URL_ITEM_VARIANT))
 }

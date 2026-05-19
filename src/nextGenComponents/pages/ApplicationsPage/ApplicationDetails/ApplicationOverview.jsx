@@ -17,49 +17,14 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'igz-controls/nextGenComponents'
 import { formatDatetime } from 'igz-controls/utils/datetime.util'
 
 import DetailsInfoTable from '../../../shared/DetailsInfoTable/DetailsInfoTable'
-import UrlItem from '../../../shared/UrlItem/UrlItem'
+import UrlList from '../../../shared/UrlList'
 import { OVERVIEW_FIELD } from './applicationDetails.constants'
-
-const COPY_RESET_TIMEOUT_MS = 2000
-
-const UrlList = ({ urls, isExternal }) => {
-  const [copiedUrl, setCopiedUrl] = useState(null)
-
-  const handleCopy = useCallback(url => {
-    navigator.clipboard.writeText(url)
-    setCopiedUrl(url)
-    setTimeout(() => setCopiedUrl(null), COPY_RESET_TIMEOUT_MS)
-  }, [])
-
-  if (!urls || urls.length === 0) {
-    return null
-  }
-
-  return (
-    <div className="flex flex-col gap-1">
-      {urls.map(url => (
-        <UrlItem
-          key={url}
-          url={url}
-          isExternal={isExternal}
-          isCopied={copiedUrl === url}
-          onCopy={handleCopy}
-        />
-      ))}
-    </div>
-  )
-}
-
-UrlList.propTypes = {
-  isExternal: PropTypes.bool.isRequired,
-  urls: PropTypes.arrayOf(PropTypes.string)
-}
 
 const ApplicationOverview = ({ application }) => {
   const overviewItems = useMemo(() => {
@@ -83,12 +48,12 @@ const ApplicationOverview = ({ application }) => {
       },
       {
         label: OVERVIEW_FIELD.DIRECT_URLS,
-        value: <UrlList urls={application.external_invocation_urls} isExternal />,
+        value: <UrlList urls={application.external_invocation_urls} allowCopy openInNewTab />,
         hidden: !application.external_invocation_urls?.length
       },
       {
         label: OVERVIEW_FIELD.INDIRECT_URLS,
-        value: <UrlList urls={application.internal_invocation_urls} isExternal={false} />,
+        value: <UrlList urls={application.internal_invocation_urls} />,
         hidden: !application.internal_invocation_urls?.length
       },
       {
@@ -113,12 +78,12 @@ const ApplicationOverview = ({ application }) => {
       },
       {
         label: OVERVIEW_FIELD.INTERNAL_URLS,
-        value: <UrlList urls={application.internal_invocation_urls} isExternal />,
+        value: <UrlList urls={application.internal_invocation_urls} allowCopy asPlainText />,
         hidden: !application.internal_invocation_urls?.length
       },
       {
         label: OVERVIEW_FIELD.COMMANDS,
-        value: Array.isArray(application.command) ? application.command.join(', ') : application.command || null
+        value: application.ui?.originalContent?.spec?.command || null
       },
       {
         label: OVERVIEW_FIELD.ARGUMENTS,
@@ -139,7 +104,6 @@ ApplicationOverview.propTypes = {
     build: PropTypes.shape({
       source: PropTypes.string
     }),
-    command: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
     description: PropTypes.string,
     external_invocation_urls: PropTypes.arrayOf(PropTypes.string),
     image: PropTypes.string,
@@ -151,6 +115,13 @@ ApplicationOverview.propTypes = {
       value: PropTypes.string
     }),
     tag: PropTypes.string,
+    ui: PropTypes.shape({
+      originalContent: PropTypes.shape({
+        spec: PropTypes.shape({
+          command: PropTypes.string
+        })
+      })
+    }),
     updated: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string])
   }).isRequired
 }

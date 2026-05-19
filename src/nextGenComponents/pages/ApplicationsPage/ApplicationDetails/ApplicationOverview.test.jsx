@@ -65,8 +65,15 @@ const SAMPLE_APPLICATION = {
   labels: { owner: 'John Driller' },
   tag: '',
   updated: new Date('2024-10-29T06:46:10.000Z'),
-  command: 'streamlit, run',
-  args: ['app:server --bind', '0.0.0.0:8050 --workers 4']
+  command: ['https://api-gateway.example.com/v1/project3-name'],
+  args: ['app:server --bind', '0.0.0.0:8050 --workers 4'],
+  ui: {
+    originalContent: {
+      spec: {
+        command: 'streamlit run'
+      }
+    }
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -101,11 +108,6 @@ describe('ApplicationOverview', () => {
       expect(screen.getByTestId('info-row-Source')).toBeInTheDocument()
     })
 
-    it('renders the Owner row', () => {
-      renderOverview()
-      expect(screen.getByTestId('info-row-Owner')).toBeInTheDocument()
-    })
-
     it('renders the Updated row', () => {
       renderOverview()
       expect(screen.getByTestId('info-row-Updated')).toBeInTheDocument()
@@ -125,6 +127,16 @@ describe('ApplicationOverview', () => {
       renderOverview()
       expect(screen.getByTestId('info-row-Direct URLs')).toBeInTheDocument()
     })
+
+    it('renders Indirect URLs when internal URLs are present', () => {
+      renderOverview()
+      expect(screen.getByTestId('info-row-Indirect URLs')).toBeInTheDocument()
+    })
+
+    it('renders Internal URLs when internal URLs are present', () => {
+      renderOverview()
+      expect(screen.getByTestId('info-row-Internal URLs')).toBeInTheDocument()
+    })
   })
 
   describe('hidden fields', () => {
@@ -136,6 +148,11 @@ describe('ApplicationOverview', () => {
     it('hides Indirect URLs when internal_invocation_urls is empty', () => {
       renderOverview({ ...SAMPLE_APPLICATION, internal_invocation_urls: [] })
       expect(screen.queryByTestId('info-row-Indirect URLs')).not.toBeInTheDocument()
+    })
+
+    it('hides Internal URLs when internal_invocation_urls is empty', () => {
+      renderOverview({ ...SAMPLE_APPLICATION, internal_invocation_urls: [] })
+      expect(screen.queryByTestId('info-row-Internal URLs')).not.toBeInTheDocument()
     })
   })
 })

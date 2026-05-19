@@ -18,26 +18,34 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { DataTable, Tooltip, TooltipContent, TooltipTrigger } from 'igz-controls/nextGenComponents'
-import { Link, useNavigate, useOutletContext, useParams } from 'react-router-dom'
+import { DataTable, Loader, Tooltip, TooltipContent, TooltipTrigger } from 'igz-controls/nextGenComponents'
+import { useNavigate, useOutletContext, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { isEmpty } from 'lodash'
-import { formatDatetime } from 'igz-controls/utils/datetime.util'
 import { HelpCircle, FileCode2 } from 'lucide-react'
 
-import { Loader } from 'igz-controls/nextGenComponents'
 import ApplicationDetails from '../ApplicationDetails/ApplicationDetails'
+import NoData from '../../../shared/NoData/NoData'
 import Pagination from '../../../../common/Pagination/Pagination'
-import UrlCell, { buildUrlItems } from '../../../shared/UrlCell'
-import { APPLICATIONS_PAGE_PATH } from '../../../../constants'
+import { getApplicationsColumns } from './applicationsColumns'
+import { APPLICATIONS_PAGE, APPLICATIONS_PAGE_PATH } from '../../../../constants'
 import { toggleYaml } from '../../../../reducers/appReducer'
 import { fetchFunction } from '../../../../reducers/functionReducer'
 import { checkForSelectedApplication } from '../applicationsPage.util'
 import { DEFAULT_APPLICATION_DETAILS_TAB } from '../ApplicationDetails/applicationDetails.constants'
+import { getNoDataMessage } from '../../../../utils/getNoDataMessage'
 
 const Applications = () => {
-  const { applications, paginatedApplications, paginationConfigRef, searchParams, setSearchParams, setIsDetailsReady } =
-    useOutletContext()
+  const {
+    applications,
+    filters,
+    filtersConfig,
+    paginatedApplications,
+    paginationConfigRef,
+    searchParams,
+    setSearchParams,
+    setIsDetailsReady
+  } = useOutletContext()
   const params = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -172,75 +180,7 @@ const Applications = () => {
   }, [selectedApplication, setIsDetailsReady])
 
   const columns = useMemo(
-    () => [
-      {
-        accessorKey: 'name',
-        header: 'Name',
-        size: 15,
-        cell: ({ row }) => {
-          const state = row.original.state ?? {}
-          const stateLabel = state.label ?? state.value ?? 'Unknown'
-          const tag = row.original.tag || ''
-          const hash = row.original.hash || ''
-          const identifier = tag ? `:${tag}@${hash}` : `@${hash}`
-
-          return (
-            <div className="flex items-center gap-2">
-              <Link
-                to={`/projects/${params.projectName}/${APPLICATIONS_PAGE_PATH}/${row.original.name}/${identifier}/${DEFAULT_APPLICATION_DETAILS_TAB}`}
-                className="text-igz-primary font-medium hover:underline"
-              >
-                {row.original.name}
-              </Link>
-              <Tooltip delayDuration={100}>
-                <TooltipTrigger asChild>
-                  <i
-                    className={`${state.className ?? 'state-unknown-function'} cursor-default`}
-                    data-testid="status-dot"
-                  />
-                </TooltipTrigger>
-                <TooltipContent side="top">{stateLabel}</TooltipContent>
-              </Tooltip>
-            </div>
-          )
-        }
-      },
-      {
-        accessorKey: 'external_invocation_urls',
-        header: 'URLs',
-        size: 50,
-        meta: { skipEllipsisTooltip: true },
-        cell: ({ row }) => (
-          <UrlCell
-            items={buildUrlItems(
-              row.original.external_invocation_urls ?? [],
-              row.original.internal_invocation_urls ?? []
-            )}
-          />
-        )
-      },
-      {
-        accessorKey: 'external_invocation_urls',
-        id: 'endpoints',
-        header: 'Endpoints',
-        size: 10,
-        cell: ({ row }) => (
-          <span className="text-igz-light-purple font-medium">
-            {row.original.external_invocation_urls?.length ?? 0}
-          </span>
-        )
-      },
-      {
-        accessorKey: 'updated',
-        size: 17,
-        header: 'Updated',
-        cell: ({ row }) => (
-          <span className="text-igz-secondary">
-            {formatDatetime(row.original.updated, 'N/A')}
-          </span>
-        )
-      },
-    ],
+    () => getApplicationsColumns(params.projectName),
     [params.projectName]
   )
 
@@ -265,9 +205,9 @@ const Applications = () => {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-background relative">
+    <div className="flex flex-col h-full overflow-hidden bg-background relative" data-testid="applications-list">
       <div className="flex items-center gap-1.5 mb-3 shrink-0">
-        <h2 className="text-base font-medium text-igz-primary">All Applications</h2>
+        <h2 className="text-base font-medium text-igz-primary" data-testid="applications-heading">All Applications</h2>
         <Tooltip delayDuration={200}>
           <TooltipTrigger asChild>
                 <HelpCircle
@@ -281,11 +221,15 @@ const Applications = () => {
         </Tooltip>
       </div>
       <div className="flex-1 min-h-[200px] flex flex-col [&_thead_tr]:z-[1]">
-        <DataTable
-          data={paginatedApplications}
-          columns={columns}
-          rowActions={rowActions}
-        />
+        {paginatedApplications.length === 0 ? (
+          <NoData message={getNoDataMessage(filters, filtersConfig, null, APPLICATIONS_PAGE)} />
+        ) : (
+          <DataTable
+            data={paginatedApplications}
+            columns={columns}
+            rowActions={rowActions}
+          />
+        )}
       </div>
       <Pagination
         paginationConfig={paginationConfigRef.current}

@@ -123,17 +123,17 @@ describe('UrlCell', () => {
 
   describe('single item', () => {
     it('renders the url-cell wrapper', () => {
-      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, isExternal: true }] })
+      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true }] })
       expect(screen.getByTestId('url-cell')).toBeInTheDocument()
     })
 
     it('renders the primary url link', () => {
-      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, isExternal: true }] })
+      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true }] })
       expect(screen.getByTestId('url-link')).toHaveTextContent(EXTERNAL_URL_A)
     })
 
     it('does not render the overflow badge for a single item', () => {
-      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, isExternal: true }] })
+      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true }] })
       expect(screen.queryByTestId('overflow-badge')).not.toBeInTheDocument()
     })
   })
@@ -151,8 +151,8 @@ describe('UrlCell', () => {
     it('renders the +1 overflow badge when two items do not both fit', () => {
       renderUrlCell({
         items: [
-          { url: EXTERNAL_URL_A, isExternal: true },
-          { url: EXTERNAL_URL_B, isExternal: true }
+          { url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true },
+          { url: EXTERNAL_URL_B, allowCopy: true, openInNewTab: true }
         ]
       })
       expect(screen.getByTestId('overflow-badge')).toHaveTextContent('+1')
@@ -161,9 +161,9 @@ describe('UrlCell', () => {
     it('renders the +2 overflow badge when three items are present', () => {
       renderUrlCell({
         items: [
-          { url: EXTERNAL_URL_A, isExternal: true },
-          { url: EXTERNAL_URL_B, isExternal: true },
-          { url: EXTERNAL_URL_C, isExternal: true }
+          { url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true },
+          { url: EXTERNAL_URL_B, allowCopy: true, openInNewTab: true },
+          { url: EXTERNAL_URL_C, allowCopy: true, openInNewTab: true }
         ]
       })
       expect(screen.getByTestId('overflow-badge')).toHaveTextContent('+2')
@@ -172,8 +172,8 @@ describe('UrlCell', () => {
     it('puts overflow urls in the tooltip', () => {
       renderUrlCell({
         items: [
-          { url: EXTERNAL_URL_A, isExternal: true },
-          { url: EXTERNAL_URL_B, isExternal: true }
+          { url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true },
+          { url: EXTERNAL_URL_B, allowCopy: true, openInNewTab: true }
         ]
       })
       const tooltip = screen.getByTestId('tooltip-content')
@@ -183,8 +183,8 @@ describe('UrlCell', () => {
     it('does not put the primary url in the tooltip', () => {
       renderUrlCell({
         items: [
-          { url: EXTERNAL_URL_A, isExternal: true },
-          { url: EXTERNAL_URL_B, isExternal: true }
+          { url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true },
+          { url: EXTERNAL_URL_B, allowCopy: true, openInNewTab: true }
         ]
       })
       const tooltip = screen.getByTestId('tooltip-content')
@@ -194,8 +194,8 @@ describe('UrlCell', () => {
     it('renders the scrollable tooltip list container', () => {
       renderUrlCell({
         items: [
-          { url: EXTERNAL_URL_A, isExternal: true },
-          { url: EXTERNAL_URL_B, isExternal: true }
+          { url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true },
+          { url: EXTERNAL_URL_B, allowCopy: true, openInNewTab: true }
         ]
       })
       expect(screen.getByTestId('tooltip-url-list')).toBeInTheDocument()
@@ -204,8 +204,8 @@ describe('UrlCell', () => {
     it('applies cursor-pointer to the overflow badge', () => {
       renderUrlCell({
         items: [
-          { url: EXTERNAL_URL_A, isExternal: true },
-          { url: EXTERNAL_URL_B, isExternal: true }
+          { url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true },
+          { url: EXTERNAL_URL_B, allowCopy: true, openInNewTab: true }
         ]
       })
       expect(screen.getByTestId('overflow-badge')).toHaveClass('cursor-pointer')
@@ -219,26 +219,26 @@ describe('UrlCell', () => {
     afterEach(() => vi.useRealTimers())
 
     it('writes the url to the clipboard when copy is clicked', () => {
-      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, isExternal: true }] })
+      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true }] })
       fireEvent.click(screen.getByTestId('copy-button'))
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith(EXTERNAL_URL_A)
     })
 
     it('shows the check icon immediately after copy', () => {
-      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, isExternal: true }] })
+      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true }] })
       fireEvent.click(screen.getByTestId('copy-button'))
       expect(screen.getByTestId('check-icon')).toBeInTheDocument()
     })
 
     it('reverts to copy icon after 3 seconds', () => {
-      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, isExternal: true }] })
+      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true }] })
       fireEvent.click(screen.getByTestId('copy-button'))
       act(() => vi.advanceTimersByTime(3000))
       expect(screen.getByTestId('copy-icon')).toBeInTheDocument()
     })
 
     it('does not revert early (at 2999 ms)', () => {
-      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, isExternal: true }] })
+      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true }] })
       fireEvent.click(screen.getByTestId('copy-button'))
       act(() => vi.advanceTimersByTime(2999))
       expect(screen.getByTestId('check-icon')).toBeInTheDocument()
@@ -247,14 +247,14 @@ describe('UrlCell', () => {
 
   // ── Internal vs external items ──────────────────────────────────────────────
 
-  describe('internal vs external items', () => {
-    it('renders a copy button for external items', () => {
-      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, isExternal: true }] })
+  describe('allowCopy items', () => {
+    it('renders a copy button for items with allowCopy', () => {
+      renderUrlCell({ items: [{ url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true }] })
       expect(screen.getByTestId('copy-button')).toBeInTheDocument()
     })
 
-    it('does not render a copy button for internal items', () => {
-      renderUrlCell({ items: [{ url: INTERNAL_URL, isExternal: false }] })
+    it('does not render a copy button for items without allowCopy', () => {
+      renderUrlCell({ items: [{ url: INTERNAL_URL }] })
       expect(screen.queryByTestId('copy-button')).not.toBeInTheDocument()
     })
   })
@@ -262,22 +262,22 @@ describe('UrlCell', () => {
   // ── buildUrlItems helper ────────────────────────────────────────────────────
 
   describe('buildUrlItems helper', () => {
-    it('maps external urls with isExternal: true', () => {
+    it('maps external urls with allowCopy and openInNewTab', () => {
       expect(buildUrlItems([EXTERNAL_URL_A], [])).toEqual([
-        { url: EXTERNAL_URL_A, isExternal: true }
+        { url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true }
       ])
     })
 
-    it('maps internal urls with isExternal: false', () => {
+    it('maps internal urls without allowCopy or openInNewTab', () => {
       expect(buildUrlItems([], [INTERNAL_URL])).toEqual([
-        { url: INTERNAL_URL, isExternal: false }
+        { url: INTERNAL_URL }
       ])
     })
 
     it('places external urls before internal urls', () => {
       const items = buildUrlItems([EXTERNAL_URL_A], [INTERNAL_URL])
-      expect(items[0]).toEqual({ url: EXTERNAL_URL_A, isExternal: true })
-      expect(items[1]).toEqual({ url: INTERNAL_URL, isExternal: false })
+      expect(items[0]).toEqual({ url: EXTERNAL_URL_A, allowCopy: true, openInNewTab: true })
+      expect(items[1]).toEqual({ url: INTERNAL_URL })
     })
 
     it('returns an empty array when both inputs are empty', () => {

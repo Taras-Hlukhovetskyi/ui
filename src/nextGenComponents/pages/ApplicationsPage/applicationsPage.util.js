@@ -19,47 +19,41 @@ such restriction.
 */
 import { debounce, isEqual } from 'lodash'
 
-import { datePickerPastOptions } from '../../../utils/datePicker.util'
 import { parseIdentifier } from '../../../utils/parseUri'
 import { parseFunction } from '../../../utils/parseFunction'
 import { showErrorNotification } from 'igz-controls/utils/notification.util'
 import { fetchFunction } from '../../../reducers/functionReducer'
-import { BE_PAGE, FE_PAGE, APPLICATIONS_PAGE_PATH, FUNCTIONS_PAGE } from '../../../constants'
+import { BE_PAGE, DATES_FILTER, FE_PAGE, FILTER_ALL_ITEMS, APPLICATIONS_PAGE_PATH, FUNCTIONS_PAGE, NAME_FILTER, STATUS_FILTER } from '../../../constants'
 import getState from '../../../utils/getState'
-import {
-  APPLICATION_STATUS,
-  FAILED_API_STATES,
-  FILTER_ALL_APPLICATIONS_STATUS,
-  TIME_FILTER_CUSTOM_VALUE
-} from './applications.constants'
+import { APPLICATION_STATUS, FAILED_API_STATES } from './applications.constants'
 
-export const getSinceDate = timeValue => {
-  const option = datePickerPastOptions.find(o => o.id === timeValue)
-  if (!option?.isPredefined || !option.handler) return undefined
-  const [since] = option.handler()
-  return since?.toISOString()
+export const parseApplicationsQueryParams = (paramName, paramValue) => {
+  if (paramName === STATUS_FILTER) {
+    const parsed = paramValue?.split(',').filter(Boolean)
+    return parsed?.length ? parsed : null
+  }
+  return paramValue
 }
 
 export const buildApiFilters = filters => {
   const apiFilters = {}
 
-  if (filters.name) {
-    apiFilters.name = `~${filters.name}`
+  if (filters[NAME_FILTER]) {
+    apiFilters.name = `~${filters[NAME_FILTER]}`
   }
 
-  if (filters.time === TIME_FILTER_CUSTOM_VALUE) {
-    if (filters.customSince) {
-      apiFilters.since = filters.customSince
-    }
-  } else {
-    const since = getSinceDate(filters.time)
-    if (since) {
-      apiFilters.since = since
-    }
+  const dateValue = filters[DATES_FILTER]?.value?.[0]
+  if (dateValue instanceof Date) {
+    apiFilters.since = dateValue.toISOString()
   }
 
-  const activeStatuses = Array.isArray(filters.status)
-    ? filters.status.filter(s => s !== FILTER_ALL_APPLICATIONS_STATUS)
+  const dateUntilValue = filters[DATES_FILTER]?.value?.[1]
+  if (dateUntilValue instanceof Date && !filters[DATES_FILTER]?.isPredefined) {
+    apiFilters.until = dateUntilValue.toISOString()
+  }
+
+  const activeStatuses = Array.isArray(filters[STATUS_FILTER])
+    ? filters[STATUS_FILTER].filter(s => s !== FILTER_ALL_ITEMS)
     : []
 
   if (activeStatuses.length > 0) {
@@ -73,9 +67,9 @@ export const buildApiFilters = filters => {
   return apiFilters
 }
 
-export const filterApplications = (applications, { status }) => {
-  const selectedStatuses = Array.isArray(status)
-    ? status.filter(s => s !== FILTER_ALL_APPLICATIONS_STATUS)
+export const filterApplications = (applications, filters) => {
+  const selectedStatuses = Array.isArray(filters[STATUS_FILTER])
+    ? filters[STATUS_FILTER].filter(s => s !== FILTER_ALL_ITEMS)
     : []
 
   return applications.filter(app => {

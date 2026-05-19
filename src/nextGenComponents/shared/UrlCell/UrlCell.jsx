@@ -45,10 +45,10 @@ const UrlCell = ({ items = [] }) => {
 
     const sep = measureTextWidth(', ', font)
 
-    const itemWidths = items.map(({ url, isExternal }, i) =>
+    const itemWidths = items.map(({ url, allowCopy }, i) =>
       (i > 0 ? sep : 0) +
       measureTextWidth(url, font) +
-      (isExternal ? COPY_BTN_WIDTH_PX : 0)
+      (allowCopy ? COPY_BTN_WIDTH_PX : 0)
     )
 
     const badgeWidth =
@@ -107,14 +107,15 @@ const UrlCell = ({ items = [] }) => {
       className="flex items-center min-w-0"
       data-testid="url-cell"
     >
-      {visibleItems.map(({ url, isExternal }, index) => (
+      {visibleItems.map(({ url, allowCopy, openInNewTab }, index) => (
         <React.Fragment key={url}>
           {index > 0 && (
             <span className="text-[15px] text-igz-gray shrink-0 mr-2 ml-1">,</span>
           )}
           <UrlItem
             url={url}
-            isExternal={isExternal}
+            allowCopy={allowCopy}
+            openInNewTab={openInNewTab}
             isCopied={copiedUrl === url}
             onCopy={handleCopy}
           />
@@ -143,11 +144,12 @@ const UrlCell = ({ items = [] }) => {
                 className="flex flex-col gap-1.5 overflow-y-auto max-h-[260px]"
                 data-testid="tooltip-url-list"
               >
-                {overflowItems.map(({ url, isExternal }) => (
+                {overflowItems.map(({ url, allowCopy, openInNewTab }) => (
                   <UrlItem
                     key={url}
                     url={url}
-                    isExternal={isExternal}
+                    allowCopy={allowCopy}
+                    openInNewTab={openInNewTab}
                     isCopied={copiedUrl === url}
                     onCopy={handleCopy}
                     variant={URL_ITEM_VARIANT.DARK}
@@ -165,7 +167,8 @@ const UrlCell = ({ items = [] }) => {
 UrlCell.propTypes = {
   items: PropTypes.arrayOf(
     PropTypes.shape({
-      isExternal: PropTypes.bool.isRequired,
+      allowCopy: PropTypes.bool,
+      openInNewTab: PropTypes.bool,
       url: PropTypes.string.isRequired
     })
   )

@@ -49,6 +49,6 @@ export const calculateVisibleCount = (containerWidth, itemWidths, badgeWidth) =>
 }
 
 export const buildUrlItems = (externalUrls = [], internalUrls = []) => [
-  ...externalUrls.map(url => ({ url, isExternal: true })),
-  ...internalUrls.map(url => ({ url, isExternal: false }))
+  ...externalUrls.map(url => ({ url, allowCopy: true, openInNewTab: true })),
+  ...internalUrls.map(url => ({ url }))
 ]

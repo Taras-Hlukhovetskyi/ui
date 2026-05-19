@@ -21,12 +21,11 @@ import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { Outlet, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { isEmpty } from 'lodash'
-import { Input, TooltipProvider, TimeFilterDropdown, FilterPopover } from 'igz-controls/nextGenComponents'
-import { Loader } from 'igz-controls/nextGenComponents'
-import { Search } from 'lucide-react'
+import { Loader, TooltipProvider } from 'igz-controls/nextGenComponents'
 
 import Breadcrumbs from '../../../common/Breadcrumbs/Breadcrumbs'
 import ApplicationCounters from './ApplicationCounters/ApplicationCounters'
+import ApplicationsFilters from './ApplicationsFilters/ApplicationsFilters'
 import ActionBar from '../../shared/ActionBar/ActionBar'
 
 import { useFiltersFromSearchParams } from '../../../hooks/useFiltersFromSearchParams.hook'
@@ -35,8 +34,8 @@ import { fetchFunctions } from '../../../reducers/functionReducer'
 import { parseFunction } from '../../../utils/parseFunction'
 import getState from '../../../utils/getState'
 import { BE_PAGE, BE_PAGE_SIZE, FUNCTIONS_PAGE } from '../../../constants'
-import { APPLICATIONS_FILTERS_CONFIG, TIME_FILTER_OPTIONS, STATUS_POPOVER_OPTIONS, APPLICATION_STATUS, FILTER_ALL_APPLICATIONS_STATUS } from './applications.constants'
-import { buildApiFilters, filterApplications } from './applicationsPage.util'
+import { APPLICATIONS_FILTERS_CONFIG, APPLICATION_STATUS } from './applications.constants'
+import { buildApiFilters, filterApplications, parseApplicationsQueryParams } from './applicationsPage.util'
 
 const ApplicationsPage = () => {
   const params = useParams()
@@ -45,7 +44,7 @@ const ApplicationsPage = () => {
   const paginationConfigRef = useRef({})
   const [isDetailsReady, setIsDetailsReady] = useState(false)
 
-  const urlFilters = useFiltersFromSearchParams(APPLICATIONS_FILTERS_CONFIG)
+  const urlFilters = useFiltersFromSearchParams(APPLICATIONS_FILTERS_CONFIG, parseApplicationsQueryParams)
   const [filters, setFilters] = useState(urlFilters)
 
   const applications = useMemo(
@@ -106,28 +105,8 @@ const ApplicationsPage = () => {
     resetPaginationTrigger: params.projectName
   })
 
-  const filterPopoverSchema = useMemo(() => ({
-    status: {
-      key: 'status',
-      label: 'Status',
-      kind: 'multi-select',
-      placeholder: 'All',
-      defaultValue: filters.status,
-      options: STATUS_POPOVER_OPTIONS,
-      computeDisabled: (optValue, currentValues) =>
-        optValue === FILTER_ALL_APPLICATIONS_STATUS &&
-        currentValues.includes(FILTER_ALL_APPLICATIONS_STATUS),
-      resolveValue: (next, prev) => {
-        if (next.length === 0) return [FILTER_ALL_APPLICATIONS_STATUS]
-        const addedAll = !prev.includes(FILTER_ALL_APPLICATIONS_STATUS) && next.includes(FILTER_ALL_APPLICATIONS_STATUS)
-        if (addedAll) return [FILTER_ALL_APPLICATIONS_STATUS]
-        return next.filter(v => v !== FILTER_ALL_APPLICATIONS_STATUS)
-      }
-    }
-  }), [filters.status])
-
   return (
-    <div className="mlrun-tw-scope h-screen overflow-hidden bg-background flex flex-col w-full">
+    <div className="mlrun-tw-scope h-screen overflow-hidden bg-background flex flex-col w-full" data-testid="applications-page">
       <TooltipProvider>
         <div className="flex flex-col h-full">
           <div className="px-6 py-4 flex items-center justify-between shrink-0">
@@ -135,58 +114,21 @@ const ApplicationsPage = () => {
           </div>
 
           {!isDetailsReady && (
-            <>
-              <div className="px-6 shrink-0">
-                <ActionBar
-                  filtersConfig={APPLICATIONS_FILTERS_CONFIG}
-                  filters={filters}
-                  setFilters={setFilters}
-                  onRefresh={handlePaginatedRefresh}
-                >
-                  {({ filters: activeFilters, setFilterValue, applyFilter, applyMultipleFilters }) => (
-                    <>
-                      <div className="relative w-[280px]">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-igz-gray pointer-events-none z-10" />
-                        <Input
-                          placeholder="Search by name..."
-                          className="pl-9 h-10"
-                          value={activeFilters.name}
-                          onChange={e => setFilterValue('name', e.target.value)}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter') applyFilter('name', e.target.value)
-                          }}
-                        />
-                      </div>
-
-                      <TimeFilterDropdown
-                        value={activeFilters.time}
-                        options={TIME_FILTER_OPTIONS}
-                        onChange={value => applyFilter('time', value)}
-                        onCustomRange={range =>
-                          applyMultipleFilters({
-                            time: 'custom',
-                            customSince: range.since,
-                            customUntil: range.until
-                          })
-                        }
-                        initialCustomRange={
-                          activeFilters.time === 'custom' && activeFilters.customSince
-                            ? { since: activeFilters.customSince, until: activeFilters.customUntil }
-                            : undefined
-                        }
-                      />
-
-                      <FilterPopover
-                        schema={filterPopoverSchema}
-                        onApply={vals => applyFilter('status', vals?.status ?? [FILTER_ALL_APPLICATIONS_STATUS])}
-                        onClear={() => applyFilter('status', [FILTER_ALL_APPLICATIONS_STATUS])}
-                      />
-                    </>
-                  )}
-                </ActionBar>
-              </div>
-
-            </>
+            <div className="px-6 shrink-0">
+              <ActionBar
+                filtersConfig={APPLICATIONS_FILTERS_CONFIG}
+                filters={filters}
+                setFilters={setFilters}
+                onRefresh={handlePaginatedRefresh}
+              >
+                {({ filters: activeFilters, applyFilter }) => (
+                  <ApplicationsFilters
+                    filters={activeFilters}
+                    applyFilter={applyFilter}
+                  />
+                )}
+              </ActionBar>
+            </div>
           )}
 
           <div className={isDetailsReady
@@ -204,6 +146,8 @@ const ApplicationsPage = () => {
                 <Outlet
                   context={{
                     applications: filteredApplications,
+                    filters,
+                    filtersConfig: APPLICATIONS_FILTERS_CONFIG,
                     paginatedApplications,
                     paginationConfigRef,
                     searchParams,

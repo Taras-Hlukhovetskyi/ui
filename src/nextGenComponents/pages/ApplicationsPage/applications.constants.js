@@ -20,8 +20,10 @@ such restriction.
 import {
   ANY_TIME_DATE_OPTION,
   CUSTOM_RANGE_DATE_OPTION,
-  datePickerPastOptions
+  datePickerPastOptions,
+  getDatePickerFilterValue
 } from '../../../utils/datePicker.util'
+import { DATES_FILTER, FILTER_ALL_ITEMS, NAME_FILTER, STATUS_FILTER } from '../../../constants'
 
 export const APPLICATION_STATUS = {
   READY: 'ready',
@@ -32,8 +34,6 @@ export const APPLICATION_STATUS = {
   UNHEALTHY: 'unhealthy'
 }
 
-export const FILTER_ALL_APPLICATIONS_STATUS = 'all'
-
 export const FAILED_API_STATES = [APPLICATION_STATUS.ERROR, APPLICATION_STATUS.UNHEALTHY]
 
 export const APPLICATION_STATUS_OPTIONS = [
@@ -43,7 +43,7 @@ export const APPLICATION_STATUS_OPTIONS = [
 ]
 
 export const STATUS_POPOVER_OPTIONS = [
-  { value: FILTER_ALL_APPLICATIONS_STATUS, label: 'All', meta: {} },
+  { value: FILTER_ALL_ITEMS, label: 'All', meta: {} },
   ...APPLICATION_STATUS_OPTIONS.map(option => ({
     value: option.value,
     label: option.label,
@@ -51,9 +51,22 @@ export const STATUS_POPOVER_OPTIONS = [
   }))
 ]
 
-export const TIME_FILTER_CUSTOM_VALUE = 'custom'
+export const STATUS_VALUE_LABEL_MAP = APPLICATION_STATUS_OPTIONS.reduce(
+  (map, option) => ({ ...map, [option.value]: option.label }),
+  {}
+)
 
-export const DEFAULT_TIME_FILTER = ANY_TIME_DATE_OPTION
+export const formatStatusFilterValue = value => {
+  if (Array.isArray(value)) {
+    return value
+      .filter(v => v !== FILTER_ALL_ITEMS)
+      .map(v => STATUS_VALUE_LABEL_MAP[v] ?? v)
+      .join(', ')
+  }
+  return STATUS_VALUE_LABEL_MAP[value] ?? value
+}
+
+export const TIME_FILTER_CUSTOM_VALUE = 'custom'
 
 export const TIME_FILTER_OPTIONS = [
   ...datePickerPastOptions
@@ -63,26 +76,18 @@ export const TIME_FILTER_OPTIONS = [
 ]
 
 export const APPLICATIONS_FILTERS_CONFIG = {
-  name: {
-    defaultValue: '',
-    initialValue: ''
+  [NAME_FILTER]: {
+    initialValue: '',
+    label: 'Name:'
   },
-  time: {
-    defaultValue: DEFAULT_TIME_FILTER,
-    initialValue: DEFAULT_TIME_FILTER
+  [DATES_FILTER]: {
+    initialValue: getDatePickerFilterValue(datePickerPastOptions, ANY_TIME_DATE_OPTION),
+    label: 'Updated:'
   },
-  status: {
-    defaultValue: [FILTER_ALL_APPLICATIONS_STATUS],
-    initialValue: [FILTER_ALL_APPLICATIONS_STATUS],
-    serializeUrl: values => (Array.isArray(values) ? values.join(',') : ''),
-    parseUrl: str => (str ? str.split(',') : [FILTER_ALL_APPLICATIONS_STATUS])
-  },
-  customSince: {
-    defaultValue: '',
-    initialValue: ''
-  },
-  customUntil: {
-    defaultValue: '',
-    initialValue: ''
+  [STATUS_FILTER]: {
+    initialValue: [FILTER_ALL_ITEMS],
+    label: 'Status:',
+    isModal: true,
+    formatFilterValue: formatStatusFilterValue
   }
 }
