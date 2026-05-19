@@ -17,10 +17,10 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { isEmpty } from 'lodash'
+import { isEmpty, isEqual } from 'lodash'
 import { Loader, TooltipProvider } from 'igz-controls/nextGenComponents'
 
 import Breadcrumbs from '../../../common/Breadcrumbs/Breadcrumbs'
@@ -46,6 +46,10 @@ const ApplicationsPage = () => {
 
   const urlFilters = useFiltersFromSearchParams(APPLICATIONS_FILTERS_CONFIG, parseApplicationsQueryParams)
   const [filters, setFilters] = useState(urlFilters)
+
+  useEffect(() => {
+    setFilters(prevFilters => isEqual(prevFilters, urlFilters) ? prevFilters : urlFilters)
+  }, [urlFilters])
 
   const applications = useMemo(
     () =>

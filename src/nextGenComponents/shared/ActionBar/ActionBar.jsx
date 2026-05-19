@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect } from 'react'
+import { memo, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useSearchParams } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
@@ -53,12 +53,17 @@ const ActionBar = ({
         dateFilter.initialSelectedOptionId !== CUSTOM_RANGE_DATE_OPTION &&
         dateFilter.initialSelectedOptionId !== ANY_TIME_DATE_OPTION
       ) {
-        currentFilters[DATES_FILTER] = getDatePickerFilterValue(
-          datePickerPastOptions,
-          dateFilter.initialSelectedOptionId
-        )
+        const updatedFilters = {
+          ...currentFilters,
+          [DATES_FILTER]: getDatePickerFilterValue(
+            datePickerPastOptions,
+            dateFilter.initialSelectedOptionId
+          )
+        }
         dispatch(setFiltersAction({ relativeDateChange: Date.now() }))
+        return updatedFilters
       }
+      return currentFilters
     },
     [dispatch]
   )
@@ -106,29 +111,26 @@ const ActionBar = ({
 
   const applyFilter = useCallback(
     (key, value) => {
-      const next = { ...filters, [key]: value }
-      updateRelativeTimeValue(next)
+      const next = updateRelativeTimeValue({ ...filters, [key]: value })
       setFilters(next)
       saveFiltersToUrl(next)
-      onRefresh(next)
+      onRefresh(next, true)
     },
     [filters, setFilters, saveFiltersToUrl, onRefresh, updateRelativeTimeValue]
   )
 
   const applyMultipleFilters = useCallback(
     updatedValues => {
-      const next = { ...filters, ...updatedValues }
-      updateRelativeTimeValue(next)
+      const next = updateRelativeTimeValue({ ...filters, ...updatedValues })
       setFilters(next)
       saveFiltersToUrl(next)
-      onRefresh(next)
+      onRefresh(next, true)
     },
     [filters, setFilters, saveFiltersToUrl, onRefresh, updateRelativeTimeValue]
   )
 
   const handleRefresh = useCallback(() => {
-    const refreshedFilters = { ...filters }
-    updateRelativeTimeValue(refreshedFilters)
+    const refreshedFilters = updateRelativeTimeValue({ ...filters })
     setFilters(refreshedFilters)
     saveFiltersToUrl(refreshedFilters)
     onRefresh(refreshedFilters)
@@ -138,11 +140,14 @@ const ActionBar = ({
     if (autoRefreshInterval <= 0) return
 
     const intervalId = setInterval(() => {
-      onRefresh(filters)
+      const refreshed = updateRelativeTimeValue({ ...filters })
+      setFilters(refreshed)
+      saveFiltersToUrl(refreshed)
+      onRefresh(refreshed)
     }, autoRefreshInterval)
 
     return () => clearInterval(intervalId)
-  }, [autoRefreshInterval, filters, onRefresh])
+  }, [autoRefreshInterval, filters, onRefresh, updateRelativeTimeValue, setFilters, saveFiltersToUrl])
 
   if (hidden) return null
 
@@ -176,4 +181,4 @@ ActionBar.propTypes = {
   setFilters: PropTypes.func.isRequired
 }
 
-export default React.memo(ActionBar)
+export default memo(ActionBar)

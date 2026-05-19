@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { DataTable, Loader, Tooltip, TooltipContent, TooltipTrigger } from 'igz-controls/nextGenComponents'
 import { useNavigate, useOutletContext, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -34,6 +34,7 @@ import { fetchFunction } from '../../../../reducers/functionReducer'
 import { checkForSelectedApplication } from '../applicationsPage.util'
 import { DEFAULT_APPLICATION_DETAILS_TAB } from '../ApplicationDetails/applicationDetails.constants'
 import { getNoDataMessage } from '../../../../utils/getNoDataMessage'
+import { showErrorNotification } from 'igz-controls/utils/notification.util'
 
 const Applications = () => {
   const {
@@ -126,6 +127,9 @@ const Applications = () => {
               dispatch(toggleYaml(func))
             }
           })
+          .catch(error => {
+            showErrorNotification(dispatch, error, '', 'Failed to retrieve application YAML')
+          })
       }
     },
     [dispatch, params.projectName]
@@ -195,7 +199,7 @@ const Applications = () => {
           onClose={handleCloseDetails}
           onRefresh={handleRefreshDetails}
         />
-        {funcLoading && isDetailsOpen && <Loader mode="fullscreen" />}
+        {funcLoading && <Loader mode="fullscreen" />}
       </div>
     )
   }
@@ -210,8 +214,8 @@ const Applications = () => {
         <h2 className="text-base font-medium text-igz-primary" data-testid="applications-heading">All Applications</h2>
         <Tooltip delayDuration={200}>
           <TooltipTrigger asChild>
-                <HelpCircle
-                  className="h-4 w-4 text-igz-gray cursor-default"
+            <HelpCircle
+              className="h-4 w-4 text-igz-gray cursor-default"
               data-testid="help-icon"
             />
           </TooltipTrigger>
@@ -228,6 +232,7 @@ const Applications = () => {
             data={paginatedApplications}
             columns={columns}
             rowActions={rowActions}
+            initialSorting={[{ id: 'name', desc: false }]}
           />
         )}
       </div>

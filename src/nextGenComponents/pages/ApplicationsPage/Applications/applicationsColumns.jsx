@@ -17,7 +17,6 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React from 'react'
 import { Link } from 'react-router-dom'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'igz-controls/nextGenComponents'
 import { formatDatetime } from 'igz-controls/utils/datetime.util'
@@ -77,10 +76,10 @@ export const getApplicationsColumns = (projectName) => [
     )
   },
   {
-    accessorKey: 'external_invocation_urls',
     id: 'endpoints',
     header: 'Endpoints',
     size: 10,
+    accessorFn: row => row.external_invocation_urls?.length ?? 0,
     cell: ({ row }) => (
       <span className="text-igz-light-purple font-medium" data-testid="endpoints-count">
         {row.original.external_invocation_urls?.length ?? 0}

@@ -72,12 +72,15 @@ export const filterApplications = (applications, filters) => {
     ? filters[STATUS_FILTER].filter(s => s !== FILTER_ALL_ITEMS)
     : []
 
-  return applications.filter(app => {
-    if (selectedStatuses.length > 0 && !selectedStatuses.includes(app.state?.value)) {
-      return false
-    }
-    return true
+  if (selectedStatuses.length === 0) return applications
+
+  const expandedStatuses = selectedStatuses.flatMap(uiStatus => {
+    if (uiStatus === APPLICATION_STATUS.FAILED) return FAILED_API_STATES
+    if (uiStatus === APPLICATION_STATUS.RUNNING) return [APPLICATION_STATUS.RUNNING, APPLICATION_STATUS.READY]
+    return [uiStatus]
   })
+
+  return applications.filter(app => expandedStatuses.includes(app.state?.value))
 }
 
 const DEBOUNCE_DELAY_MS = 30
@@ -116,8 +119,8 @@ export const checkForSelectedApplication = debounce(
     lastCheckedApplicationIdRef
   }) => {
     if (applicationId) {
-      const searchBePage = parseInt(searchParams.get(BE_PAGE))
-      const configBePage = paginationConfigRef.current[BE_PAGE]
+      const searchBePage = parseInt(searchParams.get(BE_PAGE)) || 1
+      const configBePage = paginationConfigRef.current[BE_PAGE] ?? 1
 
       if (
         applications &&

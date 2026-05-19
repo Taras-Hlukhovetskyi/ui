@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { StatsCard, Tooltip, TooltipContent, TooltipTrigger } from 'igz-controls/nextGenComponents'
 import { Loader2 } from 'lucide-react'

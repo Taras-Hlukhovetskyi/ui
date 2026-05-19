@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useState } from 'react'
+import { useState } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 
@@ -70,7 +70,8 @@ const UrlItem = ({
 
       {allowCopy && (
         <button
-          onClick={() => onCopy(url)}
+          type="button"
+          onClick={() => onCopy?.(url)}
           className={classnames(
             'p-0.5 rounded shrink-0',
             isDark
@@ -106,8 +107,8 @@ const UrlItem = ({
 UrlItem.propTypes = {
   allowCopy: PropTypes.bool,
   asPlainText: PropTypes.bool,
-  isCopied: PropTypes.bool.isRequired,
-  onCopy: PropTypes.func.isRequired,
+  isCopied: PropTypes.bool,
+  onCopy: PropTypes.func,
   openInNewTab: PropTypes.bool,
   url: PropTypes.string.isRequired,
   variant: PropTypes.oneOf(Object.values(URL_ITEM_VARIANT))

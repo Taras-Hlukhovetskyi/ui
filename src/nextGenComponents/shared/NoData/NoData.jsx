@@ -17,7 +17,6 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React from 'react'
 import PropTypes from 'prop-types'
 
 const NO_DATA_DEFAULT_MESSAGE = 'No data to show'

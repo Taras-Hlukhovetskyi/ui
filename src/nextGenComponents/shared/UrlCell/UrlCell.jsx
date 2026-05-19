@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'igz-controls/nextGenComponents'
 
@@ -35,6 +35,7 @@ const UrlCell = ({ items = [] }) => {
   const [visibleCount, setVisibleCount] = useState(items.length)
   const [containerEl, setContainerEl] = useState(null)
   const throttleTimerRef = useRef(null)
+  const copyTimerRef = useRef(null)
 
   const recalculate = useCallback(() => {
     if (!containerEl) return
@@ -82,10 +83,15 @@ const UrlCell = ({ items = [] }) => {
     }
   }, [containerEl, recalculate])
 
+  useEffect(() => {
+    return () => clearTimeout(copyTimerRef.current)
+  }, [])
+
   const handleCopy = useCallback(url => {
     navigator.clipboard.writeText(url)
     setCopiedUrl(url)
-    setTimeout(() => {
+    clearTimeout(copyTimerRef.current)
+    copyTimerRef.current = setTimeout(() => {
       setCopiedUrl(previous => (previous === url ? null : previous))
     }, COPY_SUCCESS_DURATION_MS)
   }, [])
@@ -108,7 +114,7 @@ const UrlCell = ({ items = [] }) => {
       data-testid="url-cell"
     >
       {visibleItems.map(({ url, allowCopy, openInNewTab }, index) => (
-        <React.Fragment key={url}>
+        <Fragment key={`${url}-${index}`}>
           {index > 0 && (
             <span className="text-[15px] text-igz-gray shrink-0 mr-2 ml-1">,</span>
           )}
@@ -119,7 +125,7 @@ const UrlCell = ({ items = [] }) => {
             isCopied={copiedUrl === url}
             onCopy={handleCopy}
           />
-        </React.Fragment>
+        </Fragment>
       ))}
       {overflowItems.length > 0 && (
         <>
@@ -144,9 +150,9 @@ const UrlCell = ({ items = [] }) => {
                 className="flex flex-col gap-1.5 overflow-y-auto max-h-[260px]"
                 data-testid="tooltip-url-list"
               >
-                {overflowItems.map(({ url, allowCopy, openInNewTab }) => (
+                {overflowItems.map(({ url, allowCopy, openInNewTab }, index) => (
                   <UrlItem
-                    key={url}
+                    key={`${url}-overflow-${index}`}
                     url={url}
                     allowCopy={allowCopy}
                     openInNewTab={openInNewTab}

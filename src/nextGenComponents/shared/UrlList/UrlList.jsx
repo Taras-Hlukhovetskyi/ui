@@ -17,20 +17,25 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 
 import UrlItem from '../UrlItem'
-
-const COPY_RESET_TIMEOUT_MS = 2000
+import { COPY_SUCCESS_DURATION_MS } from '../UrlCell/urlCell.constants'
 
 const UrlList = ({ urls, allowCopy = false, openInNewTab = false, asPlainText = false }) => {
   const [copiedUrl, setCopiedUrl] = useState(null)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    return () => clearTimeout(timerRef.current)
+  }, [])
 
   const handleCopy = useCallback(url => {
     navigator.clipboard.writeText(url)
     setCopiedUrl(url)
-    setTimeout(() => setCopiedUrl(null), COPY_RESET_TIMEOUT_MS)
+    clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => setCopiedUrl(null), COPY_SUCCESS_DURATION_MS)
   }, [])
 
   if (!urls || urls.length === 0) {

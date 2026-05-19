@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Input, TimeFilterDropdown, FilterPopover } from 'igz-controls/nextGenComponents'
 
@@ -33,7 +33,12 @@ import {
 } from '../../../../utils/datePicker.util'
 
 const ApplicationsFilters = ({ filters, applyFilter }) => {
-  const [nameValue, setNameValue] = useState(filters[NAME_FILTER])
+  const nameFilter = filters[NAME_FILTER]
+  const [nameValue, setNameValue] = useState(nameFilter ?? '')
+
+  useEffect(() => {
+    setNameValue(nameFilter ?? '')
+  }, [nameFilter])
 
   const handleNameSubmit = useCallback(() => {
     applyFilter(NAME_FILTER, nameValue)
@@ -64,7 +69,7 @@ const ApplicationsFilters = ({ filters, applyFilter }) => {
       filters[DATES_FILTER]?.value?.[0] instanceof Date
         ? {
             since: filters[DATES_FILTER].value[0].toISOString(),
-            until: filters[DATES_FILTER].value[1].toISOString()
+            until: filters[DATES_FILTER].value[1]?.toISOString() ?? new Date().toISOString()
           }
         : undefined,
     [filters]
@@ -147,7 +152,11 @@ const ApplicationsFilters = ({ filters, applyFilter }) => {
 }
 
 ApplicationsFilters.propTypes = {
-  filters: PropTypes.object.isRequired,
+  filters: PropTypes.shape({
+    [NAME_FILTER]: PropTypes.string,
+    [DATES_FILTER]: PropTypes.object,
+    [STATUS_FILTER]: PropTypes.array
+  }).isRequired,
   applyFilter: PropTypes.func.isRequired
 }
 
