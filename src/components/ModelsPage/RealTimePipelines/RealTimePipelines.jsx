@@ -24,7 +24,6 @@ import classnames from 'classnames'
 import { isEmpty, isNil } from 'lodash'
 
 import ActionBar from '../../ActionBar/ActionBar'
-import ModelsPageTabs from '../ModelsPageTabs/ModelsPageTabs'
 import NoData from '../../../common/NoData/NoData'
 import Details from '../../Details/Details'
 import RealTimePipelinesTableRow from '../../../elements/RealTimePipelinesTableRow/RealTimePipelinesTableRow'
@@ -302,7 +301,6 @@ const RealTimePipelines = () => {
       <div className="models" ref={pipelinesRef}>
         <div className="table-container">
           <div className={filterMenuClassNames}>
-            <ModelsPageTabs />
             <ActionBar
               closeParamName={REAL_TIME_PIPELINES_TAB}
               filters={filters}
