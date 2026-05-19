@@ -48,7 +48,11 @@ vi.mock('../../../shared/DetailsInfoTable/DetailsInfoTable', () => ({
 }))
 
 vi.mock('../../../shared/UrlItem/UrlItem', () => ({
-  default: ({ url }) => <a data-testid="url-item" href={url}>{url}</a>
+  default: ({ url }) => (
+    <a data-testid="url-item" href={url}>
+      {url}
+    </a>
+  )
 }))
 
 // ── Test data ─────────────────────────────────────────────────────────────────

@@ -25,7 +25,7 @@ import UrlCell, { buildUrlItems } from '../../../shared/UrlCell'
 import { APPLICATIONS_PAGE_PATH } from '../../../../constants'
 import { DEFAULT_APPLICATION_DETAILS_TAB } from '../ApplicationDetails/applicationDetails.constants'
 
-export const getApplicationsColumns = (projectName) => [
+export const getApplicationsColumns = projectName => [
   {
     accessorKey: 'name',
     header: 'Name',
@@ -92,9 +92,7 @@ export const getApplicationsColumns = (projectName) => [
     size: 17,
     header: 'Updated',
     cell: ({ row }) => (
-      <span className="text-igz-secondary">
-        {formatDatetime(row.original.updated, 'N/A')}
-      </span>
+      <span className="text-igz-secondary">{formatDatetime(row.original.updated, 'N/A')}</span>
     )
   }
 ]

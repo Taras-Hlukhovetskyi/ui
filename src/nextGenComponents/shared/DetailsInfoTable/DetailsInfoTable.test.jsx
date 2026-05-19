@@ -45,8 +45,7 @@ const ITEMS_WITH_NULL_VALUE = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const renderInfoTable = (items = SAMPLE_ITEMS) =>
-  render(<DetailsInfoTable items={items} />)
+const renderInfoTable = (items = SAMPLE_ITEMS) => render(<DetailsInfoTable items={items} />)
 
 // ── Tests ──────────────────────────────────────────────────────────────────────
 

@@ -25,5 +25,4 @@ export const URL_ITEM_VARIANT = {
 
 const ABSOLUTE_URL_PATTERN = /^https?:\/\//i
 
-export const toHref = url =>
-  ABSOLUTE_URL_PATTERN.test(url) ? url : `https://${url}`
+export const toHref = url => (ABSOLUTE_URL_PATTERN.test(url) ? url : `https://${url}`)

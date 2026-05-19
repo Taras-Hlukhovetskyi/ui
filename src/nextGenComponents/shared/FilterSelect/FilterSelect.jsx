@@ -64,16 +64,12 @@ const FilterSelect = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false)
 
-  const selectedValues = isMultiple
-    ? Array.isArray(value)
-      ? value
-      : []
-    : []
+  const selectedValues = isMultiple ? (Array.isArray(value) ? value : []) : []
 
   const selectedSingle = isMultiple ? '' : String(value ?? '')
 
   const selectedOption = !isMultiple
-    ? options.find(o => o.value === selectedSingle) ?? null
+    ? (options.find(o => o.value === selectedSingle) ?? null)
     : null
 
   const selectedLabels = isMultiple
@@ -86,7 +82,7 @@ const FilterSelect = ({
       : selectedLabels.length <= MAX_INLINE_LABELS
         ? selectedLabels.join(', ')
         : `${selectedLabels.length} ${ITEMS_SELECTED_SUFFIX}`
-    : selectedOption?.label ?? placeholder
+    : (selectedOption?.label ?? placeholder)
 
   const triggerColor = !isMultiple && selectedOption?.color ? selectedOption.color : null
 

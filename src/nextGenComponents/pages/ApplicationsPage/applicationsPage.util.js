@@ -23,7 +23,16 @@ import { parseIdentifier } from '../../../utils/parseUri'
 import { parseFunction } from '../../../utils/parseFunction'
 import { showErrorNotification } from 'igz-controls/utils/notification.util'
 import { fetchFunction } from '../../../reducers/functionReducer'
-import { BE_PAGE, DATES_FILTER, FE_PAGE, FILTER_ALL_ITEMS, APPLICATIONS_PAGE_PATH, FUNCTIONS_PAGE, NAME_FILTER, STATUS_FILTER } from '../../../constants'
+import {
+  BE_PAGE,
+  DATES_FILTER,
+  FE_PAGE,
+  FILTER_ALL_ITEMS,
+  APPLICATIONS_PAGE_PATH,
+  FUNCTIONS_PAGE,
+  NAME_FILTER,
+  STATUS_FILTER
+} from '../../../constants'
 import getState from '../../../utils/getState'
 import { APPLICATION_STATUS, FAILED_API_STATES } from './applications.constants'
 
@@ -76,7 +85,8 @@ export const filterApplications = (applications, filters) => {
 
   const expandedStatuses = selectedStatuses.flatMap(uiStatus => {
     if (uiStatus === APPLICATION_STATUS.FAILED) return FAILED_API_STATES
-    if (uiStatus === APPLICATION_STATUS.RUNNING) return [APPLICATION_STATUS.RUNNING, APPLICATION_STATUS.READY]
+    if (uiStatus === APPLICATION_STATUS.RUNNING)
+      return [APPLICATION_STATUS.RUNNING, APPLICATION_STATUS.READY]
     return [uiStatus]
   })
 
@@ -148,7 +158,9 @@ export const checkForSelectedApplication = debounce(
 
               const indexInPaginatedList = findApplicationIndex(paginatedApplications)
               const indexInMainList =
-                indexInPaginatedList !== -1 ? indexInPaginatedList : findApplicationIndex(applications)
+                indexInPaginatedList !== -1
+                  ? indexInPaginatedList
+                  : findApplicationIndex(applications)
 
               if (indexInPaginatedList === -1 && indexInMainList > -1) {
                 const { fePageSize } = paginationConfigRef.current

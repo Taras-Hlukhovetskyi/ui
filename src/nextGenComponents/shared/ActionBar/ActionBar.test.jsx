@@ -46,7 +46,11 @@ vi.mock('../../../utils/datePicker.util', () => ({
   ANY_TIME_DATE_OPTION: 'anyTime',
   CUSTOM_RANGE_DATE_OPTION: 'customRange',
   datePickerPastOptions: [],
-  getDatePickerFilterValue: vi.fn(() => ({ value: [null], isPredefined: false, initialSelectedOptionId: 'anyTime' }))
+  getDatePickerFilterValue: vi.fn(() => ({
+    value: [null],
+    isPredefined: false,
+    initialSelectedOptionId: 'anyTime'
+  }))
 }))
 
 vi.mock('../../../reducers/filtersReducer', () => ({

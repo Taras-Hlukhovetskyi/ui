@@ -40,7 +40,7 @@ vi.mock('igz-controls/nextGenComponents', () => ({
 
 // ── Store factory ─────────────────────────────────────────────────────────────
 
-const makeStore = (functionsStore) =>
+const makeStore = functionsStore =>
   configureStore({
     reducer: { functionsStore: () => functionsStore }
   })

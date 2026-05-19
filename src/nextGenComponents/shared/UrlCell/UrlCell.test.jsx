@@ -29,9 +29,7 @@ import { buildUrlItems, calculateVisibleCount } from './urlCell.utils'
 vi.mock('igz-controls/nextGenComponents', () => ({
   Tooltip: ({ children }) => <div>{children}</div>,
   TooltipTrigger: ({ children }) => <div>{children}</div>,
-  TooltipContent: ({ children }) => (
-    <div data-testid="tooltip-content">{children}</div>
-  )
+  TooltipContent: ({ children }) => <div data-testid="tooltip-content">{children}</div>
 }))
 
 // ── Width / Canvas helpers ────────────────────────────────────────────────────
@@ -47,7 +45,7 @@ vi.mock('igz-controls/nextGenComponents', () => ({
 const mockContainerWidth = (px = 100) => {
   Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
     configurable: true,
-    get () {
+    get() {
       return this.dataset?.testid === 'url-cell' ? px : 0
     }
   })
@@ -56,7 +54,9 @@ const mockContainerWidth = (px = 100) => {
 const resetWidths = () => {
   Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
     configurable: true,
-    get () { return 0 }
+    get() {
+      return 0
+    }
   })
 }
 
@@ -65,9 +65,9 @@ const resetWidths = () => {
 // all measurement is covered by the useLayoutEffect path.
 
 class MockResizeObserver {
-  constructor () {}
-  observe () {}
-  disconnect () {}
+  constructor() {}
+  observe() {}
+  disconnect() {}
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -269,9 +269,7 @@ describe('UrlCell', () => {
     })
 
     it('maps internal urls without allowCopy or openInNewTab', () => {
-      expect(buildUrlItems([], [INTERNAL_URL])).toEqual([
-        { url: INTERNAL_URL }
-      ])
+      expect(buildUrlItems([], [INTERNAL_URL])).toEqual([{ url: INTERNAL_URL }])
     })
 
     it('places external urls before internal urls', () => {

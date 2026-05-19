@@ -83,12 +83,18 @@ describe('UrlItem', () => {
   describe('link href', () => {
     it('prepends https:// for bare hostnames when openInNewTab is true', () => {
       renderUrlItem({ url: 'host.example.com:8080', openInNewTab: true })
-      expect(screen.getByTestId('url-link')).toHaveAttribute('href', 'https://host.example.com:8080')
+      expect(screen.getByTestId('url-link')).toHaveAttribute(
+        'href',
+        'https://host.example.com:8080'
+      )
     })
 
     it('preserves existing https:// prefix', () => {
       renderUrlItem({ url: 'https://host.example.com/path', openInNewTab: true })
-      expect(screen.getByTestId('url-link')).toHaveAttribute('href', 'https://host.example.com/path')
+      expect(screen.getByTestId('url-link')).toHaveAttribute(
+        'href',
+        'https://host.example.com/path'
+      )
     })
 
     it('preserves existing http:// prefix', () => {

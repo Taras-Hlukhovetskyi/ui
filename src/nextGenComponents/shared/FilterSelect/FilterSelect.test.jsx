@@ -48,12 +48,7 @@ vi.mock('igz-controls/nextGenComponents', () => ({
     </div>
   ),
   DropdownMenuItem: ({ children, onSelect, className, 'data-testid': testId }) => (
-    <div
-      role="menuitem"
-      data-testid={testId}
-      className={className}
-      onClick={e => onSelect?.(e)}
-    >
+    <div role="menuitem" data-testid={testId} className={className} onClick={e => onSelect?.(e)}>
       {children}
     </div>
   ),

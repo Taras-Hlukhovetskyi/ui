@@ -32,19 +32,19 @@ vi.mock('igz-controls/nextGenComponents', () => ({
     </div>
   ),
   TabsList: ({ children, ...rest }) => (
-    <div data-testid="tabs-list" {...rest}>{children}</div>
+    <div data-testid="tabs-list" {...rest}>
+      {children}
+    </div>
   ),
   TabsTrigger: ({ children, value, disabled, ...rest }) => (
-    <button
-      data-testid={`tab-trigger-${value}`}
-      disabled={disabled}
-      {...rest}
-    >
+    <button data-testid={`tab-trigger-${value}`} disabled={disabled} {...rest}>
       {children}
     </button>
   ),
   TabsContent: ({ children, value, ...rest }) => (
-    <div data-testid={`tab-content-${value}`} {...rest}>{children}</div>
+    <div data-testid={`tab-content-${value}`} {...rest}>
+      {children}
+    </div>
   ),
   DropdownMenu: ({ children }) => <div data-testid="dropdown-menu">{children}</div>,
   DropdownMenuTrigger: ({ children }) => <>{children}</>,

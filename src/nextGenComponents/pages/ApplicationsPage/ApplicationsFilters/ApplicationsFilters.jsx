@@ -24,7 +24,11 @@ import { Input, TimeFilterDropdown, FilterPopover } from 'igz-controls/nextGenCo
 import SearchIcon from 'igz-controls/images/search2-icon.svg?react'
 
 import { DATES_FILTER, FILTER_ALL_ITEMS, NAME_FILTER, STATUS_FILTER } from '../../../../constants'
-import { STATUS_POPOVER_OPTIONS, TIME_FILTER_CUSTOM_VALUE, TIME_FILTER_OPTIONS } from '../applications.constants'
+import {
+  STATUS_POPOVER_OPTIONS,
+  TIME_FILTER_CUSTOM_VALUE,
+  TIME_FILTER_OPTIONS
+} from '../applications.constants'
 import {
   ANY_TIME_DATE_OPTION,
   CUSTOM_RANGE_DATE_OPTION,
@@ -86,25 +90,27 @@ const ApplicationsFilters = ({ filters, applyFilter }) => {
     [filters]
   )
 
-  const filterPopoverSchema = useMemo(() => ({
-    status: {
-      key: 'status',
-      label: 'Status',
-      kind: 'multi-select',
-      placeholder: 'All',
-      defaultValue: filters[STATUS_FILTER],
-      options: STATUS_POPOVER_OPTIONS,
-      computeDisabled: (optionValue, currentValues) =>
-        optionValue === FILTER_ALL_ITEMS &&
-        currentValues.includes(FILTER_ALL_ITEMS),
-      resolveValue: (next, prev) => {
-        if (next.length === 0) return [FILTER_ALL_ITEMS]
-        const hasSelectedAll = !prev.includes(FILTER_ALL_ITEMS) && next.includes(FILTER_ALL_ITEMS)
-        if (hasSelectedAll) return [FILTER_ALL_ITEMS]
-        return next.filter(v => v !== FILTER_ALL_ITEMS)
+  const filterPopoverSchema = useMemo(
+    () => ({
+      status: {
+        key: 'status',
+        label: 'Status',
+        kind: 'multi-select',
+        placeholder: 'All',
+        defaultValue: filters[STATUS_FILTER],
+        options: STATUS_POPOVER_OPTIONS,
+        computeDisabled: (optionValue, currentValues) =>
+          optionValue === FILTER_ALL_ITEMS && currentValues.includes(FILTER_ALL_ITEMS),
+        resolveValue: (next, prev) => {
+          if (next.length === 0) return [FILTER_ALL_ITEMS]
+          const hasSelectedAll = !prev.includes(FILTER_ALL_ITEMS) && next.includes(FILTER_ALL_ITEMS)
+          if (hasSelectedAll) return [FILTER_ALL_ITEMS]
+          return next.filter(v => v !== FILTER_ALL_ITEMS)
+        }
       }
-    }
-  }), [filters])
+    }),
+    [filters]
+  )
 
   return (
     <>

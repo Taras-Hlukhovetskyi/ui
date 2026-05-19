@@ -18,7 +18,13 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { DataTable, Loader, Tooltip, TooltipContent, TooltipTrigger } from 'igz-controls/nextGenComponents'
+import {
+  DataTable,
+  Loader,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from 'igz-controls/nextGenComponents'
 import { useNavigate, useOutletContext, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { isEmpty } from 'lodash'
@@ -59,10 +65,9 @@ const Applications = () => {
 
   const handleCloseDetails = useCallback(() => {
     setSelectedApplication({})
-    navigate(
-      `/projects/${params.projectName}/${APPLICATIONS_PAGE_PATH}${window.location.search}`,
-      { replace: true }
-    )
+    navigate(`/projects/${params.projectName}/${APPLICATIONS_PAGE_PATH}${window.location.search}`, {
+      replace: true
+    })
   }, [navigate, params.projectName])
 
   const handleTabChange = useCallback(
@@ -183,10 +188,7 @@ const Applications = () => {
     }
   }, [selectedApplication, setIsDetailsReady])
 
-  const columns = useMemo(
-    () => getApplicationsColumns(params.projectName),
-    [params.projectName]
-  )
+  const columns = useMemo(() => getApplicationsColumns(params.projectName), [params.projectName])
 
   if (isDetailsOpen) {
     return (
@@ -209,15 +211,17 @@ const Applications = () => {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-background relative" data-testid="applications-list">
+    <div
+      className="flex flex-col h-full overflow-hidden bg-background relative"
+      data-testid="applications-list"
+    >
       <div className="flex items-center gap-1.5 mb-3 shrink-0">
-        <h2 className="text-base font-medium text-igz-primary" data-testid="applications-heading">All Applications</h2>
+        <h2 className="text-base font-medium text-igz-primary" data-testid="applications-heading">
+          All Applications
+        </h2>
         <Tooltip delayDuration={200}>
           <TooltipTrigger asChild>
-            <HelpCircle
-              className="h-4 w-4 text-igz-gray cursor-default"
-              data-testid="help-icon"
-            />
+            <HelpCircle className="h-4 w-4 text-igz-gray cursor-default" data-testid="help-icon" />
           </TooltipTrigger>
           <TooltipContent side="top">
             List of all deployed applications in the project

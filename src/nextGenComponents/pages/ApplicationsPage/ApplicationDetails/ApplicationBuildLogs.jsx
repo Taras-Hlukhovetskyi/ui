@@ -56,7 +56,9 @@ const isFunctionTransient = response =>
 const formatFunctionLogsForClipboard = logs => {
   if (Array.isArray(logs)) {
     return logs
-      .map(log => `[${new Date(log.time).toISOString()}] ${log.level?.toUpperCase()} ${log.message}`)
+      .map(
+        log => `[${new Date(log.time).toISOString()}] ${log.level?.toUpperCase()} ${log.message}`
+      )
       .join('\n')
   }
 
@@ -85,7 +87,9 @@ const ApplicationBuildLogs = ({ application }) => {
   }, [])
 
   const fetchAppLogs = useCallback(() => {
-    dispatch(fetchFunctionLogs({ project: projectName, name: application.name, tag: application.tag }))
+    dispatch(
+      fetchFunctionLogs({ project: projectName, name: application.name, tag: application.tag })
+    )
       .unwrap()
       .then(response => {
         setApplicationLogs(response.data || '')
@@ -105,7 +109,11 @@ const ApplicationBuildLogs = ({ application }) => {
 
   const fetchFunctionDeployLogs = useCallback(() => {
     dispatch(
-      fetchFunctionNuclioLogs({ project: projectName, name: application.name, tag: application.tag })
+      fetchFunctionNuclioLogs({
+        project: projectName,
+        name: application.name,
+        tag: application.tag
+      })
     )
       .unwrap()
       .then(response => {

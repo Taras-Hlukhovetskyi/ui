@@ -39,7 +39,10 @@ const ApplicationOverview = ({ application }) => {
             <span>{application.name}</span>
             <Tooltip delayDuration={100}>
               <TooltipTrigger asChild>
-                <i className={`${stateClassName} cursor-default`} data-testid="overview-status-dot" />
+                <i
+                  className={`${stateClassName} cursor-default`}
+                  data-testid="overview-status-dot"
+                />
               </TooltipTrigger>
               <TooltipContent side="top">{stateLabel}</TooltipContent>
             </Tooltip>
@@ -87,9 +90,10 @@ const ApplicationOverview = ({ application }) => {
       },
       {
         label: OVERVIEW_FIELD.ARGUMENTS,
-        value: application.args?.length > 0 ? (
-          <span className="whitespace-pre-wrap">{application.args.join('\n')}</span>
-        ) : null
+        value:
+          application.args?.length > 0 ? (
+            <span className="whitespace-pre-wrap">{application.args.join('\n')}</span>
+          ) : null
       }
     ]
   }, [application])

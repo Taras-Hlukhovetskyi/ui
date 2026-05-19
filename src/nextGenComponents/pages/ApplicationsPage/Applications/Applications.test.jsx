@@ -69,9 +69,7 @@ vi.mock('igz-controls/nextGenComponents', () => ({
   ),
   Tooltip: ({ children }) => <>{children}</>,
   TooltipTrigger: ({ children }) => <>{children}</>,
-  TooltipContent: ({ children }) => (
-    <div data-testid="tooltip-content">{children}</div>
-  )
+  TooltipContent: ({ children }) => <div data-testid="tooltip-content">{children}</div>
 }))
 
 vi.mock('../../../../common/Pagination/Pagination', () => ({
@@ -79,9 +77,7 @@ vi.mock('../../../../common/Pagination/Pagination', () => ({
 }))
 
 vi.mock('../../../shared/UrlCell', () => ({
-  default: ({ items }) => (
-    <div data-testid="url-cell">{items.map(i => i.url).join(', ')}</div>
-  ),
+  default: ({ items }) => <div data-testid="url-cell">{items.map(i => i.url).join(', ')}</div>,
   buildUrlItems: (external = [], internal = []) => [
     ...external.map(url => ({ url, allowCopy: true, openInNewTab: true })),
     ...internal.map(url => ({ url }))
@@ -92,7 +88,9 @@ vi.mock('../ApplicationDetails/ApplicationDetails', () => ({
   default: ({ application, onClose }) => (
     <div data-testid="application-details">
       <span data-testid="details-app-name">{application.name}</span>
-      <button data-testid="details-close" onClick={onClose}>Close</button>
+      <button data-testid="details-close" onClick={onClose}>
+        Close
+      </button>
     </div>
   )
 }))

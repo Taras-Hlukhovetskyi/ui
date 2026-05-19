@@ -85,10 +85,7 @@ const UrlItem = ({
                     'text-igz-secondary hover:opacity-80',
                     isHovered ? 'inline-flex' : 'hidden'
                   )
-                : classnames(
-                    'text-igz-link hover:opacity-80',
-                    isHovered ? 'inline-flex' : 'hidden'
-                  )
+                : classnames('text-igz-link hover:opacity-80', isHovered ? 'inline-flex' : 'hidden')
           )}
           aria-label={isCopied ? 'Copied!' : 'Copy URL'}
           data-testid="copy-button"

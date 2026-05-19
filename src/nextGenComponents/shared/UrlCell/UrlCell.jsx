@@ -46,14 +46,12 @@ const UrlCell = ({ items = [] }) => {
 
     const sep = measureTextWidth(', ', font)
 
-    const itemWidths = items.map(({ url, allowCopy }, i) =>
-      (i > 0 ? sep : 0) +
-      measureTextWidth(url, font) +
-      (allowCopy ? COPY_BTN_WIDTH_PX : 0)
+    const itemWidths = items.map(
+      ({ url, allowCopy }, i) =>
+        (i > 0 ? sep : 0) + measureTextWidth(url, font) + (allowCopy ? COPY_BTN_WIDTH_PX : 0)
     )
 
-    const badgeWidth =
-      items.length > 1 ? sep + measureTextWidth(`+${items.length - 1}`, font) : 0
+    const badgeWidth = items.length > 1 ? sep + measureTextWidth(`+${items.length - 1}`, font) : 0
 
     setVisibleCount(calculateVisibleCount(containerWidth, itemWidths, badgeWidth))
   }, [containerEl, items])
@@ -108,16 +106,10 @@ const UrlCell = ({ items = [] }) => {
   const overflowItems = items.slice(visibleCount)
 
   return (
-    <div
-      ref={setContainerEl}
-      className="flex items-center min-w-0"
-      data-testid="url-cell"
-    >
+    <div ref={setContainerEl} className="flex items-center min-w-0" data-testid="url-cell">
       {visibleItems.map(({ url, allowCopy, openInNewTab }, index) => (
         <Fragment key={`${url}-${index}`}>
-          {index > 0 && (
-            <span className="text-[15px] text-igz-gray shrink-0 mr-2 ml-1">,</span>
-          )}
+          {index > 0 && <span className="text-[15px] text-igz-gray shrink-0 mr-2 ml-1">,</span>}
           <UrlItem
             url={url}
             allowCopy={allowCopy}
@@ -141,11 +133,7 @@ const UrlCell = ({ items = [] }) => {
               </span>
             </TooltipTrigger>
 
-            <TooltipContent
-              side="top"
-              align="start"
-              className="p-2 max-w-sm"
-            >
+            <TooltipContent side="top" align="start" className="p-2 max-w-sm">
               <div
                 className="flex flex-col gap-1.5 overflow-y-auto max-h-[260px]"
                 data-testid="tooltip-url-list"

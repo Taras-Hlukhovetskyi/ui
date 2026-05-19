@@ -75,16 +75,14 @@ const ActionBar = ({
           for (const [key, config] of Object.entries(filtersConfig)) {
             const value = newFilters[key]
 
-            if (
-              !isNil(config.initialValue) &&
-              !isEqual(config.initialValue, value)
-            ) {
+            if (!isNil(config.initialValue) && !isEqual(config.initialValue, value)) {
               let serialized = value
 
               if (key === DATES_FILTER) {
-                serialized = value.initialSelectedOptionId === CUSTOM_RANGE_DATE_OPTION
-                  ? value.value.map(d => new Date(d).getTime()).join('-')
-                  : value.initialSelectedOptionId
+                serialized =
+                  value.initialSelectedOptionId === CUSTOM_RANGE_DATE_OPTION
+                    ? value.value.map(d => new Date(d).getTime()).join('-')
+                    : value.initialSelectedOptionId
               }
 
               prev.set(key, String(serialized))
@@ -147,7 +145,14 @@ const ActionBar = ({
     }, autoRefreshInterval)
 
     return () => clearInterval(intervalId)
-  }, [autoRefreshInterval, filters, onRefresh, updateRelativeTimeValue, setFilters, saveFiltersToUrl])
+  }, [
+    autoRefreshInterval,
+    filters,
+    onRefresh,
+    updateRelativeTimeValue,
+    setFilters,
+    saveFiltersToUrl
+  ])
 
   if (hidden) return null
 

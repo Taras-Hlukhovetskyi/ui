@@ -44,15 +44,23 @@ vi.mock('../../../shared/DetailsTabs/DetailsTabs', () => ({
       <div data-testid="details-tabs">
         <span data-testid="details-title">{title}</span>
         <span data-testid="details-active-tab">{activeTabId}</span>
-        <button data-testid="details-close" onClick={onClose}>Close</button>
+        <button data-testid="details-close" onClick={onClose}>
+          Close
+        </button>
         <button data-testid="details-tab-change" onClick={() => onTabChange('configuration')}>
           Change tab
         </button>
         {tabs.map(tab => (
-          <span key={tab.id} data-testid={`tab-${tab.id}`}>{tab.label}</span>
+          <span key={tab.id} data-testid={`tab-${tab.id}`}>
+            {tab.label}
+          </span>
         ))}
         {actionsMenu?.map(action => (
-          <button key={action.label} data-testid={`action-${action.label}`} onClick={action.onClick}>
+          <button
+            key={action.label}
+            data-testid={`action-${action.label}`}
+            onClick={action.onClick}
+          >
             {action.label}
           </button>
         ))}
@@ -62,9 +70,7 @@ vi.mock('../../../shared/DetailsTabs/DetailsTabs', () => ({
 }))
 
 vi.mock('./ApplicationOverview', () => ({
-  default: ({ application }) => (
-    <div data-testid="application-overview">{application.name}</div>
-  )
+  default: ({ application }) => <div data-testid="application-overview">{application.name}</div>
 }))
 
 // ── Test data ─────────────────────────────────────────────────────────────────

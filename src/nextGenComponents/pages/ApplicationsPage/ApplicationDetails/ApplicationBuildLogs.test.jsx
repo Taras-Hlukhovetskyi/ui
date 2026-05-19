@@ -106,12 +106,16 @@ describe('ApplicationBuildLogs', () => {
 
     it('renders the Application section', async () => {
       await act(async () => renderComponent())
-      expect(screen.getByTestId(`build-logs-section-${LOGS_SECTION_KEY.APPLICATION}`)).toBeInTheDocument()
+      expect(
+        screen.getByTestId(`build-logs-section-${LOGS_SECTION_KEY.APPLICATION}`)
+      ).toBeInTheDocument()
     })
 
     it('renders the Function section', async () => {
       await act(async () => renderComponent())
-      expect(screen.getByTestId(`build-logs-section-${LOGS_SECTION_KEY.FUNCTION}`)).toBeInTheDocument()
+      expect(
+        screen.getByTestId(`build-logs-section-${LOGS_SECTION_KEY.FUNCTION}`)
+      ).toBeInTheDocument()
     })
 
     it('renders two LogsBlock components', async () => {
@@ -176,8 +180,12 @@ describe('ApplicationBuildLogs', () => {
     it('hides the loader in both sections after a non-transient fetch completes', async () => {
       await act(async () => renderComponent())
 
-      expect(screen.queryByTestId(`logs-loading-${LOGS_SECTION_KEY.APPLICATION}`)).not.toBeInTheDocument()
-      expect(screen.queryByTestId(`logs-loading-${LOGS_SECTION_KEY.FUNCTION}`)).not.toBeInTheDocument()
+      expect(
+        screen.queryByTestId(`logs-loading-${LOGS_SECTION_KEY.APPLICATION}`)
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByTestId(`logs-loading-${LOGS_SECTION_KEY.FUNCTION}`)
+      ).not.toBeInTheDocument()
     })
 
     it('keeps the loader visible while the function status is transient', async () => {
@@ -219,9 +227,7 @@ describe('ApplicationBuildLogs', () => {
     it('does not poll when the function status is not transient', async () => {
       const { fetchFunctionLogs } = await import('../../../../reducers/functionReducer')
 
-      mockDispatch.mockImplementation(() =>
-        makeDispatchResponse({ data: 'done', headers: {} })
-      )
+      mockDispatch.mockImplementation(() => makeDispatchResponse({ data: 'done', headers: {} }))
 
       await act(async () => renderComponent())
       const callCountAfterMount = fetchFunctionLogs.mock.calls.length
@@ -302,20 +308,26 @@ describe('ApplicationBuildLogs', () => {
       await act(async () => renderComponent())
 
       expect(screen.getByTestId(`copy-icon-${LOGS_SECTION_KEY.APPLICATION}`)).toBeInTheDocument()
-      expect(screen.queryByTestId(`check-icon-${LOGS_SECTION_KEY.APPLICATION}`)).not.toBeInTheDocument()
+      expect(
+        screen.queryByTestId(`check-icon-${LOGS_SECTION_KEY.APPLICATION}`)
+      ).not.toBeInTheDocument()
 
       await act(async () => {
         fireEvent.click(screen.getByTestId(`copy-logs-${LOGS_SECTION_KEY.APPLICATION}`))
       })
 
       expect(screen.getByTestId(`check-icon-${LOGS_SECTION_KEY.APPLICATION}`)).toBeInTheDocument()
-      expect(screen.queryByTestId(`copy-icon-${LOGS_SECTION_KEY.APPLICATION}`)).not.toBeInTheDocument()
+      expect(
+        screen.queryByTestId(`copy-icon-${LOGS_SECTION_KEY.APPLICATION}`)
+      ).not.toBeInTheDocument()
 
       await act(async () => {
         vi.advanceTimersByTime(COPY_RESET_TIMEOUT_MS)
       })
 
-      expect(screen.queryByTestId(`check-icon-${LOGS_SECTION_KEY.APPLICATION}`)).not.toBeInTheDocument()
+      expect(
+        screen.queryByTestId(`check-icon-${LOGS_SECTION_KEY.APPLICATION}`)
+      ).not.toBeInTheDocument()
       expect(screen.getByTestId(`copy-icon-${LOGS_SECTION_KEY.APPLICATION}`)).toBeInTheDocument()
     })
 
@@ -327,7 +339,9 @@ describe('ApplicationBuildLogs', () => {
       })
 
       expect(screen.getByTestId(`check-icon-${LOGS_SECTION_KEY.APPLICATION}`)).toBeInTheDocument()
-      expect(screen.queryByTestId(`check-icon-${LOGS_SECTION_KEY.FUNCTION}`)).not.toBeInTheDocument()
+      expect(
+        screen.queryByTestId(`check-icon-${LOGS_SECTION_KEY.FUNCTION}`)
+      ).not.toBeInTheDocument()
       expect(screen.getByTestId(`copy-icon-${LOGS_SECTION_KEY.FUNCTION}`)).toBeInTheDocument()
     })
   })

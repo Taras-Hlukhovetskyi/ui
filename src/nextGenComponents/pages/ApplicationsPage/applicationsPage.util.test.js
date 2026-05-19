@@ -19,10 +19,7 @@ such restriction.
 */
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 
-import {
-  APPLICATION_STATUS,
-  APPLICATION_STATUS_OPTIONS
-} from './applications.constants'
+import { APPLICATION_STATUS, APPLICATION_STATUS_OPTIONS } from './applications.constants'
 import { buildApiFilters, filterApplications } from './applicationsPage.util'
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
@@ -156,11 +153,16 @@ describe('applicationsPage.util', () => {
 
   describe('buildApiFilters', () => {
     it('returns an empty object when no filters are active', () => {
-      expect(buildApiFilters({ name: '', dates: { value: [null], isPredefined: false } })).toEqual({})
+      expect(buildApiFilters({ name: '', dates: { value: [null], isPredefined: false } })).toEqual(
+        {}
+      )
     })
 
     it('includes name with ~ prefix when provided', () => {
-      const result = buildApiFilters({ name: 'my-app', dates: { value: [null], isPredefined: false } })
+      const result = buildApiFilters({
+        name: 'my-app',
+        dates: { value: [null], isPredefined: false }
+      })
       expect(result.name).toBe('~my-app')
     })
 
@@ -237,12 +239,7 @@ describe('applicationsPage.util', () => {
   // ── filterApplications ─────────────────────────────────────────────────────
 
   describe('filterApplications', () => {
-    const apps = [
-      makeApp('running'),
-      makeApp('failed'),
-      makeApp('building'),
-      makeApp('error')
-    ]
+    const apps = [makeApp('running'), makeApp('failed'), makeApp('building'), makeApp('error')]
 
     it('returns all apps when status filter is "all"', () => {
       expect(filterApplications(apps, { state: ['all'] })).toHaveLength(4)

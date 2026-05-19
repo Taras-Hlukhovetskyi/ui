@@ -142,7 +142,9 @@ const MonitoringApplication = lazyRetry(
   () =>
     import('./components/MonitoringApplicationsPage/MonitoringApplications/MonitoringApplication/MonitoringApplication')
 )
-const ApplicationsPage = lazyRetry(() => import('./nextGenComponents/pages/ApplicationsPage/ApplicationsPage'))
+const ApplicationsPage = lazyRetry(
+  () => import('./nextGenComponents/pages/ApplicationsPage/ApplicationsPage')
+)
 const Applications = lazyRetry(
   () => import('./nextGenComponents/pages/ApplicationsPage/Applications/Applications')
 )

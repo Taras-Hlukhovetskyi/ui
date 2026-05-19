@@ -107,15 +107,22 @@ const DetailsTabs = ({
       </div>
 
       <div className="flex flex-col flex-1 overflow-hidden px-6">
-        <Tabs value={activeTabId} onValueChange={handleTabChange} className="flex flex-col flex-1 overflow-hidden">
-          <TabsList className="shrink-0 w-full border-b border-igz-gray-light" data-testid="details-tabs-list">
+        <Tabs
+          value={activeTabId}
+          onValueChange={handleTabChange}
+          className="flex flex-col flex-1 overflow-hidden"
+        >
+          <TabsList
+            className="shrink-0 w-full border-b border-igz-gray-light"
+            data-testid="details-tabs-list"
+          >
             {tabs.map(tab => (
               <TabsTrigger
                 key={tab.id}
                 value={tab.id}
                 disabled={tab.disabled}
                 data-testid={`details-tab-${tab.id}`}
-                className='first:px-0'
+                className="first:px-0"
               >
                 {tab.label}
               </TabsTrigger>

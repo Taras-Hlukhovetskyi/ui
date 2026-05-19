@@ -35,7 +35,11 @@ import { parseFunction } from '../../../utils/parseFunction'
 import getState from '../../../utils/getState'
 import { BE_PAGE, BE_PAGE_SIZE, FUNCTIONS_PAGE } from '../../../constants'
 import { APPLICATIONS_FILTERS_CONFIG, APPLICATION_STATUS } from './applications.constants'
-import { buildApiFilters, filterApplications, parseApplicationsQueryParams } from './applicationsPage.util'
+import {
+  buildApiFilters,
+  filterApplications,
+  parseApplicationsQueryParams
+} from './applicationsPage.util'
 
 const ApplicationsPage = () => {
   const params = useParams()
@@ -44,11 +48,14 @@ const ApplicationsPage = () => {
   const paginationConfigRef = useRef({})
   const [isDetailsReady, setIsDetailsReady] = useState(false)
 
-  const urlFilters = useFiltersFromSearchParams(APPLICATIONS_FILTERS_CONFIG, parseApplicationsQueryParams)
+  const urlFilters = useFiltersFromSearchParams(
+    APPLICATIONS_FILTERS_CONFIG,
+    parseApplicationsQueryParams
+  )
   const [filters, setFilters] = useState(urlFilters)
 
   useEffect(() => {
-    setFilters(prevFilters => isEqual(prevFilters, urlFilters) ? prevFilters : urlFilters)
+    setFilters(prevFilters => (isEqual(prevFilters, urlFilters) ? prevFilters : urlFilters))
   }, [urlFilters])
 
   const applications = useMemo(
@@ -96,21 +103,20 @@ const ApplicationsPage = () => {
     [applications, filters]
   )
 
-  const [
-    handlePaginatedRefresh,
-    paginatedApplications,
-    searchParams,
-    setSearchParams
-  ] = usePagination({
-    content: filteredApplications,
-    refreshContent: handleRefresh,
-    filters,
-    paginationConfigRef,
-    resetPaginationTrigger: params.projectName
-  })
+  const [handlePaginatedRefresh, paginatedApplications, searchParams, setSearchParams] =
+    usePagination({
+      content: filteredApplications,
+      refreshContent: handleRefresh,
+      filters,
+      paginationConfigRef,
+      resetPaginationTrigger: params.projectName
+    })
 
   return (
-    <div className="mlrun-tw-scope h-screen overflow-hidden bg-background flex flex-col w-full" data-testid="applications-page">
+    <div
+      className="mlrun-tw-scope h-screen overflow-hidden bg-background flex flex-col w-full"
+      data-testid="applications-page"
+    >
       <TooltipProvider>
         <div className="flex flex-col h-full">
           <div className="px-6 py-4 flex items-center justify-between shrink-0">
@@ -126,24 +132,27 @@ const ApplicationsPage = () => {
                 onRefresh={handlePaginatedRefresh}
               >
                 {({ filters: activeFilters, applyFilter }) => (
-                  <ApplicationsFilters
-                    filters={activeFilters}
-                    applyFilter={applyFilter}
-                  />
+                  <ApplicationsFilters filters={activeFilters} applyFilter={applyFilter} />
                 )}
               </ActionBar>
             </div>
           )}
 
-          <div className={isDetailsReady
-            ? 'flex flex-col flex-1 overflow-hidden'
-            : 'flex flex-col flex-1 overflow-hidden px-6 pb-6 pt-0'
-          }>
+          <div
+            className={
+              isDetailsReady
+                ? 'flex flex-col flex-1 overflow-hidden'
+                : 'flex flex-col flex-1 overflow-hidden px-6 pb-6 pt-0'
+            }
+          >
             {!isDetailsReady && <ApplicationCounters />}
-            <div className={isDetailsReady
-              ? 'flex flex-col flex-1 overflow-hidden'
-              : 'flex flex-col flex-1 overflow-hidden mt-4 p-[20px] text-igz-secondary bg-background border rounded-lg shadow-card'
-            }>
+            <div
+              className={
+                isDetailsReady
+                  ? 'flex flex-col flex-1 overflow-hidden'
+                  : 'flex flex-col flex-1 overflow-hidden mt-4 p-[20px] text-igz-secondary bg-background border rounded-lg shadow-card'
+              }
+            >
               {loading && !isDetailsReady ? (
                 <Loader mode="fullscreen" />
               ) : (
