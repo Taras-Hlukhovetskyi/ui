@@ -52,11 +52,7 @@ vi.mock('../../../shared/DetailsTabs/DetailsTabs', () => ({
         </span>
       ))}
       {actionsMenu?.map(action => (
-        <button
-          key={action.label}
-          data-testid={`action-${action.label}`}
-          onClick={action.onClick}
-        >
+        <button key={action.label} data-testid={`action-${action.label}`} onClick={action.onClick}>
           {action.label}
         </button>
       ))}
