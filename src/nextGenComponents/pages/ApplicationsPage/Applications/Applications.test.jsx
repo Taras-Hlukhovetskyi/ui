@@ -17,6 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
+/* eslint-disable react/prop-types */
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
@@ -30,7 +31,7 @@ const mockDispatch = vi.fn(() => ({ unwrap: () => Promise.resolve(null) }))
 const mockSetSearchParams = vi.fn()
 
 vi.mock('react-router-dom', () => ({
-  Link: ({ children, to }) => <a href={to}>{children}</a>,
+  Link: props => <a href={props.to}>{props.children}</a>,
   useOutletContext: () => ({
     applications: SAMPLE_APPLICATIONS,
     paginatedApplications: SAMPLE_APPLICATIONS,
@@ -50,12 +51,12 @@ vi.mock('react-redux', () => ({
 }))
 
 vi.mock('igz-controls/nextGenComponents', () => ({
-  DataTable: ({ data, columns }) => (
+  DataTable: props => (
     <table data-testid="data-table">
       <tbody>
-        {data.map((row, rowIndex) => (
+        {props.data.map((row, rowIndex) => (
           <tr key={rowIndex} data-testid="table-row">
-            {columns.map(col => (
+            {props.columns.map(col => (
               <td key={col.id ?? col.accessorKey} data-testid={`cell-${col.id ?? col.accessorKey}`}>
                 {typeof col.cell === 'function'
                   ? col.cell({ row: { original: row } })
@@ -67,9 +68,9 @@ vi.mock('igz-controls/nextGenComponents', () => ({
       </tbody>
     </table>
   ),
-  Tooltip: ({ children }) => <>{children}</>,
-  TooltipTrigger: ({ children }) => <>{children}</>,
-  TooltipContent: ({ children }) => <div data-testid="tooltip-content">{children}</div>
+  Tooltip: props => <>{props.children}</>,
+  TooltipTrigger: props => <>{props.children}</>,
+  TooltipContent: props => <div data-testid="tooltip-content">{props.children}</div>
 }))
 
 vi.mock('../../../../common/Pagination/Pagination', () => ({

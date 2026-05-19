@@ -35,38 +35,33 @@ vi.mock('../../../../reducers/appReducer', () => ({
   toggleYaml: vi.fn(data => ({ type: 'toggleYaml', payload: data }))
 }))
 
-let capturedActionsMenu = []
-
 vi.mock('../../../shared/DetailsTabs/DetailsTabs', () => ({
-  default: ({ title, tabs, activeTabId, onTabChange, onClose, actionsMenu }) => {
-    capturedActionsMenu = actionsMenu ?? []
-    return (
-      <div data-testid="details-tabs">
-        <span data-testid="details-title">{title}</span>
-        <span data-testid="details-active-tab">{activeTabId}</span>
-        <button data-testid="details-close" onClick={onClose}>
-          Close
+  default: ({ title, tabs, activeTabId, onTabChange, onClose, actionsMenu }) => (
+    <div data-testid="details-tabs">
+      <span data-testid="details-title">{title}</span>
+      <span data-testid="details-active-tab">{activeTabId}</span>
+      <button data-testid="details-close" onClick={onClose}>
+        Close
+      </button>
+      <button data-testid="details-tab-change" onClick={() => onTabChange('configuration')}>
+        Change tab
+      </button>
+      {tabs.map(tab => (
+        <span key={tab.id} data-testid={`tab-${tab.id}`}>
+          {tab.label}
+        </span>
+      ))}
+      {actionsMenu?.map(action => (
+        <button
+          key={action.label}
+          data-testid={`action-${action.label}`}
+          onClick={action.onClick}
+        >
+          {action.label}
         </button>
-        <button data-testid="details-tab-change" onClick={() => onTabChange('configuration')}>
-          Change tab
-        </button>
-        {tabs.map(tab => (
-          <span key={tab.id} data-testid={`tab-${tab.id}`}>
-            {tab.label}
-          </span>
-        ))}
-        {actionsMenu?.map(action => (
-          <button
-            key={action.label}
-            data-testid={`action-${action.label}`}
-            onClick={action.onClick}
-          >
-            {action.label}
-          </button>
-        ))}
-      </div>
-    )
-  }
+      ))}
+    </div>
+  )
 }))
 
 vi.mock('./ApplicationOverview', () => ({

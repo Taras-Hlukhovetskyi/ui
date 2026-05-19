@@ -17,6 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
+/* eslint-disable react/prop-types */
 import React from 'react'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
@@ -50,13 +51,15 @@ vi.mock('igz-controls/utils/notification.util', () => ({
 }))
 
 vi.mock('igz-controls/nextGenComponents', () => ({
-  Loader: props => (
-    <div
-      data-testid={props['data-testid'] || 'loader'}
-      role="status"
-      aria-label={props['aria-label'] || 'Loading'}
-    />
-  )
+  Loader: function MockLoader(props) {
+    return (
+      <div
+        data-testid={props['data-testid'] || 'loader'}
+        role="status"
+        aria-label={props['aria-label'] || 'Loading'}
+      />
+    )
+  }
 }))
 
 vi.mock('../../../shared/LogsBlock/LogsBlock', () => ({

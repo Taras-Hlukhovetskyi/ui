@@ -17,6 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
+/* eslint-disable react/prop-types */
 import React from 'react'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
@@ -180,7 +181,7 @@ describe('ActionBar', () => {
       const onRefresh = vi.fn()
       const { getCtx } = renderActionBar({ onRefresh })
       act(() => getCtx().applyFilter('time', '24h'))
-      expect(onRefresh).toHaveBeenCalledWith({ name: '', time: '24h' })
+      expect(onRefresh).toHaveBeenCalledWith({ name: '', time: '24h' }, true)
     })
 
     it('fires onRefresh exactly once per call', () => {
@@ -205,7 +206,7 @@ describe('ActionBar', () => {
       const onRefresh = vi.fn()
       const { getCtx } = renderActionBar({ onRefresh })
       act(() => getCtx().applyMultipleFilters({ name: 'app', time: '7d' }))
-      expect(onRefresh).toHaveBeenCalledWith({ name: 'app', time: '7d' })
+      expect(onRefresh).toHaveBeenCalledWith({ name: 'app', time: '7d' }, true)
     })
   })
 

@@ -17,6 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
+/* eslint-disable react/prop-types */
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
@@ -26,7 +27,7 @@ import DetailsTabs from './DetailsTabs'
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
 vi.mock('igz-controls/nextGenComponents', () => ({
-  Tabs: ({ children, value, onValueChange, ...rest }) => (
+  Tabs: ({ children, value, ...rest }) => (
     <div data-testid="tabs" data-value={value} {...rest}>
       {children}
     </div>

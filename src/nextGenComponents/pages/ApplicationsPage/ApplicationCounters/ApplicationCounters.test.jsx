@@ -17,6 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
+/* eslint-disable react/prop-types */
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
@@ -28,14 +29,14 @@ import ApplicationCounters from './ApplicationCounters'
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
 vi.mock('igz-controls/nextGenComponents', () => ({
-  StatsCard: ({ children, className }) => (
-    <div data-testid="stats-card" className={className}>
-      {children}
+  StatsCard: props => (
+    <div data-testid="stats-card" className={props.className}>
+      {props.children}
     </div>
   ),
-  Tooltip: ({ children }) => <>{children}</>,
-  TooltipTrigger: ({ children, asChild }) => <>{children}</>,
-  TooltipContent: ({ children }) => <div data-testid="tooltip-content">{children}</div>
+  Tooltip: props => <>{props.children}</>,
+  TooltipTrigger: props => <>{props.children}</>,
+  TooltipContent: props => <div data-testid="tooltip-content">{props.children}</div>
 }))
 
 // ── Store factory ─────────────────────────────────────────────────────────────
