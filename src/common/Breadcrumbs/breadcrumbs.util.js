@@ -19,6 +19,7 @@ such restriction.
 */
 import {
   ALERTS_PAGE_PATH,
+  APPLICATIONS_PAGE_PATH,
   FEATURE_SETS_TAB,
   FEATURE_VECTORS_TAB,
   FEATURES_TAB,
@@ -58,6 +59,7 @@ export const generateMlrunScreens = params =>
         { label: 'Artifacts', id: 'files' },
         { label: 'Models', id: 'models' },
         { label: 'Monitoring app', id: MONITORING_APP_PAGE },
+        { label: 'Applications', id: APPLICATIONS_PAGE_PATH },
         { label: 'Jobs and workflows', id: 'jobs' },
         { label: 'ML functions', id: 'functions' },
         {

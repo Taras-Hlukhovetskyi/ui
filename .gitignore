@@ -16,6 +16,7 @@
 .DS_Store
 .env
 .env.local
+mlrun.env
 .env.*.local
 .env.development
 .env.development.mf
@@ -26,3 +27,4 @@ yarn-error.log*
 
 /tests/reports
 .vscode/
+.cursor/

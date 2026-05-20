@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --igz-light-purple: #869cff;
+    --igz-purple: #5f52cc;
+    --igz-dark-purple: #5f52cc;
+    --igz-green: #2ab57d;
+    --igz-primary: #4b4760;
+    --igz-accent-hover: #869cff14;
+    --igz-secondary: #7f7989;
+    --igz-gray: #c4c2c8;
+    --igz-gray-light: #e9e8eb;
+    --igz-hover-bg: #483f561f;
+    --igz-link: #2563eb;
+    --igz-border-secondary: #ccc;
+    --igz-status-running: #50b1e7;
+    --igz-status-ready: #0fddaf;
+    --igz-status-deploying: #ffd077;
+    --igz-status-failed: #eb5757;
+    --igz-status-error: #f98b0a;
+    --igz-status-completed: #0fddaf;
+    --background: 0 0% 100%;
+    --foreground: 250 15% 33%;
+    --primary-color: 250, 15%, 33%;
+    --card: 0 0% 100%;
+    --card-foreground: 250 15% 33%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 250 15% 33%;
+    --primary: 229 100% 76%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 100%;
+    --secondary-foreground: 250 15% 33%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 260 7% 92%;
+    --input: 0 0% 80%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 250 15% 33%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-active-accent: 229.09 100% 76.27%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-active-accent-foreground: 0 0% 100%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+    --tooltip: 250 15% 20%;
+    --tooltip-foreground: 0 0% 100%;
+    --dropdown-border: 260, 7%, 88%, 1;
+  }
+}
+
+@layer base {
+  .mlrun-tw-scope {
+    font-family: Roboto, sans-serif;
+    font-size: 15px;
+    font-weight: normal;
+    font-style: normal;
+    line-height: 18px;
+    color: var(--igz-primary);
+  }
+
+  .mlrun-tw-scope *,
+  .mlrun-tw-scope ::before,
+  .mlrun-tw-scope ::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: hsl(var(--border));
+  }
+
+  .mlrun-tw-scope a {
+    color: inherit;
+    text-decoration: inherit;
+  }
+
+  /* .mlrun-tw-scope svg {
+
+  } */
+
+  .mlrun-tw-scope img,
+  .mlrun-tw-scope svg,
+  .mlrun-tw-scope video {
+    display: block;
+  }
+
+  .mlrun-tw-scope img,
+  .mlrun-tw-scope video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .mlrun-tw-scope ul,
+  .mlrun-tw-scope ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+}
