@@ -68,6 +68,7 @@ const SAMPLE_APPLICATION = {
   image: '',
   build: { source: 'projects/tutorial-amitk/artifacts/streamlit-app-source.tar.gz' },
   labels: { owner: 'John Driller' },
+  owner: 'John Driller',
   tag: '',
   updated: new Date('2024-10-29T06:46:10.000Z'),
   command: ['https://api-gateway.example.com/v1/project3-name'],
@@ -111,6 +112,11 @@ describe('ApplicationOverview', () => {
     it('renders the Source row', () => {
       renderOverview()
       expect(screen.getByTestId('info-row-Source')).toBeInTheDocument()
+    })
+
+    it('renders the Owner row', () => {
+      renderOverview()
+      expect(screen.getByTestId('info-row-Owner')).toBeInTheDocument()
     })
 
     it('renders the Updated row', () => {

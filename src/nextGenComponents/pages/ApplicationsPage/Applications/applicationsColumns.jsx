@@ -94,5 +94,16 @@ export const getApplicationsColumns = projectName => [
     cell: ({ row }) => (
       <span className="text-igz-secondary">{formatDatetime(row.original.updated, 'N/A')}</span>
     )
+  },
+  {
+    id: 'owner',
+    header: 'Owner',
+    size: 12,
+    accessorFn: row => row.owner ?? '',
+    cell: ({ row }) => (
+      <span className="text-igz-secondary" data-testid="owner-cell">
+        {row.original.owner || '-'}
+      </span>
+    )
   }
 ]

@@ -23,7 +23,13 @@ import { Input, TimeFilterDropdown, FilterPopover } from 'igz-controls/nextGenCo
 
 import SearchIcon from 'igz-controls/images/search2-icon.svg?react'
 
-import { DATES_FILTER, FILTER_ALL_ITEMS, NAME_FILTER, STATUS_FILTER } from '../../../../constants'
+import {
+  DATES_FILTER,
+  FILTER_ALL_ITEMS,
+  NAME_FILTER,
+  OWNER_FILTER,
+  STATUS_FILTER
+} from '../../../../constants'
 import {
   STATUS_POPOVER_OPTIONS,
   TIME_FILTER_CUSTOM_VALUE,
@@ -36,7 +42,7 @@ import {
   getDatePickerFilterValue
 } from '../../../../utils/datePicker.util'
 
-const ApplicationsFilters = ({ filters, applyFilter }) => {
+const ApplicationsFilters = ({ filters, applyFilter, applyMultipleFilters }) => {
   const nameFilter = filters[NAME_FILTER]
   const [nameValue, setNameValue] = useState(nameFilter ?? '')
 
@@ -107,10 +113,34 @@ const ApplicationsFilters = ({ filters, applyFilter }) => {
           if (hasSelectedAll) return [FILTER_ALL_ITEMS]
           return next.filter(v => v !== FILTER_ALL_ITEMS)
         }
+      },
+      owner: {
+        key: 'owner',
+        label: 'Owner',
+        kind: 'text',
+        placeholder: 'Search by owner...',
+        defaultValue: filters[OWNER_FILTER] ?? ''
       }
     }),
     [filters]
   )
+
+  const handlePopoverApply = useCallback(
+    vals => {
+      applyMultipleFilters({
+        [OWNER_FILTER]: vals?.owner ?? '',
+        [STATUS_FILTER]: vals?.status ?? [FILTER_ALL_ITEMS]
+      })
+    },
+    [applyMultipleFilters]
+  )
+
+  const handlePopoverClear = useCallback(() => {
+    applyMultipleFilters({
+      [OWNER_FILTER]: '',
+      [STATUS_FILTER]: [FILTER_ALL_ITEMS]
+    })
+  }, [applyMultipleFilters])
 
   return (
     <>
@@ -150,8 +180,8 @@ const ApplicationsFilters = ({ filters, applyFilter }) => {
 
       <FilterPopover
         schema={filterPopoverSchema}
-        onApply={vals => applyFilter(STATUS_FILTER, vals?.status ?? [FILTER_ALL_ITEMS])}
-        onClear={() => applyFilter(STATUS_FILTER, [FILTER_ALL_ITEMS])}
+        onApply={handlePopoverApply}
+        onClear={handlePopoverClear}
       />
     </>
   )
@@ -160,10 +190,12 @@ const ApplicationsFilters = ({ filters, applyFilter }) => {
 ApplicationsFilters.propTypes = {
   filters: PropTypes.shape({
     [NAME_FILTER]: PropTypes.string,
+    [OWNER_FILTER]: PropTypes.string,
     [DATES_FILTER]: PropTypes.object,
     [STATUS_FILTER]: PropTypes.array
   }).isRequired,
-  applyFilter: PropTypes.func.isRequired
+  applyFilter: PropTypes.func.isRequired,
+  applyMultipleFilters: PropTypes.func.isRequired
 }
 
 export default ApplicationsFilters

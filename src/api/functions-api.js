@@ -102,7 +102,7 @@ const functionsApi = {
       params
     })
   },
-  getFunction: (project, functionName, hash, tag, uid) => {
+  getFunction: (project, functionName, hash, tag, uid, signal) => {
     const params = {}
 
     if (hash) {
@@ -117,7 +117,7 @@ const functionsApi = {
       params.tag = tag
     }
 
-    return mainHttpClient.get(`/projects/${project}/functions/${functionName}`, { params })
+    return mainHttpClient.get(`/projects/${project}/functions/${functionName}`, { params, signal })
   },
   getFunctionLogs: (project, name, tag, offset) => {
     const params = {

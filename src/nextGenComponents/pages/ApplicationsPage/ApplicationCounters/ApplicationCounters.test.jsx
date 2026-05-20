@@ -21,8 +21,6 @@ such restriction.
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 
 import ApplicationCounters from './ApplicationCounters'
 
@@ -39,34 +37,12 @@ vi.mock('igz-controls/nextGenComponents', () => ({
   TooltipContent: props => <div data-testid="tooltip-content">{props.children}</div>
 }))
 
-// ── Store factory ─────────────────────────────────────────────────────────────
-
-const makeStore = functionsStore =>
-  configureStore({
-    reducer: { functionsStore: () => functionsStore }
-  })
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const makeFunctions = ({ running = 7, failed = 3, building = 2 } = {}) => [
-  ...Array(running).fill({ status: { state: 'running' } }),
-  ...Array(failed).fill({ status: { state: 'error' } }),
-  ...Array(building).fill({ status: { state: 'building' } })
-]
+const DEFAULT_COUNTERS = { total: 12, running: 7, failed: 3, building: 2 }
 
-const renderCounters = (storeOverrides = {}) => {
-  const storeState = {
-    loading: false,
-    functions: makeFunctions(),
-    ...storeOverrides
-  }
-  const store = makeStore(storeState)
-  return render(
-    <Provider store={store}>
-      <ApplicationCounters />
-    </Provider>
-  )
-}
+const renderCounters = (counters = DEFAULT_COUNTERS, isLoading = false) =>
+  render(<ApplicationCounters counters={counters} isLoading={isLoading} />)
 
 // ── Tests ──────────────────────────────────────────────────────────────────────
 
@@ -132,12 +108,12 @@ describe('ApplicationCounters', () => {
 
   describe('loading state', () => {
     it('shows loading spinners while loading', () => {
-      const { container } = renderCounters({ loading: true, functions: makeFunctions() })
+      const { container } = renderCounters(DEFAULT_COUNTERS, true)
       expect(container.querySelectorAll('.animate-spin')).toHaveLength(4)
     })
 
     it('does not show numeric counts while loading', () => {
-      renderCounters({ loading: true, functions: makeFunctions() })
+      renderCounters(DEFAULT_COUNTERS, true)
       expect(screen.queryByText('12')).not.toBeInTheDocument()
     })
   })
@@ -146,7 +122,7 @@ describe('ApplicationCounters', () => {
 
   describe('zero counts', () => {
     it('renders 0 for building when there are no building functions', () => {
-      renderCounters({ functions: makeFunctions({ running: 5, failed: 3, building: 0 }) })
+      renderCounters({ total: 8, running: 5, failed: 3, building: 0 })
       expect(screen.getAllByText('0')).toHaveLength(1)
     })
   })

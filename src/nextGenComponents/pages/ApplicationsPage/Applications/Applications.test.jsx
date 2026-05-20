@@ -28,26 +28,28 @@ import Applications from './Applications'
 
 const mockNavigate = vi.fn()
 const mockDispatch = vi.fn(() => ({ unwrap: () => Promise.resolve(null) }))
-const mockSetSearchParams = vi.fn()
 
 vi.mock('react-router-dom', () => ({
   Link: props => <a href={props.to}>{props.children}</a>,
   useOutletContext: () => ({
     applications: SAMPLE_APPLICATIONS,
-    paginatedApplications: SAMPLE_APPLICATIONS,
-    paginationConfigRef: { current: {} },
-    searchParams: new URLSearchParams(),
-    setSearchParams: mockSetSearchParams,
+    filters: {},
+    filtersConfig: {},
+    fetchSingleEnrichedFunction: vi.fn(() => Promise.resolve(null)),
     setIsDetailsReady: vi.fn()
   }),
   useParams: () => ({ projectName: 'my-project' }),
-  useNavigate: () => mockNavigate,
-  useSearchParams: () => [new URLSearchParams(), mockSetSearchParams]
+  useNavigate: () => mockNavigate
 }))
 
 vi.mock('react-redux', () => ({
   useDispatch: () => mockDispatch,
-  useSelector: vi.fn(selector => selector({ functionsStore: { funcLoading: false } }))
+  useSelector: vi.fn(selector =>
+    selector({
+      functionsStore: { funcLoading: false },
+      nuclioStore: { nuclioFunctionLoading: false }
+    })
+  )
 }))
 
 vi.mock('igz-controls/nextGenComponents', () => ({
@@ -71,10 +73,6 @@ vi.mock('igz-controls/nextGenComponents', () => ({
   Tooltip: props => <>{props.children}</>,
   TooltipTrigger: props => <>{props.children}</>,
   TooltipContent: props => <div data-testid="tooltip-content">{props.children}</div>
-}))
-
-vi.mock('../../../../common/Pagination/Pagination', () => ({
-  default: () => <div data-testid="pagination" />
 }))
 
 vi.mock('../../../shared/UrlCell', () => ({
@@ -119,7 +117,8 @@ const SAMPLE_APPLICATIONS = [
     external_invocation_urls: ['host-a.example.com:8080'],
     internal_invocation_urls: [],
     updated: '2026-05-10T12:00:00.000Z',
-    labels: { owner: 'alice' }
+    labels: { owner: 'alice' },
+    owner: 'alice'
   },
   {
     name: 'app-beta',
@@ -129,7 +128,8 @@ const SAMPLE_APPLICATIONS = [
     external_invocation_urls: [],
     internal_invocation_urls: [],
     updated: null,
-    labels: {}
+    labels: {},
+    owner: ''
   }
 ]
 
@@ -161,9 +161,21 @@ describe('Applications', () => {
       expect(screen.getByText('All Applications')).toBeInTheDocument()
     })
 
-    it('renders the pagination component', () => {
+    it('renders owner cells for each application', () => {
       renderApplications()
-      expect(screen.getByTestId('pagination')).toBeInTheDocument()
+      const ownerCells = screen.getAllByTestId('owner-cell')
+      expect(ownerCells).toHaveLength(SAMPLE_APPLICATIONS.length)
+    })
+
+    it('renders owner name when present', () => {
+      renderApplications()
+      expect(screen.getByText('alice')).toBeInTheDocument()
+    })
+
+    it('renders dash when owner is empty', () => {
+      renderApplications()
+      const ownerCells = screen.getAllByTestId('owner-cell')
+      expect(ownerCells[1]).toHaveTextContent('-')
     })
   })
 

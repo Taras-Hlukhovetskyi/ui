@@ -17,10 +17,8 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Outlet, useParams } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import { isEmpty, isEqual } from 'lodash'
 import { Loader, TooltipProvider } from 'igz-controls/nextGenComponents'
 
 import Breadcrumbs from '../../../common/Breadcrumbs/Breadcrumbs'
@@ -29,12 +27,13 @@ import ApplicationsFilters from './ApplicationsFilters/ApplicationsFilters'
 import ActionBar from '../../shared/ActionBar/ActionBar'
 
 import { useFiltersFromSearchParams } from '../../../hooks/useFiltersFromSearchParams.hook'
-import { usePagination } from '../../../hooks/usePagination.hook'
-import { fetchFunctions } from '../../../reducers/functionReducer'
-import { parseFunction } from '../../../utils/parseFunction'
-import getState from '../../../utils/getState'
-import { BE_PAGE, BE_PAGE_SIZE, FUNCTIONS_PAGE } from '../../../constants'
-import { APPLICATIONS_FILTERS_CONFIG, APPLICATION_STATUS } from './applications.constants'
+import { useNuclioEnrichedFunctions } from '../../../hooks/useNuclioEnrichedFunctions.hook'
+import {
+  APPLICATION_KIND,
+  APPLICATIONS_ERROR_MESSAGE,
+  APPLICATIONS_FILTERS_CONFIG,
+  TAG_WILDCARD
+} from './applications.constants'
 import {
   buildApiFilters,
   filterApplications,
@@ -43,74 +42,39 @@ import {
 
 const ApplicationsPage = () => {
   const params = useParams()
-  const dispatch = useDispatch()
-  const { functions, loading } = useSelector(store => store.functionsStore)
-  const paginationConfigRef = useRef({})
   const [isDetailsReady, setIsDetailsReady] = useState(false)
 
-  const urlFilters = useFiltersFromSearchParams(
+  const filters = useFiltersFromSearchParams(
     APPLICATIONS_FILTERS_CONFIG,
     parseApplicationsQueryParams
   )
-  const [filters, setFilters] = useState(urlFilters)
 
-  useEffect(() => {
-    setFilters(prevFilters => (isEqual(prevFilters, urlFilters) ? prevFilters : urlFilters))
-  }, [urlFilters])
+  const buildFetchConfig = useCallback(currentFilters => {
+    const apiFilters = buildApiFilters(currentFilters)
+    return {
+      filters: {},
+      config: { params: { ...apiFilters, kind: APPLICATION_KIND, tag: TAG_WILDCARD } }
+    }
+  }, [])
 
-  const applications = useMemo(
-    () =>
-      functions.map(rawFunc => {
-        const application = parseFunction(rawFunc, params.projectName)
-        const apiState = rawFunc.status?.state
-        const normalizedState =
-          apiState === APPLICATION_STATUS.READY ? APPLICATION_STATUS.RUNNING : apiState
-        return {
-          ...application,
-          state: getState(normalizedState, FUNCTIONS_PAGE, 'nuclioFunctions')
-        }
-      }),
-    [functions, params.projectName]
-  )
+  const {
+    fetchData,
+    fetchSingleEnrichedFunction,
+    filteredData: filteredApplications,
+    counters,
+    isLoading
+  } = useNuclioEnrichedFunctions({
+    projectName: params.projectName,
+    filters,
+    filterFn: filterApplications,
+    buildFetchConfig,
+    errorMessage: APPLICATIONS_ERROR_MESSAGE
+  })
 
   const handleRefresh = useCallback(
-    currentFilters => {
-      const apiFilters = buildApiFilters(currentFilters)
-      const requestParams = { ...apiFilters, kind: 'application', tag: '*' }
-
-      if (!isEmpty(paginationConfigRef.current)) {
-        requestParams.page = paginationConfigRef.current[BE_PAGE]
-        requestParams['page-size'] = paginationConfigRef.current[BE_PAGE_SIZE]
-      }
-
-      return dispatch(
-        fetchFunctions({
-          project: params.projectName,
-          filters: {},
-          config: { params: requestParams }
-        })
-      )
-        .unwrap()
-        .then(data => {
-          paginationConfigRef.current.paginationResponse = data?.pagination ?? null
-        })
-    },
-    [dispatch, params.projectName]
+    currentFilters => fetchData(buildFetchConfig(currentFilters)),
+    [fetchData, buildFetchConfig]
   )
-
-  const filteredApplications = useMemo(
-    () => filterApplications(applications, filters),
-    [applications, filters]
-  )
-
-  const [handlePaginatedRefresh, paginatedApplications, searchParams, setSearchParams] =
-    usePagination({
-      content: filteredApplications,
-      refreshContent: handleRefresh,
-      filters,
-      paginationConfigRef,
-      resetPaginationTrigger: params.projectName
-    })
 
   return (
     <div
@@ -128,11 +92,14 @@ const ApplicationsPage = () => {
               <ActionBar
                 filtersConfig={APPLICATIONS_FILTERS_CONFIG}
                 filters={filters}
-                setFilters={setFilters}
-                onRefresh={handlePaginatedRefresh}
+                onRefresh={handleRefresh}
               >
-                {({ filters: activeFilters, applyFilter }) => (
-                  <ApplicationsFilters filters={activeFilters} applyFilter={applyFilter} />
+                {({ filters: activeFilters, applyFilter, applyMultipleFilters }) => (
+                  <ApplicationsFilters
+                    filters={activeFilters}
+                    applyFilter={applyFilter}
+                    applyMultipleFilters={applyMultipleFilters}
+                  />
                 )}
               </ActionBar>
             </div>
@@ -145,7 +112,9 @@ const ApplicationsPage = () => {
                 : 'flex flex-col flex-1 overflow-hidden px-6 pb-6 pt-0'
             }
           >
-            {!isDetailsReady && <ApplicationCounters />}
+            {!isDetailsReady && (
+              <ApplicationCounters counters={counters} isLoading={isLoading} />
+            )}
             <div
               className={
                 isDetailsReady
@@ -153,7 +122,7 @@ const ApplicationsPage = () => {
                   : 'flex flex-col flex-1 overflow-hidden mt-4 p-[20px] text-igz-secondary bg-background border rounded-lg shadow-card'
               }
             >
-              {loading && !isDetailsReady ? (
+              {isLoading && !isDetailsReady ? (
                 <Loader mode="fullscreen" />
               ) : (
                 <Outlet
@@ -161,10 +130,7 @@ const ApplicationsPage = () => {
                     applications: filteredApplications,
                     filters,
                     filtersConfig: APPLICATIONS_FILTERS_CONFIG,
-                    paginatedApplications,
-                    paginationConfigRef,
-                    searchParams,
-                    setSearchParams,
+                    fetchSingleEnrichedFunction,
                     setIsDetailsReady
                   }}
                 />

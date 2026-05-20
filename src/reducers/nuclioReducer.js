@@ -60,6 +60,16 @@ export const fetchAllNuclioFunctions = createAsyncThunk(
   }
 )
 
+export const fetchNuclioFunction = createAsyncThunk(
+  'fetchNuclioFunction',
+  ({ project, name, signal }, { rejectWithValue }) => {
+    return nuclioApi
+      .getFunction(project, name, signal)
+      .then(({ data }) => data)
+      .catch(rejectWithValue)
+  }
+)
+
 export const fetchNuclioV3ioStreamShardLags = createAsyncThunk(
   'fetchNuclioV3ioStreamShardLags',
   ({ project, body }, { rejectWithValue }) => {
@@ -93,6 +103,7 @@ export const fetchNuclioV3ioStreams = createAsyncThunk(
 const initialState = {
   apiGateways: 0,
   functions: {},
+  nuclioFunctionLoading: false,
   v3ioStreams: {
     error: null,
     loading: false,
@@ -168,6 +179,15 @@ const nuclioSlice = createSlice({
       state.functions = {}
       state.loading = false
       state.error = action.error?.message
+    })
+    builder.addCase(fetchNuclioFunction.pending, state => {
+      state.nuclioFunctionLoading = true
+    })
+    builder.addCase(fetchNuclioFunction.fulfilled, state => {
+      state.nuclioFunctionLoading = false
+    })
+    builder.addCase(fetchNuclioFunction.rejected, state => {
+      state.nuclioFunctionLoading = false
     })
     builder.addCase(fetchNuclioV3ioStreamShardLags.pending, state => {
       state.v3ioStreamShardLags = {

@@ -101,7 +101,7 @@ const ActionBar = ({
   const setFilterValue = useCallback(
     (key, value) => {
       const next = { ...filters, [key]: value }
-      setFilters(next)
+      setFilters?.(next)
       saveFiltersToUrl(next)
     },
     [filters, setFilters, saveFiltersToUrl]
@@ -110,7 +110,7 @@ const ActionBar = ({
   const applyFilter = useCallback(
     (key, value) => {
       const next = updateRelativeTimeValue({ ...filters, [key]: value })
-      setFilters(next)
+      setFilters?.(next)
       saveFiltersToUrl(next)
       onRefresh(next, true)
     },
@@ -120,7 +120,7 @@ const ActionBar = ({
   const applyMultipleFilters = useCallback(
     updatedValues => {
       const next = updateRelativeTimeValue({ ...filters, ...updatedValues })
-      setFilters(next)
+      setFilters?.(next)
       saveFiltersToUrl(next)
       onRefresh(next, true)
     },
@@ -129,7 +129,7 @@ const ActionBar = ({
 
   const handleRefresh = useCallback(() => {
     const refreshedFilters = updateRelativeTimeValue({ ...filters })
-    setFilters(refreshedFilters)
+    setFilters?.(refreshedFilters)
     saveFiltersToUrl(refreshedFilters)
     onRefresh(refreshedFilters)
   }, [filters, setFilters, onRefresh, saveFiltersToUrl, updateRelativeTimeValue])
@@ -139,7 +139,7 @@ const ActionBar = ({
 
     const intervalId = setInterval(() => {
       const refreshed = updateRelativeTimeValue({ ...filters })
-      setFilters(refreshed)
+      setFilters?.(refreshed)
       saveFiltersToUrl(refreshed)
       onRefresh(refreshed)
     }, autoRefreshInterval)
@@ -183,7 +183,7 @@ ActionBar.propTypes = {
   filters: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
   onRefresh: PropTypes.func.isRequired,
-  setFilters: PropTypes.func.isRequired
+  setFilters: PropTypes.func
 }
 
 export default memo(ActionBar)

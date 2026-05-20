@@ -68,8 +68,9 @@ vi.mock('../../../utils/datePicker.util', () => {
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-const makeApp = stateValue => ({
-  state: { value: stateValue }
+const makeApp = (stateValue, owner = '') => ({
+  state: { value: stateValue },
+  owner
 })
 
 const makeDateFilter = (dates, isPredefined = true) => ({
@@ -240,7 +241,12 @@ describe('applicationsPage.util', () => {
   // ── filterApplications ─────────────────────────────────────────────────────
 
   describe('filterApplications', () => {
-    const apps = [makeApp('running'), makeApp('failed'), makeApp('building'), makeApp('error')]
+    const apps = [
+      makeApp('running', 'alice'),
+      makeApp('failed', 'bob'),
+      makeApp('building', 'alice'),
+      makeApp('error', '')
+    ]
 
     it('returns all apps when status filter is "all"', () => {
       expect(filterApplications(apps, { state: ['all'] })).toHaveLength(4)
@@ -273,6 +279,57 @@ describe('applicationsPage.util', () => {
 
     it('returns empty array for empty applications list', () => {
       expect(filterApplications([], { state: ['running'] })).toHaveLength(0)
+    })
+
+    it('filters by exact owner match', () => {
+      const result = filterApplications(apps, { state: ['all'], owner: 'alice' })
+      expect(result).toHaveLength(2)
+      expect(result.every(app => app.owner === 'alice')).toBe(true)
+    })
+
+    it('filters by owner case-insensitively', () => {
+      const result = filterApplications(apps, { state: ['all'], owner: 'ALICE' })
+      expect(result).toHaveLength(2)
+      expect(result.every(app => app.owner === 'alice')).toBe(true)
+    })
+
+    it('filters by owner substring', () => {
+      const result = filterApplications(apps, { state: ['all'], owner: 'ali' })
+      expect(result).toHaveLength(2)
+    })
+
+    it('trims whitespace from owner search', () => {
+      const result = filterApplications(apps, { state: ['all'], owner: '  bob  ' })
+      expect(result).toHaveLength(1)
+      expect(result[0].owner).toBe('bob')
+    })
+
+    it('returns all apps when owner filter is empty', () => {
+      const result = filterApplications(apps, { state: ['all'], owner: '' })
+      expect(result).toHaveLength(4)
+    })
+
+    it('returns all apps when owner filter is whitespace only', () => {
+      const result = filterApplications(apps, { state: ['all'], owner: '   ' })
+      expect(result).toHaveLength(4)
+    })
+
+    it('applies owner and status filters together', () => {
+      const result = filterApplications(apps, { state: ['running'], owner: 'alice' })
+      expect(result).toHaveLength(1)
+      expect(result[0].state.value).toBe('running')
+      expect(result[0].owner).toBe('alice')
+    })
+
+    it('returns no apps when owner filter matches nothing', () => {
+      const result = filterApplications(apps, { state: ['all'], owner: 'nobody' })
+      expect(result).toHaveLength(0)
+    })
+
+    it('handles apps with missing owner field', () => {
+      const appsWithMissing = [...apps, { state: { value: 'running' } }]
+      const result = filterApplications(appsWithMissing, { state: ['all'], owner: 'alice' })
+      expect(result).toHaveLength(2)
     })
   })
 })

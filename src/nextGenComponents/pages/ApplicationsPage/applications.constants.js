@@ -23,7 +23,17 @@ import {
   datePickerPastOptions,
   getDatePickerFilterValue
 } from '../../../utils/datePicker.util'
-import { DATES_FILTER, FILTER_ALL_ITEMS, NAME_FILTER, STATUS_FILTER } from '../../../constants'
+import {
+  DATES_FILTER,
+  FILTER_ALL_ITEMS,
+  NAME_FILTER,
+  OWNER_FILTER,
+  STATUS_FILTER
+} from '../../../constants'
+
+export const APPLICATION_KIND = 'application'
+export const TAG_WILDCARD = '*'
+export const APPLICATIONS_ERROR_MESSAGE = 'Failed to fetch applications'
 
 export const APPLICATION_STATUS = {
   READY: 'ready',
@@ -79,6 +89,10 @@ export const APPLICATIONS_FILTERS_CONFIG = {
   [NAME_FILTER]: {
     initialValue: '',
     label: 'Name:'
+  },
+  [OWNER_FILTER]: {
+    initialValue: '',
+    label: 'Owner:'
   },
   [DATES_FILTER]: {
     initialValue: getDatePickerFilterValue(datePickerPastOptions, ANY_TIME_DATE_OPTION),

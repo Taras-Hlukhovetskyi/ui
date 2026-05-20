@@ -32,31 +32,27 @@ import { HelpCircle, FileCode2 } from 'lucide-react'
 
 import ApplicationDetails from '../ApplicationDetails/ApplicationDetails'
 import NoData from '../../../shared/NoData/NoData'
-import Pagination from '../../../../common/Pagination/Pagination'
 import { getApplicationsColumns } from './applicationsColumns'
 import { APPLICATIONS_PAGE, APPLICATIONS_PAGE_PATH } from '../../../../constants'
 import { toggleYaml } from '../../../../reducers/appReducer'
-import { fetchFunction } from '../../../../reducers/functionReducer'
 import { checkForSelectedApplication } from '../applicationsPage.util'
 import { DEFAULT_APPLICATION_DETAILS_TAB } from '../ApplicationDetails/applicationDetails.constants'
 import { getNoDataMessage } from '../../../../utils/getNoDataMessage'
-import { showErrorNotification } from 'igz-controls/utils/notification.util'
 
 const Applications = () => {
   const {
     applications,
     filters,
     filtersConfig,
-    paginatedApplications,
-    paginationConfigRef,
-    searchParams,
-    setSearchParams,
+    fetchSingleEnrichedFunction,
     setIsDetailsReady
   } = useOutletContext()
   const params = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { funcLoading } = useSelector(store => store.functionsStore)
+  const funcLoading = useSelector(
+    store => store.functionsStore.funcLoading || store.nuclioStore.nuclioFunctionLoading
+  )
   const lastCheckedApplicationIdRef = useRef(null)
   const [selectedApplication, setSelectedApplication] = useState({})
   const [detailsRefreshKey, setDetailsRefreshKey] = useState(Date.now())
@@ -90,54 +86,20 @@ const Applications = () => {
       applicationName: params.name,
       applicationId: params.id,
       applications,
-      paginatedApplications,
-      paginationConfigRef,
-      searchParams,
-      setSearchParams,
       navigate,
       projectName: params.projectName,
       setSelectedApplication,
+      fetchSingleEnrichedFunction,
       dispatch,
       lastCheckedApplicationIdRef
     })
-  }, [
-    applications,
-    dispatch,
-    navigate,
-    paginatedApplications,
-    paginationConfigRef,
-    params.id,
-    params.name,
-    params.projectName,
-    searchParams,
-    setSearchParams
-  ])
+  }, [applications, dispatch, fetchSingleEnrichedFunction, navigate, params.id, params.name, params.projectName])
 
   const handleViewYaml = useCallback(
     application => {
-      if (application.ui?.originalContent) {
-        dispatch(toggleYaml(application.ui.originalContent))
-      } else {
-        dispatch(
-          fetchFunction({
-            project: params.projectName,
-            name: application.name,
-            hash: application.hash,
-            tag: application.tag
-          })
-        )
-          .unwrap()
-          .then(func => {
-            if (func) {
-              dispatch(toggleYaml(func))
-            }
-          })
-          .catch(error => {
-            showErrorNotification(dispatch, error, '', 'Failed to retrieve application YAML')
-          })
-      }
+      dispatch(toggleYaml(application.ui?.originalContent ?? application))
     },
-    [dispatch, params.projectName]
+    [dispatch]
   )
 
   const rowActions = useCallback(
@@ -156,28 +118,14 @@ const Applications = () => {
       applicationName: params.name,
       applicationId: params.id,
       applications,
-      paginatedApplications,
-      paginationConfigRef,
-      searchParams,
-      setSearchParams,
       navigate,
       projectName: params.projectName,
       setSelectedApplication,
+      fetchSingleEnrichedFunction,
       dispatch,
       lastCheckedApplicationIdRef
     })
-  }, [
-    applications,
-    dispatch,
-    navigate,
-    paginatedApplications,
-    paginationConfigRef,
-    params.id,
-    params.name,
-    params.projectName,
-    searchParams,
-    setSearchParams
-  ])
+  }, [applications, dispatch, fetchSingleEnrichedFunction, navigate, params.id, params.name, params.projectName])
 
   useEffect(() => {
     if (isEmpty(selectedApplication)) {
@@ -229,21 +177,17 @@ const Applications = () => {
         </Tooltip>
       </div>
       <div className="flex-1 min-h-[200px] flex flex-col [&_thead_tr]:z-[1]">
-        {paginatedApplications.length === 0 ? (
+        {applications.length === 0 ? (
           <NoData message={getNoDataMessage(filters, filtersConfig, null, APPLICATIONS_PAGE)} />
         ) : (
           <DataTable
-            data={paginatedApplications}
+            data={applications}
             columns={columns}
             rowActions={rowActions}
             initialSorting={[{ id: 'name', desc: false }]}
           />
         )}
       </div>
-      <Pagination
-        paginationConfig={paginationConfigRef.current}
-        closeParamName={APPLICATIONS_PAGE_PATH}
-      />
     </div>
   )
 }

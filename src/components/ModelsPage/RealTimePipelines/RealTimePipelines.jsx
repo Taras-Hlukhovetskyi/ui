@@ -21,7 +21,7 @@ import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } fr
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import classnames from 'classnames'
-import { cloneDeep, isEmpty, isNil, set } from 'lodash'
+import { isEmpty, isNil } from 'lodash'
 
 import ActionBar from '../../ActionBar/ActionBar'
 import ModelsPageTabs from '../ModelsPageTabs/ModelsPageTabs'
@@ -33,40 +33,38 @@ import RealTimePipelinesFilters from './RealTimePipelinesFilters'
 import { Loader, Tip, FormToggle } from 'igz-controls/components'
 
 import {
-  GROUP_BY_NAME,
   MODELS_PAGE,
   REAL_TIME_PIPELINES_TAB,
-  REQUEST_CANCELED,
   FUNCTION_READY_STATE,
+  FUNCTION_RUNNING_STATE,
   ERROR_STATE,
   UNHEALTHY_STATE,
   DISPLAY_SYSTEM_PIPELINES_FILTER,
   PIPELINE_TOPOLOGY_FILTER,
   FILTER_ALL_ITEMS,
   PIPELINE_FLOW_TOPOLOGY,
-  ROUTER_STEP_KIND,
-  FUNCTIONS_PAGE
+  ROUTER_STEP_KIND
 } from '../../../constants'
 import createRealTimePipelinesContent from '../../../utils/createRealTimePipelinesContent'
 import {
   checkForSelectedPipeline,
-  fetchAndParsePipeline,
   filtersConfig,
-  generatePageData
+  generatePageData,
+  MONITORING_INFRA_LABEL_KEY,
+  MONITORING_INFRA_LABEL_VALUE,
+  PIPELINES_ERROR_MESSAGE,
+  PIPELINES_DEFAULT_FETCH_CONFIG
 } from './realTimePipelines.util'
 import RealTimePipelinesCounters from './RealTimePipelinesCounters'
-import { fetchArtifactsFunctions, removePipelines } from '../../../reducers/artifactsReducer'
+import { removePipelines } from '../../../reducers/artifactsReducer'
+import { showErrorNotification } from 'igz-controls/utils/notification.util'
 import { getNoDataMessage } from '../../../utils/getNoDataMessage'
 import { getScssVariableValue } from 'igz-controls/utils/common.util'
 import { isRowRendered, useVirtualization } from '../../../hooks/useVirtualization.hook'
-import { setFilters } from '../../../reducers/filtersReducer'
 import { useFiltersFromSearchParams } from '../../../hooks/useFiltersFromSearchParams.hook'
-import { useInitialTableFetch } from '../../../hooks/useInitialTableFetch.hook'
 import { useModelsPage } from '../ModelsPage.context'
+import { useNuclioEnrichedFunctions } from '../../../hooks/useNuclioEnrichedFunctions.hook'
 import { FULL_VIEW_MODE } from 'igz-controls/constants'
-import { fetchNuclioFunctions } from '../../../reducers/nuclioReducer'
-import { getNuclioFuncState } from '../../../utils/getNuclioFuncState'
-import getState from '../../../utils/getState'
 
 import Yaml from 'igz-controls/images/yaml.svg?react'
 
@@ -74,29 +72,104 @@ import './realTimePipelines.scss'
 
 const RealTimePipelines = () => {
   const [requestErrorMessage, setRequestErrorMessage] = useState('')
-  const [pipelines, setPipelines] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
   const [selectedPipeline, setSelectedPipeline] = useState({})
-  const [statistics, setStatistics] = useState({
-    totalPipelines: 0,
-    runningFunctions: 0,
-    failedFunctions: 0,
-    modelEndpoints: 0
-  })
   const filtersStore = useSelector(store => store.filtersStore)
   const params = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const abortControllerRef = useRef(new AbortController())
-  const nuclioAbortControllerRef = useRef(new AbortController())
   const pipelinesRef = useRef(null)
   const lastCheckedPipelineIdRef = useRef(null)
   const pageData = useMemo(() => generatePageData(params.pipelineId), [params.pipelineId])
   const { toggleConvertedYaml } = useModelsPage()
   const [, setSearchParams] = useSearchParams()
   const filters = useFiltersFromSearchParams(filtersConfig)
-  const isPipelineLoading = useSelector(store => store.artifactsStore.pipelines.loading)
-  const [childPipelinesMap, setChildPipelinesMap] = useState({})
+  const isPipelineLoading = useSelector(
+    store => store.functionsStore.funcLoading || store.nuclioStore.nuclioFunctionLoading
+  )
+
+  const buildFetchConfig = useCallback(currentFilters => ({
+    filters: currentFilters,
+    config: {
+      ...PIPELINES_DEFAULT_FETCH_CONFIG.config,
+      ui: { setRequestErrorMessage }
+    }
+  }), [])
+
+  const {
+    fetchData: fetchNuclioEnriched,
+    fetchSingleEnrichedFunction,
+    enrichedFunctions,
+    isLoading
+  } = useNuclioEnrichedFunctions({
+    projectName: params.projectName,
+    filters,
+    buildFetchConfig,
+    errorMessage: PIPELINES_ERROR_MESSAGE
+  })
+
+  const { pipelines, statistics, childPipelinesMap } = useMemo(() => {
+    let totalPipelines = 0
+    let runningFunctions = 0
+    let failedFunctions = 0
+    let modelEndpoints = 0
+    const childFunctionsMap = {}
+
+    const filteredPipelines = enrichedFunctions.reduce((pipelinesList, func) => {
+      const parent = Object.entries(func.labels || {}).find(([key]) =>
+        key.includes('parent-function')
+      )?.[1]
+
+      if (parent) {
+        childFunctionsMap[parent] = [
+          ...(childFunctionsMap[parent] || []),
+          { func, nuclioFunc: func.nuclioFunc }
+        ]
+      }
+
+      const showSystems = filters[DISPLAY_SYSTEM_PIPELINES_FILTER]
+      const isMonitoringInfra =
+        func.labels?.[MONITORING_INFRA_LABEL_KEY] === MONITORING_INFRA_LABEL_VALUE
+      const topology = (func.graph?.kind || PIPELINE_FLOW_TOPOLOGY).toLowerCase()
+      const isCorrectTopology =
+        topology === filters[PIPELINE_TOPOLOGY_FILTER] ||
+        filters[PIPELINE_TOPOLOGY_FILTER] === FILTER_ALL_ITEMS
+
+      if (parent || (!showSystems && isMonitoringInfra) || !isCorrectTopology) return pipelinesList
+
+      totalPipelines += 1
+
+      const stateValue = func.state?.value
+      if (stateValue === FUNCTION_READY_STATE || stateValue === FUNCTION_RUNNING_STATE) {
+        runningFunctions += 1
+      } else if (stateValue === ERROR_STATE || stateValue === UNHEALTHY_STATE) {
+        failedFunctions += 1
+      }
+
+      const modelEndpointsMainCount =
+        Object.keys(func.graph?.routes || {}).length ||
+        func.graph?.model_endpoints_names?.length ||
+        0
+
+      const routesInFlowCount = Object.values(func.graph?.steps || {}).reduce((count, step) => {
+        if (step?.kind === ROUTER_STEP_KIND) {
+          count += Object.keys(step.routes || {}).length + 1
+        }
+        return count
+      }, 0)
+
+      const modelEndpointsCount = modelEndpointsMainCount + routesInFlowCount
+      modelEndpoints += modelEndpointsCount
+
+      pipelinesList.push({ ...func, modelEndpointsCount })
+      return pipelinesList
+    }, [])
+
+    return {
+      pipelines: filteredPipelines,
+      statistics: { totalPipelines, runningFunctions, failedFunctions, modelEndpoints },
+      childPipelinesMap: childFunctionsMap
+    }
+  }, [enrichedFunctions, filters])
 
   const pipelinesRowHeight = useMemo(() => getScssVariableValue('--pipelinesRowHeight'), [])
   const pipelinesRowHeightExtended = useMemo(
@@ -130,184 +203,70 @@ const RealTimePipelines = () => {
         {
           label: 'View YAML',
           icon: <Yaml />,
-          onClick: func =>
-            fetchAndParsePipeline(dispatch, func).then(() => toggleConvertedYaml(func))
+          onClick: func => toggleConvertedYaml(func)
         }
       ]
     ],
-    [dispatch, toggleConvertedYaml]
-  )
-
-  const fetchData = useCallback(
-    filters => {
-      abortControllerRef.current = new AbortController()
-      nuclioAbortControllerRef.current = new AbortController()
-      lastCheckedPipelineIdRef.current = null
-
-      setIsLoading(true)
-      Promise.allSettled([
-        dispatch(
-          fetchArtifactsFunctions({
-            project: params.projectName,
-            filters,
-            config: {
-              params: { kind: 'serving' },
-              ui: {
-                controller: abortControllerRef.current,
-                setRequestErrorMessage
-              }
-            }
-          })
-        ).unwrap(),
-        dispatch(
-          fetchNuclioFunctions({
-            project: params.projectName,
-            signal: nuclioAbortControllerRef.current.signal,
-            getOriginalData: true
-          })
-        ).unwrap()
-      ]).then(([mlrunFunctionsResult, nuclioFunctionsResult]) => {
-        if (mlrunFunctionsResult.status === 'fulfilled' && !isNil(mlrunFunctionsResult.value)) {
-          let totalPipelines = 0
-          let runningFunctions = 0
-          let failedFunctions = 0
-          let modelEndpoints = 0
-          const childFunctionsMap = {}
-
-          const filteredPipelines = mlrunFunctionsResult.value.reduce((pipelinesList, _func) => {
-            const func = cloneDeep(_func)
-            const nuclioFunc =
-              nuclioFunctionsResult?.value?.[func.nuclio_name || `${func.project}-${func.name}`] ||
-              {}
-            const parent = Object.entries(func.labels).find(([key]) =>
-              key.includes('parent-function')
-            )?.[1]
-            const showSystems = filters[DISPLAY_SYSTEM_PIPELINES_FILTER]
-            const isMonitoringInfra =
-              func.labels?.['mlrun__type'] === 'mlrun__model-monitoring-infra'
-            const topology = (func.graph?.kind || PIPELINE_FLOW_TOPOLOGY).toLowerCase()
-            const isCorrectTopology =
-              topology === filters[PIPELINE_TOPOLOGY_FILTER] ||
-              filters[PIPELINE_TOPOLOGY_FILTER] === FILTER_ALL_ITEMS
-
-            if (parent) {
-              childFunctionsMap[parent] = [
-                ...(childFunctionsMap[parent] || []),
-                { func, nuclioFunc }
-              ]
-            }
-
-            const nuclioFuncState = !isEmpty(nuclioFunc)
-              ? (getNuclioFuncState(nuclioFunc) || '').toLocaleLowerCase()
-              : ''
-
-            const state = nuclioFuncState || func.state?.value || func.status?.state
-
-            set(func, 'state', getState(state, FUNCTIONS_PAGE, 'nuclioFunctions'))
-
-            const filteredFunc = !parent && (showSystems || !isMonitoringInfra) && isCorrectTopology
-
-            if (!filteredFunc) return pipelinesList
-
-            totalPipelines += 1
-
-            if (state === FUNCTION_READY_STATE || state === 'running') {
-              runningFunctions += 1
-            } else if (state === ERROR_STATE || state === UNHEALTHY_STATE) {
-              failedFunctions += 1
-            }
-
-            const modelEndpointsMainCount =
-              Object.keys(func.graph?.routes || {}).length ||
-              func.graph?.model_endpoints_names?.length ||
-              0 // in the future we will get models endpoints count from the BE
-
-            const routesInFlowCount = Object.values(func.graph?.steps || {}).reduce(
-              (count, step) => {
-                if (step?.kind === ROUTER_STEP_KIND) {
-                  count += Object.keys(step.routes || {}).length + 1 // routes + step itself
-                }
-                return count
-              },
-              0
-            )
-            const modelEndpointsCount = modelEndpointsMainCount + routesInFlowCount
-
-            modelEndpoints += modelEndpointsCount
-
-            pipelinesList.push({
-              ...func,
-              nuclioFunc,
-              modelEndpointsCount
-            })
-
-            return pipelinesList
-          }, [])
-
-          setPipelines(filteredPipelines)
-          setStatistics(prev => ({
-            ...prev,
-            totalPipelines,
-            runningFunctions,
-            failedFunctions,
-            modelEndpoints
-          }))
-          setChildPipelinesMap(childFunctionsMap)
-        }
-        setIsLoading(false)
-      })
-    },
-    [dispatch, params.projectName]
+    [toggleConvertedYaml]
   )
 
   const handleRefresh = useCallback(
-    filters => {
+    currentFilters => {
       setSelectedPipeline({})
-      setPipelines([])
+      lastCheckedPipelineIdRef.current = null
 
-      return fetchData(filters)
+      return fetchNuclioEnriched(buildFetchConfig(currentFilters))
     },
-    [fetchData]
+    [fetchNuclioEnriched, buildFetchConfig]
   )
 
   const tableContent = useMemo(() => {
     return createRealTimePipelinesContent(pipelines, params.projectName)
   }, [pipelines, params.projectName])
 
-  const fetchInitialData = useCallback(
-    filters => {
-      fetchData(filters)
-      dispatch(setFilters({ groupBy: GROUP_BY_NAME }))
-    },
-    [dispatch, fetchData]
-  )
-
   const handleRefreshSelectedItem = useCallback(() => {
-    fetchAndParsePipeline(dispatch, selectedPipeline).then(setSelectedPipeline)
-  }, [dispatch, selectedPipeline])
-
-  useInitialTableFetch({ fetchData: fetchInitialData, filters })
+    fetchSingleEnrichedFunction({
+      name: selectedPipeline.name,
+      hash: selectedPipeline.hash,
+      tag: selectedPipeline.tag,
+      nuclioName: selectedPipeline.nuclio_name
+    })
+      .then(enriched => {
+        if (enriched) {
+          setSelectedPipeline(enriched)
+        } else {
+          setSelectedPipeline({})
+        }
+      })
+      .catch(error => {
+        setSelectedPipeline({})
+        showErrorNotification(
+          dispatch,
+          error,
+          '',
+          'This real-time pipeline either does not exist or was deleted'
+        )
+      })
+  }, [dispatch, fetchSingleEnrichedFunction, selectedPipeline])
 
   useEffect(() => {
     return () => {
-      setPipelines([])
       dispatch(removePipelines())
-      abortControllerRef.current.abort(REQUEST_CANCELED)
-      nuclioAbortControllerRef.current.abort(REQUEST_CANCELED)
     }
   }, [dispatch])
 
   useEffect(() => {
-    checkForSelectedPipeline(
+    checkForSelectedPipeline({
       pipelines,
-      params.pipelineId,
+      pipelineId: params.pipelineId,
       navigate,
-      params.projectName,
+      projectName: params.projectName,
       setSelectedPipeline,
+      fetchSingleEnrichedFunction,
       dispatch,
       lastCheckedPipelineIdRef
-    )
-  }, [dispatch, navigate, params.pipelineId, params.projectName, pipelines])
+    })
+  }, [dispatch, fetchSingleEnrichedFunction, navigate, params.pipelineId, params.projectName, pipelines])
 
   useEffect(() => {
     if (isEmpty(selectedPipeline)) {

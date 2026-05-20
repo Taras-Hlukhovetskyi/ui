@@ -48,6 +48,14 @@ const nuclioApi = {
       : { signal }
 
     return nuclioHttpClient.get('/functions', config)
+  },
+  getFunction: (project, name, signal) => {
+    return nuclioHttpClient.get(`/functions/${name}`, {
+      headers: {
+        'x-nuclio-project-name': project
+      },
+      signal
+    })
   }
 }
 
