@@ -17,14 +17,16 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { Input, FilterPopover } from 'igz-controls/nextGenComponents'
+import { FileCode2 } from 'lucide-react'
 
 import SearchIcon from 'igz-controls/images/search2-icon.svg?react'
 import DetailsDataTab from '../../../shared/DetailsDataTab/DetailsDataTab'
+import YamlModal from '../../../shared/YamlModal/YamlModal'
 import { apiGatewaysColumns } from './apiGatewaysColumns'
 import {
   filterGatewaysByFunction,
@@ -48,6 +50,7 @@ const ApplicationApiGateways = ({ application }) => {
   const { projectName } = useParams()
   const projectApiGateways = useSelector(store => store.nuclioStore.projectApiGateways)
   const isLoading = useSelector(store => store.nuclioStore.projectApiGatewaysLoading)
+  const [yamlGateway, setYamlGateway] = useState(null)
 
   const applicationGateways = useMemo(
     () => filterGatewaysByFunction(projectApiGateways, projectName, application.name, application.tag),
@@ -84,6 +87,13 @@ const ApplicationApiGateways = ({ application }) => {
     fetchGateways()
   }, [fetchGateways])
 
+  const rowActions = useCallback(
+    ({ relationship, matchedUpstream, ...originalGateway }) => [
+      { label: 'View YAML', icon: FileCode2, onClick: () => setYamlGateway(originalGateway) }
+    ],
+    []
+  )
+
   const renderFilters = useCallback(
     ({ filters, setFilterValue, applyFilter, applyMultipleFilters }) => (
       <ApiGatewaysFilters
@@ -98,18 +108,26 @@ const ApplicationApiGateways = ({ application }) => {
   )
 
   return (
-    <DetailsDataTab
-      data={applicationGateways}
-      columns={apiGatewaysColumns}
-      isLoading={isLoading}
-      filtersConfig={API_GATEWAYS_FILTER_CONFIG}
-      filterFn={filterApiGatewaysBySearchFields}
-      renderFilters={renderFilters}
-      onRefresh={handleRefresh}
-      showRefreshButton={false}
-      initialSorting={INITIAL_SORTING}
-      noDataMessage={API_GATEWAYS_NO_DATA_MESSAGE}
-    />
+    <>
+      <DetailsDataTab
+        data={applicationGateways}
+        columns={apiGatewaysColumns}
+        isLoading={isLoading}
+        filtersConfig={API_GATEWAYS_FILTER_CONFIG}
+        filterFn={filterApiGatewaysBySearchFields}
+        renderFilters={renderFilters}
+        rowActions={rowActions}
+        onRefresh={handleRefresh}
+        showRefreshButton={false}
+        initialSorting={INITIAL_SORTING}
+        noDataMessage={API_GATEWAYS_NO_DATA_MESSAGE}
+      />
+      <YamlModal
+        open={!!yamlGateway}
+        data={yamlGateway}
+        onClose={() => setYamlGateway(null)}
+      />
+    </>
   )
 }
 

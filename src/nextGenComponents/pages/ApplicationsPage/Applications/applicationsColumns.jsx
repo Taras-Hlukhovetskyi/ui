@@ -51,10 +51,15 @@ export const getApplicationsColumns = projectName => [
             <TooltipTrigger asChild>
               <i
                 className={`${state.className ?? 'state-unknown-function'} cursor-default`}
-                data-testid="status-dot"
+                data-testid={`application-status-dot-${stateLabel.toLowerCase()}`}
               />
             </TooltipTrigger>
-            <TooltipContent side="top">{stateLabel}</TooltipContent>
+            <TooltipContent
+              side="top"
+              data-testid={`application-status-tooltip-${stateLabel.toLowerCase()}`}
+            >
+              {stateLabel}
+            </TooltipContent>
           </Tooltip>
         </div>
       )

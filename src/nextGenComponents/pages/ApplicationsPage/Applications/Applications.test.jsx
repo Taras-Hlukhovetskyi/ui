@@ -94,8 +94,8 @@ vi.mock('../ApplicationDetails/ApplicationDetails', () => ({
   )
 }))
 
-vi.mock('../../../../reducers/appReducer', () => ({
-  toggleYaml: vi.fn(data => ({ type: 'toggleYaml', payload: data }))
+vi.mock('../../../shared/YamlModal/YamlModal', () => ({
+  default: ({ open }) => (open ? <div data-testid="yaml-modal" /> : null)
 }))
 
 vi.mock('../../../../reducers/functionReducer', () => ({
@@ -208,7 +208,9 @@ describe('Applications', () => {
 
     it('renders a status dot for each row', () => {
       renderApplications()
-      expect(screen.getAllByTestId('status-dot')).toHaveLength(SAMPLE_APPLICATIONS.length)
+      expect(
+        screen.getAllByTestId(/^application-status-dot-/)
+      ).toHaveLength(SAMPLE_APPLICATIONS.length)
     })
   })
 
@@ -232,19 +234,21 @@ describe('Applications', () => {
   describe('status dot class', () => {
     it('applies the nuclioFunctions state className for the running app', () => {
       renderApplications()
-      const dots = screen.getAllByTestId('status-dot')
-      expect(dots[0]).toHaveClass('state-running-nuclioFunctions')
+      expect(screen.getByTestId('application-status-dot-running')).toHaveClass(
+        'state-running-nuclioFunctions'
+      )
     })
 
     it('applies the nuclioFunctions state className for the failed app', () => {
       renderApplications()
-      const dots = screen.getAllByTestId('status-dot')
-      expect(dots[1]).toHaveClass('state-failed-nuclioFunctions')
+      expect(screen.getByTestId('application-status-dot-error')).toHaveClass(
+        'state-failed-nuclioFunctions'
+      )
     })
 
     it('renders dots as <i> elements styled by main.scss state classes', () => {
       renderApplications()
-      const dots = screen.getAllByTestId('status-dot')
+      const dots = screen.getAllByTestId(/^application-status-dot-/)
       dots.forEach(dot => expect(dot.tagName).toBe('I'))
     })
   })

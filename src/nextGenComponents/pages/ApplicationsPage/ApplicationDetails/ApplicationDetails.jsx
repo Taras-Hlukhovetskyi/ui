@@ -17,16 +17,15 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
-import { useDispatch } from 'react-redux'
 import { FileCode2 } from 'lucide-react'
 
 import DetailsTabs from '../../../shared/DetailsTabs/DetailsTabs'
 import ApplicationOverview from './ApplicationOverview'
 import ApplicationBuildLogs from './ApplicationBuildLogs'
 import ApplicationApiGateways from './ApplicationApiGateways'
-import { toggleYaml } from '../../../../reducers/appReducer'
+import YamlModal from '../../../shared/YamlModal/YamlModal'
 import {
   APPLICATION_DETAILS_TABS,
   APPLICATION_DETAILS_TAB,
@@ -34,7 +33,7 @@ import {
 } from './applicationDetails.constants'
 
 const ApplicationDetails = ({ application, activeTab, onTabChange, onClose, onRefresh }) => {
-  const dispatch = useDispatch()
+  const [isYamlOpen, setIsYamlOpen] = useState(false)
 
   // Tab components are closures over `application`. They are recreated only when
   // `application` changes, which is the correct time to remount the tab content.
@@ -52,8 +51,8 @@ const ApplicationDetails = ({ application, activeTab, onTabChange, onClose, onRe
   }, [application])
 
   const handleViewYaml = useCallback(() => {
-    dispatch(toggleYaml(application.ui?.originalContent))
-  }, [application.ui?.originalContent, dispatch])
+    setIsYamlOpen(true)
+  }, [])
 
   const actionsMenu = useMemo(
     () => [
@@ -67,15 +66,22 @@ const ApplicationDetails = ({ application, activeTab, onTabChange, onClose, onRe
   )
 
   return (
-    <DetailsTabs
-      title={application.name}
-      tabs={tabsWithComponents}
-      activeTabId={activeTab}
-      onTabChange={onTabChange}
-      onClose={onClose}
-      onRefresh={onRefresh}
-      actionsMenu={actionsMenu}
-    />
+    <>
+      <DetailsTabs
+        title={application.name}
+        tabs={tabsWithComponents}
+        activeTabId={activeTab}
+        onTabChange={onTabChange}
+        onClose={onClose}
+        onRefresh={onRefresh}
+        actionsMenu={actionsMenu}
+      />
+      <YamlModal
+        open={isYamlOpen}
+        data={application.ui?.originalContent}
+        onClose={() => setIsYamlOpen(false)}
+      />
+    </>
   )
 }
 

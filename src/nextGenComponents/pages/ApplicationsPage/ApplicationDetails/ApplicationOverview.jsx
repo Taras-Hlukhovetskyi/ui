@@ -41,10 +41,15 @@ const ApplicationOverview = ({ application }) => {
               <TooltipTrigger asChild>
                 <i
                   className={`${stateClassName} cursor-default`}
-                  data-testid="overview-status-dot"
+                  data-testid={`overview-status-dot-${stateLabel.toLowerCase()}`}
                 />
               </TooltipTrigger>
-              <TooltipContent side="top">{stateLabel}</TooltipContent>
+              <TooltipContent
+                side="top"
+                data-testid={`overview-status-tooltip-${stateLabel.toLowerCase()}`}
+              >
+                {stateLabel}
+              </TooltipContent>
             </Tooltip>
           </div>
         )

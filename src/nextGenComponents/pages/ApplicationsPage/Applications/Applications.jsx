@@ -32,9 +32,9 @@ import { HelpCircle, FileCode2 } from 'lucide-react'
 
 import ApplicationDetails from '../ApplicationDetails/ApplicationDetails'
 import NoData from '../../../shared/NoData/NoData'
+import YamlModal from '../../../shared/YamlModal/YamlModal'
 import { getApplicationsColumns } from './applicationsColumns'
 import { APPLICATIONS_PAGE, APPLICATIONS_PAGE_PATH } from '../../../../constants'
-import { toggleYaml } from '../../../../reducers/appReducer'
 import { checkForSelectedApplication } from '../applicationsPage.util'
 import { DEFAULT_APPLICATION_DETAILS_TAB } from '../ApplicationDetails/applicationDetails.constants'
 import { getNoDataMessage } from '../../../../utils/getNoDataMessage'
@@ -56,6 +56,7 @@ const Applications = () => {
   const lastCheckedApplicationIdRef = useRef(null)
   const [selectedApplication, setSelectedApplication] = useState({})
   const [detailsRefreshKey, setDetailsRefreshKey] = useState(Date.now())
+  const [yamlData, setYamlData] = useState(null)
 
   const isDetailsOpen = !isEmpty(selectedApplication)
 
@@ -95,12 +96,9 @@ const Applications = () => {
     })
   }, [applications, dispatch, fetchSingleEnrichedFunction, navigate, params.id, params.name, params.projectName])
 
-  const handleViewYaml = useCallback(
-    application => {
-      dispatch(toggleYaml(application.ui?.originalContent ?? application))
-    },
-    [dispatch]
-  )
+  const handleViewYaml = useCallback(application => {
+    setYamlData(application.ui?.originalContent ?? application)
+  }, [])
 
   const rowActions = useCallback(
     application => [
@@ -188,6 +186,11 @@ const Applications = () => {
           />
         )}
       </div>
+      <YamlModal
+        open={!!yamlData}
+        data={yamlData}
+        onClose={() => setYamlData(null)}
+      />
     </div>
   )
 }

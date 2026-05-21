@@ -24,6 +24,8 @@ import nuclioApi from '../api/nuclio'
 import functionsApi from '../api/functions-api'
 import { parseV3ioStreams } from '../utils/parseV3ioStreams'
 import { parseV3ioStreamShardLags } from '../utils/parseV3ioStreamShardLags'
+import { DEFAULT_ABORT_MSG, REQUEST_CANCELED } from '../constants'
+import { showErrorNotification } from 'igz-controls/utils/notification.util'
 
 export const fetchApiGateways = createAsyncThunk(
   'fetchApiGateways',
@@ -103,7 +105,7 @@ export const fetchNuclioV3ioStreams = createAsyncThunk(
 
 export const fetchProjectApiGateways = createAsyncThunk(
   'fetchProjectApiGateways',
-  ({ project, signal }, { rejectWithValue }) => {
+  ({ project, signal }, { rejectWithValue, dispatch }) => {
     return functionsApi
       .getProjectApiGateways(project, { signal })
       .then(({ data }) => {
@@ -114,7 +116,12 @@ export const fetchProjectApiGateways = createAsyncThunk(
 
         return []
       })
-      .catch(rejectWithValue)
+      .catch(error => {
+        if (![REQUEST_CANCELED, DEFAULT_ABORT_MSG].includes(error?.message)) {
+          showErrorNotification(dispatch, error, 'Failed to load API gateways')
+          return rejectWithValue(error)
+        }
+      })
   }
 )
 

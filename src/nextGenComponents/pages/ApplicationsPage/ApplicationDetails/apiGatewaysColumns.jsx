@@ -46,9 +46,17 @@ export const apiGatewaysColumns = [
           <span className="text-igz-primary font-medium truncate">{name}</span>
           <Tooltip delayDuration={100}>
             <TooltipTrigger asChild>
-              <i className={`${stateClass} cursor-default`} data-testid="gateway-status-dot" />
+              <i
+                className={`${stateClass} cursor-default`}
+                data-testid={`gateway-status-dot-${stateLabel.toLowerCase()}`}
+              />
             </TooltipTrigger>
-            <TooltipContent side="top">{stateLabel}</TooltipContent>
+            <TooltipContent
+              side="top"
+              data-testid={`gateway-status-tooltip-${stateLabel.toLowerCase()}`}
+            >
+              {stateLabel}
+            </TooltipContent>
           </Tooltip>
         </div>
       )
