@@ -2767,7 +2767,11 @@ function getNuclioFunctions(req, res) {
 }
 
 function getNuclioAPIGateways(req, res) {
-  res.send(nuclioAPIGateways)
+  if (req.path.startsWith('/api/v1/projects')) {
+    res.send({ api_gateways: nuclioAPIGateways })
+  } else {
+    res.send(nuclioAPIGateways)
+  }
 }
 
 // Iguazio
@@ -3157,6 +3161,8 @@ app.post(`${mlrunAPIIngress}/submit_job`, postSubmitJob)
 app.get(`${nuclioApiUrl}/api/functions`, getNuclioFunctions)
 
 app.get(`${nuclioApiUrl}/api/api_gateways`, getNuclioAPIGateways)
+
+app.get(`${mlrunAPIIngress}/projects/:project/api-gateways`, getNuclioAPIGateways)
 
 app.get(`${nuclioApiUrl}/api/v3io_streams`, getNuclioStreams)
 

@@ -35,7 +35,7 @@ export const APPLICATION_DETAILS_TABS = [
     disabled: true
   },
   { id: APPLICATION_DETAILS_TAB.BUILD_LOGS, label: 'Build Logs' },
-  { id: APPLICATION_DETAILS_TAB.API_GATEWAYS, label: 'API Gateways', disabled: true }
+  { id: APPLICATION_DETAILS_TAB.API_GATEWAYS, label: 'API Gateways' }
 ]
 
 export const DEFAULT_APPLICATION_DETAILS_TAB = APPLICATION_DETAILS_TAB.OVERVIEW
@@ -70,3 +70,38 @@ export const FUNCTION_STATUS_HEADER = 'x-mlrun-function-status'
 export const TRANSIENT_FUNCTION_STATUSES = ['pending', 'running']
 
 export const VIEW_YAML_LABEL = 'View YAML'
+
+export const API_GATEWAY_STATE = {
+  READY: 'ready',
+  ERROR: 'error',
+  WAITING: 'waitingForProvisioning'
+}
+
+export const API_GATEWAY_STATE_LABEL = {
+  [API_GATEWAY_STATE.READY]: 'Ready',
+  [API_GATEWAY_STATE.ERROR]: 'Error',
+  [API_GATEWAY_STATE.WAITING]: 'In process'
+}
+
+export const API_GATEWAY_STATE_CLASS = {
+  [API_GATEWAY_STATE.READY]: 'state-deploying',
+  [API_GATEWAY_STATE.ERROR]: 'state-failed',
+  [API_GATEWAY_STATE.WAITING]: 'state-archived'
+}
+
+export const GATEWAY_RELATIONSHIP = {
+  DIRECT: 'Direct',
+  INDIRECT: 'Indirect'
+}
+
+export const NUCLIO_OWNER_LABEL = 'iguazio.com/username'
+
+export const FORCE_SSL_REDIRECT_ANNOTATION = 'nginx.ingress.kubernetes.io/force-ssl-redirect'
+
+export const API_GATEWAYS_FILTER_CONFIG = {
+  name: { initialValue: '', label: 'Name' },
+  owner: { initialValue: '', label: 'Owner' },
+  authenticationMode: { initialValue: '', label: 'Auth Mode' }
+}
+
+export const API_GATEWAYS_NO_DATA_MESSAGE = 'No API gateways found for this application'

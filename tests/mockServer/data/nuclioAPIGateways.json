@@ -1,1 +1,110 @@
-{}
+{
+  "api-gateway-1": {
+    "metadata": {
+      "name": "api-gateway-1",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "Alaska Roller"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2025-04-04T07:43:27Z"
+    },
+    "spec": {
+      "name": "api-gateway-1",
+      "host": "tutorial-amlk-iris-streamlit-app-latest.default-tenant.app.customer-cluster.com",
+      "path": "",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/iris-streamlit-app"
+          },
+          "percentage": 0,
+          "port": 8080
+        }
+      ]
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "api-gateway-2": {
+    "metadata": {
+      "name": "api-gateway-2",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "Alaska Roller"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2025-04-04T07:43:27Z"
+    },
+    "spec": {
+      "name": "api-gateway-2",
+      "host": "tutorial-amlk-iris-streamlit-app-latest.default-tenant.app.customer-cluster.com",
+      "path": "custom-path",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/iris-streamlit-app"
+          },
+          "percentage": 0,
+          "port": 8080
+        }
+      ]
+    },
+    "status": {
+      "state": "error",
+      "last_error": "Failed to provision ingress"
+    }
+  },
+  "api-gateway-3": {
+    "metadata": {
+      "name": "api-gateway-3",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "Alaska Roller"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2025-04-04T07:43:27Z"
+    },
+    "spec": {
+      "name": "api-gateway-3",
+      "host": "tutorial-amlk-iris-streamlit-app-latest.default-tenant.app.customer-cluster.com",
+      "path": "canary",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/primary-func"
+          },
+          "percentage": 80,
+          "port": 8501
+        },
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/iris-streamlit-app"
+          },
+          "percentage": 20,
+          "port": 8501
+        }
+      ]
+    },
+    "status": {
+      "state": "waitingForProvisioning"
+    }
+  }
+}

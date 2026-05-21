@@ -145,7 +145,10 @@ const functionsApi = {
       return functionTemplatesHttpClient.get(path)
     }
   },
-  getFunctionTemplatesCatalog: () => functionTemplatesHttpClient.get('catalog.json')
+  getFunctionTemplatesCatalog: () => functionTemplatesHttpClient.get('catalog.json'),
+  getProjectApiGateways: (project, config = {}) => {
+    return mainHttpClient.get(`/projects/${project}/api-gateways`, config)
+  }
 }
 
 export default functionsApi

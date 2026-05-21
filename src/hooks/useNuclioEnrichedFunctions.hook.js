@@ -104,6 +104,7 @@ export const useNuclioEnrichedFunctions = ({
   filters,
   filterFn,
   buildFetchConfig,
+  enrichApiGateways = false,
   errorMessage = DEFAULT_ERROR_MESSAGE
 }) => {
   const dispatch = useDispatch()
@@ -113,7 +114,7 @@ export const useNuclioEnrichedFunctions = ({
   const nuclioSingleControllerRef = useRef(null)
   const [enrichedFunctions, setEnrichedFunctions] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const [hasFetched, setHasFetched] = useState(false)
+  const [hasFetched, setHasFetched] = useState(null)
 
   useEffect(() => {
     const controllers = [
@@ -188,8 +189,8 @@ export const useNuclioEnrichedFunctions = ({
   )
 
   useEffect(() => {
-    if (buildFetchConfig && !hasFetched) {
-      setHasFetched(true)
+    if (buildFetchConfig && hasFetched !== projectName) {
+      setHasFetched(projectName)
       fetchData(buildFetchConfig(filters))
     }
   }, [fetchData, buildFetchConfig, filters, hasFetched])
@@ -225,7 +226,8 @@ export const useNuclioEnrichedFunctions = ({
           fetchNuclioFunction({
             project: projectName,
             name: resolvedNuclioName,
-            signal: nuclioSingleControllerRef.current.signal
+            signal: nuclioSingleControllerRef.current.signal,
+            enrichApiGateways
           })
         ).unwrap()
       ]).then(([mlrunResult, nuclioResult]) => {
@@ -241,7 +243,7 @@ export const useNuclioEnrichedFunctions = ({
         return enriched
       })
     },
-    [dispatch, projectName]
+    [dispatch, projectName, enrichApiGateways]
   )
 
   return {

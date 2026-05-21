@@ -25,6 +25,7 @@ import { FileCode2 } from 'lucide-react'
 import DetailsTabs from '../../../shared/DetailsTabs/DetailsTabs'
 import ApplicationOverview from './ApplicationOverview'
 import ApplicationBuildLogs from './ApplicationBuildLogs'
+import ApplicationApiGateways from './ApplicationApiGateways'
 import { toggleYaml } from '../../../../reducers/appReducer'
 import {
   APPLICATION_DETAILS_TABS,
@@ -40,10 +41,12 @@ const ApplicationDetails = ({ application, activeTab, onTabChange, onClose, onRe
   const tabsWithComponents = useMemo(() => {
     const OverviewTab = () => <ApplicationOverview application={application} />
     const BuildLogsTab = () => <ApplicationBuildLogs application={application} />
+    const ApiGatewaysTab = () => <ApplicationApiGateways application={application} />
 
     return APPLICATION_DETAILS_TABS.map(tab => {
       if (tab.id === APPLICATION_DETAILS_TAB.OVERVIEW) return { ...tab, component: OverviewTab }
       if (tab.id === APPLICATION_DETAILS_TAB.BUILD_LOGS) return { ...tab, component: BuildLogsTab }
+      if (tab.id === APPLICATION_DETAILS_TAB.API_GATEWAYS) return { ...tab, component: ApiGatewaysTab }
       return tab
     })
   }, [application])

@@ -68,6 +68,7 @@ const ApplicationsPage = () => {
     filters,
     filterFn: filterApplications,
     buildFetchConfig,
+    enrichApiGateways: true,
     errorMessage: APPLICATIONS_ERROR_MESSAGE
   })
 
