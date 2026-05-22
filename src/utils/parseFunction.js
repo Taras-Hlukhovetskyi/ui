@@ -85,7 +85,9 @@ export const parseFunction = (func, projectName, customState, customError) => {
     type: func.kind,
     updated: new Date(func.metadata?.updated ?? ''),
     volume_mounts: func.spec?.volume_mounts ?? [],
-    volumes: func.spec?.volumes ?? []
+    volumes: func.spec?.volumes ?? [],
+    config: func.spec?.config ?? {},
+    spec: func.spec ?? {}
   }
 
   item.ui = {

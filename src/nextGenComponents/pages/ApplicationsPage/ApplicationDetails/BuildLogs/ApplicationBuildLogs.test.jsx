@@ -27,7 +27,7 @@ import {
   BUILD_LOGS_POLLING_INTERVAL_MS,
   COPY_RESET_TIMEOUT_MS,
   LOGS_SECTION_KEY
-} from './applicationDetails.constants'
+} from '../applicationDetails.constants'
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -41,7 +41,7 @@ vi.mock('react-router-dom', () => ({
   useParams: () => ({ projectName: 'my-project' })
 }))
 
-vi.mock('../../../../reducers/functionReducer', () => ({
+vi.mock('../../../../../reducers/functionReducer', () => ({
   fetchFunctionLogs: vi.fn(params => ({ type: 'fetchFunctionLogs', ...params })),
   fetchFunctionNuclioLogs: vi.fn(params => ({ type: 'fetchFunctionNuclioLogs', ...params }))
 }))
@@ -62,7 +62,7 @@ vi.mock('igz-controls/nextGenComponents', () => ({
   }
 }))
 
-vi.mock('../../../shared/LogsBlock/LogsBlock', () => ({
+vi.mock('../../../../shared/LogsBlock/LogsBlock', () => ({
   default: ({ logs }) => (
     <div data-testid="logs-block">
       {typeof logs === 'string' ? logs : JSON.stringify(logs ?? null)}
@@ -136,7 +136,7 @@ describe('ApplicationBuildLogs', () => {
   describe('data fetching', () => {
     it('dispatches fetchFunctionLogs on mount', async () => {
       await act(async () => renderComponent())
-      const { fetchFunctionLogs } = await import('../../../../reducers/functionReducer')
+      const { fetchFunctionLogs } = await import('../../../../../reducers/functionReducer')
       expect(fetchFunctionLogs).toHaveBeenCalledWith({
         project: 'my-project',
         name: SAMPLE_APPLICATION.name,
@@ -146,7 +146,7 @@ describe('ApplicationBuildLogs', () => {
 
     it('dispatches fetchFunctionNuclioLogs on mount', async () => {
       await act(async () => renderComponent())
-      const { fetchFunctionNuclioLogs } = await import('../../../../reducers/functionReducer')
+      const { fetchFunctionNuclioLogs } = await import('../../../../../reducers/functionReducer')
       expect(fetchFunctionNuclioLogs).toHaveBeenCalledWith({
         project: 'my-project',
         name: SAMPLE_APPLICATION.name,
@@ -208,7 +208,7 @@ describe('ApplicationBuildLogs', () => {
 
   describe('polling', () => {
     it('polls again when the function status header indicates a transient state', async () => {
-      const { fetchFunctionLogs } = await import('../../../../reducers/functionReducer')
+      const { fetchFunctionLogs } = await import('../../../../../reducers/functionReducer')
 
       mockDispatch.mockImplementation(() =>
         makeDispatchResponse({
@@ -228,7 +228,7 @@ describe('ApplicationBuildLogs', () => {
     })
 
     it('does not poll when the function status is not transient', async () => {
-      const { fetchFunctionLogs } = await import('../../../../reducers/functionReducer')
+      const { fetchFunctionLogs } = await import('../../../../../reducers/functionReducer')
 
       mockDispatch.mockImplementation(() => makeDispatchResponse({ data: 'done', headers: {} }))
 
@@ -251,7 +251,7 @@ describe('ApplicationBuildLogs', () => {
       )
 
       const { unmount } = await act(async () => renderComponent())
-      const { fetchFunctionLogs } = await import('../../../../reducers/functionReducer')
+      const { fetchFunctionLogs } = await import('../../../../../reducers/functionReducer')
 
       unmount()
       const callCountAfterUnmount = fetchFunctionLogs.mock.calls.length

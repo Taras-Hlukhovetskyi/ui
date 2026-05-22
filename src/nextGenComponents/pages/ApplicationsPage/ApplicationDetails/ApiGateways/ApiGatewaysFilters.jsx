@@ -17,119 +17,13 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
 import { Input, FilterPopover } from 'igz-controls/nextGenComponents'
-import { FileCode2 } from 'lucide-react'
 
 import SearchIcon from 'igz-controls/images/search2-icon.svg?react'
-import DetailsDataTab from '../../../shared/DetailsDataTab/DetailsDataTab'
-import YamlModal from '../../../shared/YamlModal/YamlModal'
-import { apiGatewaysColumns } from './apiGatewaysColumns'
-import {
-  filterGatewaysByFunction,
-  filterApiGatewaysBySearchFields
-} from './applicationApiGateways.util'
-import {
-  API_GATEWAYS_FILTER_CONFIG,
-  API_GATEWAYS_NO_DATA_MESSAGE
-} from './applicationDetails.constants'
-import {
-  fetchProjectApiGateways,
-  clearProjectApiGateways
-} from '../../../../reducers/nuclioReducer'
 
 const ALL_OPTION_VALUE = 'all'
-const ALL_OPTION = { value: ALL_OPTION_VALUE, label: 'All' }
-const INITIAL_SORTING = [{ id: 'name', desc: false }]
-
-const ApplicationApiGateways = ({ application }) => {
-  const dispatch = useDispatch()
-  const { projectName } = useParams()
-  const projectApiGateways = useSelector(store => store.nuclioStore.projectApiGateways)
-  const isLoading = useSelector(store => store.nuclioStore.projectApiGatewaysLoading)
-  const [yamlGateway, setYamlGateway] = useState(null)
-
-  const applicationGateways = useMemo(
-    () => filterGatewaysByFunction(projectApiGateways, projectName, application.name, application.tag),
-    [projectApiGateways, projectName, application.name, application.tag]
-  )
-
-  const authModeOptions = useMemo(() => {
-    const modes = new Set(
-      applicationGateways.map(gw => gw.spec?.authenticationMode).filter(Boolean)
-    )
-
-    return [
-      ALL_OPTION,
-      ...[...modes].sort().map(mode => ({ value: mode, label: mode }))
-    ]
-  }, [applicationGateways])
-
-  const fetchGateways = useCallback(() => {
-    const controller = new AbortController()
-    dispatch(fetchProjectApiGateways({ project: projectName, signal: controller.signal }))
-    return controller
-  }, [dispatch, projectName])
-
-  useEffect(() => {
-    const controller = fetchGateways()
-
-    return () => {
-      controller.abort()
-      dispatch(clearProjectApiGateways())
-    }
-  }, [dispatch, fetchGateways])
-
-  const handleRefresh = useCallback(() => {
-    fetchGateways()
-  }, [fetchGateways])
-
-  const rowActions = useCallback(
-    ({ relationship, matchedUpstream, ...originalGateway }) => [
-      { label: 'View YAML', icon: FileCode2, onClick: () => setYamlGateway(originalGateway) }
-    ],
-    []
-  )
-
-  const renderFilters = useCallback(
-    ({ filters, setFilterValue, applyFilter, applyMultipleFilters }) => (
-      <ApiGatewaysFilters
-        filters={filters}
-        setFilterValue={setFilterValue}
-        applyFilter={applyFilter}
-        applyMultipleFilters={applyMultipleFilters}
-        authModeOptions={authModeOptions}
-      />
-    ),
-    [authModeOptions]
-  )
-
-  return (
-    <>
-      <DetailsDataTab
-        data={applicationGateways}
-        columns={apiGatewaysColumns}
-        isLoading={isLoading}
-        filtersConfig={API_GATEWAYS_FILTER_CONFIG}
-        filterFn={filterApiGatewaysBySearchFields}
-        renderFilters={renderFilters}
-        rowActions={rowActions}
-        onRefresh={handleRefresh}
-        showRefreshButton={false}
-        initialSorting={INITIAL_SORTING}
-        noDataMessage={API_GATEWAYS_NO_DATA_MESSAGE}
-      />
-      <YamlModal
-        open={!!yamlGateway}
-        data={yamlGateway}
-        onClose={() => setYamlGateway(null)}
-      />
-    </>
-  )
-}
 
 const ApiGatewaysFilters = ({ filters, setFilterValue, applyFilter, applyMultipleFilters, authModeOptions }) => {
   const popoverSchema = useMemo(
@@ -217,11 +111,4 @@ ApiGatewaysFilters.propTypes = {
   setFilterValue: PropTypes.func.isRequired
 }
 
-ApplicationApiGateways.propTypes = {
-  application: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    tag: PropTypes.string
-  }).isRequired
-}
-
-export default ApplicationApiGateways
+export default ApiGatewaysFilters

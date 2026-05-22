@@ -23,7 +23,7 @@ import { useDispatch } from 'react-redux'
 import { useParams } from 'react-router-dom'
 
 import LogSection from './LogSection'
-import { fetchFunctionLogs, fetchFunctionNuclioLogs } from '../../../../reducers/functionReducer'
+import { fetchFunctionLogs, fetchFunctionNuclioLogs } from '../../../../../reducers/functionReducer'
 import { showErrorNotification } from 'igz-controls/utils/notification.util'
 import {
   BUILD_LOGS_POLLING_INTERVAL_MS,
@@ -31,7 +31,7 @@ import {
   FUNCTION_STATUS_HEADER,
   LOGS_SECTION_KEY,
   TRANSIENT_FUNCTION_STATUSES
-} from './applicationDetails.constants'
+} from '../applicationDetails.constants'
 
 /**
  * Extracts function deploy logs from the API response.

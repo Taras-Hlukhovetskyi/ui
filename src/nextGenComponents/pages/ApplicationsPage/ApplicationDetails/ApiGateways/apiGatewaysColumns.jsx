@@ -20,14 +20,14 @@ such restriction.
 import { Tooltip, TooltipContent, TooltipTrigger } from 'igz-controls/nextGenComponents'
 import { formatDatetime } from 'igz-controls/utils/datetime.util'
 
-import UrlItem from '../../../shared/UrlItem'
+import UrlItem from '../../../../shared/UrlItem'
 import { buildGatewayEndpoint } from './applicationApiGateways.util'
 import {
   API_GATEWAY_STATE_CLASS,
   API_GATEWAY_STATE_LABEL,
   FORCE_SSL_REDIRECT_ANNOTATION,
   NUCLIO_OWNER_LABEL
-} from './applicationDetails.constants'
+} from '../applicationDetails.constants'
 
 export const apiGatewaysColumns = [
   {

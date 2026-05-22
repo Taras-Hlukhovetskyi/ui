@@ -27,13 +27,14 @@ import ApplicationOverview from './ApplicationOverview'
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
 vi.mock('igz-controls/nextGenComponents', () => ({
+  cn: (...args) => args.filter(Boolean).join(' '),
   Separator: () => <hr data-testid="separator" />,
   Tooltip: props => <>{props.children}</>,
   TooltipTrigger: props => <>{props.children}</>,
   TooltipContent: props => <div data-testid="tooltip-content">{props.children}</div>
 }))
 
-vi.mock('../../../shared/DetailsInfoTable/DetailsInfoTable', () => ({
+vi.mock('../../../../shared/DetailsInfoTable/DetailsInfoTable', () => ({
   default: ({ items }) => (
     <div data-testid="details-info-table">
       {items
@@ -48,7 +49,7 @@ vi.mock('../../../shared/DetailsInfoTable/DetailsInfoTable', () => ({
   )
 }))
 
-vi.mock('../../../shared/UrlItem/UrlItem', () => ({
+vi.mock('../../../../shared/UrlItem/UrlItem', () => ({
   default: ({ url }) => (
     <a data-testid="url-item" href={url}>
       {url}

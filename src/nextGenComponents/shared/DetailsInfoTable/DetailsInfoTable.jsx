@@ -19,9 +19,10 @@ such restriction.
 */
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Separator } from 'igz-controls/nextGenComponents'
+import { cn } from 'igz-controls/nextGenComponents'
 
 const EMPTY_VALUE_PLACEHOLDER = '-'
+const LABEL_WIDTH = 'w-[200px]'
 
 const DetailsInfoTable = ({ className = '', items }) => {
   const visibleItems = items.filter(item => !item.hidden)
@@ -31,21 +32,35 @@ const DetailsInfoTable = ({ className = '', items }) => {
   }
 
   return (
-    <div className={`flex flex-col ${className}`} data-testid="details-info-table">
-      {visibleItems.map((item, index) => (
-        <React.Fragment key={item.label}>
+    <div className={cn('flex flex-col gap-2', className)} data-testid="details-info-table">
+      {visibleItems.map((item, index) => {
+        const itemKey = item.id || (typeof item.label === 'string' ? item.label : index)
+        const isLast = index === visibleItems.length - 1
+
+        return (
           <div
-            className="flex py-2 min-h-[38px]"
-            data-testid={item.testId ?? `info-row-${item.label}`}
+            key={itemKey}
+            className="flex flex-col gap-2"
+            data-testid={item.testId ?? `info-row-${itemKey}`}
           >
-            <span className="w-[140px] shrink-0 text-[15px] text-igz-secondary">{item.label}</span>
-            <div className="flex-1 text-[15px] text-igz-primary break-words min-w-0">
-              {item.value ?? EMPTY_VALUE_PLACEHOLDER}
+            <div className="flex items-baseline pl-1">
+              <span
+                className={cn(LABEL_WIDTH, 'shrink-0 text-body text-igz-primary')}
+                data-testid="info-label"
+              >
+                {item.label}
+              </span>
+              <div
+                className="flex-1 text-body text-igz-secondary break-words min-w-0"
+                data-testid="info-value"
+              >
+                {item.value ?? EMPTY_VALUE_PLACEHOLDER}
+              </div>
             </div>
+            {!isLast && <div className="bg-igz-gray-light h-px w-full" />}
           </div>
-          {index < visibleItems.length - 1 && <Separator />}
-        </React.Fragment>
-      ))}
+        )
+      })}
     </div>
   )
 }
@@ -54,7 +69,8 @@ DetailsInfoTable.propTypes = {
   className: PropTypes.string,
   items: PropTypes.arrayOf(
     PropTypes.shape({
-      label: PropTypes.string.isRequired,
+      id: PropTypes.string,
+      label: PropTypes.node.isRequired,
       value: PropTypes.node,
       hidden: PropTypes.bool,
       testId: PropTypes.string

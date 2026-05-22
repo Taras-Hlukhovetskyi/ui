@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { GATEWAY_RELATIONSHIP, NUCLIO_OWNER_LABEL } from './applicationDetails.constants'
+import { GATEWAY_RELATIONSHIP, NUCLIO_OWNER_LABEL } from '../applicationDetails.constants'
 
 export const buildGatewayEndpoint = gateway => {
   const host = gateway.spec?.host ?? ''

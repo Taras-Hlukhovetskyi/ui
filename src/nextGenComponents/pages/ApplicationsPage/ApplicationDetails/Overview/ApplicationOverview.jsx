@@ -19,12 +19,15 @@ such restriction.
 */
 import React, { useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Tooltip, TooltipContent, TooltipTrigger } from 'igz-controls/nextGenComponents'
+import { Tooltip, TooltipContent, TooltipTrigger, cn } from 'igz-controls/nextGenComponents'
 import { formatDatetime } from 'igz-controls/utils/datetime.util'
 
-import DetailsInfoTable from '../../../shared/DetailsInfoTable/DetailsInfoTable'
-import UrlList from '../../../shared/UrlList'
-import { OVERVIEW_FIELD } from './applicationDetails.constants'
+import DetailsInfoTable from '../../../../shared/DetailsInfoTable/DetailsInfoTable'
+import UrlList from '../../../../shared/UrlList'
+import { OVERVIEW_FIELD } from '../applicationDetails.constants'
+import { TOOLTIP_DELAY_MS } from '../Configuration/applicationConfiguration.constants'
+
+const CONTENT_MAX_WIDTH = 'max-w-[800px]'
 
 const ApplicationOverview = ({ application }) => {
   const overviewItems = useMemo(() => {
@@ -37,10 +40,10 @@ const ApplicationOverview = ({ application }) => {
         value: (
           <div className="flex items-center gap-2">
             <span>{application.name}</span>
-            <Tooltip delayDuration={100}>
+            <Tooltip delayDuration={TOOLTIP_DELAY_MS}>
               <TooltipTrigger asChild>
                 <i
-                  className={`${stateClassName} cursor-default`}
+                  className={cn(stateClassName, 'cursor-default')}
                   data-testid={`overview-status-dot-${stateLabel.toLowerCase()}`}
                 />
               </TooltipTrigger>
@@ -107,7 +110,7 @@ const ApplicationOverview = ({ application }) => {
     ]
   }, [application])
 
-  return <DetailsInfoTable items={overviewItems} />
+  return <DetailsInfoTable items={overviewItems} className={cn(CONTENT_MAX_WIDTH, 'pt-4')} />
 }
 
 ApplicationOverview.propTypes = {

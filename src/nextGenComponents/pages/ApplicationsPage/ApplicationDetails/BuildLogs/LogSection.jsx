@@ -22,7 +22,7 @@ import PropTypes from 'prop-types'
 
 import CopyIcon from 'igz-controls/images/copy-to-clipboard-icon.svg?react'
 import CheckIcon from 'igz-controls/images/double-check.svg?react'
-import LogsBlock from '../../../shared/LogsBlock/LogsBlock'
+import LogsBlock from '../../../../shared/LogsBlock/LogsBlock'
 import { Loader } from 'igz-controls/nextGenComponents'
 
 const LogSection = ({ title, logs, isLoading, isCopied, onCopy }) => (

@@ -60,8 +60,24 @@ vi.mock('../../../shared/DetailsTabs/DetailsTabs', () => ({
   )
 }))
 
-vi.mock('./ApplicationOverview', () => ({
+vi.mock('./Overview/ApplicationOverview', () => ({
   default: ({ application }) => <div data-testid="application-overview">{application.name}</div>
+}))
+
+vi.mock('./Configuration/ApplicationConfiguration', () => ({
+  default: ({ application }) => <div data-testid="application-configuration">{application.name}</div>
+}))
+
+vi.mock('./BuildLogs/ApplicationBuildLogs', () => ({
+  default: ({ application }) => <div data-testid="application-build-logs">{application.name}</div>
+}))
+
+vi.mock('./ApiGateways/ApplicationApiGateways', () => ({
+  default: ({ application }) => <div data-testid="application-api-gateways">{application.name}</div>
+}))
+
+vi.mock('../../../shared/YamlModal/YamlModal', () => ({
+  default: () => <div data-testid="yaml-modal" />
 }))
 
 // ── Test data ─────────────────────────────────────────────────────────────────
