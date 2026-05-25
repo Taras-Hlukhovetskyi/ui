@@ -25,68 +25,66 @@ import SearchIcon from 'igz-controls/images/search2-icon.svg?react'
 
 const ALL_OPTION_VALUE = 'all'
 
-const ApiGatewaysFilters = ({ filters, setFilterValue, applyFilter, applyMultipleFilters, authModeOptions }) => {
+const MonitoringEndpointsFilters = ({
+  filters,
+  setFilterValue,
+  applyFilter,
+  applyMultipleFilters,
+  labelOptions
+}) => {
   const popoverSchema = useMemo(
     () => ({
-      owner: {
-        key: 'owner',
-        label: 'Owner',
-        kind: 'text',
-        placeholder: 'Search by owner...',
-        defaultValue: filters.owner ?? ''
-      },
-      authenticationMode: {
-        key: 'authenticationMode',
-        label: 'Auth Mode',
+      label: {
+        key: 'label',
+        label: 'Label',
         kind: 'select',
-        placeholder: 'Select auth mode...',
-        options: authModeOptions,
-        defaultValue: filters.authenticationMode || ALL_OPTION_VALUE
+        placeholder: 'Select label...',
+        options: labelOptions,
+        defaultValue: filters.label || ALL_OPTION_VALUE
       }
     }),
-    [filters.owner, filters.authenticationMode, authModeOptions]
+    [filters.label, labelOptions]
   )
 
   const handlePopoverApply = useCallback(
     values => {
-      const authMode = values?.authenticationMode
+      const label = values?.label
       applyMultipleFilters({
-        owner: values?.owner ?? '',
-        authenticationMode: authMode === ALL_OPTION_VALUE ? '' : (authMode ?? '')
+        label: label === ALL_OPTION_VALUE ? '' : (label ?? '')
       })
     },
     [applyMultipleFilters]
   )
 
   const handlePopoverClear = useCallback(() => {
-    applyMultipleFilters({ owner: '', authenticationMode: '' })
+    applyMultipleFilters({ label: '' })
   }, [applyMultipleFilters])
 
   return (
     <>
-      <div className="relative w-[280px]" data-testid="gateway-name-filter">
+      <div className="relative w-[280px]" data-testid="monitoring-endpoints-name-filter">
         <Input
           placeholder="Search by name..."
           className="pl-3 pr-9 h-10"
-          data-testid="gateway-name-filter-input"
+          data-testid="monitoring-endpoints-name-filter-input"
           value={filters.name ?? ''}
-          onChange={e => setFilterValue('name', e.target.value)}
-          onKeyDown={e => {
-            if (e.key === 'Enter') applyFilter('name', e.target.value)
+          onChange={event => setFilterValue('name', event.target.value)}
+          onKeyDown={event => {
+            if (event.key === 'Enter') applyFilter('name', event.target.value)
           }}
         />
         <button
           type="button"
           className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-igz-accent-hover transition-colors cursor-pointer"
           onClick={() => applyFilter('name', filters.name ?? '')}
-          data-testid="gateway-name-filter-search-button"
+          data-testid="monitoring-endpoints-name-filter-search-button"
         >
           <SearchIcon className="h-4 w-4" />
         </button>
       </div>
 
       <FilterPopover
-        scopeId="api-gateways"
+        scopeId="monitoring-endpoints"
         schema={popoverSchema}
         onApply={handlePopoverApply}
         onClear={handlePopoverClear}
@@ -95,21 +93,20 @@ const ApiGatewaysFilters = ({ filters, setFilterValue, applyFilter, applyMultipl
   )
 }
 
-ApiGatewaysFilters.propTypes = {
+MonitoringEndpointsFilters.propTypes = {
   applyFilter: PropTypes.func.isRequired,
   applyMultipleFilters: PropTypes.func.isRequired,
-  authModeOptions: PropTypes.arrayOf(
+  filters: PropTypes.shape({
+    label: PropTypes.string,
+    name: PropTypes.string
+  }).isRequired,
+  labelOptions: PropTypes.arrayOf(
     PropTypes.shape({
-      value: PropTypes.string.isRequired,
-      label: PropTypes.string.isRequired
+      label: PropTypes.string.isRequired,
+      value: PropTypes.string.isRequired
     })
   ).isRequired,
-  filters: PropTypes.shape({
-    authenticationMode: PropTypes.string,
-    name: PropTypes.string,
-    owner: PropTypes.string
-  }).isRequired,
   setFilterValue: PropTypes.func.isRequired
 }
 
-export default ApiGatewaysFilters
+export default MonitoringEndpointsFilters

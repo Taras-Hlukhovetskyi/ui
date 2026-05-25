@@ -21,9 +21,9 @@ import { Link } from 'react-router-dom'
 import { Tooltip, TooltipContent, TooltipTrigger } from 'igz-controls/nextGenComponents'
 import { formatDatetime } from 'igz-controls/utils/datetime.util'
 
-import UrlCell, { buildUrlItems } from '../../../shared/UrlCell'
-import { APPLICATIONS_PAGE_PATH } from '../../../../constants'
-import { DEFAULT_APPLICATION_DETAILS_TAB } from '../ApplicationDetails/applicationDetails.constants'
+import UrlCell, { buildUrlItems } from '../../shared/UrlCell'
+import { APPLICATIONS_PAGE_PATH } from '../../../constants'
+import { DEFAULT_APPLICATION_DETAILS_TAB } from './ApplicationDetails/applicationDetails.constants'
 
 export const getApplicationsColumns = projectName => [
   {

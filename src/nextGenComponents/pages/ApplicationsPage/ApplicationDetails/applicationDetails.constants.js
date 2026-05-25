@@ -29,11 +29,7 @@ export const APPLICATION_DETAILS_TAB = {
 export const APPLICATION_DETAILS_TABS = [
   { id: APPLICATION_DETAILS_TAB.OVERVIEW, label: 'Overview' },
   { id: APPLICATION_DETAILS_TAB.CONFIGURATION, label: 'Configuration' },
-  {
-    id: APPLICATION_DETAILS_TAB.MONITORING_ENDPOINTS,
-    label: 'Monitoring Endpoints',
-    disabled: true
-  },
+  { id: APPLICATION_DETAILS_TAB.MONITORING_ENDPOINTS, label: 'Monitoring Endpoints' },
   { id: APPLICATION_DETAILS_TAB.BUILD_LOGS, label: 'Build Logs' },
   { id: APPLICATION_DETAILS_TAB.API_GATEWAYS, label: 'API Gateways' }
 ]

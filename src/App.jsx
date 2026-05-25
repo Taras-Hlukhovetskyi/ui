@@ -145,10 +145,6 @@ const MonitoringApplication = lazyRetry(
 const ApplicationsPage = lazyRetry(
   () => import('./nextGenComponents/pages/ApplicationsPage/ApplicationsPage')
 )
-const Applications = lazyRetry(
-  () => import('./nextGenComponents/pages/ApplicationsPage/Applications/Applications')
-)
-
 const App = () => {
   const { isNuclioModeDisabled } = useNuclioMode()
   const { isDemoMode } = useMode()
@@ -159,7 +155,6 @@ const App = () => {
   const DatasetsComponent = wrapComponentForNavbarNavigationTracking(Datasets)
   const DocumentsComponent = wrapComponentForNavbarNavigationTracking(Documents)
   const LLMPromptsComponent = wrapComponentForNavbarNavigationTracking(LLMPrompts)
-  const ApplicationsComponent = wrapComponentForNavbarNavigationTracking(Applications)
   const FunctionsOldComponent = wrapComponentForNavbarNavigationTracking(FunctionsOld)
   const FunctionsComponent = wrapComponentForNavbarNavigationTracking(Functions)
 
@@ -379,13 +374,14 @@ const App = () => {
               </Fragment>
             ))}
           </Route>
-          <Route
-            path={`projects/:projectName/${APPLICATIONS_PAGE_PATH}/*`}
-            element={<ApplicationsPage />}
-          >
-            <Route path="" element={<ApplicationsComponent />} />
-            <Route path=":name/:id/:tab" element={<ApplicationsComponent />} />
-          </Route>
+          {[
+            `projects/:projectName/${APPLICATIONS_PAGE_PATH}`,
+            `projects/:projectName/${APPLICATIONS_PAGE_PATH}/:name/:id/:tab`
+          ].map((path, index) => (
+            <Fragment key={`app-${index}`}>
+              <Route path={path} element={<ApplicationsPage />} />
+            </Fragment>
+          ))}
           {[
             'projects/:projectName/documents',
             'projects/:projectName/documents/:artifactName/:id/:tab',

@@ -26,6 +26,7 @@ import ApplicationOverview from './Overview/ApplicationOverview'
 import ApplicationBuildLogs from './BuildLogs/ApplicationBuildLogs'
 import ApplicationApiGateways from './ApiGateways/ApplicationApiGateways'
 import ApplicationConfiguration from './Configuration/ApplicationConfiguration'
+import ApplicationMonitoringEndpoints from './MonitoringEndpoints/ApplicationMonitoringEndpoints'
 import YamlModal from '../../../shared/YamlModal/YamlModal'
 import {
   APPLICATION_DETAILS_TABS,
@@ -41,12 +42,14 @@ const ApplicationDetails = ({ application, activeTab, onTabChange, onClose, onRe
   const tabsWithComponents = useMemo(() => {
     const OverviewTab = () => <ApplicationOverview application={application} />
     const ConfigurationTab = () => <ApplicationConfiguration application={application} />
+    const MonitoringEndpointsTab = () => <ApplicationMonitoringEndpoints application={application} />
     const BuildLogsTab = () => <ApplicationBuildLogs application={application} />
     const ApiGatewaysTab = () => <ApplicationApiGateways application={application} />
 
     return APPLICATION_DETAILS_TABS.map(tab => {
       if (tab.id === APPLICATION_DETAILS_TAB.OVERVIEW) return { ...tab, component: OverviewTab }
       if (tab.id === APPLICATION_DETAILS_TAB.CONFIGURATION) return { ...tab, component: ConfigurationTab }
+      if (tab.id === APPLICATION_DETAILS_TAB.MONITORING_ENDPOINTS) return { ...tab, component: MonitoringEndpointsTab }
       if (tab.id === APPLICATION_DETAILS_TAB.BUILD_LOGS) return { ...tab, component: BuildLogsTab }
       if (tab.id === APPLICATION_DETAILS_TAB.API_GATEWAYS) return { ...tab, component: ApiGatewaysTab }
       return tab
