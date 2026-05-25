@@ -79,7 +79,7 @@ const RealTimePipelines = () => {
   const pipelinesRef = useRef(null)
   const lastCheckedPipelineIdRef = useRef(null)
   const pageData = useMemo(() => generatePageData(params.pipelineId), [params.pipelineId])
-  const { toggleConvertedYaml } = useModelsPage()
+  const { toggleConvertedYaml, setSelectedItemName } = useModelsPage()
   const [, setSearchParams] = useSearchParams()
   const filters = useFiltersFromSearchParams(filtersConfig)
   const isPipelineLoading = useSelector(
@@ -282,6 +282,11 @@ const RealTimePipelines = () => {
       lastCheckedPipelineIdRef.current = null
     }
   }, [selectedPipeline])
+
+  useEffect(() => {
+    setSelectedItemName(selectedPipeline?.name || '')
+    return () => setSelectedItemName('')
+  }, [selectedPipeline, setSelectedItemName])
 
   const virtualizationConfig = useVirtualization({
     rowsData: {
