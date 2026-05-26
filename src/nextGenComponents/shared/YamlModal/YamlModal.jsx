@@ -22,7 +22,7 @@ import PropTypes from 'prop-types'
 import Prism from 'prismjs'
 import yaml from 'js-yaml'
 
-import { Button, Dialog, DialogClose, DialogContent } from 'igz-controls/nextGenComponents'
+import { Button, Dialog, DialogClose, DialogContent, DialogTitle } from 'igz-controls/nextGenComponents'
 import CloseIcon from 'igz-controls/images/close.svg?react'
 import { getValidYaml } from './yaml.utils'
 
@@ -48,8 +48,9 @@ const YamlModal = ({ open, onClose, data = null }) => {
         closeOnOutsideClick
         className="w-[70vw] max-h-[90vh] flex flex-col overflow-hidden"
         data-testid="yaml-modal"
-        onOpenAutoFocus={e => e.preventDefault()}
+        aria-describedby={undefined}
       >
+        <DialogTitle className="sr-only">YAML</DialogTitle>
         <div className="flex justify-end px-3 pt-3 shrink-0" data-testid="yaml-modal-close-strip">
           <DialogClose asChild>
             <Button
@@ -57,6 +58,7 @@ const YamlModal = ({ open, onClose, data = null }) => {
               size="icon"
               aria-label="Close"
               tooltip="Close"
+              className="focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
               data-testid="yaml-modal-close-button"
             >
               <CloseIcon className="w-6 h-6" />

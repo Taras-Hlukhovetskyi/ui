@@ -21,10 +21,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
+import { FileCode2 } from 'lucide-react'
 
 import DetailsDataTab from '../../../../shared/DetailsDataTab/DetailsDataTab'
+import YamlModal from '../../../../shared/YamlModal/YamlModal'
 import MonitoringEndpointsFilters from './MonitoringEndpointsFilters'
-import EndpointDetailsPopup from './EndpointDetailsPopup'
+import EndpointDetailsDialog from './EndpointDetailsDialog'
 import { getMonitoringEndpointsColumns } from './monitoringEndpointsColumns'
 import {
   MONITORING_ENDPOINTS_FILTER_CONFIG,
@@ -34,6 +36,8 @@ import {
   fetchModelEndpoints,
   removeModelEndpoints
 } from '../../../../../reducers/artifactsReducer'
+import { toggleYaml } from '../../../../../reducers/appReducer'
+import { monitorModelEndpoint } from '../../../../../components/ModelsPage/ModelEndpoints/modelEndpoints.util'
 import { FUNCTION_NAME_FILTER } from '../../../../../constants'
 
 const ALL_OPTION = { value: 'all', label: 'All' }
@@ -54,8 +58,22 @@ const ApplicationMonitoringEndpoints = ({ application }) => {
   const abortControllerRef = useRef(null)
   const modelEndpoints = useSelector(store => store.artifactsStore.modelEndpoints.allData)
   const isLoading = useSelector(store => store.artifactsStore.modelEndpoints.loading)
+  const frontendSpec = useSelector(store => store.appStore.frontendSpec)
 
   const [selectedEndpoint, setSelectedEndpoint] = useState(null)
+  const [yamlEndpoint, setYamlEndpoint] = useState(null)
+
+  const toggleConvertedYaml = useCallback(
+    data => dispatch(toggleYaml(data)),
+    [dispatch]
+  )
+
+  const handleMonitoring = useCallback(
+    item => {
+      monitorModelEndpoint(frontendSpec.model_monitoring_dashboard_url, item, projectName)
+    },
+    [frontendSpec.model_monitoring_dashboard_url, projectName]
+  )
 
   const labelOptions = useMemo(() => {
     const labelKeys = new Set()
@@ -116,6 +134,13 @@ const ApplicationMonitoringEndpoints = ({ application }) => {
     [handleEndpointClick]
   )
 
+  const rowActions = useCallback(
+    endpoint => [
+      { label: 'View YAML', icon: FileCode2, onClick: () => setYamlEndpoint(endpoint) }
+    ],
+    []
+  )
+
   const renderFilters = useCallback(
     ({ filters, setFilterValue, applyFilter, applyMultipleFilters }) => (
       <MonitoringEndpointsFilters
@@ -138,16 +163,27 @@ const ApplicationMonitoringEndpoints = ({ application }) => {
         filtersConfig={MONITORING_ENDPOINTS_FILTER_CONFIG}
         filterFn={filterEndpointsByLabel}
         renderFilters={renderFilters}
+        rowActions={rowActions}
         onRefresh={handleRefresh}
         showRefreshButton={false}
         initialSorting={INITIAL_SORTING}
         noDataMessage={MONITORING_ENDPOINTS_NO_DATA_MESSAGE}
       />
-      <EndpointDetailsPopup
-        open={!!selectedEndpoint}
-        onClose={handleClosePopup}
-        endpointUid={selectedEndpoint?.uid}
-        endpointName={selectedEndpoint?.name}
+      {selectedEndpoint && (
+        <EndpointDetailsDialog
+          isOpen={!!selectedEndpoint}
+          onClose={handleClosePopup}
+          modelEndpointUid={selectedEndpoint?.uid}
+          modelEndpointName={selectedEndpoint?.name}
+          frontendSpec={frontendSpec}
+          handleMonitoring={handleMonitoring}
+          toggleConvertedYaml={toggleConvertedYaml}
+        />
+      )}
+      <YamlModal
+        open={!!yamlEndpoint}
+        data={yamlEndpoint}
+        onClose={() => setYamlEndpoint(null)}
       />
     </>
   )

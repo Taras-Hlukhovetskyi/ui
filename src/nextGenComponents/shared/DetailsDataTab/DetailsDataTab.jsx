@@ -52,7 +52,7 @@ const DetailsDataTab = ({
   }
 
   return (
-    <div className="flex flex-col h-full gap-4 pt-4" data-testid="details-data-tab">
+    <div className="flex flex-col h-full gap-2" data-testid="details-data-tab">
       {renderFilters && (
         <ActionBar
           persistToUrl={false}

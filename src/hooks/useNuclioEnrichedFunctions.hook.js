@@ -244,7 +244,7 @@ export const useNuclioEnrichedFunctions = ({
       setHasFetched(projectName)
       fetchData(buildFetchConfig(filters))
     }
-  }, [fetchData, buildFetchConfig, filters, hasFetched])
+  }, [fetchData, buildFetchConfig, filters, hasFetched, projectName])
 
   const { filteredData, counters } = useMemo(() => {
     const filtered = filterFn ? filterFn(enrichedFunctions, filters) : enrichedFunctions
@@ -304,7 +304,7 @@ export const useNuclioEnrichedFunctions = ({
         return enriched
       })
     },
-    [dispatch, projectName, enrichApiGateways, fetchGatewaysList, parseFunction]
+    [dispatch, projectName, enrichApiGateways, fetchGatewaysList]
   )
 
   return {

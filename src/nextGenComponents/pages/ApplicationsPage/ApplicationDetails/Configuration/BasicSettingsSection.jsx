@@ -18,7 +18,6 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import React, { useMemo } from 'react'
-import PropTypes from 'prop-types'
 
 import DetailsInfoTable from '../../../../shared/DetailsInfoTable/DetailsInfoTable'
 import LabelWithTooltip from './LabelWithTooltip'

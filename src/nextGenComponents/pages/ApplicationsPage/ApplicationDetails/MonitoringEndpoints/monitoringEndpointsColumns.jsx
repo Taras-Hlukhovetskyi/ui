@@ -45,7 +45,7 @@ export const getMonitoringEndpointsColumns = onEndpointClick => [
       return (
         <button
           type="button"
-          className="text-igz-link font-medium hover:underline cursor-pointer bg-transparent border-0 p-0 text-left"
+          className="text-igz-link hover:underline cursor-pointer bg-transparent border-0 p-0 text-left text-body"
           data-testid="monitoring-endpoint-name"
           onClick={() => onEndpointClick({ uid, name })}
         >
@@ -60,7 +60,7 @@ export const getMonitoringEndpointsColumns = onEndpointClick => [
     size: 12,
     accessorFn: row => row.spec?.function_name ?? '',
     cell: ({ row }) => (
-      <span className="text-igz-secondary" data-testid="monitoring-endpoint-function">
+      <span data-testid="monitoring-endpoint-function">
         {row.original.spec?.function_name || ''}
       </span>
     )
@@ -71,7 +71,7 @@ export const getMonitoringEndpointsColumns = onEndpointClick => [
     size: 8,
     accessorFn: row => row.spec?.function_tag ?? '',
     cell: ({ row }) => (
-      <span className="text-igz-secondary" data-testid="monitoring-endpoint-function-tag">
+      <span data-testid="monitoring-endpoint-function-tag">
         {row.original.spec?.function_tag || ''}
       </span>
     )
@@ -82,7 +82,7 @@ export const getMonitoringEndpointsColumns = onEndpointClick => [
     size: 10,
     accessorFn: row => row.spec?.model_class ?? '',
     cell: ({ row }) => (
-      <span className="text-igz-secondary" data-testid="monitoring-endpoint-class">
+      <span data-testid="monitoring-endpoint-class">
         {row.original.spec?.model_class || ''}
       </span>
     )
@@ -101,10 +101,10 @@ export const getMonitoringEndpointsColumns = onEndpointClick => [
   {
     id: 'firstInvocation',
     header: 'First invocation',
-    size: 12,
+    size: 10,
     accessorFn: row => row.status?.first_request ?? '',
     cell: ({ row }) => (
-      <span className="text-igz-secondary" data-testid="monitoring-endpoint-first-invocation">
+      <span data-testid="monitoring-endpoint-first-invocation">
         {formatDatetime(row.original.status?.first_request, '')}
       </span>
     )
@@ -112,10 +112,10 @@ export const getMonitoringEndpointsColumns = onEndpointClick => [
   {
     id: 'lastInvocation',
     header: 'Last invocation',
-    size: 12,
+    size: 10,
     accessorFn: row => row.status?.last_request ?? '',
     cell: ({ row }) => (
-      <span className="text-igz-secondary" data-testid="monitoring-endpoint-last-invocation">
+      <span data-testid="monitoring-endpoint-last-invocation">
         {formatDatetime(row.original.status?.last_request, '')}
       </span>
     )
@@ -126,7 +126,7 @@ export const getMonitoringEndpointsColumns = onEndpointClick => [
     size: 8,
     accessorFn: row => row.status?.error_count ?? 0,
     cell: ({ row }) => (
-      <span className="text-igz-secondary" data-testid="monitoring-endpoint-error-count">
+      <span data-testid="monitoring-endpoint-error-count">
         {row.original.status?.error_count ?? 0}
       </span>
     )
@@ -141,7 +141,7 @@ export const getMonitoringEndpointsColumns = onEndpointClick => [
       const label = DRIFT_STATUS_LABEL[resultStatus] ?? 'N/A'
 
       return (
-        <span className="text-igz-secondary" data-testid="monitoring-endpoint-drift-status">
+        <span data-testid="monitoring-endpoint-drift-status">
           {label}
         </span>
       )

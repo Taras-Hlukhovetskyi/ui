@@ -36,7 +36,10 @@ const INITIAL_SORTING = [{ id: 'name', desc: false }]
 
 const ApplicationApiGateways = ({ application }) => {
   const [yamlGateway, setYamlGateway] = useState(null)
-  const applicationGateways = application.applicationGateways ?? []
+  const applicationGateways = useMemo(
+    () => application.applicationGateways ?? [],
+    [application.applicationGateways]
+  )
 
   const authModeOptions = useMemo(() => {
     const modes = new Set(
@@ -50,6 +53,7 @@ const ApplicationApiGateways = ({ application }) => {
   }, [applicationGateways])
 
   const rowActions = useCallback(
+    // eslint-disable-next-line no-unused-vars
     ({ relationship, matchedUpstream, ...originalGateway }) => [
       { label: 'View YAML', icon: FileCode2, onClick: () => setYamlGateway(originalGateway) }
     ],

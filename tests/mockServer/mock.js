@@ -2766,6 +2766,17 @@ function getNuclioFunctions(req, res) {
   res.send(nuclioFunctions)
 }
 
+function getNuclioFunction(req, res) {
+  const funcName = req.params.name
+  const func = nuclioFunctions[funcName]
+
+  if (func) {
+    res.send(func)
+  } else {
+    res.status(404).send({ error: `Function not found: ${funcName}` })
+  }
+}
+
 function getNuclioAPIGateways(req, res) {
   if (req.path.startsWith('/api/v1/projects')) {
     res.send({ api_gateways: nuclioAPIGateways })
@@ -3158,6 +3169,7 @@ app.get(`${mlrunAPIIngress}/projects/:project/feature-vectors`, getProjectsFeatu
 
 app.post(`${mlrunAPIIngress}/submit_job`, postSubmitJob)
 
+app.get(`${nuclioApiUrl}/api/functions/:name`, getNuclioFunction)
 app.get(`${nuclioApiUrl}/api/functions`, getNuclioFunctions)
 
 app.get(`${nuclioApiUrl}/api/api_gateways`, getNuclioAPIGateways)

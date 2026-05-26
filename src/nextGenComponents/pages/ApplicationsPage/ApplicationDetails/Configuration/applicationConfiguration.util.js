@@ -109,7 +109,7 @@ export const getBasicSettingsItems = application => {
   return [
     {
       label: BASIC_SETTINGS_FIELD.ENABLED,
-      value: capitalize(!nuclioSpec.disable?.toString() ?? null)
+      value: nuclioSpec.disable != null ? capitalize((!nuclioSpec.disable).toString()) : null
     },
     {
       label: BASIC_SETTINGS_FIELD.DESCRIPTION,
