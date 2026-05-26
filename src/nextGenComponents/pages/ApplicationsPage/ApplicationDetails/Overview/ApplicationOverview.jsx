@@ -34,6 +34,10 @@ const ApplicationOverview = ({ application }) => {
     const stateLabel = application.state?.label ?? application.state?.value ?? 'Unknown'
     const stateClassName = application.state?.className ?? 'state-unknown-function'
 
+    const sidecarConfig = application.config?.['spec.sidecars']?.[0] ?? {}
+    const sidecarCommand = sidecarConfig.command
+    const sidecarArgs = sidecarConfig.args
+
     return [
       {
         label: OVERVIEW_FIELD.NAME,
@@ -59,13 +63,11 @@ const ApplicationOverview = ({ application }) => {
       },
       {
         label: OVERVIEW_FIELD.DIRECT_URLS,
-        value: <UrlList urls={application.external_invocation_urls} allowCopy openInNewTab />,
-        hidden: !application.external_invocation_urls?.length
+        value: <UrlList urls={application.directUrls} allowCopy openInNewTab />
       },
       {
         label: OVERVIEW_FIELD.INDIRECT_URLS,
-        value: <UrlList urls={application.internal_invocation_urls} />,
-        hidden: !application.internal_invocation_urls?.length
+        value: <UrlList urls={application.indirectUrls} allowCopy openInNewTab />
       },
       {
         label: OVERVIEW_FIELD.DESCRIPTION,
@@ -98,14 +100,17 @@ const ApplicationOverview = ({ application }) => {
       },
       {
         label: OVERVIEW_FIELD.COMMANDS,
-        value: application.ui?.originalContent?.spec?.command || null
+        value: sidecarCommand?.length > 0
+          ? (Array.isArray(sidecarCommand) ? sidecarCommand.join('\n') : sidecarCommand)
+          : null
       },
       {
         label: OVERVIEW_FIELD.ARGUMENTS,
-        value:
-          application.args?.length > 0 ? (
-            <span className="whitespace-pre-wrap">{application.args.join('\n')}</span>
-          ) : null
+        value: sidecarArgs?.length > 0 ? (
+          <span className="whitespace-pre-wrap">
+            {Array.isArray(sidecarArgs) ? sidecarArgs.join('\n') : sidecarArgs}
+          </span>
+        ) : null
       }
     ]
   }, [application])
@@ -116,13 +121,14 @@ const ApplicationOverview = ({ application }) => {
 ApplicationOverview.propTypes = {
   application: PropTypes.shape({
     application_image: PropTypes.string,
-    args: PropTypes.arrayOf(PropTypes.string),
     build: PropTypes.shape({
       source: PropTypes.string
     }),
+    config: PropTypes.object,
     description: PropTypes.string,
-    external_invocation_urls: PropTypes.arrayOf(PropTypes.string),
+    directUrls: PropTypes.arrayOf(PropTypes.string),
     image: PropTypes.string,
+    indirectUrls: PropTypes.arrayOf(PropTypes.string),
     internal_invocation_urls: PropTypes.arrayOf(PropTypes.string),
     name: PropTypes.string,
     owner: PropTypes.string,
@@ -132,13 +138,6 @@ ApplicationOverview.propTypes = {
       value: PropTypes.string
     }),
     tag: PropTypes.string,
-    ui: PropTypes.shape({
-      originalContent: PropTypes.shape({
-        spec: PropTypes.shape({
-          command: PropTypes.string
-        })
-      })
-    }),
     updated: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string])
   }).isRequired
 }

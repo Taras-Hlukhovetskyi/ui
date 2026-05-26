@@ -82,9 +82,9 @@ describe('DetailsInfoTable', () => {
       expect(screen.getByTestId('info-name')).toBeInTheDocument()
     })
 
-    it('renders placeholder for null values', () => {
+    it('renders empty value for null values', () => {
       renderInfoTable(ITEMS_WITH_NULL_VALUE)
-      expect(screen.getByText('-')).toBeInTheDocument()
+      expect(screen.getByTestId('info-value-Description')).toHaveTextContent('')
     })
   })
 

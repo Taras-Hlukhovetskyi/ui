@@ -35,7 +35,11 @@ const EnvironmentVariablesSection = ({ application }) => {
     return <NoData message={NO_DATA_MESSAGE} />
   }
 
-  return <DataTable data={data} columns={environmentVariablesColumns} className={TABLE_CLASS} />
+  return (
+    <div className="flex-1 min-h-0 flex flex-col overflow-hidden" data-testid="environment-variables-section">
+      <DataTable data={data} columns={environmentVariablesColumns} className={`${TABLE_CLASS} flex-1 min-h-0`} />
+    </div>
+  )
 }
 
 EnvironmentVariablesSection.propTypes = {

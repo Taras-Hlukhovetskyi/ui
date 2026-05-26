@@ -27,15 +27,15 @@ import { Loader } from 'igz-controls/nextGenComponents'
 
 const LogSection = ({ title, logs, isLoading, isCopied, onCopy }) => (
   <div
-    className="border border-igz-gray-light rounded-lg"
+    className="border border-igz-gray-light rounded-lg flex flex-col h-[85%] shrink-0"
     data-testid={`build-logs-section-${title.toLowerCase()}`}
   >
     <div className="px-4 pt-4 pb-0 bg-background rounded-t-lg">
       <h3 className="text-base m-0 font-semibold text-igz-primary">{title}</h3>
     </div>
 
-    <div className="p-4 bg-background rounded-b-lg">
-      <div className="relative">
+    <div className="p-4 bg-background rounded-b-lg flex-1 min-h-0">
+      <div className="relative h-full">
         <LogsBlock logs={logs} isLoading={isLoading} />
 
         {isLoading && (

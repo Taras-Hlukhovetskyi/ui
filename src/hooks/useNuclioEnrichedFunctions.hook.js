@@ -25,7 +25,12 @@ import { getNuclioFuncState } from '../utils/getNuclioFuncState'
 import getState from '../utils/getState'
 import { parseFunction } from '../utils/parseFunction'
 import { fetchFunctions, fetchFunction } from '../reducers/functionReducer'
-import { fetchNuclioFunction, fetchNuclioFunctions } from '../reducers/nuclioReducer'
+import { fetchNuclioFunction, fetchNuclioFunctions, fetchProjectApiGateways } from '../reducers/nuclioReducer'
+import {
+  filterGatewaysByFunction,
+  buildGatewayUrl
+} from '../nextGenComponents/pages/ApplicationsPage/ApplicationDetails/ApiGateways/applicationApiGateways.util'
+import { GATEWAY_RELATIONSHIP } from '../nextGenComponents/pages/ApplicationsPage/ApplicationDetails/applicationDetails.constants'
 import {
   ERROR_STATE,
   FUNCTION_BUILDING_STATE,
@@ -39,7 +44,7 @@ const NUCLIO_FUNCTIONS_STATE_KIND = 'nuclioFunctions'
 const NUCLIO_OWNER_LABEL = 'iguazio.com/username'
 const DEFAULT_ERROR_MESSAGE = 'Failed to fetch functions'
 
-export const enrichFunctionsWithNuclio = (parsedFunctions, nuclioFunctionsMap) => {
+export const enrichFunctionsWithNuclio = (parsedFunctions, nuclioFunctionsMap, projectApiGateways = []) => {
   return parsedFunctions.map(func => {
     const nuclioKey = func.nuclio_name || `${func.project}-${func.name}`
     const nuclioFunc = nuclioFunctionsMap[nuclioKey] || {}
@@ -51,11 +56,36 @@ export const enrichFunctionsWithNuclio = (parsedFunctions, nuclioFunctionsMap) =
     const state = nuclioFuncState || func.state?.value || ''
     const owner = nuclioFunc?.metadata?.labels?.[NUCLIO_OWNER_LABEL] ?? ''
 
+    const applicationGateways = filterGatewaysByFunction(
+      projectApiGateways, func.project, func.name, func.tag
+    )
+
+    const directUrls = []
+    const indirectUrls = []
+
+    for (const gateway of applicationGateways) {
+      const url = buildGatewayUrl(gateway)
+      if (!url) continue
+
+      if (gateway.relationship === GATEWAY_RELATIONSHIP.DIRECT) {
+        directUrls.push(url)
+      } else {
+        indirectUrls.push(url)
+      }
+    }
+
+    if (directUrls.length === 0 && indirectUrls.length === 0) {
+      indirectUrls.push(...(func.external_invocation_urls ?? []))
+    }
+
     return {
       ...func,
       state: getState(state, FUNCTIONS_PAGE, NUCLIO_FUNCTIONS_STATE_KIND),
       owner,
-      nuclioFunc
+      nuclioFunc,
+      applicationGateways,
+      directUrls,
+      indirectUrls
     }
   })
 }
@@ -112,6 +142,7 @@ export const useNuclioEnrichedFunctions = ({
   const mlrunListControllerRef = useRef(null)
   const mlrunSingleControllerRef = useRef(null)
   const nuclioSingleControllerRef = useRef(null)
+  const gatewaysListControllerRef = useRef(null)
   const [enrichedFunctions, setEnrichedFunctions] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [hasFetched, setHasFetched] = useState(null)
@@ -121,7 +152,8 @@ export const useNuclioEnrichedFunctions = ({
       nuclioListControllerRef,
       mlrunListControllerRef,
       mlrunSingleControllerRef,
-      nuclioSingleControllerRef
+      nuclioSingleControllerRef,
+      gatewaysListControllerRef
     ]
     return () => {
       controllers.forEach(ref => ref.current?.abort())
@@ -145,12 +177,22 @@ export const useNuclioEnrichedFunctions = ({
     [projectName]
   )
 
+  const fetchGatewaysList = useCallback(
+    signal =>
+      dispatch(
+        fetchProjectApiGateways({ project: projectName, signal })
+      ).unwrap(),
+    [dispatch, projectName]
+  )
+
   const fetchData = useCallback(
     (thunkConfig = {}) => {
       mlrunListControllerRef.current?.abort()
       mlrunListControllerRef.current = new AbortController()
       nuclioListControllerRef.current?.abort()
       nuclioListControllerRef.current = new AbortController()
+      gatewaysListControllerRef.current?.abort()
+      gatewaysListControllerRef.current = new AbortController()
 
       const mlrunController = mlrunListControllerRef.current
 
@@ -164,18 +206,27 @@ export const useNuclioEnrichedFunctions = ({
         }
       }
 
-      return Promise.allSettled([
+      const promises = [
         dispatch(fetchFunctions({ project: projectName, errorMessage, ...thunkConfig, config }))
           .unwrap()
           .then(parseListResponse),
         fetchAllNuclioFunctions(nuclioListControllerRef.current.signal)
-      ])
-        .then(([mlrunResult, nuclioResult]) => {
+      ]
+
+      if (enrichApiGateways) {
+        promises.push(fetchGatewaysList(gatewaysListControllerRef.current.signal))
+      }
+
+      return Promise.allSettled(promises)
+        .then(([mlrunResult, nuclioResult, gatewaysResult]) => {
           if (mlrunController.signal.aborted) return
 
           if (mlrunResult.status === 'fulfilled' && mlrunResult.value) {
             const nuclioMap = resolveNuclioMap(nuclioResult)
-            const enriched = enrichFunctionsWithNuclio(mlrunResult.value, nuclioMap)
+            const gateways = gatewaysResult?.status === 'fulfilled'
+              ? (gatewaysResult.value ?? [])
+              : []
+            const enriched = enrichFunctionsWithNuclio(mlrunResult.value, nuclioMap, gateways)
             setEnrichedFunctions(enriched)
           }
         })
@@ -185,7 +236,7 @@ export const useNuclioEnrichedFunctions = ({
           }
         })
     },
-    [dispatch, projectName, errorMessage, parseListResponse, fetchAllNuclioFunctions]
+    [dispatch, projectName, errorMessage, parseListResponse, fetchAllNuclioFunctions, enrichApiGateways, fetchGatewaysList]
   )
 
   useEffect(() => {
@@ -206,11 +257,13 @@ export const useNuclioEnrichedFunctions = ({
       mlrunSingleControllerRef.current = new AbortController()
       nuclioSingleControllerRef.current?.abort()
       nuclioSingleControllerRef.current = new AbortController()
+      gatewaysListControllerRef.current?.abort()
+      gatewaysListControllerRef.current = new AbortController()
 
       const mlrunController = mlrunSingleControllerRef.current
       const resolvedNuclioName = nuclioName || `${projectName}-${name}`
 
-      return Promise.allSettled([
+      const promises = [
         dispatch(
           fetchFunction({
             project: projectName,
@@ -226,11 +279,16 @@ export const useNuclioEnrichedFunctions = ({
           fetchNuclioFunction({
             project: projectName,
             name: resolvedNuclioName,
-            signal: nuclioSingleControllerRef.current.signal,
-            enrichApiGateways
+            signal: nuclioSingleControllerRef.current.signal
           })
         ).unwrap()
-      ]).then(([mlrunResult, nuclioResult]) => {
+      ]
+
+      if (enrichApiGateways) {
+        promises.push(fetchGatewaysList(gatewaysListControllerRef.current.signal))
+      }
+
+      return Promise.allSettled(promises).then(([mlrunResult, nuclioResult, gatewaysResult]) => {
         if (mlrunController.signal.aborted) return null
         if (mlrunResult.status !== 'fulfilled' || !mlrunResult.value) return null
 
@@ -238,12 +296,15 @@ export const useNuclioEnrichedFunctions = ({
         const nuclioFuncData =
           nuclioResult.status === 'fulfilled' && nuclioResult.value ? nuclioResult.value : null
         const nuclioMap = nuclioFuncData ? { [resolvedNuclioName]: nuclioFuncData } : {}
-        const [enriched] = enrichFunctionsWithNuclio([parsed], nuclioMap)
+        const gateways = gatewaysResult?.status === 'fulfilled'
+          ? (gatewaysResult.value ?? [])
+          : []
+        const [enriched] = enrichFunctionsWithNuclio([parsed], nuclioMap, gateways)
 
         return enriched
       })
     },
-    [dispatch, projectName, enrichApiGateways]
+    [dispatch, projectName, enrichApiGateways, fetchGatewaysList, parseFunction]
   )
 
   return {

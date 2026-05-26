@@ -61,7 +61,7 @@ export const getMonitoringEndpointsColumns = onEndpointClick => [
     accessorFn: row => row.spec?.function_name ?? '',
     cell: ({ row }) => (
       <span className="text-igz-secondary" data-testid="monitoring-endpoint-function">
-        {row.original.spec?.function_name || '-'}
+        {row.original.spec?.function_name || ''}
       </span>
     )
   },
@@ -72,7 +72,7 @@ export const getMonitoringEndpointsColumns = onEndpointClick => [
     accessorFn: row => row.spec?.function_tag ?? '',
     cell: ({ row }) => (
       <span className="text-igz-secondary" data-testid="monitoring-endpoint-function-tag">
-        {row.original.spec?.function_tag || '-'}
+        {row.original.spec?.function_tag || ''}
       </span>
     )
   },
@@ -83,7 +83,7 @@ export const getMonitoringEndpointsColumns = onEndpointClick => [
     accessorFn: row => row.spec?.model_class ?? '',
     cell: ({ row }) => (
       <span className="text-igz-secondary" data-testid="monitoring-endpoint-class">
-        {row.original.spec?.model_class || '-'}
+        {row.original.spec?.model_class || ''}
       </span>
     )
   },
@@ -105,7 +105,7 @@ export const getMonitoringEndpointsColumns = onEndpointClick => [
     accessorFn: row => row.status?.first_request ?? '',
     cell: ({ row }) => (
       <span className="text-igz-secondary" data-testid="monitoring-endpoint-first-invocation">
-        {formatDatetime(row.original.status?.first_request, '-')}
+        {formatDatetime(row.original.status?.first_request, '')}
       </span>
     )
   },
@@ -116,7 +116,7 @@ export const getMonitoringEndpointsColumns = onEndpointClick => [
     accessorFn: row => row.status?.last_request ?? '',
     cell: ({ row }) => (
       <span className="text-igz-secondary" data-testid="monitoring-endpoint-last-invocation">
-        {formatDatetime(row.original.status?.last_request, '-')}
+        {formatDatetime(row.original.status?.last_request, '')}
       </span>
     )
   },

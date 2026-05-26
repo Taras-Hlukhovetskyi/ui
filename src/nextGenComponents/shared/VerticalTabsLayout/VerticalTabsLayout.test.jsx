@@ -33,6 +33,7 @@ vi.mock('./useContainerWidth.hook', () => ({
 }))
 
 vi.mock('igz-controls/nextGenComponents', () => ({
+  cn: (...args) => args.filter(Boolean).join(' '),
   Tabs: ({ children, value, onValueChange, ...props }) => (
     <div data-testid="tabs" data-value={value} {...props}>
       {children}

@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux'
 import { useParams } from 'react-router-dom'
@@ -162,15 +162,26 @@ const ApplicationBuildLogs = ({ application }) => {
     [functionLogs, handleCopy]
   )
 
+  const appLogsEmpty = useMemo(
+    () => !isAppLogsLoading &&
+      (!applicationLogs || (typeof applicationLogs === 'string' && applicationLogs.trim() === '')),
+    [isAppLogsLoading, applicationLogs]
+  )
+
   return (
-    <div className="flex flex-col gap-6 py-4" data-testid="application-build-logs">
-      <LogSection
-        title="Application"
-        logs={applicationLogs}
-        isLoading={isAppLogsLoading}
-        isCopied={copiedSection === LOGS_SECTION_KEY.APPLICATION}
-        onCopy={handleCopyAppLogs}
-      />
+    <div
+      className="flex flex-col gap-6 py-4 h-full overflow-y-auto"
+      data-testid="application-build-logs"
+    >
+      {!appLogsEmpty && (
+        <LogSection
+          title="Application"
+          logs={applicationLogs}
+          isLoading={isAppLogsLoading}
+          isCopied={copiedSection === LOGS_SECTION_KEY.APPLICATION}
+          onCopy={handleCopyAppLogs}
+        />
+      )}
       <LogSection
         title="Function"
         logs={functionLogs}

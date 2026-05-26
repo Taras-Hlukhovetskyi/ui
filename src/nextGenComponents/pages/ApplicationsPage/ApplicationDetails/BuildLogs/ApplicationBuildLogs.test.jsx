@@ -107,11 +107,21 @@ describe('ApplicationBuildLogs', () => {
       expect(screen.getByTestId('application-build-logs')).toBeInTheDocument()
     })
 
-    it('renders the Application section', async () => {
+    it('renders the Application section when app logs are present', async () => {
+      mockDispatch.mockImplementation(() =>
+        makeDispatchResponse({ data: 'some log output', headers: {} })
+      )
       await act(async () => renderComponent())
       expect(
         screen.getByTestId(`build-logs-section-${LOGS_SECTION_KEY.APPLICATION}`)
       ).toBeInTheDocument()
+    })
+
+    it('hides the Application section when app logs are empty', async () => {
+      await act(async () => renderComponent())
+      expect(
+        screen.queryByTestId(`build-logs-section-${LOGS_SECTION_KEY.APPLICATION}`)
+      ).not.toBeInTheDocument()
     })
 
     it('renders the Function section', async () => {
@@ -121,12 +131,23 @@ describe('ApplicationBuildLogs', () => {
       ).toBeInTheDocument()
     })
 
-    it('renders two LogsBlock components', async () => {
+    it('renders both LogsBlock components when app logs are present', async () => {
+      mockDispatch.mockImplementation(() =>
+        makeDispatchResponse({ data: 'some log output', headers: {} })
+      )
       await act(async () => renderComponent())
       expect(screen.getAllByTestId('logs-block')).toHaveLength(2)
     })
 
-    it('renders copy buttons for both sections', async () => {
+    it('renders only Function LogsBlock when app logs are empty', async () => {
+      await act(async () => renderComponent())
+      expect(screen.getAllByTestId('logs-block')).toHaveLength(1)
+    })
+
+    it('renders copy buttons for both sections when app logs are present', async () => {
+      mockDispatch.mockImplementation(() =>
+        makeDispatchResponse({ data: 'some log output', headers: {} })
+      )
       await act(async () => renderComponent())
       expect(screen.getByTestId(`copy-logs-${LOGS_SECTION_KEY.APPLICATION}`)).toBeInTheDocument()
       expect(screen.getByTestId(`copy-logs-${LOGS_SECTION_KEY.FUNCTION}`)).toBeInTheDocument()
@@ -175,7 +196,8 @@ describe('ApplicationBuildLogs', () => {
       )
 
       await act(async () => renderComponent())
-      expect(screen.getAllByTestId('logs-block')[1]).toHaveTextContent('"Deploying"')
+      const functionLogsBlock = screen.getByTestId(`build-logs-section-${LOGS_SECTION_KEY.FUNCTION}`)
+      expect(functionLogsBlock.querySelector('[data-testid="logs-block"]')).toHaveTextContent('"Deploying"')
     })
   })
 
@@ -308,6 +330,9 @@ describe('ApplicationBuildLogs', () => {
     })
 
     it('shows the check icon after copying and reverts to copy icon after timeout', async () => {
+      mockDispatch.mockImplementation(() =>
+        makeDispatchResponse({ data: 'app log text', headers: {} })
+      )
       await act(async () => renderComponent())
 
       expect(screen.getByTestId(`copy-icon-${LOGS_SECTION_KEY.APPLICATION}`)).toBeInTheDocument()
@@ -335,6 +360,9 @@ describe('ApplicationBuildLogs', () => {
     })
 
     it('only marks the clicked section as copied, not the other', async () => {
+      mockDispatch.mockImplementation(() =>
+        makeDispatchResponse({ data: 'app log text', headers: {} })
+      )
       await act(async () => renderComponent())
 
       await act(async () => {

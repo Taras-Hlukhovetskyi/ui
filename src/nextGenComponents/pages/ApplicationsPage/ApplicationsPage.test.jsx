@@ -204,10 +204,10 @@ describe('ApplicationsPage', () => {
       expect(screen.getByText('alice')).toBeInTheDocument()
     })
 
-    it('renders dash when owner is empty', () => {
+    it('renders empty cell when owner is empty', () => {
       renderPage()
       const ownerCells = screen.getAllByTestId('owner-cell')
-      expect(ownerCells[1]).toHaveTextContent('-')
+      expect(ownerCells[1]).toHaveTextContent('')
     })
 
     it('renders breadcrumbs', () => {
@@ -265,10 +265,10 @@ describe('ApplicationsPage', () => {
       expect(screen.getByText(/May 10, 2026/)).toBeInTheDocument()
     })
 
-    it('renders "N/A" in the updated cell when updated is null', () => {
+    it('renders empty cell when updated is null', () => {
       renderPage()
       const updatedCell = screen.getAllByTestId('cell-updated')[1]
-      expect(updatedCell).toHaveTextContent('N/A')
+      expect(updatedCell).toHaveTextContent('')
     })
   })
 

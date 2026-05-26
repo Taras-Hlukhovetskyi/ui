@@ -42,12 +42,12 @@ const VolumesSection = ({ application }) => {
       {Object.entries(volume.details).map(([key, value]) => (
         <div key={key} className={cn('flex py-1 pl-1', ROW_MIN_HEIGHT)}>
           <span className={cn(LABEL_WIDTH, 'shrink-0 text-body text-igz-primary')}>{key}</span>
-          <span className="text-body text-igz-secondary">{value || '-'}</span>
+          <span className="text-body text-igz-secondary">{value || ''}</span>
         </div>
       ))}
       <div className={cn('flex py-1 pl-1', ROW_MIN_HEIGHT)}>
         <span className={cn(LABEL_WIDTH, 'shrink-0 text-body text-igz-primary')}>{EXPANDED_DETAIL_FIELD.MOUNT_PATH}</span>
-        <span className="text-body text-igz-secondary">{volume.mountPath || '-'}</span>
+        <span className="text-body text-igz-secondary">{volume.mountPath || ''}</span>
       </div>
       <div className={cn('flex py-1 pl-1', ROW_MIN_HEIGHT)}>
         <span className={cn(LABEL_WIDTH, 'shrink-0 text-body text-igz-primary')}>{EXPANDED_DETAIL_FIELD.READ_ONLY}</span>
@@ -61,15 +61,16 @@ const VolumesSection = ({ application }) => {
   }
 
   return (
-    <div data-testid="volumes-section" className="rounded-lg border border-igz-gray-light overflow-hidden">
-      <div className="flex py-2.5 px-1 border-b border-igz-gray-light">
-        <span className="text-sm font-medium text-igz-primary pl-6" style={{ flex: VOLUME_COLUMN_FLEX.NAME }}>{VOLUME_COLUMN.NAME}</span>
-        <span className="text-sm font-medium text-igz-primary" style={{ flex: VOLUME_COLUMN_FLEX.TYPE }}>{VOLUME_COLUMN.TYPE}</span>
-        <span className="text-sm font-medium text-igz-primary" style={{ flex: VOLUME_COLUMN_FLEX.MOUNT_PATH_PARAMS }}>{VOLUME_COLUMN.MOUNT_PATH_PARAMS}</span>
+    <div data-testid="volumes-section" className="rounded-lg border border-igz-gray-light">
+      <div className="flex py-2.5 px-1 border-b border-igz-gray-light sticky top-0 z-10 bg-background rounded-t-lg" data-testid="volumes-header">
+        <span className="text-sm font-medium text-igz-primary pl-6" style={{ flex: VOLUME_COLUMN_FLEX.NAME }} data-testid="volumes-header-name">{VOLUME_COLUMN.NAME}</span>
+        <span className="text-sm font-medium text-igz-primary" style={{ flex: VOLUME_COLUMN_FLEX.TYPE }} data-testid="volumes-header-type">{VOLUME_COLUMN.TYPE}</span>
+        <span className="text-sm font-medium text-igz-primary" style={{ flex: VOLUME_COLUMN_FLEX.MOUNT_PATH_PARAMS }} data-testid="volumes-header-mount-path">{VOLUME_COLUMN.MOUNT_PATH_PARAMS}</span>
       </div>
-      {data.map(volume => (
+      {data.map((volume, index) => (
         <ExpandableRow
           key={volume.name}
+          defaultExpanded={index === 0}
           row={{
             name: volume.name,
             cells: [

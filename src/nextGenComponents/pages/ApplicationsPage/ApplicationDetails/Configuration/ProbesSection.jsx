@@ -75,10 +75,10 @@ const ProbesSection = ({ application }) => {
   }
 
   return (
-    <div data-testid="probes-section" className="rounded-lg border border-igz-gray-light overflow-hidden">
-      <div className="flex py-2.5 px-1 border-b border-igz-gray-light">
-        <span className="text-sm font-medium text-igz-primary pl-6" style={{ flex: PROBE_COLUMN_FLEX.NAME }}>{PROBE_COLUMN.NAME}</span>
-        <span className="text-sm font-medium text-igz-primary" style={{ flex: PROBE_COLUMN_FLEX.TYPE }}>{PROBE_COLUMN.TYPE}</span>
+    <div data-testid="probes-section" className="rounded-lg border border-igz-gray-light">
+      <div className="flex py-2.5 px-1 border-b border-igz-gray-light sticky top-0 z-10 bg-background rounded-t-lg" data-testid="probes-header">
+        <span className="text-sm font-medium text-igz-primary pl-6" style={{ flex: PROBE_COLUMN_FLEX.NAME }} data-testid="probes-header-name">{PROBE_COLUMN.NAME}</span>
+        <span className="text-sm font-medium text-igz-primary" style={{ flex: PROBE_COLUMN_FLEX.TYPE }} data-testid="probes-header-type">{PROBE_COLUMN.TYPE}</span>
       </div>
       {data.map((probe, index) => (
         <ExpandableRow

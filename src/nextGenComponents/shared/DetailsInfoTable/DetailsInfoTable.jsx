@@ -21,7 +21,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { cn } from 'igz-controls/nextGenComponents'
 
-const EMPTY_VALUE_PLACEHOLDER = '-'
+const EMPTY_VALUE_PLACEHOLDER = ''
 const LABEL_WIDTH = 'w-[200px]'
 
 const DetailsInfoTable = ({ className = '', items }) => {
@@ -46,13 +46,13 @@ const DetailsInfoTable = ({ className = '', items }) => {
             <div className="flex items-baseline pl-1">
               <span
                 className={cn(LABEL_WIDTH, 'shrink-0 text-body text-igz-primary')}
-                data-testid="info-label"
+                data-testid={`info-label-${itemKey}`}
               >
                 {item.label}
               </span>
               <div
                 className="flex-1 text-body text-igz-secondary break-words min-w-0"
-                data-testid="info-value"
+                data-testid={`info-value-${itemKey}`}
               >
                 {item.value ?? EMPTY_VALUE_PLACEHOLDER}
               </div>

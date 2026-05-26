@@ -39,24 +39,13 @@ import { FUNCTION_NAME_FILTER } from '../../../../../constants'
 const ALL_OPTION = { value: 'all', label: 'All' }
 const INITIAL_SORTING = [{ id: 'name', desc: false }]
 
-const filterEndpointsBySearchFields = (endpoints, filters) => {
-  let filtered = endpoints
+const filterEndpointsByLabel = (endpoints, filters) => {
+  if (!filters.label) return endpoints
 
-  if (filters.name) {
-    const search = filters.name.toLowerCase()
-    filtered = filtered.filter(endpoint =>
-      (endpoint.metadata?.name ?? '').toLowerCase().includes(search)
-    )
-  }
-
-  if (filters.label) {
-    filtered = filtered.filter(endpoint => {
-      const labels = endpoint.metadata?.labels ?? {}
-      return Object.keys(labels).some(key => key === filters.label)
-    })
-  }
-
-  return filtered
+  return endpoints.filter(endpoint => {
+    const labels = endpoint.metadata?.labels ?? {}
+    return Object.keys(labels).some(key => key === filters.label)
+  })
 }
 
 const ApplicationMonitoringEndpoints = ({ application }) => {
@@ -147,7 +136,7 @@ const ApplicationMonitoringEndpoints = ({ application }) => {
         columns={columns}
         isLoading={isLoading}
         filtersConfig={MONITORING_ENDPOINTS_FILTER_CONFIG}
-        filterFn={filterEndpointsBySearchFields}
+        filterFn={filterEndpointsByLabel}
         renderFilters={renderFilters}
         onRefresh={handleRefresh}
         showRefreshButton={false}

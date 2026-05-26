@@ -54,8 +54,9 @@ const ExpandableRow = ({ row, renderExpanded, defaultExpanded = false }) => {
                 index === 0 ? 'text-igz-primary font-medium' : 'text-igz-secondary'
               )}
               style={{ flex: cell.flex || 1 }}
+              data-testid={`expandable-cell-${row.name}-${cell.id}`}
             >
-              {cell.value || '-'}
+              {cell.value || ''}
             </span>
           ))}
         </div>

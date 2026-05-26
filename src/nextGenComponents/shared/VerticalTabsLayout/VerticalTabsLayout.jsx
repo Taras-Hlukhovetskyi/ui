@@ -107,17 +107,17 @@ const DesktopLayout = ({ sections, defaultSectionId, className }) => {
             className="flex-1 overflow-hidden pt-0 m-0"
             data-testid={`vertical-tab-content-${section.id}`}
           >
-            <ScrollArea className="h-full">
-              <div className={cn('flex flex-col gap-2', CONTENT_MAX_WIDTH)}>
-                <h2
-                  className={cn('text-lg font-bold text-igz-primary flex items-center', SECTION_TITLE_MIN_HEIGHT)}
-                  data-testid={`section-title-${section.id}`}
-                >
-                  {section.title || section.label}
-                </h2>
+            <div className="h-full flex flex-col">
+              <h2
+                className={cn('text-lg font-bold text-igz-primary flex items-center shrink-0', SECTION_TITLE_MIN_HEIGHT, CONTENT_MAX_WIDTH)}
+                data-testid={`section-title-${section.id}`}
+              >
+                {section.title || section.label}
+              </h2>
+              <div className={cn('flex-1 min-h-0 overflow-auto flex flex-col mt-2', CONTENT_MAX_WIDTH)} data-testid={`section-content-${section.id}`}>
                 {SectionComponent ? <SectionComponent {...(section.componentProps || {})} /> : null}
               </div>
-            </ScrollArea>
+            </div>
           </TabsContent>
         )
       })}

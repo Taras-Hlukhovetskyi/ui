@@ -19,16 +19,12 @@ such restriction.
 */
 import { useCallback, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Input, FilterPopover } from 'igz-controls/nextGenComponents'
-
-import SearchIcon from 'igz-controls/images/search2-icon.svg?react'
+import { FilterPopover } from 'igz-controls/nextGenComponents'
 
 const ALL_OPTION_VALUE = 'all'
 
 const MonitoringEndpointsFilters = ({
   filters,
-  setFilterValue,
-  applyFilter,
   applyMultipleFilters,
   labelOptions
 }) => {
@@ -61,52 +57,26 @@ const MonitoringEndpointsFilters = ({
   }, [applyMultipleFilters])
 
   return (
-    <>
-      <div className="relative w-[280px]" data-testid="monitoring-endpoints-name-filter">
-        <Input
-          placeholder="Search by name..."
-          className="pl-3 pr-9 h-10"
-          data-testid="monitoring-endpoints-name-filter-input"
-          value={filters.name ?? ''}
-          onChange={event => setFilterValue('name', event.target.value)}
-          onKeyDown={event => {
-            if (event.key === 'Enter') applyFilter('name', event.target.value)
-          }}
-        />
-        <button
-          type="button"
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-igz-accent-hover transition-colors cursor-pointer"
-          onClick={() => applyFilter('name', filters.name ?? '')}
-          data-testid="monitoring-endpoints-name-filter-search-button"
-        >
-          <SearchIcon className="h-4 w-4" />
-        </button>
-      </div>
-
-      <FilterPopover
-        scopeId="monitoring-endpoints"
-        schema={popoverSchema}
-        onApply={handlePopoverApply}
-        onClear={handlePopoverClear}
-      />
-    </>
+    <FilterPopover
+      scopeId="monitoring-endpoints"
+      schema={popoverSchema}
+      onApply={handlePopoverApply}
+      onClear={handlePopoverClear}
+    />
   )
 }
 
 MonitoringEndpointsFilters.propTypes = {
-  applyFilter: PropTypes.func.isRequired,
   applyMultipleFilters: PropTypes.func.isRequired,
   filters: PropTypes.shape({
-    label: PropTypes.string,
-    name: PropTypes.string
+    label: PropTypes.string
   }).isRequired,
   labelOptions: PropTypes.arrayOf(
     PropTypes.shape({
       label: PropTypes.string.isRequired,
       value: PropTypes.string.isRequired
     })
-  ).isRequired,
-  setFilterValue: PropTypes.func.isRequired
+  ).isRequired
 }
 
 export default MonitoringEndpointsFilters

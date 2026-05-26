@@ -72,7 +72,7 @@ export const apiGatewaysColumns = [
       const endpoint = buildGatewayEndpoint(row.original)
 
       if (!endpoint) {
-        return <span className="text-igz-secondary">-</span>
+        return <span className="text-igz-secondary" />
       }
 
       return <UrlItem url={endpoint} allowCopy openInNewTab />
@@ -84,7 +84,7 @@ export const apiGatewaysColumns = [
     size: 10,
     accessorFn: row => row.relationship ?? '',
     cell: ({ row }) => (
-      <span className="text-igz-secondary">{row.original.relationship || '-'}</span>
+      <span className="text-igz-secondary">{row.original.relationship || ''}</span>
     )
   },
   {
@@ -94,7 +94,7 @@ export const apiGatewaysColumns = [
     accessorFn: row => row.spec?.authenticationMode ?? '',
     cell: ({ row }) => (
       <span className="text-igz-secondary">
-        {row.original.spec?.authenticationMode || '-'}
+        {row.original.spec?.authenticationMode || ''}
       </span>
     )
   },
@@ -105,7 +105,7 @@ export const apiGatewaysColumns = [
     accessorFn: row => row.metadata?.annotations?.[FORCE_SSL_REDIRECT_ANNOTATION] ?? '',
     cell: ({ row }) => (
       <span className="text-igz-secondary">
-        {row.original.metadata?.annotations?.[FORCE_SSL_REDIRECT_ANNOTATION] ?? '-'}
+        {row.original.metadata?.annotations?.[FORCE_SSL_REDIRECT_ANNOTATION] ?? ''}
       </span>
     )
   },
@@ -116,7 +116,7 @@ export const apiGatewaysColumns = [
     accessorFn: row => row.metadata?.creationTimestamp ?? '',
     cell: ({ row }) => (
       <span className="text-igz-secondary">
-        {formatDatetime(row.original.metadata?.creationTimestamp, '-')}
+        {formatDatetime(row.original.metadata?.creationTimestamp, '')}
       </span>
     )
   },
@@ -127,7 +127,7 @@ export const apiGatewaysColumns = [
     accessorFn: row => row.matchedUpstream?.port ?? '',
     cell: ({ row }) => (
       <span className="text-igz-secondary">
-        {row.original.matchedUpstream?.port || '-'}
+        {row.original.matchedUpstream?.port ?? ''}
       </span>
     )
   },
@@ -138,7 +138,7 @@ export const apiGatewaysColumns = [
     accessorFn: row => row.metadata?.labels?.[NUCLIO_OWNER_LABEL] ?? '',
     cell: ({ row }) => (
       <span className="text-igz-secondary">
-        {row.original.metadata?.labels?.[NUCLIO_OWNER_LABEL] || '-'}
+        {row.original.metadata?.labels?.[NUCLIO_OWNER_LABEL] || ''}
       </span>
     )
   }

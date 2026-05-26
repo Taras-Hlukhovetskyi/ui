@@ -42,7 +42,7 @@ export const getApplicationsColumns = projectName => [
         <div className="flex items-center gap-2">
           <Link
             to={`/projects/${projectName}/${APPLICATIONS_PAGE_PATH}/${row.original.name}/${identifier}/${DEFAULT_APPLICATION_DETAILS_TAB}`}
-            className="text-igz-primary font-medium hover:underline"
+            className="text-igz-primary text-body font-medium hover:underline"
             data-testid="application-name-link"
           >
             {row.original.name}
@@ -66,38 +66,41 @@ export const getApplicationsColumns = projectName => [
     }
   },
   {
-    accessorKey: 'external_invocation_urls',
-    header: 'URLs',
     id: 'urls',
-    size: 50,
+    header: 'URLs',
+    size: 58,
     meta: { skipEllipsisTooltip: true },
-    cell: ({ row }) => (
-      <UrlCell
-        items={buildUrlItems(
-          row.original.external_invocation_urls ?? [],
-          row.original.internal_invocation_urls ?? []
-        )}
-      />
-    )
+    accessorFn: row => [...(row.directUrls ?? []), ...(row.indirectUrls ?? [])],
+    cell: ({ row }) => {
+      const gatewayUrls = [
+        ...(row.original.directUrls ?? []),
+        ...(row.original.indirectUrls ?? [])
+      ]
+
+      return <UrlCell items={buildUrlItems(gatewayUrls)} />
+    }
   },
   {
     id: 'endpoints',
     header: 'Endpoints',
     size: 10,
-    accessorFn: row => row.external_invocation_urls?.length ?? 0,
-    cell: ({ row }) => (
-      <span className="text-igz-light-purple font-medium" data-testid="endpoints-count">
-        {row.original.external_invocation_urls?.length ?? 0}
-      </span>
-    )
+    accessorFn: row => (row.directUrls?.length ?? 0) + (row.indirectUrls?.length ?? 0),
+    cell: ({ row }) => {
+      const count = (row.original.directUrls?.length ?? 0) + (row.original.indirectUrls?.length ?? 0)
+      return (
+        <span className="text-igz-light-purple text-body font-medium" data-testid="endpoints-count">
+          {count}
+        </span>
+      )
+    }
   },
   {
     accessorKey: 'updated',
     id: 'updated',
-    size: 17,
+    size: 15,
     header: 'Updated',
     cell: ({ row }) => (
-      <span className="text-igz-secondary">{formatDatetime(row.original.updated, 'N/A')}</span>
+      <span className="text-igz-secondary text-body" data-testid="updated-cell">{formatDatetime(row.original.updated, '')}</span>
     )
   },
   {
@@ -106,8 +109,8 @@ export const getApplicationsColumns = projectName => [
     size: 12,
     accessorFn: row => row.owner ?? '',
     cell: ({ row }) => (
-      <span className="text-igz-secondary" data-testid="owner-cell">
-        {row.original.owner || '-'}
+      <span className="text-igz-secondary text-body" data-testid="owner-cell">
+        {row.original.owner || ''}
       </span>
     )
   }

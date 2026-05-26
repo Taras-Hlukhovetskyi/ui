@@ -38,8 +38,7 @@ const SIDECARS_CONFIG_KEY = 'spec.sidecars'
 const getMlrunSpec = application =>
   application?.spec ?? application?.ui?.originalContent?.spec ?? {}
 
-const getNuclioSpec = application =>
-  application?.nuclioFunc?.spec ?? {}
+const getNuclioSpec = application => application?.nuclioFunc?.spec ?? {}
 
 const getMlrunMetadata = application =>
   application?.metadata ?? application?.ui?.originalContent?.metadata ?? {}
@@ -57,29 +56,33 @@ const getApplicationRuntimeResources = application => {
   return sidecar.resources ?? {}
 }
 
+const getNuclioSidecar = application => application?.nuclioFunc?.spec?.sidecars?.[0] ?? {}
+
 const getApplicationRuntimeEnv = application => {
-  const sidecar = getApplicationRuntimeSidecar(application)
-  return sidecar.env?? []
+  const nuclioSidecar = getNuclioSidecar(application)
+  return nuclioSidecar.env ?? []
 }
 
 const getApplicationRuntimeVolumeMounts = application => {
-  const sidecar = getApplicationRuntimeSidecar(application)
-  return sidecar.volumeMounts ?? []
+  const nuclioSidecar = getNuclioSidecar(application)
+  return nuclioSidecar.volumeMounts ?? []
 }
 
-const getGpuLimitValue = (limits) => {
+const getGpuLimitValue = limits => {
   if (!limits) return null
 
   if (limits[NVIDIA_GPU_KEY]) return limits[NVIDIA_GPU_KEY]
 
   const gpuKey =
     Object.keys(limits).find(key => key.includes('/gpu')) ||
-    Object.keys(limits).find(key => !GPU_RESERVED_KEYS.includes(key) && key !== 'cpu' && key !== 'memory')
+    Object.keys(limits).find(
+      key => !GPU_RESERVED_KEYS.includes(key) && key !== 'cpu' && key !== 'memory'
+    )
 
   return gpuKey ? limits[gpuKey] : null
 }
 
-const getPriorityLabel = (priorityClassName) => {
+const getPriorityLabel = priorityClassName => {
   if (!priorityClassName) return null
   const labelName = priorityClassName.split('-').pop()
   return capitalize(labelName)
@@ -97,7 +100,7 @@ const getScaleToZeroWindow = spec => {
   return scaleResources[0].windowSize ?? null
 }
 
-export const getBasicSettingsItems = (application) => {
+export const getBasicSettingsItems = application => {
   const mlrunSpec = getMlrunSpec(application)
   const nuclioSpec = getNuclioSpec(application)
   const securityContext = getSecurityContext(mlrunSpec, nuclioSpec)
@@ -114,15 +117,16 @@ export const getBasicSettingsItems = (application) => {
     },
     {
       label: BASIC_SETTINGS_FIELD.SERVICE_ACCOUNT,
-      value: mlrunSpec.serviceAccount || mlrunSpec.service_account || nuclioSpec.serviceAccount || null // todo: mapping, not clear how to get service account
+      value:
+        mlrunSpec.service_account || nuclioSpec.service_account || null
     },
     {
       label: BASIC_SETTINGS_FIELD.RUN_AS_USER,
-      value: securityContext.runAsUser?.toString() || null // todo: mapping, not clear how to get run as user
+      value: securityContext.runAsUser?.toString() || null
     },
     {
       label: BASIC_SETTINGS_FIELD.RUN_AS_GROUP,
-      value: securityContext.runAsGroup?.toString() || null // todo: mapping, not clear how to get run as group
+      value: securityContext.runAsGroup?.toString() || null
     },
     {
       label: BASIC_SETTINGS_FIELD.LOGGER_LEVEL,
@@ -131,7 +135,7 @@ export const getBasicSettingsItems = (application) => {
   ]
 }
 
-export const getResourcesItems = (application) => {
+export const getResourcesItems = application => {
   const mlrunSpec = getMlrunSpec(application)
   const nuclioSpec = getNuclioSpec(application)
   const resources = getApplicationRuntimeResources(application)
@@ -142,7 +146,9 @@ export const getResourcesItems = (application) => {
   return [
     {
       label: RESOURCES_FIELD.RUN_ON_SPOT_NODES,
-      value: PREEMPTION_MODE_LABEL[application.preemption_mode] ?? (capitalize(application.preemption_mode || '') || null)
+      value:
+        PREEMPTION_MODE_LABEL[application.preemption_mode] ??
+        (capitalize(application.preemption_mode || '') || null)
     },
     {
       label: RESOURCES_FIELD.PODS_PRIORITY,
@@ -182,41 +188,41 @@ export const getResourcesItems = (application) => {
     },
     {
       label: RESOURCES_FIELD.TARGET_CPU,
-      value: (mlrunSpec.targetCPU ?? nuclioSpec.targetCPU)
-        ? `${mlrunSpec.targetCPU ?? nuclioSpec.targetCPU}%`
-        : null // todo: mapping, not clear how to get target CPU
+      value: nuclioSpec.targetCPU ? `${nuclioSpec.targetCPU}%` : null
     }
   ]
 }
 
-
-// mapped
-export const getBuildItems = (application) => {
+export const getBuildItems = application => {
   const mlrunSpec = getMlrunSpec(application)
+  const buildCommands = application.build?.commands ?? mlrunSpec.build?.commands
 
   return [
     {
       label: BUILD_FIELD.IMAGE_NAME,
-      value: application.container_image || null
-    },
-    {
-      label: BUILD_FIELD.BASE_IMAGE,
       value: application.application_image || null
     },
     {
+      label: BUILD_FIELD.BASE_IMAGE,
+      value: application.build?.base_image ?? mlrunSpec.build?.base_image ?? null
+    },
+    {
       label: BUILD_FIELD.BUILD_COMMANDS,
-      value: application.command?.length > 0 ? application.command.join('\n') : null
+      value:
+        Array.isArray(buildCommands) && buildCommands.length > 0 ? buildCommands.join('\n') : null
     },
     {
       label: BUILD_FIELD.PULL_AT_RUNTIME,
-      value: capitalize(mlrunSpec.base_image_pull?.toString() ?? null)
+      value: typeof mlrunSpec.loadSourceOnRun === 'boolean'
+        ? capitalize(String(mlrunSpec.loadSourceOnRun))
+        : null
     }
   ]
 }
 
-export const getEnvironmentVariables = (application) => {
+export const getEnvironmentVariables = application => {
   const env = getApplicationRuntimeEnv(application)
-  // todo: mapping, not clear how to get env variables (in MLRun they empty in nuclio they present for sidecar)
+
   return env.map(envVar => {
     const isSecret = Boolean(envVar.valueFrom?.secretKeyRef)
 
@@ -237,9 +243,10 @@ export const getEnvironmentVariables = (application) => {
   })
 }
 
-export const getLabelsData = (application) => {
+export const getLabelsData = application => {
   const mlrunMetadata = getMlrunMetadata(application)
-  const labels = application.labels ?? mlrunMetadata.labels ?? {}
+  const nuclioMetadata = application?.nuclioFunc?.metadata ?? {}
+  const labels = mlrunMetadata.labels ?? nuclioMetadata.labels ?? {}
 
   if (Array.isArray(labels)) {
     return labels.map(item => ({
@@ -254,8 +261,7 @@ export const getLabelsData = (application) => {
   }))
 }
 
-// mapped
-export const getAnnotationsData = (application) => {
+export const getAnnotationsData = application => {
   const mlrunMetadata = getMlrunMetadata(application)
   const annotations = application.annotations ?? mlrunMetadata.annotations ?? {}
 
@@ -265,7 +271,7 @@ export const getAnnotationsData = (application) => {
   }))
 }
 
-const detectVolumeType = (volume) => {
+const detectVolumeType = volume => {
   if (volume.configMap) return 'configMap'
   if (volume.secret) return 'secret'
   if (volume.persistentVolumeClaim) return 'persistentVolumeClaim'
@@ -292,36 +298,30 @@ const getVolumeDetails = (volume, volumeType) => {
   }
 }
 
-// todo: mapping, not clear how to get volumes (in MLRun they empty in nuclio they present for sidecar)
-export const getVolumesData = (application) => {
-  const mlrunSpec = getMlrunSpec(application)
-  const volumes =
-    Array.isArray(application.volumes) && application.volumes.length > 0
-      ? application.volumes
-      : mlrunSpec.volumes ?? []
+const findVolumeDefinition = (volumeDefinitions, name) => {
+  const entry = volumeDefinitions.find(v => (v.volume ?? v).name === name)
+  return entry?.volume ?? entry
+}
+
+export const getVolumesData = application => {
+  const volumeDefinitions = getNuclioSpec(application).volumes ?? []
   const volumeMounts = getApplicationRuntimeVolumeMounts(application)
 
-  return volumes.map((volume, index) => {
-    const resolvedVolume = volume.volume ?? volume
-    const mount =
-      volumeMounts.find(volumeMount => volumeMount.name === resolvedVolume.name) ??
-      volume.volumeMount ??
-      volumeMounts[index] ??
-      {}
-    const volumeType = detectVolumeType(resolvedVolume)
-    const details = getVolumeDetails(resolvedVolume, volumeType)
+  return volumeMounts.map(mount => {
+    const volume = findVolumeDefinition(volumeDefinitions, mount.name)
+    const volumeType = volume ? detectVolumeType(volume) : 'unknown'
 
     return {
-      name: resolvedVolume.name || mount.name || '',
-      type: VOLUME_TYPE_LABEL[volumeType] || volumeType,
+      name: mount.name || '',
+      type: VOLUME_TYPE_LABEL[volumeType] || '',
       mountPath: mount.mountPath || '',
       readOnly: mount.readOnly ? 'Yes' : 'No',
-      details
+      details: volume ? getVolumeDetails(volume, volumeType) : {}
     }
   })
 }
 
-const getProbeHandlerType = (probe) => {
+const getProbeHandlerType = probe => {
   if (probe.httpGet) return PROBE_HANDLER_TYPE.HTTP
   if (probe.tcpSocket) return PROBE_HANDLER_TYPE.TCP
   if (probe.grpc) return PROBE_HANDLER_TYPE.GRPC
@@ -329,12 +329,15 @@ const getProbeHandlerType = (probe) => {
   return null
 }
 
-const getProbeDetails = (probe) => {
+const getProbeDetails = probe => {
   const handlerType = getProbeHandlerType(probe)
   const items = []
 
   if (probe.initialDelaySeconds != null) {
-    items.push({ label: PROBE_FIELD.INITIAL_DELAY_SECONDS, value: String(probe.initialDelaySeconds) })
+    items.push({
+      label: PROBE_FIELD.INITIAL_DELAY_SECONDS,
+      value: String(probe.initialDelaySeconds)
+    })
   }
   if (probe.periodSeconds != null) {
     items.push({ label: PROBE_FIELD.PERIOD_SECONDS, value: String(probe.periodSeconds) })
@@ -348,24 +351,32 @@ const getProbeDetails = (probe) => {
 
   if (handlerType === PROBE_HANDLER_TYPE.HTTP && probe.httpGet) {
     if (probe.httpGet.path) items.push({ label: PROBE_FIELD.HTTP_PATH, value: probe.httpGet.path })
-    if (probe.httpGet.port) items.push({ label: PROBE_FIELD.HTTP_PORT, value: String(probe.httpGet.port) })
+    if (probe.httpGet.port)
+      items.push({ label: PROBE_FIELD.HTTP_PORT, value: String(probe.httpGet.port) })
   }
 
   if (handlerType === PROBE_HANDLER_TYPE.TCP && probe.tcpSocket) {
-    if (probe.tcpSocket.port) items.push({ label: PROBE_FIELD.TCP_PORT, value: String(probe.tcpSocket.port) })
+    if (probe.tcpSocket.port)
+      items.push({ label: PROBE_FIELD.TCP_PORT, value: String(probe.tcpSocket.port) })
   }
 
   if (handlerType === PROBE_HANDLER_TYPE.GRPC && probe.grpc) {
-    if (probe.grpc.port) items.push({ label: PROBE_FIELD.GRPC_PORT, value: String(probe.grpc.port) })
+    if (probe.grpc.port)
+      items.push({ label: PROBE_FIELD.GRPC_PORT, value: String(probe.grpc.port) })
   }
 
   return items
 }
 
-const getProbeAdditionalSettings = (probe) => {
+const getProbeAdditionalSettings = probe => {
   const knownKeys = new Set([
-    'httpGet', 'tcpSocket', 'grpc', 'exec',
-    'initialDelaySeconds', 'periodSeconds', 'failureThreshold',
+    'httpGet',
+    'tcpSocket',
+    'grpc',
+    'exec',
+    'initialDelaySeconds',
+    'periodSeconds',
+    'failureThreshold',
     'timeoutSeconds'
   ])
 
@@ -377,13 +388,12 @@ const getProbeAdditionalSettings = (probe) => {
     }))
 }
 
-// todo: mapping, not clear how to get rest probes, only few are available in nuclio
-export const getProbesData = (application) => {
-  const mlrunSpec = getMlrunSpec(application)
+export const getProbesData = application => {
   const nuclioSpec = getNuclioSpec(application)
-  const readinessProbe = mlrunSpec.readinessProbe ?? nuclioSpec.readinessProbe
-  const livenessProbe = mlrunSpec.livenessProbe ?? nuclioSpec.livenessProbe
-  const startupProbe = mlrunSpec.startupProbe ?? nuclioSpec.startupProbe
+
+  const readinessProbe = nuclioSpec.readinessProbe
+  const livenessProbe = nuclioSpec.livenessProbe
+  const startupProbe = nuclioSpec.startupProbe
 
   const probes = []
 

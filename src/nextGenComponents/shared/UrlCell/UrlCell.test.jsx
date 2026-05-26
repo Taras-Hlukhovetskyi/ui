@@ -109,9 +109,9 @@ describe('UrlCell', () => {
   // ── Empty state ─────────────────────────────────────────────────────────────
 
   describe('empty state', () => {
-    it('renders N/A when items is empty', () => {
+    it('renders empty element when items is empty', () => {
       renderUrlCell({ items: [] })
-      expect(screen.getByTestId('url-cell-empty')).toHaveTextContent('N/A')
+      expect(screen.getByTestId('url-cell-empty')).toBeEmptyDOMElement()
     })
 
     it('does not render the cell wrapper when items is empty', () => {

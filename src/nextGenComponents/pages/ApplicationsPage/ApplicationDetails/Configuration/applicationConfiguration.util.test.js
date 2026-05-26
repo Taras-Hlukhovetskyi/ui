@@ -41,16 +41,8 @@ const MOCK_APPLICATION = {
   application_image: 'my-app/sidecar:latest',
   image: 'mlrun/mlrun',
   build: {
-    baseImage: 'python:3.9',
+    base_image: 'python:3.9',
     commands: ['pip install pandas', 'pip install numpy']
-  },
-  env: [
-    { name: 'API_KEY', value: 'abc123' },
-    { name: 'SECRET_VAR', valueFrom: { secretKeyRef: { key: 'accessKey', name: 'my-secret' } } }
-  ],
-  resources: {
-    requests: { memory: '1Mi', cpu: '25m' },
-    limits: { memory: '20Gi', cpu: '2', 'nvidia.com/gpu': '3' }
   },
   volumes: [
     { name: 'v3io', flexVolume: { driver: 'v3io/fuse' } }
@@ -59,6 +51,33 @@ const MOCK_APPLICATION = {
     { name: 'v3io', mountPath: '/v3io', readOnly: false }
   ],
   labels: { owner: 'admin' },
+  config: {
+    'spec.sidecars': [
+      {
+        resources: {
+          requests: { memory: '1Mi', cpu: '25m' },
+          limits: { memory: '20Gi', cpu: '2', 'nvidia.com/gpu': '3' }
+        },
+        readinessProbe: {
+          httpGet: { path: 'https://www.example.com/', port: 8080 },
+          initialDelaySeconds: 20,
+          periodSeconds: 15,
+          failureThreshold: 40,
+          timeoutSeconds: 12,
+          terminationGracePeriodSeconds: 90
+        },
+        livenessProbe: {
+          tcpSocket: { port: 8080 },
+          initialDelaySeconds: 10,
+          periodSeconds: 5
+        },
+        startupProbe: {
+          grpc: { port: 9090 },
+          initialDelaySeconds: 5
+        }
+      }
+    ]
+  },
   spec: {
     disable: false,
     serviceAccount: 'my-service-account',
@@ -74,23 +93,6 @@ const MOCK_APPLICATION = {
       functionSourceCode: 'base64...',
       noBaseImagesPull: false,
       codeEntryType: 'sourceCode'
-    },
-    readinessProbe: {
-      httpGet: { path: 'https://www.example.com/', port: 8080 },
-      initialDelaySeconds: 20,
-      periodSeconds: 15,
-      failureThreshold: 40,
-      timeoutSeconds: 12,
-      terminationGracePeriodSeconds: 90
-    },
-    livenessProbe: {
-      tcpSocket: { port: 8080 },
-      initialDelaySeconds: 10,
-      periodSeconds: 5
-    },
-    startupProbe: {
-      grpc: { port: 9090 },
-      initialDelaySeconds: 5
     }
   },
   nuclioFunc: {
@@ -122,6 +124,17 @@ const MOCK_APPLICATION = {
         noBaseImagesPull: false,
         codeEntryType: 'sourceCode'
       },
+      sidecars: [
+        {
+          env: [
+            { name: 'API_KEY', value: 'abc123' },
+            { name: 'SECRET_VAR', valueFrom: { secretKeyRef: { key: 'accessKey', name: 'my-secret' } } }
+          ],
+          volumeMounts: [
+            { name: 'v3io', mountPath: '/v3io', readOnly: false }
+          ]
+        }
+      ],
       volumes: [
         {
           volume: { name: 'serving-conf', configMap: { name: 'Map_name_example' } },
@@ -181,10 +194,13 @@ describe('applicationConfiguration.util', () => {
       expect(items[5]).toEqual({ label: 'Logger level', value: 'Debug' })
     })
 
-    it('returns "No" for Enabled when spec.disable is true', () => {
+    it('returns "No" for Enabled when nuclioFunc disable is true', () => {
       const app = {
         ...MOCK_APPLICATION,
-        spec: { ...MOCK_APPLICATION.spec, disable: true }
+        nuclioFunc: {
+          ...MOCK_APPLICATION.nuclioFunc,
+          spec: { ...MOCK_APPLICATION.nuclioFunc.spec, disable: true }
+        }
       }
       const items = getBasicSettingsItems(app)
       expect(items[0].value).toBe('No')
@@ -203,11 +219,10 @@ describe('applicationConfiguration.util', () => {
       expect(items[0]).toEqual({ label: 'Enabled', value: 'No' })
     })
 
-    it('prefers MLRun spec over enriched Nuclio spec', () => {
+    it('prefers MLRun spec for most fields but reads Enabled from Nuclio', () => {
       const app = {
         ...MOCK_APPLICATION,
         spec: {
-          disable: false,
           serviceAccount: 'mlrun-service-account',
           securityContext: { runAsUser: 3000, runAsGroup: 4000 },
           loggerSinks: [{ level: 'info' }]
@@ -223,7 +238,7 @@ describe('applicationConfiguration.util', () => {
       }
       const items = getBasicSettingsItems(app)
 
-      expect(items[0]).toEqual({ label: 'Enabled', value: 'Yes' })
+      expect(items[0]).toEqual({ label: 'Enabled', value: 'No' })
       expect(items[2]).toEqual({ label: 'Service Account', value: 'mlrun-service-account' })
       expect(items[3]).toEqual({ label: 'Run as user', value: '3000' })
       expect(items[4]).toEqual({ label: 'Run as group', value: '4000' })
@@ -357,14 +372,13 @@ describe('applicationConfiguration.util', () => {
       expect(items[0]).toEqual({ label: 'Image name', value: 'sidecar-image:v2' })
     })
 
-    it('falls back to image when application_image is empty', () => {
+    it('returns null when application_image is empty', () => {
       const app = {
         ...MOCK_APPLICATION,
-        application_image: '',
-        image: 'fallback-image:v1'
+        application_image: ''
       }
       const items = getBuildItems(app)
-      expect(items[0]).toEqual({ label: 'Image name', value: 'fallback-image:v1' })
+      expect(items[0]).toEqual({ label: 'Image name', value: null })
     })
 
     it('returns null for pull at runtime when field is not boolean', () => {
@@ -372,15 +386,15 @@ describe('applicationConfiguration.util', () => {
       expect(items[3].value).toBeNull()
     })
 
-    it('returns "Yes" when noBaseImagesPull is false', () => {
+    it('returns "True" when base_image_pull is true', () => {
       const app = {
         ...MINIMAL_APPLICATION,
         spec: {
-          build: { noBaseImagesPull: false }
+          base_image_pull: true
         }
       }
       const items = getBuildItems(app)
-      expect(items[3].value).toBe('Yes')
+      expect(items[3].value).toBe('True')
     })
   })
 
@@ -402,22 +416,41 @@ describe('applicationConfiguration.util', () => {
       expect(result).toEqual([])
     })
 
-    it('prefers Application Runtime sidecar env over reverse proxy env', () => {
+    it('prefers Nuclio sidecar env over MLRun sidecar config env', () => {
       const app = {
         ...MOCK_APPLICATION,
-        env: [{ name: 'REVERSE_PROXY_ENV', value: 'proxy' }],
         config: {
           'spec.sidecars': [
             {
-              env: [{ name: 'SIDECAR_ENV', value: 'sidecar' }]
+              env: [{ name: 'MLRUN_SIDECAR_ENV', value: 'mlrun' }]
             }
           ]
+        },
+        nuclioFunc: {
+          spec: {
+            sidecars: [
+              {
+                env: [{ name: 'NUCLIO_SIDECAR_ENV', value: 'nuclio' }]
+              }
+            ]
+          }
         }
       }
 
       const result = getEnvironmentVariables(app)
 
-      expect(result).toEqual([{ type: 'Value', key: 'SIDECAR_ENV', value: 'sidecar' }])
+      expect(result).toEqual([{ type: 'Value', key: 'NUCLIO_SIDECAR_ENV', value: 'nuclio' }])
+    })
+
+    it('returns empty array when Nuclio sidecar has no env', () => {
+      const app = {
+        ...MOCK_APPLICATION,
+        nuclioFunc: { spec: {} }
+      }
+
+      const result = getEnvironmentVariables(app)
+
+      expect(result).toEqual([])
     })
   })
 
@@ -465,63 +498,47 @@ describe('applicationConfiguration.util', () => {
   })
 
   describe('getVolumesData', () => {
-    it('returns application volumes with details', () => {
+    it('returns volume mounts with mount info even without matching volume definition', () => {
       const result = getVolumesData(MOCK_APPLICATION)
 
       expect(result).toHaveLength(1)
       expect(result[0].name).toBe('v3io')
-      expect(result[0].type).toBe('Flex volume')
       expect(result[0].mountPath).toBe('/v3io')
       expect(result[0].readOnly).toBe('No')
-      expect(result[0].details.Driver).toBe('v3io/fuse')
     })
 
-    it('uses MLRun spec volumes when normalized application volumes are absent', () => {
+    it('enriches volume mounts with type and details from matching volume definition', () => {
       const app = {
         ...MOCK_APPLICATION,
-        volumes: [],
-        volume_mounts: [],
-        spec: {
-          ...MOCK_APPLICATION.spec,
-          volumes: [
-            {
-              volume: { name: 'serving-conf', configMap: { name: 'Map_name_example' } },
-              volumeMount: { name: 'serving-conf', mountPath: '/config', readOnly: true }
-            }
-          ]
+        nuclioFunc: {
+          ...MOCK_APPLICATION.nuclioFunc,
+          spec: {
+            ...MOCK_APPLICATION.nuclioFunc.spec,
+            volumes: [
+              {
+                volume: { name: 'data-vol', persistentVolumeClaim: { claimName: 'my-pvc' } },
+                volumeMount: { name: 'data-vol', mountPath: '/data', readOnly: false }
+              }
+            ],
+            sidecars: [
+              {
+                volumeMounts: [{ name: 'data-vol', mountPath: '/sidecar-data', readOnly: true }]
+              }
+            ]
+          }
         }
       }
       const result = getVolumesData(app)
 
       expect(result).toHaveLength(1)
-      expect(result[0].name).toBe('serving-conf')
-      expect(result[0].type).toBe('Config map')
-      expect(result[0].mountPath).toBe('/config')
+      expect(result[0].name).toBe('data-vol')
+      expect(result[0].type).toBe('PVC')
+      expect(result[0].mountPath).toBe('/sidecar-data')
       expect(result[0].readOnly).toBe('Yes')
-      expect(result[0].details['Config map name']).toBe('Map_name_example')
+      expect(result[0].details['Claim name']).toBe('my-pvc')
     })
 
-    it('prefers Application Runtime sidecar volume mounts over reverse proxy volume mounts', () => {
-      const app = {
-        ...MOCK_APPLICATION,
-        volume_mounts: [{ name: 'v3io', mountPath: '/proxy', readOnly: true }],
-        config: {
-          'spec.sidecars': [
-            {
-              volumeMounts: [{ name: 'v3io', mountPath: '/sidecar', readOnly: false }]
-            }
-          ]
-        }
-      }
-      const result = getVolumesData(app)
-
-      expect(result).toHaveLength(1)
-      expect(result[0].name).toBe('v3io')
-      expect(result[0].mountPath).toBe('/sidecar')
-      expect(result[0].readOnly).toBe('No')
-    })
-
-    it('returns empty array when no volumes', () => {
+    it('returns empty array when no volume mounts', () => {
       const result = getVolumesData(MINIMAL_APPLICATION)
       expect(result).toEqual([])
     })
@@ -540,14 +557,18 @@ describe('applicationConfiguration.util', () => {
       expect(result[2].handlerType).toBe('gRPC')
     })
 
-    it('prefers probes from MLRun spec over enriched Nuclio spec', () => {
+    it('prefers probes from sidecar config over enriched Nuclio spec', () => {
       const app = {
         ...MOCK_APPLICATION,
-        spec: {
-          readinessProbe: {
-            httpGet: { path: '/mlrun-health', port: 3000 },
-            initialDelaySeconds: 7
-          }
+        config: {
+          'spec.sidecars': [
+            {
+              readinessProbe: {
+                httpGet: { path: '/sidecar-health', port: 3000 },
+                initialDelaySeconds: 7
+              }
+            }
+          ]
         },
         nuclioFunc: {
           spec: {
@@ -561,15 +582,15 @@ describe('applicationConfiguration.util', () => {
       const result = getProbesData(app)
 
       expect(result).toHaveLength(1)
-      expect(result[0].details).toContainEqual({ label: 'HTTP path', value: '/mlrun-health' })
+      expect(result[0].details).toContainEqual({ label: 'HTTP path', value: '/sidecar-health' })
       expect(result[0].details).toContainEqual({ label: 'HTTP port', value: '3000' })
       expect(result[0].details).toContainEqual({ label: 'Initial delay seconds', value: '7' })
     })
 
-    it('uses Nuclio probes when MLRun spec does not include probes', () => {
+    it('uses Nuclio probes when sidecar config does not include probes', () => {
       const app = {
         ...MOCK_APPLICATION,
-        spec: {},
+        config: {},
         nuclioFunc: {
           spec: {
             readinessProbe: {

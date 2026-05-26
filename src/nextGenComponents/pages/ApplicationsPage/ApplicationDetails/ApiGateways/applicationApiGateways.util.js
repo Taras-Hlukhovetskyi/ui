@@ -25,7 +25,13 @@ export const buildGatewayEndpoint = gateway => {
 
   if (!host) return ''
 
-  return path ? `${host}/${path}` : host
+  return path && path !== '/' ? `${host}/${path}` : host
+}
+
+export const buildGatewayUrl = gateway => {
+  const endpoint = buildGatewayEndpoint(gateway)
+  if (!endpoint) return ''
+  return endpoint.startsWith('http') ? endpoint : `https://${endpoint}`
 }
 
 export const buildMatchNames = (projectName, functionName, functionTag) => {
@@ -59,17 +65,38 @@ export const filterGatewaysByFunction = (gateways, projectName, functionName, fu
     })
 
     if (matchingUpstream) {
+      const hasDirectPort = Boolean(matchingUpstream.port)
+
       result.push({
         ...gateway,
-        relationship: matchingUpstream.percentage
-          ? GATEWAY_RELATIONSHIP.INDIRECT
-          : GATEWAY_RELATIONSHIP.DIRECT,
+        relationship: hasDirectPort
+          ? GATEWAY_RELATIONSHIP.DIRECT
+          : GATEWAY_RELATIONSHIP.INDIRECT,
         matchedUpstream: matchingUpstream
       })
     }
 
     return result
   }, [])
+}
+
+export const computeGatewayUrls = (gateways, projectName, functionName, functionTag) => {
+  const matched = filterGatewaysByFunction(gateways, projectName, functionName, functionTag)
+  const directUrls = []
+  const indirectUrls = []
+
+  for (const gateway of matched) {
+    const url = buildGatewayUrl(gateway)
+    if (!url) continue
+
+    if (gateway.relationship === GATEWAY_RELATIONSHIP.DIRECT) {
+      directUrls.push(url)
+    } else {
+      indirectUrls.push(url)
+    }
+  }
+
+  return { directUrls, indirectUrls }
 }
 
 export const filterApiGatewaysBySearchFields = (gateways, filters) => {

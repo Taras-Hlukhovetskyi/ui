@@ -94,27 +94,27 @@ const EndpointDetailsPopup = ({ open, onClose, endpointUid, endpointName }) => {
         <div className="flex flex-col" data-testid="endpoint-details-content">
           <InfoRow
             label="Name"
-            value={endpoint.metadata?.name ?? '-'}
+            value={endpoint.metadata?.name ?? ''}
             testId="endpoint-detail-name"
           />
           <InfoRow
             label="Function"
-            value={endpoint.spec?.function_name ?? '-'}
+            value={endpoint.spec?.function_name ?? ''}
             testId="endpoint-detail-function"
           />
           <InfoRow
             label="Function tag"
-            value={endpoint.spec?.function_tag ?? '-'}
+            value={endpoint.spec?.function_tag ?? ''}
             testId="endpoint-detail-function-tag"
           />
           <InfoRow
             label="Model class"
-            value={endpoint.spec?.model_class ?? '-'}
+            value={endpoint.spec?.model_class ?? ''}
             testId="endpoint-detail-class"
           />
           <InfoRow
             label="Model URI"
-            value={endpoint.spec?.model_uri ?? '-'}
+            value={endpoint.spec?.model_uri ?? ''}
             testId="endpoint-detail-model-uri"
           />
           <InfoRow
@@ -123,19 +123,19 @@ const EndpointDetailsPopup = ({ open, onClose, endpointUid, endpointName }) => {
               labelBadges.length > 0 ? (
                 <BadgeCell badges={labelBadges} />
               ) : (
-                '-'
+                ''
               )
             }
             testId="endpoint-detail-labels"
           />
           <InfoRow
             label="First invocation"
-            value={formatDatetime(endpoint.status?.first_request, '-')}
+            value={formatDatetime(endpoint.status?.first_request, '')}
             testId="endpoint-detail-first-invocation"
           />
           <InfoRow
             label="Last invocation"
-            value={formatDatetime(endpoint.status?.last_request, '-')}
+            value={formatDatetime(endpoint.status?.last_request, '')}
             testId="endpoint-detail-last-invocation"
           />
           <InfoRow
@@ -150,7 +150,7 @@ const EndpointDetailsPopup = ({ open, onClose, endpointUid, endpointName }) => {
           />
           <InfoRow
             label="Monitoring mode"
-            value={endpoint.status?.monitoring_mode ?? '-'}
+            value={endpoint.status?.monitoring_mode ?? ''}
             testId="endpoint-detail-monitoring-mode"
           />
         </div>

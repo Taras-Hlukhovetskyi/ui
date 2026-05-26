@@ -35,7 +35,7 @@ const LogsBlock = ({ logs, isLoading = false }) => {
 
   return (
     <div
-      className="rounded-md h-[300px] overflow-y-auto px-2 pt-2 pb-5"
+      className="rounded-md h-full overflow-y-auto px-2 pt-2 pb-5"
       style={{ backgroundColor: '#0c0c0c' }}
       data-testid="logs-block"
     >

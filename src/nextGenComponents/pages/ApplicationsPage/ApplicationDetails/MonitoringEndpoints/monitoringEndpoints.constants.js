@@ -31,7 +31,6 @@ export const DRIFT_STATUS_LABEL = {
 }
 
 export const MONITORING_ENDPOINTS_FILTER_CONFIG = {
-  name: { initialValue: '', label: 'Name' },
   label: { initialValue: '', label: 'Label' }
 }
 

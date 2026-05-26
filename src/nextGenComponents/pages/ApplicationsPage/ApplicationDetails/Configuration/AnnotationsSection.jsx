@@ -35,7 +35,11 @@ const AnnotationsSection = ({ application }) => {
     return <NoData message={NO_DATA_MESSAGE} />
   }
 
-  return <DataTable data={data} columns={annotationsColumns} className={TABLE_CLASS} />
+  return (
+    <div className="flex-1 min-h-0 flex flex-col overflow-hidden" data-testid="annotations-section">
+      <DataTable data={data} columns={annotationsColumns} className={`${TABLE_CLASS} flex-1 min-h-0`} />
+    </div>
+  )
 }
 
 AnnotationsSection.propTypes = {
