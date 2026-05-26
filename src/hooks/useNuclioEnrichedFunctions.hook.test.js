@@ -19,7 +19,7 @@ such restriction.
 */
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 
-import { enrichFunctionsWithNuclio, computeCounters } from './useNuclioEnrichedFunctions.hook'
+import { enrichFunctionsWithNuclio, computeCounters } from '../utils/nuclioEnrichment.util'
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -128,10 +128,7 @@ describe('useNuclioEnrichedFunctions pure helpers', () => {
     })
 
     it('enriches multiple functions independently', () => {
-      const funcs = [
-        makeFunc('a', 'proj'),
-        makeFunc('b', 'proj')
-      ]
+      const funcs = [makeFunc('a', 'proj'), makeFunc('b', 'proj')]
       const nuclioMap = {
         'proj-a': makeNuclioFunc('ready', 'alice'),
         'proj-b': makeNuclioFunc('error', 'bob')

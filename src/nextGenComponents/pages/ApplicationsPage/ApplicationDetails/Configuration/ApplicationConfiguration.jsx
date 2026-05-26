@@ -28,10 +28,7 @@ import AnnotationsSection from './AnnotationsSection'
 import VolumesSection from './VolumesSection'
 import BuildSection from './BuildSection'
 import ProbesSection from './ProbesSection'
-import {
-  CONFIGURATION_SECTION,
-  CONFIGURATION_SECTIONS
-} from './applicationConfiguration.constants'
+import { CONFIGURATION_SECTION, CONFIGURATION_SECTIONS } from './applicationConfiguration.constants'
 import { applicationShape } from './applicationConfiguration.propTypes'
 
 const SECTION_COMPONENTS = {

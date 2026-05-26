@@ -30,22 +30,23 @@ let mockOpen = false
 let mockOnOpenChange = vi.fn()
 
 vi.mock('igz-controls/nextGenComponents', () => ({
+  cn: (...args) => args.filter(Boolean).join(' '),
   Collapsible: ({ children, open, onOpenChange }) => {
     mockOpen = open
     mockOnOpenChange = onOpenChange
-    return <div data-testid="collapsible" data-open={open}>{children}</div>
+    return (
+      <div data-testid="collapsible" data-open={open}>
+        {children}
+      </div>
+    )
   },
   CollapsibleTrigger: ({ children, ...props }) => (
-    <button
-      {...props}
-      onClick={() => mockOnOpenChange(!mockOpen)}
-    >
+    <button {...props} onClick={() => mockOnOpenChange(!mockOpen)}>
       {children}
     </button>
   ),
-  CollapsibleContent: ({ children, ...props }) => (
+  CollapsibleContent: ({ children, ...props }) =>
     mockOpen ? <div {...props}>{children}</div> : null
-  )
 }))
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

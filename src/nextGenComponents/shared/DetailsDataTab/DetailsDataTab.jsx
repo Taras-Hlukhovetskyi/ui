@@ -42,10 +42,10 @@ const DetailsDataTab = ({
 }) => {
   const [filters, setFilters] = useState(() => getInitialFiltersByConfig(filtersConfig))
 
-  const filteredData = useMemo(
-    () => (filterFn ? filterFn(data, filters) : data),
-    [data, filters, filterFn]
-  )
+  const filteredData = useMemo(() => {
+    const safeData = data ?? []
+    return filterFn ? filterFn(safeData, filters) : safeData
+  }, [data, filters, filterFn])
 
   if (isLoading) {
     return <Loader />

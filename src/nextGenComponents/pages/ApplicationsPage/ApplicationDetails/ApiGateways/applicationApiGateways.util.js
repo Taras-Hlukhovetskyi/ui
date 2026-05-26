@@ -17,87 +17,15 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { GATEWAY_RELATIONSHIP, NUCLIO_OWNER_LABEL } from '../applicationDetails.constants'
+import { NUCLIO_OWNER_LABEL } from '../applicationDetails.constants'
 
-export const buildGatewayEndpoint = gateway => {
-  const host = gateway.spec?.host ?? ''
-  const path = gateway.spec?.path ?? ''
-
-  if (!host) return ''
-
-  return path && path !== '/' ? `${host}/${path}` : host
-}
-
-export const buildGatewayUrl = gateway => {
-  const endpoint = buildGatewayEndpoint(gateway)
-  if (!endpoint) return ''
-  return endpoint.startsWith('http') ? endpoint : `https://${endpoint}`
-}
-
-export const buildMatchNames = (projectName, functionName, functionTag) => {
-  const names = new Set()
-
-  names.add(`${projectName}/${functionName}`)
-  names.add(`${projectName}-${functionName}`)
-  names.add(functionName)
-
-  if (functionTag) {
-    names.add(`${projectName}/${functionName}:${functionTag}`)
-    names.add(`${projectName}-${functionName}:${functionTag}`)
-    names.add(`${functionName}:${functionTag}`)
-  }
-
-  return names
-}
-
-export const filterGatewaysByFunction = (gateways, projectName, functionName, functionTag) => {
-  const matchNames = buildMatchNames(projectName, functionName, functionTag)
-
-  return gateways.reduce((result, gateway) => {
-    const upstreams = gateway.spec?.upstreams ?? []
-    const matchingUpstream = upstreams.find(upstream => {
-      const upstreamName = upstream.nucliofunction?.name ?? ''
-
-      if (matchNames.has(upstreamName)) return true
-
-      const nameWithoutTag = upstreamName.split(':')[0]
-      return nameWithoutTag !== upstreamName && matchNames.has(nameWithoutTag)
-    })
-
-    if (matchingUpstream) {
-      const hasDirectPort = Boolean(matchingUpstream.port)
-
-      result.push({
-        ...gateway,
-        relationship: hasDirectPort
-          ? GATEWAY_RELATIONSHIP.DIRECT
-          : GATEWAY_RELATIONSHIP.INDIRECT,
-        matchedUpstream: matchingUpstream
-      })
-    }
-
-    return result
-  }, [])
-}
-
-export const computeGatewayUrls = (gateways, projectName, functionName, functionTag) => {
-  const matched = filterGatewaysByFunction(gateways, projectName, functionName, functionTag)
-  const directUrls = []
-  const indirectUrls = []
-
-  for (const gateway of matched) {
-    const url = buildGatewayUrl(gateway)
-    if (!url) continue
-
-    if (gateway.relationship === GATEWAY_RELATIONSHIP.DIRECT) {
-      directUrls.push(url)
-    } else {
-      indirectUrls.push(url)
-    }
-  }
-
-  return { directUrls, indirectUrls }
-}
+export {
+  buildGatewayEndpoint,
+  buildGatewayUrl,
+  buildMatchNames,
+  filterGatewaysByFunction,
+  computeGatewayUrls
+} from '../../../../../utils/apiGateway.util'
 
 export const filterApiGatewaysBySearchFields = (gateways, filters) => {
   const nameFilter = filters.name?.toLowerCase() ?? ''
@@ -109,7 +37,10 @@ export const filterApiGatewaysBySearchFields = (gateways, filters) => {
       return false
     }
 
-    if (ownerFilter && !gateway.metadata?.labels?.[NUCLIO_OWNER_LABEL]?.toLowerCase().includes(ownerFilter)) {
+    if (
+      ownerFilter &&
+      !gateway.metadata?.labels?.[NUCLIO_OWNER_LABEL]?.toLowerCase().includes(ownerFilter)
+    ) {
       return false
     }
 

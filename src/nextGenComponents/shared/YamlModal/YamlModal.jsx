@@ -22,7 +22,13 @@ import PropTypes from 'prop-types'
 import Prism from 'prismjs'
 import yaml from 'js-yaml'
 
-import { Button, Dialog, DialogClose, DialogContent, DialogTitle } from 'igz-controls/nextGenComponents'
+import {
+  Button,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTitle
+} from 'igz-controls/nextGenComponents'
 import CloseIcon from 'igz-controls/images/close.svg?react'
 import { getValidYaml } from './yaml.utils'
 
@@ -66,10 +72,7 @@ const YamlModal = ({ open, onClose, data = null }) => {
           </DialogClose>
         </div>
         <div className="flex-1 px-5 pb-5 min-h-0 flex flex-col">
-          <div
-            className="flex-1 overflow-y-auto overflow-x-hidden"
-            data-testid="yaml-modal-body"
-          >
+          <div className="flex-1 overflow-y-auto overflow-x-hidden" data-testid="yaml-modal-body">
             {dumpError ? (
               <p className="text-sm text-red-500" data-testid="yaml-modal-error">
                 Failed to serialize YAML content.

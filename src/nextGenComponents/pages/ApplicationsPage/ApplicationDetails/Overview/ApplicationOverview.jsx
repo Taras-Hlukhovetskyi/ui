@@ -26,13 +26,14 @@ import DetailsInfoTable from '../../../../shared/DetailsInfoTable/DetailsInfoTab
 import UrlList from '../../../../shared/UrlList'
 import { OVERVIEW_FIELD } from '../applicationDetails.constants'
 import { TOOLTIP_DELAY_MS } from '../Configuration/applicationConfiguration.constants'
+import { UNKNOWN_STATE_LABEL, UNKNOWN_STATE_CLASS } from '../../applications.constants'
 
 const CONTENT_MAX_WIDTH = 'max-w-[800px]'
 
 const ApplicationOverview = ({ application }) => {
   const overviewItems = useMemo(() => {
-    const stateLabel = application.state?.label ?? application.state?.value ?? 'Unknown'
-    const stateClassName = application.state?.className ?? 'state-unknown-function'
+    const stateLabel = application.state?.label ?? application.state?.value ?? UNKNOWN_STATE_LABEL
+    const stateClassName = application.state?.className ?? UNKNOWN_STATE_CLASS
 
     const sidecarConfig = application.config?.['spec.sidecars']?.[0] ?? {}
     const sidecarCommand = sidecarConfig.command
@@ -100,17 +101,21 @@ const ApplicationOverview = ({ application }) => {
       },
       {
         label: OVERVIEW_FIELD.COMMANDS,
-        value: sidecarCommand?.length > 0
-          ? (Array.isArray(sidecarCommand) ? sidecarCommand.join('\n') : sidecarCommand)
-          : null
+        value:
+          sidecarCommand?.length > 0
+            ? Array.isArray(sidecarCommand)
+              ? sidecarCommand.join('\n')
+              : sidecarCommand
+            : null
       },
       {
         label: OVERVIEW_FIELD.ARGUMENTS,
-        value: sidecarArgs?.length > 0 ? (
-          <span className="whitespace-pre-wrap">
-            {Array.isArray(sidecarArgs) ? sidecarArgs.join('\n') : sidecarArgs}
-          </span>
-        ) : null
+        value:
+          sidecarArgs?.length > 0 ? (
+            <span className="whitespace-pre-wrap">
+              {Array.isArray(sidecarArgs) ? sidecarArgs.join('\n') : sidecarArgs}
+            </span>
+          ) : null
       }
     ]
   }, [application])

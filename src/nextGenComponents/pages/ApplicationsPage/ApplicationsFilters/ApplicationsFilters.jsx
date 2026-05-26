@@ -147,6 +147,7 @@ const ApplicationsFilters = ({ filters, applyFilter, applyMultipleFilters }) => 
       <div className="relative w-[280px]" data-testid="name-filter">
         <Input
           placeholder="Search by name..."
+          aria-label="Search applications by name"
           className="pl-3 pr-9 h-10"
           data-testid="name-filter-input"
           value={nameValue}
@@ -157,11 +158,12 @@ const ApplicationsFilters = ({ filters, applyFilter, applyMultipleFilters }) => 
         />
         <button
           type="button"
+          aria-label="Search by name"
           className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-igz-accent-hover transition-colors cursor-pointer"
           onClick={handleNameSubmit}
           data-testid="name-filter-search-button"
         >
-          <SearchIcon className="h-4 w-4" />
+          <SearchIcon className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
 

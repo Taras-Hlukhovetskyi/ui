@@ -126,11 +126,15 @@ vi.mock('./ApplicationsFilters/ApplicationsFilters', () => ({
 }))
 
 vi.mock('../../shared/ActionBar/ActionBar', () => ({
-  default: ({ children }) => <div data-testid="action-bar">{children?.({
-    filters: {},
-    applyFilter: vi.fn(),
-    applyMultipleFilters: vi.fn()
-  })}</div>
+  default: ({ children }) => (
+    <div data-testid="action-bar">
+      {children?.({
+        filters: {},
+        applyFilter: vi.fn(),
+        applyMultipleFilters: vi.fn()
+      })}
+    </div>
+  )
 }))
 
 vi.mock('../../../common/Breadcrumbs/Breadcrumbs', () => ({
@@ -152,12 +156,16 @@ vi.mock('../../shared/YamlModal/YamlModal', () => ({
   default: ({ open }) => (open ? <div data-testid="yaml-modal" /> : null)
 }))
 
-vi.mock('./applicationsPage.util', () => ({
-  checkForSelectedApplication: vi.fn(),
-  buildApiFilters: vi.fn(() => ({})),
-  filterApplications: vi.fn(apps => apps),
-  parseApplicationsQueryParams: vi.fn()
-}))
+vi.mock('./applicationsPage.util', () => {
+  const mockCheckForSelectedApplication = vi.fn()
+  mockCheckForSelectedApplication.cancel = vi.fn()
+  return {
+    checkForSelectedApplication: mockCheckForSelectedApplication,
+    buildApiFilters: vi.fn(() => ({})),
+    filterApplications: vi.fn(apps => apps),
+    parseApplicationsQueryParams: vi.fn()
+  }
+})
 
 vi.mock('../../shared/NoData/NoData', () => ({
   default: ({ message }) => <div data-testid="no-data">{message}</div>
@@ -253,9 +261,9 @@ describe('ApplicationsPage', () => {
 
     it('renders a status dot for each row', () => {
       renderPage()
-      expect(
-        screen.getAllByTestId(/^application-status-dot-/)
-      ).toHaveLength(SAMPLE_APPLICATIONS.length)
+      expect(screen.getAllByTestId(/^application-status-dot-/)).toHaveLength(
+        SAMPLE_APPLICATIONS.length
+      )
     })
   })
 

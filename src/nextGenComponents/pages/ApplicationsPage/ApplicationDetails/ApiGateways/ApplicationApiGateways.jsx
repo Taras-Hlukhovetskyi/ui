@@ -20,6 +20,7 @@ such restriction.
 import { useCallback, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 import { FileCode2 } from 'lucide-react'
+import { omit } from 'lodash'
 
 import DetailsDataTab from '../../../../shared/DetailsDataTab/DetailsDataTab'
 import YamlModal from '../../../../shared/YamlModal/YamlModal'
@@ -28,14 +29,15 @@ import { apiGatewaysColumns } from './apiGatewaysColumns'
 import { filterApiGatewaysBySearchFields } from './applicationApiGateways.util'
 import {
   API_GATEWAYS_FILTER_CONFIG,
-  API_GATEWAYS_NO_DATA_MESSAGE
+  API_GATEWAYS_NO_DATA_MESSAGE,
+  DEFAULT_NAME_SORTING,
+  FILTER_ALL_OPTION,
+  VIEW_YAML_LABEL
 } from '../applicationDetails.constants'
-
-const ALL_OPTION = { value: 'all', label: 'All' }
-const INITIAL_SORTING = [{ id: 'name', desc: false }]
 
 const ApplicationApiGateways = ({ application }) => {
   const [yamlGateway, setYamlGateway] = useState(null)
+  const handleCloseYaml = useCallback(() => setYamlGateway(null), [])
   const applicationGateways = useMemo(
     () => application.applicationGateways ?? [],
     [application.applicationGateways]
@@ -46,16 +48,16 @@ const ApplicationApiGateways = ({ application }) => {
       applicationGateways.map(gw => gw.spec?.authenticationMode).filter(Boolean)
     )
 
-    return [
-      ALL_OPTION,
-      ...[...modes].sort().map(mode => ({ value: mode, label: mode }))
-    ]
+    return [FILTER_ALL_OPTION, ...[...modes].sort().map(mode => ({ value: mode, label: mode }))]
   }, [applicationGateways])
 
   const rowActions = useCallback(
-    // eslint-disable-next-line no-unused-vars
-    ({ relationship, matchedUpstream, ...originalGateway }) => [
-      { label: 'View YAML', icon: FileCode2, onClick: () => setYamlGateway(originalGateway) }
+    gateway => [
+      {
+        label: VIEW_YAML_LABEL,
+        icon: FileCode2,
+        onClick: () => setYamlGateway(omit(gateway, ['relationship', 'matchedUpstream']))
+      }
     ],
     []
   )
@@ -83,14 +85,10 @@ const ApplicationApiGateways = ({ application }) => {
         renderFilters={renderFilters}
         rowActions={rowActions}
         showRefreshButton={false}
-        initialSorting={INITIAL_SORTING}
+        initialSorting={DEFAULT_NAME_SORTING}
         noDataMessage={API_GATEWAYS_NO_DATA_MESSAGE}
       />
-      <YamlModal
-        open={!!yamlGateway}
-        data={yamlGateway}
-        onClose={() => setYamlGateway(null)}
-      />
+      <YamlModal open={!!yamlGateway} data={yamlGateway} onClose={handleCloseYaml} />
     </>
   )
 }

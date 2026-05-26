@@ -117,8 +117,7 @@ export const getBasicSettingsItems = application => {
     },
     {
       label: BASIC_SETTINGS_FIELD.SERVICE_ACCOUNT,
-      value:
-        mlrunSpec.service_account || nuclioSpec.service_account || null
+      value: mlrunSpec.service_account || nuclioSpec.service_account || null
     },
     {
       label: BASIC_SETTINGS_FIELD.RUN_AS_USER,
@@ -213,9 +212,10 @@ export const getBuildItems = application => {
     },
     {
       label: BUILD_FIELD.PULL_AT_RUNTIME,
-      value: typeof mlrunSpec.loadSourceOnRun === 'boolean'
-        ? capitalize(String(mlrunSpec.loadSourceOnRun))
-        : null
+      value:
+        typeof mlrunSpec.loadSourceOnRun === 'boolean'
+          ? capitalize(String(mlrunSpec.loadSourceOnRun))
+          : null
     }
   ]
 }

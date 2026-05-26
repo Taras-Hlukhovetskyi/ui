@@ -56,7 +56,11 @@ import {
   parseApplicationsQueryParams
 } from './applicationsPage.util'
 import { APPLICATIONS_PAGE, APPLICATIONS_PAGE_PATH } from '../../../constants'
-import { DEFAULT_APPLICATION_DETAILS_TAB } from './ApplicationDetails/applicationDetails.constants'
+import {
+  DEFAULT_APPLICATION_DETAILS_TAB,
+  DEFAULT_NAME_SORTING,
+  VIEW_YAML_LABEL
+} from './ApplicationDetails/applicationDetails.constants'
 
 const ApplicationsPage = () => {
   const params = useParams()
@@ -124,11 +128,8 @@ const ApplicationsPage = () => {
     [navigate, params.projectName, params.name, params.id]
   )
 
-  const handleRefreshDetails = useCallback(() => {
-    setDetailsRefreshKey(Date.now())
-    lastCheckedApplicationIdRef.current = null
-
-    checkForSelectedApplication({
+  const selectionArgs = useMemo(
+    () => ({
       applicationName: params.name,
       applicationId: params.id,
       applications,
@@ -138,17 +139,34 @@ const ApplicationsPage = () => {
       fetchSingleEnrichedFunction,
       dispatch,
       lastCheckedApplicationIdRef
-    })
-  }, [applications, dispatch, fetchSingleEnrichedFunction, navigate, params.id, params.name, params.projectName])
+    }),
+    [
+      applications,
+      dispatch,
+      fetchSingleEnrichedFunction,
+      navigate,
+      params.id,
+      params.name,
+      params.projectName
+    ]
+  )
+
+  const handleRefreshDetails = useCallback(() => {
+    setDetailsRefreshKey(Date.now())
+    lastCheckedApplicationIdRef.current = null
+    checkForSelectedApplication(selectionArgs)
+  }, [selectionArgs])
 
   const handleViewYaml = useCallback(application => {
     setYamlData(application.ui?.originalContent ?? application)
   }, [])
 
+  const handleCloseYaml = useCallback(() => setYamlData(null), [])
+
   const rowActions = useCallback(
     application => [
       {
-        label: 'View YAML',
+        label: VIEW_YAML_LABEL,
         icon: FileCode2,
         onClick: () => handleViewYaml(application)
       }
@@ -157,18 +175,10 @@ const ApplicationsPage = () => {
   )
 
   useEffect(() => {
-    checkForSelectedApplication({
-      applicationName: params.name,
-      applicationId: params.id,
-      applications,
-      navigate,
-      projectName: params.projectName,
-      setSelectedApplication,
-      fetchSingleEnrichedFunction,
-      dispatch,
-      lastCheckedApplicationIdRef
-    })
-  }, [applications, dispatch, fetchSingleEnrichedFunction, navigate, params.id, params.name, params.projectName])
+    checkForSelectedApplication(selectionArgs)
+
+    return () => checkForSelectedApplication.cancel()
+  }, [selectionArgs])
 
   useEffect(() => {
     if (isEmpty(selectedApplication)) {
@@ -212,12 +222,24 @@ const ApplicationsPage = () => {
               data-testid="applications-list"
             >
               <div className="flex items-center gap-1.5 mb-3 shrink-0">
-                <h2 className="text-base font-medium text-igz-primary" data-testid="applications-heading">
+                <h2
+                  className="text-base font-medium text-igz-primary"
+                  data-testid="applications-heading"
+                >
                   All Applications
                 </h2>
                 <Tooltip delayDuration={200}>
                   <TooltipTrigger asChild>
-                    <HelpCircle className="h-4 w-4 text-igz-gray cursor-default" data-testid="help-icon" />
+                    <span
+                      className="inline-flex cursor-default"
+                      aria-label="About the applications list"
+                    >
+                      <HelpCircle
+                        className="h-4 w-4 text-igz-gray"
+                        aria-hidden="true"
+                        data-testid="help-icon"
+                      />
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent side="top">
                     List of all deployed applications in the project
@@ -228,13 +250,20 @@ const ApplicationsPage = () => {
                 {isLoading ? (
                   <Loader mode="fullscreen" />
                 ) : applications.length === 0 && !isDetailsOpen ? (
-                  <NoData message={getNoDataMessage(filters, APPLICATIONS_FILTERS_CONFIG, null, APPLICATIONS_PAGE)} />
+                  <NoData
+                    message={getNoDataMessage(
+                      filters,
+                      APPLICATIONS_FILTERS_CONFIG,
+                      null,
+                      APPLICATIONS_PAGE
+                    )}
+                  />
                 ) : (
                   <DataTable
                     data={applications}
                     columns={columns}
                     rowActions={rowActions}
-                    initialSorting={[{ id: 'name', desc: false }]}
+                    initialSorting={DEFAULT_NAME_SORTING}
                   />
                 )}
               </div>
@@ -242,7 +271,12 @@ const ApplicationsPage = () => {
           </div>
 
           {isDetailsOpen && (
-            <div className="absolute inset-0 z-10 bg-background">
+            <div
+              className="absolute inset-0 z-10 bg-background"
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${selectedApplication.name} details`}
+            >
               <ApplicationDetails
                 key={detailsRefreshKey}
                 application={selectedApplication}
@@ -256,11 +290,7 @@ const ApplicationsPage = () => {
           {funcLoading && <Loader mode="fullscreen" />}
         </div>
       </TooltipProvider>
-      <YamlModal
-        open={!!yamlData}
-        data={yamlData}
-        onClose={() => setYamlData(null)}
-      />
+      <YamlModal open={!!yamlData} data={yamlData} onClose={handleCloseYaml} />
     </div>
   )
 }

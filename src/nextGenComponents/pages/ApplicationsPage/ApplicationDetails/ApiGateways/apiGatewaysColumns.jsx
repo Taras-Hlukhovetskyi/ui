@@ -83,9 +83,7 @@ export const apiGatewaysColumns = [
     header: 'Direct/Indirect',
     size: 10,
     accessorFn: row => row.relationship ?? '',
-    cell: ({ row }) => (
-      <span className="text-igz-secondary">{row.original.relationship || ''}</span>
-    )
+    cell: ({ row }) => <span className="text-igz-secondary">{row.original.relationship || ''}</span>
   },
   {
     id: 'authenticationMode',
@@ -93,9 +91,7 @@ export const apiGatewaysColumns = [
     size: 12,
     accessorFn: row => row.spec?.authenticationMode ?? '',
     cell: ({ row }) => (
-      <span className="text-igz-secondary">
-        {row.original.spec?.authenticationMode || ''}
-      </span>
+      <span className="text-igz-secondary">{row.original.spec?.authenticationMode || ''}</span>
     )
   },
   {
@@ -126,9 +122,7 @@ export const apiGatewaysColumns = [
     size: 6,
     accessorFn: row => row.matchedUpstream?.port ?? '',
     cell: ({ row }) => (
-      <span className="text-igz-secondary">
-        {row.original.matchedUpstream?.port ?? ''}
-      </span>
+      <span className="text-igz-secondary">{row.original.matchedUpstream?.port ?? ''}</span>
     )
   },
   {

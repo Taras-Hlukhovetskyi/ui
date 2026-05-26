@@ -36,10 +36,18 @@ const BuildSection = ({ application }) => {
 
     return rawItems.map(item => {
       if (item.label === BUILD_FIELD.IMAGE_NAME) {
-        return { ...item, id: CONFIGURATION_ITEM_ID.IMAGE_NAME, label: <LabelWithTooltip label={item.label} tooltipText={IMAGE_NAME_TOOLTIP_TEXT} /> }
+        return {
+          ...item,
+          id: CONFIGURATION_ITEM_ID.IMAGE_NAME,
+          label: <LabelWithTooltip label={item.label} tooltipText={IMAGE_NAME_TOOLTIP_TEXT} />
+        }
       }
       if (item.label === BUILD_FIELD.BASE_IMAGE) {
-        return { ...item, id: CONFIGURATION_ITEM_ID.BASE_IMAGE, label: <LabelWithTooltip label={item.label} tooltipText={BASE_IMAGE_TOOLTIP_TEXT} /> }
+        return {
+          ...item,
+          id: CONFIGURATION_ITEM_ID.BASE_IMAGE,
+          label: <LabelWithTooltip label={item.label} tooltipText={BASE_IMAGE_TOOLTIP_TEXT} />
+        }
       }
       return item
     })

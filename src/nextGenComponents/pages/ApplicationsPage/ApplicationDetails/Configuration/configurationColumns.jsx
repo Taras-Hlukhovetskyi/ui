@@ -34,9 +34,17 @@ const KeyHeaderWithTooltip = ({ tooltipText }) => (
     <span>Key</span>
     <Tooltip delayDuration={TOOLTIP_DELAY_MS}>
       <TooltipTrigger asChild>
-        <HelpCircle className="w-3 h-3 text-igz-secondary cursor-default" aria-label="Help" data-testid="key-column-help-icon" />
+        <HelpCircle
+          className="w-3 h-3 text-igz-secondary cursor-default"
+          aria-label="Help"
+          data-testid="key-column-help-icon"
+        />
       </TooltipTrigger>
-      <TooltipContent side="top" collisionPadding={TOOLTIP_COLLISION_PADDING} className="max-w-md whitespace-normal">
+      <TooltipContent
+        side="top"
+        collisionPadding={TOOLTIP_COLLISION_PADDING}
+        className="max-w-md whitespace-normal"
+      >
         {tooltipText}
       </TooltipContent>
     </Tooltip>
@@ -55,7 +63,9 @@ export const environmentVariablesColumns = [
     size: 14,
     enableSorting: false,
     cell: ({ row }) => (
-      <span className="text-igz-primary text-body-sm" data-testid={`env-var-type-${row.index}`}>{row.original.type}</span>
+      <span className="text-igz-primary text-body-sm" data-testid={`env-var-type-${row.index}`}>
+        {row.original.type}
+      </span>
     )
   },
   {
@@ -65,7 +75,12 @@ export const environmentVariablesColumns = [
     size: 25,
     enableSorting: false,
     cell: ({ row }) => (
-      <span className="text-igz-primary text-body truncate" data-testid={`env-var-key-${row.index}`}>{row.original.key}</span>
+      <span
+        className="text-igz-primary text-body truncate"
+        data-testid={`env-var-key-${row.index}`}
+      >
+        {row.original.key}
+      </span>
     )
   },
   {
@@ -75,7 +90,12 @@ export const environmentVariablesColumns = [
     size: 61,
     enableSorting: false,
     cell: ({ row }) => (
-      <span className="text-igz-primary text-body-sm truncate" data-testid={`env-var-value-${row.index}`}>{row.original.value || ''}</span>
+      <span
+        className="text-igz-primary text-body-sm truncate"
+        data-testid={`env-var-value-${row.index}`}
+      >
+        {row.original.value || ''}
+      </span>
     )
   }
 ]
@@ -88,7 +108,9 @@ export const labelsColumns = [
     enableSorting: false,
     header: () => <KeyHeaderWithTooltip tooltipText={KEY_TOOLTIP_TEXT} />,
     cell: ({ row }) => (
-      <span className="text-igz-primary text-body-sm" data-testid={`label-key-${row.index}`}>{row.original.key}</span>
+      <span className="text-igz-primary text-body-sm" data-testid={`label-key-${row.index}`}>
+        {row.original.key}
+      </span>
     )
   },
   {
@@ -98,7 +120,12 @@ export const labelsColumns = [
     size: 60,
     enableSorting: false,
     cell: ({ row }) => (
-      <span className="text-igz-primary text-body-sm truncate" data-testid={`label-value-${row.index}`}>{row.original.value || ''}</span>
+      <span
+        className="text-igz-primary text-body-sm truncate"
+        data-testid={`label-value-${row.index}`}
+      >
+        {row.original.value || ''}
+      </span>
     )
   }
 ]
@@ -111,7 +138,9 @@ export const annotationsColumns = [
     enableSorting: false,
     header: () => <KeyHeaderWithTooltip tooltipText={ANNOTATION_KEY_TOOLTIP_TEXT} />,
     cell: ({ row }) => (
-      <span className="text-igz-primary text-body-sm" data-testid={`annotation-key-${row.index}`}>{row.original.key}</span>
+      <span className="text-igz-primary text-body-sm" data-testid={`annotation-key-${row.index}`}>
+        {row.original.key}
+      </span>
     )
   },
   {
@@ -121,7 +150,12 @@ export const annotationsColumns = [
     size: 60,
     enableSorting: false,
     cell: ({ row }) => (
-      <span className="text-igz-primary text-body-sm truncate" data-testid={`annotation-value-${row.index}`}>{row.original.value || ''}</span>
+      <span
+        className="text-igz-primary text-body-sm truncate"
+        data-testid={`annotation-value-${row.index}`}
+      >
+        {row.original.value || ''}
+      </span>
     )
   }
 ]

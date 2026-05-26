@@ -29,9 +29,19 @@ const LabelWithTooltip = ({ label, tooltipText }) => (
     {label}
     <Tooltip delayDuration={TOOLTIP_DELAY_MS}>
       <TooltipTrigger asChild>
-        <HelpCircle className="w-3 h-3 text-igz-secondary cursor-default" aria-label="Help" data-testid={`field-help-icon-${label.toLowerCase().replace(/\s+/g, '-')}`} />
+        <HelpCircle
+          className="w-3 h-3 text-igz-secondary cursor-default"
+          aria-label="Help"
+          data-testid={`field-help-icon-${label.toLowerCase().replace(/\s+/g, '-')}`}
+        />
       </TooltipTrigger>
-      <TooltipContent side="top" collisionPadding={TOOLTIP_COLLISION_PADDING} className="max-w-md whitespace-normal">{tooltipText}</TooltipContent>
+      <TooltipContent
+        side="top"
+        collisionPadding={TOOLTIP_COLLISION_PADDING}
+        className="max-w-md whitespace-normal"
+      >
+        {tooltipText}
+      </TooltipContent>
     </Tooltip>
   </span>
 )

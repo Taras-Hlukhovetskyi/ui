@@ -35,7 +35,11 @@ const BasicSettingsSection = ({ application }) => {
 
     return rawItems.map(item => {
       if (item.label === BASIC_SETTINGS_FIELD.DESCRIPTION) {
-        return { ...item, id: CONFIGURATION_ITEM_ID.DESCRIPTION, label: <LabelWithTooltip label={item.label} tooltipText={DESCRIPTION_TOOLTIP_TEXT} /> }
+        return {
+          ...item,
+          id: CONFIGURATION_ITEM_ID.DESCRIPTION,
+          label: <LabelWithTooltip label={item.label} tooltipText={DESCRIPTION_TOOLTIP_TEXT} />
+        }
       }
       return item
     })

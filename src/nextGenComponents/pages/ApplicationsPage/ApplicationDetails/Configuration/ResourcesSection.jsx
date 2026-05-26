@@ -35,7 +35,11 @@ const ResourcesSection = ({ application }) => {
 
     return rawItems.map(item => {
       if (item.label === RESOURCES_FIELD.RUN_ON_SPOT_NODES) {
-        return { ...item, id: CONFIGURATION_ITEM_ID.RUN_ON_SPOT_NODES, label: <LabelWithTooltip label={item.label} tooltipText={SPOT_NODES_TOOLTIP_TEXT} /> }
+        return {
+          ...item,
+          id: CONFIGURATION_ITEM_ID.RUN_ON_SPOT_NODES,
+          label: <LabelWithTooltip label={item.label} tooltipText={SPOT_NODES_TOOLTIP_TEXT} />
+        }
       }
       return item
     })

@@ -52,13 +52,25 @@ vi.mock('igz-controls/nextGenComponents', () => ({
   Tooltip: ({ children }) => <>{children}</>,
   TooltipTrigger: ({ children }) => <>{children}</>,
   TooltipContent: ({ children }) => <div data-testid="tooltip-content">{children}</div>,
-  Tabs: ({ children, ...props }) => <div data-testid="tabs" {...props}>{children}</div>,
-  TabsList: ({ children, ...props }) => <div data-testid="tabs-list" {...props}>{children}</div>,
+  Tabs: ({ children, ...props }) => (
+    <div data-testid="tabs" {...props}>
+      {children}
+    </div>
+  ),
+  TabsList: ({ children, ...props }) => (
+    <div data-testid="tabs-list" {...props}>
+      {children}
+    </div>
+  ),
   TabsTrigger: ({ children, value, ...props }) => (
-    <button data-testid={`tab-trigger-${value}`} {...props}>{children}</button>
+    <button data-testid={`tab-trigger-${value}`} {...props}>
+      {children}
+    </button>
   ),
   TabsContent: ({ children, value, ...props }) => (
-    <div data-testid={`tab-content-${value}`} {...props}>{children}</div>
+    <div data-testid={`tab-content-${value}`} {...props}>
+      {children}
+    </div>
   ),
   ScrollArea: ({ children, ...props }) => <div {...props}>{children}</div>,
   Collapsible: ({ children }) => <div>{children}</div>,

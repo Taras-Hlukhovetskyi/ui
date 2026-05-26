@@ -20,10 +20,7 @@ such restriction.
 import { BadgeCell } from 'igz-controls/nextGenComponents'
 import { formatDatetime } from 'igz-controls/utils/datetime.util'
 
-import {
-  DRIFT_STATUS_LABEL,
-  DRIFT_RESULT_NO_DATA
-} from './monitoringEndpoints.constants'
+import { DRIFT_STATUS_LABEL, DRIFT_RESULT_NO_DATA } from './monitoringEndpoints.constants'
 
 const parseLabelsToBadges = (labels = {}) => {
   return Object.entries(labels).map(([key, value]) => ({
@@ -82,9 +79,7 @@ export const getMonitoringEndpointsColumns = onEndpointClick => [
     size: 10,
     accessorFn: row => row.spec?.model_class ?? '',
     cell: ({ row }) => (
-      <span data-testid="monitoring-endpoint-class">
-        {row.original.spec?.model_class || ''}
-      </span>
+      <span data-testid="monitoring-endpoint-class">{row.original.spec?.model_class || ''}</span>
     )
   },
   {
@@ -140,11 +135,7 @@ export const getMonitoringEndpointsColumns = onEndpointClick => [
       const resultStatus = row.original.status?.result_status ?? DRIFT_RESULT_NO_DATA
       const label = DRIFT_STATUS_LABEL[resultStatus] ?? 'N/A'
 
-      return (
-        <span data-testid="monitoring-endpoint-drift-status">
-          {label}
-        </span>
-      )
+      return <span data-testid="monitoring-endpoint-drift-status">{label}</span>
     }
   }
 ]

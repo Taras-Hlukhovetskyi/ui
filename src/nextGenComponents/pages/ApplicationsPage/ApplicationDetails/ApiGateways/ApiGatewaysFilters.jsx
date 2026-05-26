@@ -22,10 +22,15 @@ import PropTypes from 'prop-types'
 import { Input, FilterPopover } from 'igz-controls/nextGenComponents'
 
 import SearchIcon from 'igz-controls/images/search2-icon.svg?react'
+import { FILTER_ALL_OPTION_VALUE } from '../applicationDetails.constants'
 
-const ALL_OPTION_VALUE = 'all'
-
-const ApiGatewaysFilters = ({ filters, setFilterValue, applyFilter, applyMultipleFilters, authModeOptions }) => {
+const ApiGatewaysFilters = ({
+  filters,
+  setFilterValue,
+  applyFilter,
+  applyMultipleFilters,
+  authModeOptions
+}) => {
   const popoverSchema = useMemo(
     () => ({
       owner: {
@@ -41,7 +46,7 @@ const ApiGatewaysFilters = ({ filters, setFilterValue, applyFilter, applyMultipl
         kind: 'select',
         placeholder: 'Select auth mode...',
         options: authModeOptions,
-        defaultValue: filters.authenticationMode || ALL_OPTION_VALUE
+        defaultValue: filters.authenticationMode || FILTER_ALL_OPTION_VALUE
       }
     }),
     [filters.owner, filters.authenticationMode, authModeOptions]
@@ -52,7 +57,7 @@ const ApiGatewaysFilters = ({ filters, setFilterValue, applyFilter, applyMultipl
       const authMode = values?.authenticationMode
       applyMultipleFilters({
         owner: values?.owner ?? '',
-        authenticationMode: authMode === ALL_OPTION_VALUE ? '' : (authMode ?? '')
+        authenticationMode: authMode === FILTER_ALL_OPTION_VALUE ? '' : (authMode ?? '')
       })
     },
     [applyMultipleFilters]

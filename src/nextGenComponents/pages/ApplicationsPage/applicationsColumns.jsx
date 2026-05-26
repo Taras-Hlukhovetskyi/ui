@@ -23,7 +23,11 @@ import { formatDatetime } from 'igz-controls/utils/datetime.util'
 
 import UrlCell, { buildUrlItems } from '../../shared/UrlCell'
 import { APPLICATIONS_PAGE_PATH } from '../../../constants'
-import { DEFAULT_APPLICATION_DETAILS_TAB } from './ApplicationDetails/applicationDetails.constants'
+import {
+  APPLICATION_DETAILS_TAB,
+  DEFAULT_APPLICATION_DETAILS_TAB
+} from './ApplicationDetails/applicationDetails.constants'
+import { UNKNOWN_STATE_LABEL, UNKNOWN_STATE_CLASS } from './applications.constants'
 
 export const getApplicationsColumns = projectName => [
   {
@@ -33,7 +37,7 @@ export const getApplicationsColumns = projectName => [
     size: 15,
     cell: ({ row }) => {
       const state = row.original.state ?? {}
-      const stateLabel = state.label ?? state.value ?? 'Unknown'
+      const stateLabel = state.label ?? state.value ?? UNKNOWN_STATE_LABEL
       const tag = row.original.tag || ''
       const hash = row.original.hash || ''
       const identifier = tag ? `:${tag}@${hash}` : `@${hash}`
@@ -50,7 +54,9 @@ export const getApplicationsColumns = projectName => [
           <Tooltip delayDuration={100}>
             <TooltipTrigger asChild>
               <i
-                className={`${state.className ?? 'state-unknown-function'} cursor-default`}
+                className={`${state.className ?? UNKNOWN_STATE_CLASS} cursor-default`}
+                role="img"
+                aria-label={`Status: ${stateLabel}`}
                 data-testid={`application-status-dot-${stateLabel.toLowerCase()}`}
               />
             </TooltipTrigger>
@@ -72,10 +78,7 @@ export const getApplicationsColumns = projectName => [
     meta: { skipEllipsisTooltip: true },
     accessorFn: row => [...(row.directUrls ?? []), ...(row.indirectUrls ?? [])],
     cell: ({ row }) => {
-      const gatewayUrls = [
-        ...(row.original.directUrls ?? []),
-        ...(row.original.indirectUrls ?? [])
-      ]
+      const gatewayUrls = [...(row.original.directUrls ?? []), ...(row.original.indirectUrls ?? [])]
 
       return <UrlCell items={buildUrlItems(gatewayUrls)} />
     }
@@ -86,11 +89,20 @@ export const getApplicationsColumns = projectName => [
     size: 10,
     accessorFn: row => (row.directUrls?.length ?? 0) + (row.indirectUrls?.length ?? 0),
     cell: ({ row }) => {
-      const count = (row.original.directUrls?.length ?? 0) + (row.original.indirectUrls?.length ?? 0)
+      const count =
+        (row.original.directUrls?.length ?? 0) + (row.original.indirectUrls?.length ?? 0)
+      const tag = row.original.tag || ''
+      const hash = row.original.hash || ''
+      const identifier = tag ? `:${tag}@${hash}` : `@${hash}`
+
       return (
-        <span className="text-igz-light-purple text-body font-medium" data-testid="endpoints-count">
+        <Link
+          to={`/projects/${projectName}/${APPLICATIONS_PAGE_PATH}/${row.original.name}/${identifier}/${APPLICATION_DETAILS_TAB.MONITORING_ENDPOINTS}`}
+          className="!text-igz-link text-body hover:underline"
+          data-testid="endpoints-count"
+        >
           {count}
-        </span>
+        </Link>
       )
     }
   },
@@ -100,7 +112,9 @@ export const getApplicationsColumns = projectName => [
     size: 15,
     header: 'Updated',
     cell: ({ row }) => (
-      <span className="text-igz-secondary text-body" data-testid="updated-cell">{formatDatetime(row.original.updated, '')}</span>
+      <span className="text-igz-secondary text-body" data-testid="updated-cell">
+        {formatDatetime(row.original.updated, '')}
+      </span>
     )
   },
   {

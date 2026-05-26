@@ -86,67 +86,75 @@ const ApplicationBuildLogs = ({ application }) => {
     }
   }, [])
 
-  const fetchAppLogs = useCallback(() => {
-    dispatch(
-      fetchFunctionLogs({ project: projectName, name: application.name, tag: application.tag })
-    )
-      .unwrap()
-      .then(response => {
-        setApplicationLogs(response.data || '')
-        const isTransient = isFunctionTransient(response)
-        setIsAppLogsLoading(isTransient)
-
-        if (isTransient) {
-          clearPolling(appLogsPollingRef)
-          appLogsPollingRef.current = setTimeout(fetchAppLogs, BUILD_LOGS_POLLING_INTERVAL_MS)
-        }
-      })
-      .catch(error => {
-        setIsAppLogsLoading(false)
-        showErrorNotification(dispatch, error, 'Application logs failed to load')
-      })
-  }, [application.name, application.tag, clearPolling, dispatch, projectName])
-
-  const fetchFunctionDeployLogs = useCallback(() => {
-    dispatch(
-      fetchFunctionNuclioLogs({
-        project: projectName,
-        name: application.name,
-        tag: application.tag
-      })
-    )
-      .unwrap()
-      .then(response => {
-        setFunctionLogs(extractFunctionLogs(response.data))
-        const isTransient = isFunctionTransient(response)
-        setIsFunctionLogsLoading(isTransient)
-
-        if (isTransient) {
-          clearPolling(functionLogsPollingRef)
-          functionLogsPollingRef.current = setTimeout(
-            fetchFunctionDeployLogs,
-            BUILD_LOGS_POLLING_INTERVAL_MS
-          )
-        }
-      })
-      .catch(error => {
-        setIsFunctionLogsLoading(false)
-        showErrorNotification(dispatch, error, 'Function logs failed to load')
-      })
-  }, [application.name, application.tag, clearPolling, dispatch, projectName])
-
   useEffect(() => {
-    fetchAppLogs()
-    fetchFunctionDeployLogs()
+    let cancelled = false
+
+    const fetchAppLogsSafe = () => {
+      dispatch(
+        fetchFunctionLogs({ project: projectName, name: application.name, tag: application.tag })
+      )
+        .unwrap()
+        .then(response => {
+          if (cancelled) return
+          setApplicationLogs(response.data || '')
+          const isTransient = isFunctionTransient(response)
+          setIsAppLogsLoading(isTransient)
+
+          if (isTransient) {
+            clearPolling(appLogsPollingRef)
+            appLogsPollingRef.current = setTimeout(fetchAppLogsSafe, BUILD_LOGS_POLLING_INTERVAL_MS)
+          }
+        })
+        .catch(error => {
+          if (cancelled) return
+          setIsAppLogsLoading(false)
+          showErrorNotification(dispatch, error, 'Application logs failed to load')
+        })
+    }
+
+    const fetchFunctionDeployLogsSafe = () => {
+      dispatch(
+        fetchFunctionNuclioLogs({
+          project: projectName,
+          name: application.name,
+          tag: application.tag
+        })
+      )
+        .unwrap()
+        .then(response => {
+          if (cancelled) return
+          setFunctionLogs(extractFunctionLogs(response.data))
+          const isTransient = isFunctionTransient(response)
+          setIsFunctionLogsLoading(isTransient)
+
+          if (isTransient) {
+            clearPolling(functionLogsPollingRef)
+            functionLogsPollingRef.current = setTimeout(
+              fetchFunctionDeployLogsSafe,
+              BUILD_LOGS_POLLING_INTERVAL_MS
+            )
+          }
+        })
+        .catch(error => {
+          if (cancelled) return
+          setIsFunctionLogsLoading(false)
+          showErrorNotification(dispatch, error, 'Function logs failed to load')
+        })
+    }
+
+    fetchAppLogsSafe()
+    fetchFunctionDeployLogsSafe()
 
     return () => {
+      cancelled = true
       clearPolling(appLogsPollingRef)
       clearPolling(functionLogsPollingRef)
+      clearTimeout(copyResetRef.current)
     }
-  }, [fetchAppLogs, fetchFunctionDeployLogs, clearPolling])
+  }, [application.name, application.tag, clearPolling, dispatch, projectName])
 
   const handleCopy = useCallback((text, sectionKey) => {
-    navigator.clipboard.writeText(text)
+    navigator.clipboard.writeText(text).catch(() => {})
     setCopiedSection(sectionKey)
     clearTimeout(copyResetRef.current)
     copyResetRef.current = setTimeout(() => setCopiedSection(null), COPY_RESET_TIMEOUT_MS)
@@ -163,7 +171,8 @@ const ApplicationBuildLogs = ({ application }) => {
   )
 
   const appLogsEmpty = useMemo(
-    () => !isAppLogsLoading &&
+    () =>
+      !isAppLogsLoading &&
       (!applicationLogs || (typeof applicationLogs === 'string' && applicationLogs.trim() === '')),
     [isAppLogsLoading, applicationLogs]
   )

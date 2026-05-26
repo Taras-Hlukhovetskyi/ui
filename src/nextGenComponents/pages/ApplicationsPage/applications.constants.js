@@ -34,6 +34,8 @@ import {
 export const APPLICATION_KIND = 'application'
 export const TAG_WILDCARD = '*'
 export const APPLICATIONS_ERROR_MESSAGE = 'Failed to fetch applications'
+export const UNKNOWN_STATE_LABEL = 'Unknown'
+export const UNKNOWN_STATE_CLASS = 'state-unknown-function'
 
 export const APPLICATION_STATUS = {
   READY: 'ready',

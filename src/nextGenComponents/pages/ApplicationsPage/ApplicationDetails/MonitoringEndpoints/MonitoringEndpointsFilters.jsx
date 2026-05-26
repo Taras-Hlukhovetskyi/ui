@@ -21,13 +21,9 @@ import { useCallback, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { FilterPopover } from 'igz-controls/nextGenComponents'
 
-const ALL_OPTION_VALUE = 'all'
+import { FILTER_ALL_OPTION_VALUE } from '../applicationDetails.constants'
 
-const MonitoringEndpointsFilters = ({
-  filters,
-  applyMultipleFilters,
-  labelOptions
-}) => {
+const MonitoringEndpointsFilters = ({ filters, applyMultipleFilters, labelOptions }) => {
   const popoverSchema = useMemo(
     () => ({
       label: {
@@ -36,7 +32,7 @@ const MonitoringEndpointsFilters = ({
         kind: 'select',
         placeholder: 'Select label...',
         options: labelOptions,
-        defaultValue: filters.label || ALL_OPTION_VALUE
+        defaultValue: filters.label || FILTER_ALL_OPTION_VALUE
       }
     }),
     [filters.label, labelOptions]
@@ -46,7 +42,7 @@ const MonitoringEndpointsFilters = ({
     values => {
       const label = values?.label
       applyMultipleFilters({
-        label: label === ALL_OPTION_VALUE ? '' : (label ?? '')
+        label: label === FILTER_ALL_OPTION_VALUE ? '' : (label ?? '')
       })
     },
     [applyMultipleFilters]

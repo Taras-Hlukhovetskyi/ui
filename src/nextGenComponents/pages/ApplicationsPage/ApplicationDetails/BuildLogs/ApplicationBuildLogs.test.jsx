@@ -196,8 +196,12 @@ describe('ApplicationBuildLogs', () => {
       )
 
       await act(async () => renderComponent())
-      const functionLogsBlock = screen.getByTestId(`build-logs-section-${LOGS_SECTION_KEY.FUNCTION}`)
-      expect(functionLogsBlock.querySelector('[data-testid="logs-block"]')).toHaveTextContent('"Deploying"')
+      const functionLogsBlock = screen.getByTestId(
+        `build-logs-section-${LOGS_SECTION_KEY.FUNCTION}`
+      )
+      expect(functionLogsBlock.querySelector('[data-testid="logs-block"]')).toHaveTextContent(
+        '"Deploying"'
+      )
     })
   })
 

@@ -26,7 +26,8 @@ import { labelsColumns } from './configurationColumns'
 import { applicationShape } from './applicationConfiguration.propTypes'
 
 const NO_DATA_MESSAGE = 'No data available'
-const TABLE_CLASS = '[&_th_button]:text-igz-primary [&_th_button]:font-medium [&_th_button:disabled]:opacity-100'
+const TABLE_CLASS =
+  '[&_th_button]:text-igz-primary [&_th_button]:font-medium [&_th_button:disabled]:opacity-100'
 
 const LabelsSection = ({ application }) => {
   const data = useMemo(() => getLabelsData(application), [application])

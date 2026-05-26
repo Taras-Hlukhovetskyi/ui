@@ -27,6 +27,7 @@ import DetailsTabs from './DetailsTabs'
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
 vi.mock('igz-controls/nextGenComponents', () => ({
+  cn: (...args) => args.filter(Boolean).join(' '),
   Tabs: ({ children, value, ...rest }) => (
     <div data-testid="tabs" data-value={value} {...rest}>
       {children}
@@ -46,6 +47,11 @@ vi.mock('igz-controls/nextGenComponents', () => ({
     <div data-testid={`tab-content-${value}`} {...rest}>
       {children}
     </div>
+  ),
+  RefreshButton: ({ onClick }) => (
+    <button data-testid="refresh-button" onClick={onClick}>
+      Refresh
+    </button>
   ),
   DropdownMenu: ({ children }) => <div data-testid="dropdown-menu">{children}</div>,
   DropdownMenuTrigger: ({ children }) => <>{children}</>,

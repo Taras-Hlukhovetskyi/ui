@@ -34,4 +34,5 @@ export const MONITORING_ENDPOINTS_FILTER_CONFIG = {
   label: { initialValue: '', label: 'Label' }
 }
 
-export const MONITORING_ENDPOINTS_NO_DATA_MESSAGE = 'No monitoring endpoints found for this application'
+export const MONITORING_ENDPOINTS_NO_DATA_MESSAGE =
+  'No monitoring endpoints found for this application'

@@ -26,7 +26,8 @@ import { environmentVariablesColumns } from './configurationColumns'
 import { applicationShape } from './applicationConfiguration.propTypes'
 
 const NO_DATA_MESSAGE = 'No data available'
-const TABLE_CLASS = '[&_th_button]:text-igz-primary [&_th_button]:font-medium [&_th_button:disabled]:opacity-100'
+const TABLE_CLASS =
+  '[&_th_button]:text-igz-primary [&_th_button]:font-medium [&_th_button:disabled]:opacity-100'
 
 const EnvironmentVariablesSection = ({ application }) => {
   const data = useMemo(() => getEnvironmentVariables(application), [application])
@@ -36,8 +37,15 @@ const EnvironmentVariablesSection = ({ application }) => {
   }
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col overflow-hidden" data-testid="environment-variables-section">
-      <DataTable data={data} columns={environmentVariablesColumns} className={`${TABLE_CLASS} flex-1 min-h-0`} />
+    <div
+      className="flex-1 min-h-0 flex flex-col overflow-hidden"
+      data-testid="environment-variables-section"
+    >
+      <DataTable
+        data={data}
+        columns={environmentVariablesColumns}
+        className={`${TABLE_CLASS} flex-1 min-h-0`}
+      />
     </div>
   )
 }

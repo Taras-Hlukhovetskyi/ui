@@ -72,13 +72,11 @@ export const buildApiFilters = filters => {
 }
 
 export const filterApplications = (applications, filters) => {
-  let filtered = applications
+  let filtered = applications ?? []
 
   const ownerSearch = filters[OWNER_FILTER]?.trim().toLowerCase()
   if (ownerSearch) {
-    filtered = filtered.filter(app =>
-      (app.owner ?? '').toLowerCase().includes(ownerSearch)
-    )
+    filtered = filtered.filter(app => (app.owner ?? '').toLowerCase().includes(ownerSearch))
   }
 
   const selectedStatuses = Array.isArray(filters[STATUS_FILTER])

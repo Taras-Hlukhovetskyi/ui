@@ -26,7 +26,8 @@ import { annotationsColumns } from './configurationColumns'
 import { applicationShape } from './applicationConfiguration.propTypes'
 
 const NO_DATA_MESSAGE = 'No data available'
-const TABLE_CLASS = '[&_th_button]:text-igz-primary [&_th_button]:font-medium [&_th_button:disabled]:opacity-100'
+const TABLE_CLASS =
+  '[&_th_button]:text-igz-primary [&_th_button]:font-medium [&_th_button:disabled]:opacity-100'
 
 const AnnotationsSection = ({ application }) => {
   const data = useMemo(() => getAnnotationsData(application), [application])
@@ -37,7 +38,11 @@ const AnnotationsSection = ({ application }) => {
 
   return (
     <div className="flex-1 min-h-0 flex flex-col overflow-hidden" data-testid="annotations-section">
-      <DataTable data={data} columns={annotationsColumns} className={`${TABLE_CLASS} flex-1 min-h-0`} />
+      <DataTable
+        data={data}
+        columns={annotationsColumns}
+        className={`${TABLE_CLASS} flex-1 min-h-0`}
+      />
     </div>
   )
 }

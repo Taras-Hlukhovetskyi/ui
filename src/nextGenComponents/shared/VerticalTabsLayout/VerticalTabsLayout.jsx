@@ -19,7 +19,15 @@ such restriction.
 */
 import React, { useCallback, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Tabs, TabsList, TabsTrigger, TabsContent, ScrollArea, Separator, cn } from 'igz-controls/nextGenComponents'
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  ScrollArea,
+  Separator,
+  cn
+} from 'igz-controls/nextGenComponents'
 
 import CollapsibleSection from '../CollapsibleSection/CollapsibleSection'
 import useContainerWidth from './useContainerWidth.hook'
@@ -35,7 +43,11 @@ const VerticalTabsLayout = ({ sections, defaultSectionId, className = '' }) => {
   const initialSection = defaultSectionId || sections[0]?.id
 
   return (
-    <div ref={containerRef} className="absolute inset-0 top-4 bottom-4" data-testid="vertical-tabs-container">
+    <div
+      ref={containerRef}
+      className="absolute inset-0 top-4 bottom-4"
+      data-testid="vertical-tabs-container"
+    >
       {isDesktop === null ? null : isDesktop ? (
         <DesktopLayout
           sections={sections}
@@ -43,11 +55,7 @@ const VerticalTabsLayout = ({ sections, defaultSectionId, className = '' }) => {
           className={className}
         />
       ) : (
-        <MobileLayout
-          sections={sections}
-          defaultSectionId={initialSection}
-          className={className}
-        />
+        <MobileLayout sections={sections} defaultSectionId={initialSection} className={className} />
       )}
     </div>
   )
@@ -74,7 +82,10 @@ const DesktopLayout = ({ sections, defaultSectionId, className }) => {
       data-testid="vertical-tabs-layout"
     >
       <TabsList
-        className={cn('flex flex-col items-stretch gap-0 shrink-0 border-b-0 h-full overflow-y-auto py-0', SIDEBAR_WIDTH)}
+        className={cn(
+          'flex flex-col items-stretch gap-0 shrink-0 border-b-0 h-full overflow-y-auto py-0',
+          SIDEBAR_WIDTH
+        )}
         data-testid="vertical-tabs-list"
       >
         {sections.map(section => (
@@ -109,12 +120,19 @@ const DesktopLayout = ({ sections, defaultSectionId, className }) => {
           >
             <div className="h-full flex flex-col">
               <h2
-                className={cn('text-lg font-bold text-igz-primary flex items-center shrink-0', SECTION_TITLE_MIN_HEIGHT, CONTENT_MAX_WIDTH)}
+                className={cn(
+                  'text-lg font-bold text-igz-primary flex items-center shrink-0',
+                  SECTION_TITLE_MIN_HEIGHT,
+                  CONTENT_MAX_WIDTH
+                )}
                 data-testid={`section-title-${section.id}`}
               >
                 {section.title || section.label}
               </h2>
-              <div className={cn('flex-1 min-h-0 overflow-auto flex flex-col mt-2', CONTENT_MAX_WIDTH)} data-testid={`section-content-${section.id}`}>
+              <div
+                className={cn('flex-1 min-h-0 overflow-auto flex flex-col mt-2', CONTENT_MAX_WIDTH)}
+                data-testid={`section-content-${section.id}`}
+              >
                 {SectionComponent ? <SectionComponent {...(section.componentProps || {})} /> : null}
               </div>
             </div>
@@ -129,10 +147,7 @@ const MobileLayout = ({ sections, defaultSectionId, className }) => {
   const openSectionId = defaultSectionId || sections[0]?.id
 
   return (
-    <div
-      className={cn('h-full', className)}
-      data-testid="vertical-tabs-layout-mobile"
-    >
+    <div className={cn('h-full', className)} data-testid="vertical-tabs-layout-mobile">
       <ScrollArea className="h-full">
         <div className="flex flex-col gap-2 pr-4">
           {sections.map(section => {

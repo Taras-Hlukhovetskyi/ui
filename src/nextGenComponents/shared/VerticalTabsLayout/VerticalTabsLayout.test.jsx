@@ -40,7 +40,9 @@ vi.mock('igz-controls/nextGenComponents', () => ({
     </div>
   ),
   TabsList: ({ children, ...props }) => (
-    <div data-testid="tabs-list" {...props}>{children}</div>
+    <div data-testid="tabs-list" {...props}>
+      {children}
+    </div>
   ),
   TabsTrigger: ({ children, value, ...props }) => (
     <button
@@ -53,10 +55,12 @@ vi.mock('igz-controls/nextGenComponents', () => ({
     </button>
   ),
   TabsContent: ({ children, value, ...props }) => (
-    <div data-testid={`vertical-tab-content-${value}`} {...props}>{children}</div>
+    <div data-testid={`vertical-tab-content-${value}`} {...props}>
+      {children}
+    </div>
   ),
   ScrollArea: ({ children, ...props }) => <div {...props}>{children}</div>,
-  Separator: (props) => <hr data-testid="separator" {...props} />,
+  Separator: props => <hr data-testid="separator" {...props} />,
   Collapsible: ({ children, open }) => <div data-open={open}>{children}</div>,
   CollapsibleTrigger: ({ children, ...props }) => <button {...props}>{children}</button>,
   CollapsibleContent: ({ children, ...props }) => <div {...props}>{children}</div>

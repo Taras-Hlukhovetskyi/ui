@@ -19,95 +19,19 @@ such restriction.
 */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { isEmpty } from 'lodash'
 
-import { getNuclioFuncState } from '../utils/getNuclioFuncState'
-import getState from '../utils/getState'
 import { parseFunction } from '../utils/parseFunction'
 import { fetchFunctions, fetchFunction } from '../reducers/functionReducer'
-import { fetchNuclioFunction, fetchNuclioFunctions, fetchProjectApiGateways } from '../reducers/nuclioReducer'
 import {
-  filterGatewaysByFunction,
-  buildGatewayUrl
-} from '../nextGenComponents/pages/ApplicationsPage/ApplicationDetails/ApiGateways/applicationApiGateways.util'
-import { GATEWAY_RELATIONSHIP } from '../nextGenComponents/pages/ApplicationsPage/ApplicationDetails/applicationDetails.constants'
-import {
-  ERROR_STATE,
-  FUNCTION_BUILDING_STATE,
-  FUNCTION_READY_STATE,
-  FUNCTION_RUNNING_STATE,
-  FUNCTIONS_PAGE,
-  UNHEALTHY_STATE
-} from '../constants'
+  fetchNuclioFunction,
+  fetchNuclioFunctions,
+  fetchProjectApiGateways
+} from '../reducers/nuclioReducer'
+import { enrichFunctionsWithNuclio, computeCounters } from '../utils/nuclioEnrichment.util'
 
-const NUCLIO_FUNCTIONS_STATE_KIND = 'nuclioFunctions'
-const NUCLIO_OWNER_LABEL = 'iguazio.com/username'
+export { enrichFunctionsWithNuclio, computeCounters }
+
 const DEFAULT_ERROR_MESSAGE = 'Failed to fetch functions'
-
-export const enrichFunctionsWithNuclio = (parsedFunctions, nuclioFunctionsMap, projectApiGateways = []) => {
-  return parsedFunctions.map(func => {
-    const nuclioKey = func.nuclio_name || `${func.project}-${func.name}`
-    const nuclioFunc = nuclioFunctionsMap[nuclioKey] || {}
-
-    const nuclioFuncState = !isEmpty(nuclioFunc)
-      ? (getNuclioFuncState(nuclioFunc) || '').toLowerCase()
-      : ''
-
-    const state = nuclioFuncState || func.state?.value || ''
-    const owner = nuclioFunc?.metadata?.labels?.[NUCLIO_OWNER_LABEL] ?? ''
-
-    const applicationGateways = filterGatewaysByFunction(
-      projectApiGateways, func.project, func.name, func.tag
-    )
-
-    const directUrls = []
-    const indirectUrls = []
-
-    for (const gateway of applicationGateways) {
-      const url = buildGatewayUrl(gateway)
-      if (!url) continue
-
-      if (gateway.relationship === GATEWAY_RELATIONSHIP.DIRECT) {
-        directUrls.push(url)
-      } else {
-        indirectUrls.push(url)
-      }
-    }
-
-    if (directUrls.length === 0 && indirectUrls.length === 0) {
-      indirectUrls.push(...(func.external_invocation_urls ?? []))
-    }
-
-    return {
-      ...func,
-      state: getState(state, FUNCTIONS_PAGE, NUCLIO_FUNCTIONS_STATE_KIND),
-      owner,
-      nuclioFunc,
-      applicationGateways,
-      directUrls,
-      indirectUrls
-    }
-  })
-}
-
-export const computeCounters = functions => {
-  let running = 0
-  let failed = 0
-  let building = 0
-
-  for (const func of functions) {
-    const stateValue = func.state?.value
-    if (stateValue === FUNCTION_READY_STATE || stateValue === FUNCTION_RUNNING_STATE) {
-      running += 1
-    } else if (stateValue === ERROR_STATE || stateValue === UNHEALTHY_STATE) {
-      failed += 1
-    } else if (stateValue === FUNCTION_BUILDING_STATE) {
-      building += 1
-    }
-  }
-
-  return { total: functions.length, running, failed, building }
-}
 
 const resolveNuclioMap = nuclioResult =>
   nuclioResult.status === 'fulfilled' ? (nuclioResult.value ?? {}) : {}
@@ -178,10 +102,7 @@ export const useNuclioEnrichedFunctions = ({
   )
 
   const fetchGatewaysList = useCallback(
-    signal =>
-      dispatch(
-        fetchProjectApiGateways({ project: projectName, signal })
-      ).unwrap(),
+    signal => dispatch(fetchProjectApiGateways({ project: projectName, signal })).unwrap(),
     [dispatch, projectName]
   )
 
@@ -223,9 +144,8 @@ export const useNuclioEnrichedFunctions = ({
 
           if (mlrunResult.status === 'fulfilled' && mlrunResult.value) {
             const nuclioMap = resolveNuclioMap(nuclioResult)
-            const gateways = gatewaysResult?.status === 'fulfilled'
-              ? (gatewaysResult.value ?? [])
-              : []
+            const gateways =
+              gatewaysResult?.status === 'fulfilled' ? (gatewaysResult.value ?? []) : []
             const enriched = enrichFunctionsWithNuclio(mlrunResult.value, nuclioMap, gateways)
             setEnrichedFunctions(enriched)
           }
@@ -236,7 +156,15 @@ export const useNuclioEnrichedFunctions = ({
           }
         })
     },
-    [dispatch, projectName, errorMessage, parseListResponse, fetchAllNuclioFunctions, enrichApiGateways, fetchGatewaysList]
+    [
+      dispatch,
+      projectName,
+      errorMessage,
+      parseListResponse,
+      fetchAllNuclioFunctions,
+      enrichApiGateways,
+      fetchGatewaysList
+    ]
   )
 
   useEffect(() => {
@@ -296,9 +224,7 @@ export const useNuclioEnrichedFunctions = ({
         const nuclioFuncData =
           nuclioResult.status === 'fulfilled' && nuclioResult.value ? nuclioResult.value : null
         const nuclioMap = nuclioFuncData ? { [resolvedNuclioName]: nuclioFuncData } : {}
-        const gateways = gatewaysResult?.status === 'fulfilled'
-          ? (gatewaysResult.value ?? [])
-          : []
+        const gateways = gatewaysResult?.status === 'fulfilled' ? (gatewaysResult.value ?? []) : []
         const [enriched] = enrichFunctionsWithNuclio([parsed], nuclioMap, gateways)
 
         return enriched

@@ -20,8 +20,7 @@ such restriction.
 import React, { useCallback, useMemo } from 'react'
 import { cn } from 'igz-controls/nextGenComponents'
 
-import NoData from '../../../../shared/NoData/NoData'
-import ExpandableRow from './ExpandableRow'
+import ExpandableSectionTable from './ExpandableSectionTable'
 import {
   VOLUME_COLUMN,
   VOLUME_COLUMN_FLEX,
@@ -32,58 +31,62 @@ import {
 import { getVolumesData } from './applicationConfiguration.util'
 import { applicationShape } from './applicationConfiguration.propTypes'
 
-const NO_DATA_MESSAGE = 'No data available'
+const COLUMNS = [
+  { id: 'name', label: VOLUME_COLUMN.NAME, flex: VOLUME_COLUMN_FLEX.NAME },
+  { id: 'type', label: VOLUME_COLUMN.TYPE, flex: VOLUME_COLUMN_FLEX.TYPE },
+  {
+    id: 'mountPath',
+    label: VOLUME_COLUMN.MOUNT_PATH_PARAMS,
+    flex: VOLUME_COLUMN_FLEX.MOUNT_PATH_PARAMS
+  }
+]
+
+const buildRowCells = volume => [
+  { id: 'name', value: volume.name, flex: VOLUME_COLUMN_FLEX.NAME },
+  { id: 'type', value: volume.type, flex: VOLUME_COLUMN_FLEX.TYPE },
+  { id: 'mountPath', value: volume.mountPath, flex: VOLUME_COLUMN_FLEX.MOUNT_PATH_PARAMS }
+]
+
+const getRowKey = volume => volume.name
 
 const VolumesSection = ({ application }) => {
   const data = useMemo(() => getVolumesData(application), [application])
 
-  const renderExpandedVolume = useCallback(volume => (
-    <div className="flex flex-col gap-1.5">
-      {Object.entries(volume.details).map(([key, value]) => (
-        <div key={key} className={cn('flex py-1 pl-1', ROW_MIN_HEIGHT)}>
-          <span className={cn(LABEL_WIDTH, 'shrink-0 text-body text-igz-primary')}>{key}</span>
-          <span className="text-body text-igz-secondary">{value || ''}</span>
+  const renderExpandedVolume = useCallback(
+    volume => (
+      <div className="flex flex-col gap-1.5">
+        {Object.entries(volume.details).map(([key, value]) => (
+          <div key={key} className={cn('flex py-1 pl-1', ROW_MIN_HEIGHT)}>
+            <span className={cn(LABEL_WIDTH, 'shrink-0 text-body text-igz-primary')}>{key}</span>
+            <span className="text-body text-igz-secondary">{value || ''}</span>
+          </div>
+        ))}
+        <div className={cn('flex py-1 pl-1', ROW_MIN_HEIGHT)}>
+          <span className={cn(LABEL_WIDTH, 'shrink-0 text-body text-igz-primary')}>
+            {EXPANDED_DETAIL_FIELD.MOUNT_PATH}
+          </span>
+          <span className="text-body text-igz-secondary">{volume.mountPath || ''}</span>
         </div>
-      ))}
-      <div className={cn('flex py-1 pl-1', ROW_MIN_HEIGHT)}>
-        <span className={cn(LABEL_WIDTH, 'shrink-0 text-body text-igz-primary')}>{EXPANDED_DETAIL_FIELD.MOUNT_PATH}</span>
-        <span className="text-body text-igz-secondary">{volume.mountPath || ''}</span>
+        <div className={cn('flex py-1 pl-1', ROW_MIN_HEIGHT)}>
+          <span className={cn(LABEL_WIDTH, 'shrink-0 text-body text-igz-primary')}>
+            {EXPANDED_DETAIL_FIELD.READ_ONLY}
+          </span>
+          <span className="text-body text-igz-secondary">{volume.readOnly}</span>
+        </div>
       </div>
-      <div className={cn('flex py-1 pl-1', ROW_MIN_HEIGHT)}>
-        <span className={cn(LABEL_WIDTH, 'shrink-0 text-body text-igz-primary')}>{EXPANDED_DETAIL_FIELD.READ_ONLY}</span>
-        <span className="text-body text-igz-secondary">{volume.readOnly}</span>
-      </div>
-    </div>
-  ), [])
-
-  if (data.length === 0) {
-    return <NoData message={NO_DATA_MESSAGE} />
-  }
+    ),
+    []
+  )
 
   return (
-    <div data-testid="volumes-section" className="rounded-lg border border-igz-gray-light">
-      <div className="flex py-2.5 px-1 border-b border-igz-gray-light sticky top-0 z-10 bg-background rounded-t-lg" data-testid="volumes-header">
-        <span className="text-sm font-medium text-igz-primary pl-6" style={{ flex: VOLUME_COLUMN_FLEX.NAME }} data-testid="volumes-header-name">{VOLUME_COLUMN.NAME}</span>
-        <span className="text-sm font-medium text-igz-primary" style={{ flex: VOLUME_COLUMN_FLEX.TYPE }} data-testid="volumes-header-type">{VOLUME_COLUMN.TYPE}</span>
-        <span className="text-sm font-medium text-igz-primary" style={{ flex: VOLUME_COLUMN_FLEX.MOUNT_PATH_PARAMS }} data-testid="volumes-header-mount-path">{VOLUME_COLUMN.MOUNT_PATH_PARAMS}</span>
-      </div>
-      {data.map((volume, index) => (
-        <ExpandableRow
-          key={volume.name}
-          defaultExpanded={index === 0}
-          row={{
-            name: volume.name,
-            cells: [
-              { id: 'name', value: volume.name, flex: VOLUME_COLUMN_FLEX.NAME },
-              { id: 'type', value: volume.type, flex: VOLUME_COLUMN_FLEX.TYPE },
-              { id: 'mountPath', value: volume.mountPath, flex: VOLUME_COLUMN_FLEX.MOUNT_PATH_PARAMS }
-            ],
-            ...volume
-          }}
-          renderExpanded={renderExpandedVolume}
-        />
-      ))}
-    </div>
+    <ExpandableSectionTable
+      testId="volumes-section"
+      columns={COLUMNS}
+      rows={data}
+      getRowKey={getRowKey}
+      buildRowCells={buildRowCells}
+      renderExpanded={renderExpandedVolume}
+    />
   )
 }
 

@@ -44,13 +44,15 @@ const MOCK_APPLICATION = {
     base_image: 'python:3.9',
     commands: ['pip install pandas', 'pip install numpy']
   },
-  volumes: [
-    { name: 'v3io', flexVolume: { driver: 'v3io/fuse' } }
-  ],
-  volume_mounts: [
-    { name: 'v3io', mountPath: '/v3io', readOnly: false }
-  ],
-  labels: { owner: 'admin' },
+  volumes: [{ name: 'v3io', flexVolume: { driver: 'v3io/fuse' } }],
+  volume_mounts: [{ name: 'v3io', mountPath: '/v3io', readOnly: false }],
+  metadata: {
+    labels: { owner: 'admin' },
+    annotations: {
+      'kubectl.kubernetes.io/default-content': 'iris-streamlit-app-sidecar',
+      'nuclio.io/generated_by': 'funcation generated from /mlrun/model_moni..'
+    }
+  },
   config: {
     'spec.sidecars': [
       {
@@ -80,7 +82,7 @@ const MOCK_APPLICATION = {
   },
   spec: {
     disable: false,
-    serviceAccount: 'my-service-account',
+    service_account: 'my-service-account',
     securityContext: { runAsUser: 1000, runAsGroup: 2000 },
     loggerSinks: [{ level: 'debug' }],
     minReplicas: 1,
@@ -109,7 +111,7 @@ const MOCK_APPLICATION = {
     spec: {
       disable: false,
       description: 'Nuclio description',
-      serviceAccount: 'my-service-account',
+      service_account: 'my-service-account',
       securityContext: { runAsUser: 1000, runAsGroup: 2000 },
       loggerSinks: [{ level: 'debug' }],
       resources: {},
@@ -128,11 +130,12 @@ const MOCK_APPLICATION = {
         {
           env: [
             { name: 'API_KEY', value: 'abc123' },
-            { name: 'SECRET_VAR', valueFrom: { secretKeyRef: { key: 'accessKey', name: 'my-secret' } } }
+            {
+              name: 'SECRET_VAR',
+              valueFrom: { secretKeyRef: { key: 'accessKey', name: 'my-secret' } }
+            }
           ],
-          volumeMounts: [
-            { name: 'v3io', mountPath: '/v3io', readOnly: false }
-          ]
+          volumeMounts: [{ name: 'v3io', mountPath: '/v3io', readOnly: false }]
         }
       ],
       volumes: [
@@ -186,7 +189,7 @@ describe('applicationConfiguration.util', () => {
       const items = getBasicSettingsItems(MOCK_APPLICATION)
 
       expect(items).toHaveLength(6)
-      expect(items[0]).toEqual({ label: 'Enabled', value: 'Yes' })
+      expect(items[0]).toEqual({ label: 'Enabled', value: 'True' })
       expect(items[1]).toEqual({ label: 'Description', value: 'My application description' })
       expect(items[2]).toEqual({ label: 'Service Account', value: 'my-service-account' })
       expect(items[3]).toEqual({ label: 'Run as user', value: '1000' })
@@ -194,7 +197,7 @@ describe('applicationConfiguration.util', () => {
       expect(items[5]).toEqual({ label: 'Logger level', value: 'Debug' })
     })
 
-    it('returns "No" for Enabled when nuclioFunc disable is true', () => {
+    it('returns "False" for Enabled when nuclioFunc disable is true', () => {
       const app = {
         ...MOCK_APPLICATION,
         nuclioFunc: {
@@ -203,7 +206,7 @@ describe('applicationConfiguration.util', () => {
         }
       }
       const items = getBasicSettingsItems(app)
-      expect(items[0].value).toBe('No')
+      expect(items[0].value).toBe('False')
     })
 
     it('uses Nuclio disable when MLRun spec does not include disable', () => {
@@ -216,21 +219,21 @@ describe('applicationConfiguration.util', () => {
       }
       const items = getBasicSettingsItems(app)
 
-      expect(items[0]).toEqual({ label: 'Enabled', value: 'No' })
+      expect(items[0]).toEqual({ label: 'Enabled', value: 'False' })
     })
 
     it('prefers MLRun spec for most fields but reads Enabled from Nuclio', () => {
       const app = {
         ...MOCK_APPLICATION,
         spec: {
-          serviceAccount: 'mlrun-service-account',
+          service_account: 'mlrun-service-account',
           securityContext: { runAsUser: 3000, runAsGroup: 4000 },
           loggerSinks: [{ level: 'info' }]
         },
         nuclioFunc: {
           spec: {
             disable: true,
-            serviceAccount: 'nuclio-service-account',
+            service_account: 'nuclio-service-account',
             securityContext: { runAsUser: 1000, runAsGroup: 2000 },
             loggerSinks: [{ level: 'debug' }]
           }
@@ -238,7 +241,7 @@ describe('applicationConfiguration.util', () => {
       }
       const items = getBasicSettingsItems(app)
 
-      expect(items[0]).toEqual({ label: 'Enabled', value: 'No' })
+      expect(items[0]).toEqual({ label: 'Enabled', value: 'False' })
       expect(items[2]).toEqual({ label: 'Service Account', value: 'mlrun-service-account' })
       expect(items[3]).toEqual({ label: 'Run as user', value: '3000' })
       expect(items[4]).toEqual({ label: 'Run as group', value: '4000' })
@@ -386,11 +389,11 @@ describe('applicationConfiguration.util', () => {
       expect(items[3].value).toBeNull()
     })
 
-    it('returns "True" when base_image_pull is true', () => {
+    it('returns "True" when loadSourceOnRun is true', () => {
       const app = {
         ...MINIMAL_APPLICATION,
         spec: {
-          base_image_pull: true
+          loadSourceOnRun: true
         }
       }
       const items = getBuildItems(app)
@@ -465,7 +468,7 @@ describe('applicationConfiguration.util', () => {
     it('does not fall back to Nuclio labels when MLRun labels are empty', () => {
       const result = getLabelsData({
         ...MOCK_APPLICATION,
-        labels: {},
+        metadata: { labels: {} },
         nuclioFunc: {
           metadata: {
             labels: { 'nuclio.io/project-name': 'default' }
@@ -557,7 +560,7 @@ describe('applicationConfiguration.util', () => {
       expect(result[2].handlerType).toBe('gRPC')
     })
 
-    it('prefers probes from sidecar config over enriched Nuclio spec', () => {
+    it('reads probes from enriched Nuclio spec', () => {
       const app = {
         ...MOCK_APPLICATION,
         config: {
@@ -582,9 +585,9 @@ describe('applicationConfiguration.util', () => {
       const result = getProbesData(app)
 
       expect(result).toHaveLength(1)
-      expect(result[0].details).toContainEqual({ label: 'HTTP path', value: '/sidecar-health' })
-      expect(result[0].details).toContainEqual({ label: 'HTTP port', value: '3000' })
-      expect(result[0].details).toContainEqual({ label: 'Initial delay seconds', value: '7' })
+      expect(result[0].details).toContainEqual({ label: 'HTTP path', value: '/nuclio-health' })
+      expect(result[0].details).toContainEqual({ label: 'HTTP port', value: '8080' })
+      expect(result[0].details).toContainEqual({ label: 'Initial delay seconds', value: '20' })
     })
 
     it('uses Nuclio probes when sidecar config does not include probes', () => {

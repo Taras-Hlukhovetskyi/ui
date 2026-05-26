@@ -76,7 +76,7 @@ const ActionBar = ({
 
       setSearchParams(
         prev => {
-          for (const [key, config] of Object.entries(filtersConfig)) {
+          for (const [key, config] of Object.entries(filtersConfig ?? {})) {
             const value = newFilters[key]
 
             if (!isNil(config.initialValue) && !isEqual(config.initialValue, value)) {

@@ -85,10 +85,7 @@ export const API_GATEWAY_STATE_CLASS = {
   [API_GATEWAY_STATE.WAITING]: 'state-archived'
 }
 
-export const GATEWAY_RELATIONSHIP = {
-  DIRECT: 'Direct',
-  INDIRECT: 'Indirect'
-}
+export { GATEWAY_RELATIONSHIP } from '../../../../utils/apiGateway.util'
 
 export const NUCLIO_OWNER_LABEL = 'iguazio.com/username'
 
@@ -101,3 +98,7 @@ export const API_GATEWAYS_FILTER_CONFIG = {
 }
 
 export const API_GATEWAYS_NO_DATA_MESSAGE = 'No API gateways found for this application'
+
+export const FILTER_ALL_OPTION = { value: 'all', label: 'All' }
+export const FILTER_ALL_OPTION_VALUE = FILTER_ALL_OPTION.value
+export const DEFAULT_NAME_SORTING = [{ id: 'name', desc: false }]

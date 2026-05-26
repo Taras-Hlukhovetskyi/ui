@@ -56,10 +56,7 @@ const CollapsibleSection = ({ title, defaultOpen = false, children, className = 
           />
         </div>
         <span
-          className={cn(
-            'text-body text-igz-primary',
-            isOpen ? 'font-semibold' : 'font-normal'
-          )}
+          className={cn('text-body text-igz-primary', isOpen ? 'font-semibold' : 'font-normal')}
         >
           {title}
         </span>

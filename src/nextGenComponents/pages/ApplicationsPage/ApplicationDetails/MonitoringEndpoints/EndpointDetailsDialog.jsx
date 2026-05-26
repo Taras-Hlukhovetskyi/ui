@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useDispatch } from 'react-redux'
 import { useParams } from 'react-router-dom'
@@ -36,6 +36,8 @@ import { parseModelEndpoints } from '../../../../../utils/parseModelEndpoints'
 import { showErrorNotification } from 'igz-controls/utils/notification.util'
 import { DETAILS_OVERVIEW_TAB } from '../../../../../constants'
 
+const MODEL_ENDPOINT_NOT_FOUND_MESSAGE = 'This model endpoint either does not exist or was deleted'
+
 const EndpointDetailsDialog = ({
   modelEndpointUid,
   modelEndpointName,
@@ -46,35 +48,39 @@ const EndpointDetailsDialog = ({
   toggleConvertedYaml
 }) => {
   const dispatch = useDispatch()
-  const params = useParams()
+  const { projectName } = useParams()
+  const abortControllerRef = useRef(null)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedModelEndpoint, setSelectedModelEndpoint] = useState({})
   const [detailsPopUpSelectedTab, setDetailsPopUpSelectedTab] = useState(DETAILS_OVERVIEW_TAB)
 
   const modelMonitoringDashboardUrl = useMemo(
-    () => frontendSpec.model_monitoring_dashboard_url,
-    [frontendSpec.model_monitoring_dashboard_url]
+    () => frontendSpec?.model_monitoring_dashboard_url,
+    [frontendSpec?.model_monitoring_dashboard_url]
   )
 
   const fetchModelEndpoint = useCallback(() => {
+    abortControllerRef.current?.abort()
+    abortControllerRef.current = new AbortController()
+    const { signal } = abortControllerRef.current
+
     setIsLoading(true)
 
     return modelEndpointsApi
-      .getModelEndpoint(params.projectName, modelEndpointName, modelEndpointUid)
+      .getModelEndpoint(projectName, modelEndpointName, modelEndpointUid, { signal })
       .then(({ data: endpoint }) => {
+        if (signal.aborted) return
         setSelectedModelEndpoint(parseModelEndpoints([endpoint])?.[0])
         setIsLoading(false)
       })
       .catch(error => {
-        showErrorNotification(
-          dispatch,
-          error,
-          '',
-          'This model endpoint either does not exist or was deleted'
-        )
+        if (signal.aborted || error?.name === 'AbortError' || error?.name === 'CanceledError')
+          return
+        setIsLoading(false)
+        showErrorNotification(dispatch, error, '', MODEL_ENDPOINT_NOT_FOUND_MESSAGE)
         onClose()
       })
-  }, [dispatch, modelEndpointName, modelEndpointUid, onClose, params.projectName])
+  }, [dispatch, modelEndpointName, modelEndpointUid, onClose, projectName])
 
   const actionsMenu = useMemo(
     () =>
@@ -85,7 +91,13 @@ const EndpointDetailsDialog = ({
         selectedModelEndpoint,
         dispatch
       ),
-    [dispatch, handleMonitoring, selectedModelEndpoint, toggleConvertedYaml, modelMonitoringDashboardUrl]
+    [
+      dispatch,
+      handleMonitoring,
+      selectedModelEndpoint,
+      toggleConvertedYaml,
+      modelMonitoringDashboardUrl
+    ]
   )
 
   const pageData = useMemo(
@@ -97,6 +109,8 @@ const EndpointDetailsDialog = ({
     if (isEmpty(selectedModelEndpoint)) {
       fetchModelEndpoint()
     }
+
+    return () => abortControllerRef.current?.abort()
   }, [fetchModelEndpoint, selectedModelEndpoint])
 
   useEffect(() => {
@@ -107,14 +121,13 @@ const EndpointDetailsDialog = ({
     return () => document.removeEventListener('keydown', handleEscape)
   }, [onClose])
 
-  if (!isOpen) return null
+  const portalTarget = document.getElementById('overlay_container')
+
+  if (!isOpen || !portalTarget) return null
 
   return createPortal(
     <div className="fixed inset-0 z-[9]" data-testid="endpoint-details-dialog">
-      <div
-        className="absolute inset-0 bg-black opacity-50"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black opacity-50" onClick={onClose} role="presentation" />
       <div className="absolute inset-[2.5vh_2.5vw] bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
         {isLoading ? (
           <div className="flex-1 flex items-center justify-center">
@@ -139,7 +152,7 @@ const EndpointDetailsDialog = ({
         )}
       </div>
     </div>,
-    document.getElementById('overlay_container')
+    portalTarget
   )
 }
 

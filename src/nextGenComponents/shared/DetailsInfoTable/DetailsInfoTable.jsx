@@ -25,7 +25,7 @@ const EMPTY_VALUE_PLACEHOLDER = ''
 const LABEL_WIDTH = 'w-[200px]'
 
 const DetailsInfoTable = ({ className = '', items }) => {
-  const visibleItems = items.filter(item => !item.hidden)
+  const visibleItems = (items ?? []).filter(item => !item.hidden)
 
   if (visibleItems.length === 0) {
     return null

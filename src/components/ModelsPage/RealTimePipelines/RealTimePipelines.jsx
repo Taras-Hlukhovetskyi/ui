@@ -87,13 +87,16 @@ const RealTimePipelines = () => {
     store => store.functionsStore.funcLoading || store.nuclioStore.nuclioFunctionLoading
   )
 
-  const buildFetchConfig = useCallback(currentFilters => ({
-    filters: currentFilters,
-    config: {
-      ...PIPELINES_DEFAULT_FETCH_CONFIG.config,
-      ui: { setRequestErrorMessage }
-    }
-  }), [])
+  const buildFetchConfig = useCallback(
+    currentFilters => ({
+      filters: currentFilters,
+      config: {
+        ...PIPELINES_DEFAULT_FETCH_CONFIG.config,
+        ui: { setRequestErrorMessage }
+      }
+    }),
+    []
+  )
 
   const {
     fetchData: fetchNuclioEnriched,
@@ -266,7 +269,14 @@ const RealTimePipelines = () => {
       dispatch,
       lastCheckedPipelineIdRef
     })
-  }, [dispatch, fetchSingleEnrichedFunction, navigate, params.pipelineId, params.projectName, pipelines])
+  }, [
+    dispatch,
+    fetchSingleEnrichedFunction,
+    navigate,
+    params.pipelineId,
+    params.projectName,
+    pipelines
+  ])
 
   useEffect(() => {
     if (isEmpty(selectedPipeline)) {

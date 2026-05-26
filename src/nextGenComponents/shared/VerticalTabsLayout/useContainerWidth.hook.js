@@ -21,13 +21,13 @@ import { useState, useCallback, useRef } from 'react'
 
 const THROTTLE_MS = 300
 
-const useContainerWidth = (breakpoint) => {
+const useContainerWidth = breakpoint => {
   const [isAboveBreakpoint, setIsAboveBreakpoint] = useState(null)
   const observerRef = useRef(null)
   const throttleTimerRef = useRef(null)
 
   const containerRef = useCallback(
-    (element) => {
+    element => {
       if (observerRef.current) {
         observerRef.current.disconnect()
         observerRef.current = null

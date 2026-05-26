@@ -32,16 +32,15 @@ import {
   MONITORING_ENDPOINTS_FILTER_CONFIG,
   MONITORING_ENDPOINTS_NO_DATA_MESSAGE
 } from './monitoringEndpoints.constants'
-import {
-  fetchModelEndpoints,
-  removeModelEndpoints
-} from '../../../../../reducers/artifactsReducer'
+import { fetchModelEndpoints, removeModelEndpoints } from '../../../../../reducers/artifactsReducer'
 import { toggleYaml } from '../../../../../reducers/appReducer'
 import { monitorModelEndpoint } from '../../../../../components/ModelsPage/ModelEndpoints/modelEndpoints.util'
 import { FUNCTION_NAME_FILTER } from '../../../../../constants'
-
-const ALL_OPTION = { value: 'all', label: 'All' }
-const INITIAL_SORTING = [{ id: 'name', desc: false }]
+import {
+  DEFAULT_NAME_SORTING,
+  FILTER_ALL_OPTION,
+  VIEW_YAML_LABEL
+} from '../applicationDetails.constants'
 
 const filterEndpointsByLabel = (endpoints, filters) => {
   if (!filters.label) return endpoints
@@ -63,16 +62,14 @@ const ApplicationMonitoringEndpoints = ({ application }) => {
   const [selectedEndpoint, setSelectedEndpoint] = useState(null)
   const [yamlEndpoint, setYamlEndpoint] = useState(null)
 
-  const toggleConvertedYaml = useCallback(
-    data => dispatch(toggleYaml(data)),
-    [dispatch]
-  )
+  const toggleConvertedYaml = useCallback(data => dispatch(toggleYaml(data)), [dispatch])
 
   const handleMonitoring = useCallback(
     item => {
+      if (!frontendSpec?.model_monitoring_dashboard_url) return
       monitorModelEndpoint(frontendSpec.model_monitoring_dashboard_url, item, projectName)
     },
-    [frontendSpec.model_monitoring_dashboard_url, projectName]
+    [frontendSpec?.model_monitoring_dashboard_url, projectName]
   )
 
   const labelOptions = useMemo(() => {
@@ -81,10 +78,7 @@ const ApplicationMonitoringEndpoints = ({ application }) => {
       Object.keys(endpoint.metadata?.labels ?? {}).forEach(key => labelKeys.add(key))
     })
 
-    return [
-      ALL_OPTION,
-      ...[...labelKeys].sort().map(key => ({ value: key, label: key }))
-    ]
+    return [FILTER_ALL_OPTION, ...[...labelKeys].sort().map(key => ({ value: key, label: key }))]
   }, [modelEndpoints])
 
   const fetchEndpoints = useCallback(() => {
@@ -125,9 +119,8 @@ const ApplicationMonitoringEndpoints = ({ application }) => {
     setSelectedEndpoint({ uid, name })
   }, [])
 
-  const handleClosePopup = useCallback(() => {
-    setSelectedEndpoint(null)
-  }, [])
+  const handleClosePopup = useCallback(() => setSelectedEndpoint(null), [])
+  const handleCloseYaml = useCallback(() => setYamlEndpoint(null), [])
 
   const columns = useMemo(
     () => getMonitoringEndpointsColumns(handleEndpointClick),
@@ -136,17 +129,15 @@ const ApplicationMonitoringEndpoints = ({ application }) => {
 
   const rowActions = useCallback(
     endpoint => [
-      { label: 'View YAML', icon: FileCode2, onClick: () => setYamlEndpoint(endpoint) }
+      { label: VIEW_YAML_LABEL, icon: FileCode2, onClick: () => setYamlEndpoint(endpoint) }
     ],
     []
   )
 
   const renderFilters = useCallback(
-    ({ filters, setFilterValue, applyFilter, applyMultipleFilters }) => (
+    ({ filters, applyMultipleFilters }) => (
       <MonitoringEndpointsFilters
         filters={filters}
-        setFilterValue={setFilterValue}
-        applyFilter={applyFilter}
         applyMultipleFilters={applyMultipleFilters}
         labelOptions={labelOptions}
       />
@@ -166,7 +157,7 @@ const ApplicationMonitoringEndpoints = ({ application }) => {
         rowActions={rowActions}
         onRefresh={handleRefresh}
         showRefreshButton={false}
-        initialSorting={INITIAL_SORTING}
+        initialSorting={DEFAULT_NAME_SORTING}
         noDataMessage={MONITORING_ENDPOINTS_NO_DATA_MESSAGE}
       />
       {selectedEndpoint && (
@@ -180,11 +171,7 @@ const ApplicationMonitoringEndpoints = ({ application }) => {
           toggleConvertedYaml={toggleConvertedYaml}
         />
       )}
-      <YamlModal
-        open={!!yamlEndpoint}
-        data={yamlEndpoint}
-        onClose={() => setYamlEndpoint(null)}
-      />
+      <YamlModal open={!!yamlEndpoint} data={yamlEndpoint} onClose={handleCloseYaml} />
     </>
   )
 }

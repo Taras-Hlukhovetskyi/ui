@@ -25,16 +25,6 @@ import ApplicationDetails from './ApplicationDetails'
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
-const mockDispatch = vi.fn()
-
-vi.mock('react-redux', () => ({
-  useDispatch: () => mockDispatch
-}))
-
-vi.mock('../../../../reducers/appReducer', () => ({
-  toggleYaml: vi.fn(data => ({ type: 'toggleYaml', payload: data }))
-}))
-
 vi.mock('../../../shared/DetailsTabs/DetailsTabs', () => ({
   default: ({ title, tabs, activeTabId, onTabChange, onClose, actionsMenu }) => (
     <div data-testid="details-tabs">
@@ -65,7 +55,9 @@ vi.mock('./Overview/ApplicationOverview', () => ({
 }))
 
 vi.mock('./Configuration/ApplicationConfiguration', () => ({
-  default: ({ application }) => <div data-testid="application-configuration">{application.name}</div>
+  default: ({ application }) => (
+    <div data-testid="application-configuration">{application.name}</div>
+  )
 }))
 
 vi.mock('./BuildLogs/ApplicationBuildLogs', () => ({
@@ -77,7 +69,7 @@ vi.mock('./ApiGateways/ApplicationApiGateways', () => ({
 }))
 
 vi.mock('../../../shared/YamlModal/YamlModal', () => ({
-  default: () => <div data-testid="yaml-modal" />
+  default: ({ open }) => (open ? <div data-testid="yaml-modal" /> : null)
 }))
 
 // ── Test data ─────────────────────────────────────────────────────────────────
@@ -154,10 +146,11 @@ describe('ApplicationDetails', () => {
       expect(screen.getByTestId('action-View YAML')).toBeInTheDocument()
     })
 
-    it('dispatches toggleYaml when "View YAML" is clicked', () => {
+    it('opens YamlModal when "View YAML" is clicked', () => {
       renderDetails()
+      expect(screen.queryByTestId('yaml-modal')).not.toBeInTheDocument()
       fireEvent.click(screen.getByTestId('action-View YAML'))
-      expect(mockDispatch).toHaveBeenCalled()
+      expect(screen.getByTestId('yaml-modal')).toBeInTheDocument()
     })
   })
 })

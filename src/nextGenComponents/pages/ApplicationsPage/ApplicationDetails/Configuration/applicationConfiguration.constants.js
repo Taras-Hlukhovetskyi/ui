@@ -92,9 +92,11 @@ export const DESCRIPTION_TOOLTIP_TEXT = 'The description of the application func
 
 export const SPOT_NODES_TOOLTIP_TEXT = 'Disallow function pods from running on Spot nodes'
 
-export const IMAGE_NAME_TOOLTIP_TEXT = 'The name of the container image used for the application function'
+export const IMAGE_NAME_TOOLTIP_TEXT =
+  'The name of the container image used for the application function'
 
-export const BASE_IMAGE_TOOLTIP_TEXT = 'The base Docker image used to build the application function'
+export const BASE_IMAGE_TOOLTIP_TEXT =
+  'The base Docker image used to build the application function'
 
 export const PROBE_TYPE = {
   READINESS: 'Readiness',
