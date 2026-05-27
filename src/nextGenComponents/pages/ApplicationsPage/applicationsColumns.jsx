@@ -83,29 +83,30 @@ export const getApplicationsColumns = projectName => [
       return <UrlCell items={buildUrlItems(gatewayUrls)} />
     }
   },
-  {
-    id: 'endpoints',
-    header: 'Endpoints',
-    size: 10,
-    accessorFn: row => (row.directUrls?.length ?? 0) + (row.indirectUrls?.length ?? 0),
-    cell: ({ row }) => {
-      const count =
-        (row.original.directUrls?.length ?? 0) + (row.original.indirectUrls?.length ?? 0)
-      const tag = row.original.tag || ''
-      const hash = row.original.hash || ''
-      const identifier = tag ? `:${tag}@${hash}` : `@${hash}`
+  // todo: add endpoints count by counting endpoints
+  // {
+  //   id: 'endpoints',
+  //   header: 'Endpoints',
+  //   size: 10,
+  //   accessorFn: row => (row.directUrls?.length ?? 0) + (row.indirectUrls?.length ?? 0),
+  //   cell: ({ row }) => {
+  //     const count =
+  //       (row.original.directUrls?.length ?? 0) + (row.original.indirectUrls?.length ?? 0)
+  //     const tag = row.original.tag || ''
+  //     const hash = row.original.hash || ''
+  //     const identifier = tag ? `:${tag}@${hash}` : `@${hash}`
 
-      return (
-        <Link
-          to={`/projects/${projectName}/${APPLICATIONS_PAGE_PATH}/${row.original.name}/${identifier}/${APPLICATION_DETAILS_TAB.MONITORING_ENDPOINTS}`}
-          className="!text-igz-link text-body hover:underline"
-          data-testid="endpoints-count"
-        >
-          {count}
-        </Link>
-      )
-    }
-  },
+  //     return (
+  //       <Link
+  //         to={`/projects/${projectName}/${APPLICATIONS_PAGE_PATH}/${row.original.name}/${identifier}/${APPLICATION_DETAILS_TAB.MONITORING_ENDPOINTS}`}
+  //         className="!text-igz-link text-body hover:underline"
+  //         data-testid="endpoints-count"
+  //       >
+  //         {count}
+  //       </Link>
+  //     )
+  //   }
+  // },
   {
     accessorKey: 'updated',
     id: 'updated',

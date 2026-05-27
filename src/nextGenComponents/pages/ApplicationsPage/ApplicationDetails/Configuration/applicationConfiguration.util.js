@@ -109,7 +109,7 @@ export const getBasicSettingsItems = application => {
   return [
     {
       label: BASIC_SETTINGS_FIELD.ENABLED,
-      value: nuclioSpec.disable != null ? capitalize((!nuclioSpec.disable).toString()) : null
+      value: nuclioSpec.disable ? 'No' : 'Yes'
     },
     {
       label: BASIC_SETTINGS_FIELD.DESCRIPTION,
@@ -212,10 +212,7 @@ export const getBuildItems = application => {
     },
     {
       label: BUILD_FIELD.PULL_AT_RUNTIME,
-      value:
-        typeof mlrunSpec.loadSourceOnRun === 'boolean'
-          ? capitalize(String(mlrunSpec.loadSourceOnRun))
-          : null
+      value: mlrunSpec.loadSourceOnRun ? 'Yes' : 'No'
     }
   ]
 }
