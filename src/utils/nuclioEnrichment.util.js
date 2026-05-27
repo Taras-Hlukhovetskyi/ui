@@ -34,11 +34,30 @@ import {
 const NUCLIO_FUNCTIONS_STATE_KIND = 'nuclioFunctions'
 const NUCLIO_OWNER_LABEL = 'iguazio.com/username'
 
+const buildEndpointsCountMap = modelEndpoints => {
+  const countMap = {}
+
+  for (const endpoint of modelEndpoints) {
+    const functionName = endpoint.spec?.function_name ?? ''
+    const functionTag = endpoint.spec?.function_tag ?? ''
+
+    if (!functionName) continue
+
+    const key = `${functionName}:${functionTag}`
+    countMap[key] = (countMap[key] || 0) + 1
+  }
+
+  return countMap
+}
+
 export const enrichFunctionsWithNuclio = (
   parsedFunctions,
   nuclioFunctionsMap,
-  projectApiGateways = []
+  projectApiGateways = [],
+  modelEndpoints = []
 ) => {
+  const endpointsCountMap = buildEndpointsCountMap(modelEndpoints)
+
   return parsedFunctions.map(func => {
     const nuclioKey = func.nuclio_name || `${func.project}-${func.name}`
     const nuclioFunc = nuclioFunctionsMap[nuclioKey] || {}
@@ -75,6 +94,8 @@ export const enrichFunctionsWithNuclio = (
       indirectUrls.push(...(func.external_invocation_urls ?? []))
     }
 
+    const endpointsCount = endpointsCountMap[`${func.name}:${func.tag}`] ?? 0
+
     return {
       ...func,
       state: getState(state, FUNCTIONS_PAGE, NUCLIO_FUNCTIONS_STATE_KIND),
@@ -82,7 +103,8 @@ export const enrichFunctionsWithNuclio = (
       nuclioFunc,
       applicationGateways,
       directUrls,
-      indirectUrls
+      indirectUrls,
+      endpointsCount
     }
   })
 }

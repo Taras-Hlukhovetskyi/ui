@@ -101,6 +101,7 @@ const ApplicationsPage = () => {
     filterFn: filterApplications,
     buildFetchConfig,
     enrichApiGateways: true,
+    enrichModelEndpoints: true,
     errorMessage: APPLICATIONS_ERROR_MESSAGE
   })
 

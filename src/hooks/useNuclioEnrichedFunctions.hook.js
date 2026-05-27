@@ -28,6 +28,7 @@ import {
   fetchProjectApiGateways
 } from '../reducers/nuclioReducer'
 import { enrichFunctionsWithNuclio, computeCounters } from '../utils/nuclioEnrichment.util'
+import modelEndpointsApi from '../api/modelEndpoints-api'
 
 export { enrichFunctionsWithNuclio, computeCounters }
 
@@ -59,6 +60,7 @@ export const useNuclioEnrichedFunctions = ({
   filterFn,
   buildFetchConfig,
   enrichApiGateways = false,
+  enrichModelEndpoints = false,
   errorMessage = DEFAULT_ERROR_MESSAGE
 }) => {
   const dispatch = useDispatch()
@@ -67,6 +69,7 @@ export const useNuclioEnrichedFunctions = ({
   const mlrunSingleControllerRef = useRef(null)
   const nuclioSingleControllerRef = useRef(null)
   const gatewaysListControllerRef = useRef(null)
+  const modelEndpointsControllerRef = useRef(null)
   const [enrichedFunctions, setEnrichedFunctions] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [hasFetched, setHasFetched] = useState(null)
@@ -77,7 +80,8 @@ export const useNuclioEnrichedFunctions = ({
       mlrunListControllerRef,
       mlrunSingleControllerRef,
       nuclioSingleControllerRef,
-      gatewaysListControllerRef
+      gatewaysListControllerRef,
+      modelEndpointsControllerRef
     ]
     return () => {
       controllers.forEach(ref => ref.current?.abort())
@@ -106,6 +110,14 @@ export const useNuclioEnrichedFunctions = ({
     [dispatch, projectName]
   )
 
+  const fetchModelEndpointsList = useCallback(
+    signal =>
+      modelEndpointsApi
+        .getModelEndpoints(projectName, {}, { signal }, { latest_only: 'True' })
+        .then(({ data }) => data?.endpoints ?? []),
+    [projectName]
+  )
+
   const fetchData = useCallback(
     (thunkConfig = {}) => {
       mlrunListControllerRef.current?.abort()
@@ -114,6 +126,8 @@ export const useNuclioEnrichedFunctions = ({
       nuclioListControllerRef.current = new AbortController()
       gatewaysListControllerRef.current?.abort()
       gatewaysListControllerRef.current = new AbortController()
+      modelEndpointsControllerRef.current?.abort()
+      modelEndpointsControllerRef.current = new AbortController()
 
       const mlrunController = mlrunListControllerRef.current
 
@@ -138,15 +152,37 @@ export const useNuclioEnrichedFunctions = ({
         promises.push(fetchGatewaysList(gatewaysListControllerRef.current.signal))
       }
 
+      if (enrichModelEndpoints) {
+        promises.push(fetchModelEndpointsList(modelEndpointsControllerRef.current.signal))
+      }
+
       return Promise.allSettled(promises)
-        .then(([mlrunResult, nuclioResult, gatewaysResult]) => {
+        .then(results => {
           if (mlrunController.signal.aborted) return
+
+          const [mlrunResult, nuclioResult] = results
+
+          const gatewaysIndex = enrichApiGateways ? 2 : -1
+          const modelEndpointsIndex = enrichModelEndpoints
+            ? (enrichApiGateways ? 3 : 2)
+            : -1
 
           if (mlrunResult.status === 'fulfilled' && mlrunResult.value) {
             const nuclioMap = resolveNuclioMap(nuclioResult)
             const gateways =
-              gatewaysResult?.status === 'fulfilled' ? (gatewaysResult.value ?? []) : []
-            const enriched = enrichFunctionsWithNuclio(mlrunResult.value, nuclioMap, gateways)
+              gatewaysIndex >= 0 && results[gatewaysIndex]?.status === 'fulfilled'
+                ? (results[gatewaysIndex].value ?? [])
+                : []
+            const modelEndpoints =
+              modelEndpointsIndex >= 0 && results[modelEndpointsIndex]?.status === 'fulfilled'
+                ? (results[modelEndpointsIndex].value ?? [])
+                : []
+            const enriched = enrichFunctionsWithNuclio(
+              mlrunResult.value,
+              nuclioMap,
+              gateways,
+              modelEndpoints
+            )
             setEnrichedFunctions(enriched)
           }
         })
@@ -163,7 +199,9 @@ export const useNuclioEnrichedFunctions = ({
       parseListResponse,
       fetchAllNuclioFunctions,
       enrichApiGateways,
-      fetchGatewaysList
+      fetchGatewaysList,
+      enrichModelEndpoints,
+      fetchModelEndpointsList
     ]
   )
 
