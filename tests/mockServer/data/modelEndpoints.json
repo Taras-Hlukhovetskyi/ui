@@ -1191,6 +1191,270 @@
         "drift_measures": {},
         "drift_measures_timestamp": null
       }
+    },
+    {
+      "kind": "model-endpoint",
+      "metadata": {
+        "name": "chatbot-intent-classifier",
+        "project": "default",
+        "tag": null,
+        "labels": { "owner": "admin" },
+        "updated": "2026-05-20T09:15:00.000000",
+        "created": "2026-05-18T14:30:00.000000",
+        "uid": "e1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0",
+        "endpoint_type": 3,
+        "mode": 0
+      },
+      "spec": {
+        "function_name": "chatbot-assistant",
+        "function_tag": "latest",
+        "function_uid": "unversioned-latest",
+        "function_uri": "default/chatbot-assistant@unversioned-latest",
+        "model_name": "IntentClassifierV2",
+        "model_class": "ClassifierModel",
+        "model_uid": "ab12cd34ef56gh78ij90kl12mn34op56qr78st90",
+        "model_tag": "latest",
+        "model_uri": "store://models/default/intent-classifier:latest",
+        "feature_names": ["text_embedding"],
+        "label_names": ["intent"],
+        "children": null,
+        "children_uids": null,
+        "feature_stats": {},
+        "monitoring_feature_set_uri": ""
+      },
+      "status": {
+        "state": "ready",
+        "first_request": "2026-05-18T15:00:00.000000+00:00",
+        "last_request": "2026-05-20T09:10:00.000000+00:00",
+        "monitoring_mode": "enabled",
+        "sampling_percentage": 50,
+        "result_status": 0,
+        "avg_latency": 45.2,
+        "error_count": 3,
+        "current_stats": {},
+        "drift_measures": {},
+        "drift_status": "NO_DRIFT"
+      }
+    },
+    {
+      "kind": "model-endpoint",
+      "metadata": {
+        "name": "chatbot-sentiment-model",
+        "project": "default",
+        "tag": null,
+        "labels": { "owner": "admin" },
+        "updated": "2026-05-21T11:20:00.000000",
+        "created": "2026-05-19T08:00:00.000000",
+        "uid": "f2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a1b2",
+        "endpoint_type": 3,
+        "mode": 0
+      },
+      "spec": {
+        "function_name": "chatbot-assistant",
+        "function_tag": "latest",
+        "function_uid": "unversioned-latest",
+        "function_uri": "default/chatbot-assistant@unversioned-latest",
+        "model_name": "SentimentAnalyzerV1",
+        "model_class": "ClassifierModel",
+        "model_uid": "bc23de45fg67hi89jk01lm23no45pq67rs89tu01",
+        "model_tag": "latest",
+        "model_uri": "store://models/default/sentiment-analyzer:latest",
+        "feature_names": ["text_tokens"],
+        "label_names": ["sentiment"],
+        "children": null,
+        "children_uids": null,
+        "feature_stats": {},
+        "monitoring_feature_set_uri": ""
+      },
+      "status": {
+        "state": "ready",
+        "first_request": "2026-05-19T09:00:00.000000+00:00",
+        "last_request": "2026-05-21T11:15:00.000000+00:00",
+        "monitoring_mode": "enabled",
+        "sampling_percentage": 100,
+        "result_status": 0,
+        "avg_latency": 32.8,
+        "error_count": 0,
+        "current_stats": {},
+        "drift_measures": {},
+        "drift_status": "NO_DRIFT"
+      }
+    },
+    {
+      "kind": "model-endpoint",
+      "metadata": {
+        "name": "iris-prediction-model",
+        "project": "default",
+        "tag": null,
+        "labels": { "owner": "admin", "framework": "sklearn" },
+        "updated": "2026-05-22T16:45:00.000000",
+        "created": "2026-05-15T10:00:00.000000",
+        "uid": "a3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2",
+        "endpoint_type": 3,
+        "mode": 0
+      },
+      "spec": {
+        "function_name": "iris-streamlit-app",
+        "function_tag": "latest",
+        "function_uid": "unversioned-latest",
+        "function_uri": "default/iris-streamlit-app@unversioned-latest",
+        "model_name": "IrisClassifierRF",
+        "model_class": "ClassifierModel",
+        "model_uid": "cd34ef56gh78ij90kl12mn34op56qr78st90uv12",
+        "model_tag": "latest",
+        "model_uri": "store://models/default/iris-classifier:latest",
+        "feature_names": ["sepal_length", "sepal_width", "petal_length", "petal_width"],
+        "label_names": ["species"],
+        "children": null,
+        "children_uids": null,
+        "feature_stats": {},
+        "monitoring_feature_set_uri": ""
+      },
+      "status": {
+        "state": "ready",
+        "first_request": "2026-05-15T11:00:00.000000+00:00",
+        "last_request": "2026-05-22T16:40:00.000000+00:00",
+        "monitoring_mode": "enabled",
+        "sampling_percentage": 100,
+        "result_status": 0,
+        "avg_latency": 12.5,
+        "error_count": 0,
+        "current_stats": {},
+        "drift_measures": {},
+        "drift_status": "NO_DRIFT"
+      }
+    },
+    {
+      "kind": "model-endpoint",
+      "metadata": {
+        "name": "anomaly-lstm-model",
+        "project": "default",
+        "tag": null,
+        "labels": { "owner": "admin" },
+        "updated": "2026-05-23T08:30:00.000000",
+        "created": "2026-05-10T12:00:00.000000",
+        "uid": "b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3",
+        "endpoint_type": 3,
+        "mode": 0
+      },
+      "spec": {
+        "function_name": "anomaly-detector",
+        "function_tag": "latest",
+        "function_uid": "unversioned-latest",
+        "function_uri": "default/anomaly-detector@unversioned-latest",
+        "model_name": "AnomalyLSTM",
+        "model_class": "LSTMModel",
+        "model_uid": "de45fg67hi89jk01lm23no45pq67rs89tu01vw23",
+        "model_tag": "latest",
+        "model_uri": "store://models/default/anomaly-lstm:latest",
+        "feature_names": ["cpu_usage", "memory_usage", "network_io", "disk_io"],
+        "label_names": ["is_anomaly"],
+        "children": null,
+        "children_uids": null,
+        "feature_stats": {},
+        "monitoring_feature_set_uri": ""
+      },
+      "status": {
+        "state": "ready",
+        "first_request": "2026-05-10T13:00:00.000000+00:00",
+        "last_request": "2026-05-23T08:25:00.000000+00:00",
+        "monitoring_mode": "enabled",
+        "sampling_percentage": 100,
+        "result_status": 0,
+        "avg_latency": 28.3,
+        "error_count": 1,
+        "current_stats": {},
+        "drift_measures": {},
+        "drift_status": "POSSIBLE_DRIFT"
+      }
+    },
+    {
+      "kind": "model-endpoint",
+      "metadata": {
+        "name": "anomaly-isolation-forest",
+        "project": "default",
+        "tag": null,
+        "labels": { "owner": "admin" },
+        "updated": "2026-05-24T14:00:00.000000",
+        "created": "2026-05-12T09:00:00.000000",
+        "uid": "c5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4",
+        "endpoint_type": 3,
+        "mode": 0
+      },
+      "spec": {
+        "function_name": "anomaly-detector",
+        "function_tag": "latest",
+        "function_uid": "unversioned-latest",
+        "function_uri": "default/anomaly-detector@unversioned-latest",
+        "model_name": "IsolationForestV2",
+        "model_class": "IsolationForest",
+        "model_uid": "ef56gh78ij90kl12mn34op56qr78st90uv12wx34",
+        "model_tag": "latest",
+        "model_uri": "store://models/default/isolation-forest:latest",
+        "feature_names": ["cpu_usage", "memory_usage", "network_io", "disk_io"],
+        "label_names": ["is_anomaly"],
+        "children": null,
+        "children_uids": null,
+        "feature_stats": {},
+        "monitoring_feature_set_uri": ""
+      },
+      "status": {
+        "state": "ready",
+        "first_request": "2026-05-12T10:00:00.000000+00:00",
+        "last_request": "2026-05-24T13:55:00.000000+00:00",
+        "monitoring_mode": "enabled",
+        "sampling_percentage": 80,
+        "result_status": 0,
+        "avg_latency": 15.7,
+        "error_count": 0,
+        "current_stats": {},
+        "drift_measures": {},
+        "drift_status": "NO_DRIFT"
+      }
+    },
+    {
+      "kind": "model-endpoint",
+      "metadata": {
+        "name": "anomaly-autoencoder",
+        "project": "default",
+        "tag": null,
+        "labels": { "owner": "admin" },
+        "updated": "2026-05-25T10:00:00.000000",
+        "created": "2026-05-14T16:00:00.000000",
+        "uid": "d6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5",
+        "endpoint_type": 3,
+        "mode": 1
+      },
+      "spec": {
+        "function_name": "anomaly-detector",
+        "function_tag": "latest",
+        "function_uid": "unversioned-latest",
+        "function_uri": "default/anomaly-detector@unversioned-latest",
+        "model_name": "AnomalyAutoencoder",
+        "model_class": "AutoencoderModel",
+        "model_uid": "fg67hi89jk01lm23no45pq67rs89tu01vw23xy45",
+        "model_tag": "latest",
+        "model_uri": "store://models/default/anomaly-autoencoder:latest",
+        "feature_names": ["cpu_usage", "memory_usage", "network_io", "disk_io", "latency"],
+        "label_names": ["is_anomaly"],
+        "children": null,
+        "children_uids": null,
+        "feature_stats": {},
+        "monitoring_feature_set_uri": ""
+      },
+      "status": {
+        "state": "ready",
+        "first_request": "2026-05-14T17:00:00.000000+00:00",
+        "last_request": "2026-05-25T09:55:00.000000+00:00",
+        "monitoring_mode": "disabled",
+        "sampling_percentage": 100,
+        "result_status": 0,
+        "avg_latency": 52.1,
+        "error_count": 5,
+        "current_stats": {},
+        "drift_measures": {},
+        "drift_status": "DRIFT_DETECTED"
+      }
     }
   ]
 }

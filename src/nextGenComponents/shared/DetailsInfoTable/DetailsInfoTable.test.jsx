@@ -25,10 +25,6 @@ import DetailsInfoTable from './DetailsInfoTable'
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
-vi.mock('igz-controls/nextGenComponents', () => ({
-  Separator: () => <hr data-testid="separator" />
-}))
-
 // ── Test data ─────────────────────────────────────────────────────────────────
 
 const SAMPLE_ITEMS = [
@@ -74,11 +70,11 @@ describe('DetailsInfoTable', () => {
       expect(screen.getByText('alice')).toBeInTheDocument()
     })
 
-    it('renders separators between visible items', () => {
-      renderInfoTable()
-      const separators = screen.getAllByTestId('separator')
+    it('renders dividers between visible items but not after the last one', () => {
+      const { container } = renderInfoTable()
+      const dividers = container.querySelectorAll('.h-px')
       const visibleItemCount = SAMPLE_ITEMS.filter(i => !i.hidden).length
-      expect(separators).toHaveLength(visibleItemCount - 1)
+      expect(dividers).toHaveLength(visibleItemCount - 1)
     })
 
     it('uses custom testId when provided', () => {
@@ -86,9 +82,9 @@ describe('DetailsInfoTable', () => {
       expect(screen.getByTestId('info-name')).toBeInTheDocument()
     })
 
-    it('renders placeholder for null values', () => {
+    it('renders empty value for null values', () => {
       renderInfoTable(ITEMS_WITH_NULL_VALUE)
-      expect(screen.getByText('-')).toBeInTheDocument()
+      expect(screen.getByTestId('info-value-Description')).toHaveTextContent('')
     })
   })
 

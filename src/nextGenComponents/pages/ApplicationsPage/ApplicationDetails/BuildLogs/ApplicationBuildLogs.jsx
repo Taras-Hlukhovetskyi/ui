@@ -17,13 +17,13 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux'
 import { useParams } from 'react-router-dom'
 
 import LogSection from './LogSection'
-import { fetchFunctionLogs, fetchFunctionNuclioLogs } from '../../../../reducers/functionReducer'
+import { fetchFunctionLogs, fetchFunctionNuclioLogs } from '../../../../../reducers/functionReducer'
 import { showErrorNotification } from 'igz-controls/utils/notification.util'
 import {
   BUILD_LOGS_POLLING_INTERVAL_MS,
@@ -31,7 +31,7 @@ import {
   FUNCTION_STATUS_HEADER,
   LOGS_SECTION_KEY,
   TRANSIENT_FUNCTION_STATUSES
-} from './applicationDetails.constants'
+} from '../applicationDetails.constants'
 
 /**
  * Extracts function deploy logs from the API response.
@@ -86,67 +86,75 @@ const ApplicationBuildLogs = ({ application }) => {
     }
   }, [])
 
-  const fetchAppLogs = useCallback(() => {
-    dispatch(
-      fetchFunctionLogs({ project: projectName, name: application.name, tag: application.tag })
-    )
-      .unwrap()
-      .then(response => {
-        setApplicationLogs(response.data || '')
-        const isTransient = isFunctionTransient(response)
-        setIsAppLogsLoading(isTransient)
-
-        if (isTransient) {
-          clearPolling(appLogsPollingRef)
-          appLogsPollingRef.current = setTimeout(fetchAppLogs, BUILD_LOGS_POLLING_INTERVAL_MS)
-        }
-      })
-      .catch(error => {
-        setIsAppLogsLoading(false)
-        showErrorNotification(dispatch, error, 'Application logs failed to load')
-      })
-  }, [application.name, application.tag, clearPolling, dispatch, projectName])
-
-  const fetchFunctionDeployLogs = useCallback(() => {
-    dispatch(
-      fetchFunctionNuclioLogs({
-        project: projectName,
-        name: application.name,
-        tag: application.tag
-      })
-    )
-      .unwrap()
-      .then(response => {
-        setFunctionLogs(extractFunctionLogs(response.data))
-        const isTransient = isFunctionTransient(response)
-        setIsFunctionLogsLoading(isTransient)
-
-        if (isTransient) {
-          clearPolling(functionLogsPollingRef)
-          functionLogsPollingRef.current = setTimeout(
-            fetchFunctionDeployLogs,
-            BUILD_LOGS_POLLING_INTERVAL_MS
-          )
-        }
-      })
-      .catch(error => {
-        setIsFunctionLogsLoading(false)
-        showErrorNotification(dispatch, error, 'Function logs failed to load')
-      })
-  }, [application.name, application.tag, clearPolling, dispatch, projectName])
-
   useEffect(() => {
-    fetchAppLogs()
-    fetchFunctionDeployLogs()
+    let cancelled = false
+
+    const fetchAppLogsSafe = () => {
+      dispatch(
+        fetchFunctionLogs({ project: projectName, name: application.name, tag: application.tag })
+      )
+        .unwrap()
+        .then(response => {
+          if (cancelled) return
+          setApplicationLogs(response.data || '')
+          const isTransient = isFunctionTransient(response)
+          setIsAppLogsLoading(isTransient)
+
+          if (isTransient) {
+            clearPolling(appLogsPollingRef)
+            appLogsPollingRef.current = setTimeout(fetchAppLogsSafe, BUILD_LOGS_POLLING_INTERVAL_MS)
+          }
+        })
+        .catch(error => {
+          if (cancelled) return
+          setIsAppLogsLoading(false)
+          showErrorNotification(dispatch, error, 'Application logs failed to load')
+        })
+    }
+
+    const fetchFunctionDeployLogsSafe = () => {
+      dispatch(
+        fetchFunctionNuclioLogs({
+          project: projectName,
+          name: application.name,
+          tag: application.tag
+        })
+      )
+        .unwrap()
+        .then(response => {
+          if (cancelled) return
+          setFunctionLogs(extractFunctionLogs(response.data))
+          const isTransient = isFunctionTransient(response)
+          setIsFunctionLogsLoading(isTransient)
+
+          if (isTransient) {
+            clearPolling(functionLogsPollingRef)
+            functionLogsPollingRef.current = setTimeout(
+              fetchFunctionDeployLogsSafe,
+              BUILD_LOGS_POLLING_INTERVAL_MS
+            )
+          }
+        })
+        .catch(error => {
+          if (cancelled) return
+          setIsFunctionLogsLoading(false)
+          showErrorNotification(dispatch, error, 'Function logs failed to load')
+        })
+    }
+
+    fetchAppLogsSafe()
+    fetchFunctionDeployLogsSafe()
 
     return () => {
+      cancelled = true
       clearPolling(appLogsPollingRef)
       clearPolling(functionLogsPollingRef)
+      clearTimeout(copyResetRef.current)
     }
-  }, [fetchAppLogs, fetchFunctionDeployLogs, clearPolling])
+  }, [application.name, application.tag, clearPolling, dispatch, projectName])
 
   const handleCopy = useCallback((text, sectionKey) => {
-    navigator.clipboard.writeText(text)
+    navigator.clipboard.writeText(text).catch(() => {})
     setCopiedSection(sectionKey)
     clearTimeout(copyResetRef.current)
     copyResetRef.current = setTimeout(() => setCopiedSection(null), COPY_RESET_TIMEOUT_MS)
@@ -162,15 +170,27 @@ const ApplicationBuildLogs = ({ application }) => {
     [functionLogs, handleCopy]
   )
 
+  const appLogsEmpty = useMemo(
+    () =>
+      !isAppLogsLoading &&
+      (!applicationLogs || (typeof applicationLogs === 'string' && applicationLogs.trim() === '')),
+    [isAppLogsLoading, applicationLogs]
+  )
+
   return (
-    <div className="flex flex-col gap-6 py-4" data-testid="application-build-logs">
-      <LogSection
-        title="Application"
-        logs={applicationLogs}
-        isLoading={isAppLogsLoading}
-        isCopied={copiedSection === LOGS_SECTION_KEY.APPLICATION}
-        onCopy={handleCopyAppLogs}
-      />
+    <div
+      className="flex flex-col gap-6 py-4 h-full overflow-y-auto"
+      data-testid="application-build-logs"
+    >
+      {!appLogsEmpty && (
+        <LogSection
+          title="Application"
+          logs={applicationLogs}
+          isLoading={isAppLogsLoading}
+          isCopied={copiedSection === LOGS_SECTION_KEY.APPLICATION}
+          onCopy={handleCopyAppLogs}
+        />
+      )}
       <LogSection
         title="Function"
         logs={functionLogs}

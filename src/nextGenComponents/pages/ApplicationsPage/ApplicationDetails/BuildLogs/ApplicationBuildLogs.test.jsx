@@ -27,7 +27,7 @@ import {
   BUILD_LOGS_POLLING_INTERVAL_MS,
   COPY_RESET_TIMEOUT_MS,
   LOGS_SECTION_KEY
-} from './applicationDetails.constants'
+} from '../applicationDetails.constants'
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -41,7 +41,7 @@ vi.mock('react-router-dom', () => ({
   useParams: () => ({ projectName: 'my-project' })
 }))
 
-vi.mock('../../../../reducers/functionReducer', () => ({
+vi.mock('../../../../../reducers/functionReducer', () => ({
   fetchFunctionLogs: vi.fn(params => ({ type: 'fetchFunctionLogs', ...params })),
   fetchFunctionNuclioLogs: vi.fn(params => ({ type: 'fetchFunctionNuclioLogs', ...params }))
 }))
@@ -62,7 +62,7 @@ vi.mock('igz-controls/nextGenComponents', () => ({
   }
 }))
 
-vi.mock('../../../shared/LogsBlock/LogsBlock', () => ({
+vi.mock('../../../../shared/LogsBlock/LogsBlock', () => ({
   default: ({ logs }) => (
     <div data-testid="logs-block">
       {typeof logs === 'string' ? logs : JSON.stringify(logs ?? null)}
@@ -107,11 +107,21 @@ describe('ApplicationBuildLogs', () => {
       expect(screen.getByTestId('application-build-logs')).toBeInTheDocument()
     })
 
-    it('renders the Application section', async () => {
+    it('renders the Application section when app logs are present', async () => {
+      mockDispatch.mockImplementation(() =>
+        makeDispatchResponse({ data: 'some log output', headers: {} })
+      )
       await act(async () => renderComponent())
       expect(
         screen.getByTestId(`build-logs-section-${LOGS_SECTION_KEY.APPLICATION}`)
       ).toBeInTheDocument()
+    })
+
+    it('hides the Application section when app logs are empty', async () => {
+      await act(async () => renderComponent())
+      expect(
+        screen.queryByTestId(`build-logs-section-${LOGS_SECTION_KEY.APPLICATION}`)
+      ).not.toBeInTheDocument()
     })
 
     it('renders the Function section', async () => {
@@ -121,12 +131,23 @@ describe('ApplicationBuildLogs', () => {
       ).toBeInTheDocument()
     })
 
-    it('renders two LogsBlock components', async () => {
+    it('renders both LogsBlock components when app logs are present', async () => {
+      mockDispatch.mockImplementation(() =>
+        makeDispatchResponse({ data: 'some log output', headers: {} })
+      )
       await act(async () => renderComponent())
       expect(screen.getAllByTestId('logs-block')).toHaveLength(2)
     })
 
-    it('renders copy buttons for both sections', async () => {
+    it('renders only Function LogsBlock when app logs are empty', async () => {
+      await act(async () => renderComponent())
+      expect(screen.getAllByTestId('logs-block')).toHaveLength(1)
+    })
+
+    it('renders copy buttons for both sections when app logs are present', async () => {
+      mockDispatch.mockImplementation(() =>
+        makeDispatchResponse({ data: 'some log output', headers: {} })
+      )
       await act(async () => renderComponent())
       expect(screen.getByTestId(`copy-logs-${LOGS_SECTION_KEY.APPLICATION}`)).toBeInTheDocument()
       expect(screen.getByTestId(`copy-logs-${LOGS_SECTION_KEY.FUNCTION}`)).toBeInTheDocument()
@@ -136,7 +157,7 @@ describe('ApplicationBuildLogs', () => {
   describe('data fetching', () => {
     it('dispatches fetchFunctionLogs on mount', async () => {
       await act(async () => renderComponent())
-      const { fetchFunctionLogs } = await import('../../../../reducers/functionReducer')
+      const { fetchFunctionLogs } = await import('../../../../../reducers/functionReducer')
       expect(fetchFunctionLogs).toHaveBeenCalledWith({
         project: 'my-project',
         name: SAMPLE_APPLICATION.name,
@@ -146,7 +167,7 @@ describe('ApplicationBuildLogs', () => {
 
     it('dispatches fetchFunctionNuclioLogs on mount', async () => {
       await act(async () => renderComponent())
-      const { fetchFunctionNuclioLogs } = await import('../../../../reducers/functionReducer')
+      const { fetchFunctionNuclioLogs } = await import('../../../../../reducers/functionReducer')
       expect(fetchFunctionNuclioLogs).toHaveBeenCalledWith({
         project: 'my-project',
         name: SAMPLE_APPLICATION.name,
@@ -175,7 +196,12 @@ describe('ApplicationBuildLogs', () => {
       )
 
       await act(async () => renderComponent())
-      expect(screen.getAllByTestId('logs-block')[1]).toHaveTextContent('"Deploying"')
+      const functionLogsBlock = screen.getByTestId(
+        `build-logs-section-${LOGS_SECTION_KEY.FUNCTION}`
+      )
+      expect(functionLogsBlock.querySelector('[data-testid="logs-block"]')).toHaveTextContent(
+        '"Deploying"'
+      )
     })
   })
 
@@ -208,7 +234,7 @@ describe('ApplicationBuildLogs', () => {
 
   describe('polling', () => {
     it('polls again when the function status header indicates a transient state', async () => {
-      const { fetchFunctionLogs } = await import('../../../../reducers/functionReducer')
+      const { fetchFunctionLogs } = await import('../../../../../reducers/functionReducer')
 
       mockDispatch.mockImplementation(() =>
         makeDispatchResponse({
@@ -228,7 +254,7 @@ describe('ApplicationBuildLogs', () => {
     })
 
     it('does not poll when the function status is not transient', async () => {
-      const { fetchFunctionLogs } = await import('../../../../reducers/functionReducer')
+      const { fetchFunctionLogs } = await import('../../../../../reducers/functionReducer')
 
       mockDispatch.mockImplementation(() => makeDispatchResponse({ data: 'done', headers: {} }))
 
@@ -251,7 +277,7 @@ describe('ApplicationBuildLogs', () => {
       )
 
       const { unmount } = await act(async () => renderComponent())
-      const { fetchFunctionLogs } = await import('../../../../reducers/functionReducer')
+      const { fetchFunctionLogs } = await import('../../../../../reducers/functionReducer')
 
       unmount()
       const callCountAfterUnmount = fetchFunctionLogs.mock.calls.length
@@ -308,6 +334,9 @@ describe('ApplicationBuildLogs', () => {
     })
 
     it('shows the check icon after copying and reverts to copy icon after timeout', async () => {
+      mockDispatch.mockImplementation(() =>
+        makeDispatchResponse({ data: 'app log text', headers: {} })
+      )
       await act(async () => renderComponent())
 
       expect(screen.getByTestId(`copy-icon-${LOGS_SECTION_KEY.APPLICATION}`)).toBeInTheDocument()
@@ -335,6 +364,9 @@ describe('ApplicationBuildLogs', () => {
     })
 
     it('only marks the clicked section as copied, not the other', async () => {
+      mockDispatch.mockImplementation(() =>
+        makeDispatchResponse({ data: 'app log text', headers: {} })
+      )
       await act(async () => renderComponent())
 
       await act(async () => {

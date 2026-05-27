@@ -19,8 +19,11 @@ such restriction.
 */
 import React from 'react'
 import PropTypes from 'prop-types'
+import { cn } from 'igz-controls/nextGenComponents'
 
 import LogRow from './LogRow'
+
+const TERMINAL_BG = 'bg-[#0c0c0c]'
 
 /**
  * Renders scrollable log content inside a dark terminal area.
@@ -35,8 +38,7 @@ const LogsBlock = ({ logs, isLoading = false }) => {
 
   return (
     <div
-      className="rounded-md h-[300px] overflow-y-auto px-2 pt-2 pb-5"
-      style={{ backgroundColor: '#0c0c0c' }}
+      className={cn('rounded-md h-full overflow-y-auto px-2 pt-2 pb-5', TERMINAL_BG)}
       data-testid="logs-block"
     >
       {hasStructuredLogs ? (

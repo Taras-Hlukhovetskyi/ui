@@ -23,7 +23,13 @@ import { Input, TimeFilterDropdown, FilterPopover } from 'igz-controls/nextGenCo
 
 import SearchIcon from 'igz-controls/images/search2-icon.svg?react'
 
-import { DATES_FILTER, FILTER_ALL_ITEMS, NAME_FILTER, STATUS_FILTER } from '../../../../constants'
+import {
+  DATES_FILTER,
+  FILTER_ALL_ITEMS,
+  NAME_FILTER,
+  OWNER_FILTER,
+  STATUS_FILTER
+} from '../../../../constants'
 import {
   STATUS_POPOVER_OPTIONS,
   TIME_FILTER_CUSTOM_VALUE,
@@ -36,7 +42,7 @@ import {
   getDatePickerFilterValue
 } from '../../../../utils/datePicker.util'
 
-const ApplicationsFilters = ({ filters, applyFilter }) => {
+const ApplicationsFilters = ({ filters, applyFilter, applyMultipleFilters }) => {
   const nameFilter = filters[NAME_FILTER]
   const [nameValue, setNameValue] = useState(nameFilter ?? '')
 
@@ -107,16 +113,41 @@ const ApplicationsFilters = ({ filters, applyFilter }) => {
           if (hasSelectedAll) return [FILTER_ALL_ITEMS]
           return next.filter(v => v !== FILTER_ALL_ITEMS)
         }
+      },
+      owner: {
+        key: 'owner',
+        label: 'Owner',
+        kind: 'text',
+        placeholder: 'Search by owner...',
+        defaultValue: filters[OWNER_FILTER] ?? ''
       }
     }),
     [filters]
   )
+
+  const handlePopoverApply = useCallback(
+    vals => {
+      applyMultipleFilters({
+        [OWNER_FILTER]: vals?.owner ?? '',
+        [STATUS_FILTER]: vals?.status ?? [FILTER_ALL_ITEMS]
+      })
+    },
+    [applyMultipleFilters]
+  )
+
+  const handlePopoverClear = useCallback(() => {
+    applyMultipleFilters({
+      [OWNER_FILTER]: '',
+      [STATUS_FILTER]: [FILTER_ALL_ITEMS]
+    })
+  }, [applyMultipleFilters])
 
   return (
     <>
       <div className="relative w-[280px]" data-testid="name-filter">
         <Input
           placeholder="Search by name..."
+          aria-label="Search applications by name"
           className="pl-3 pr-9 h-10"
           data-testid="name-filter-input"
           value={nameValue}
@@ -127,11 +158,12 @@ const ApplicationsFilters = ({ filters, applyFilter }) => {
         />
         <button
           type="button"
+          aria-label="Search by name"
           className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-igz-accent-hover transition-colors cursor-pointer"
           onClick={handleNameSubmit}
           data-testid="name-filter-search-button"
         >
-          <SearchIcon className="h-4 w-4" />
+          <SearchIcon className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
 
@@ -150,8 +182,8 @@ const ApplicationsFilters = ({ filters, applyFilter }) => {
 
       <FilterPopover
         schema={filterPopoverSchema}
-        onApply={vals => applyFilter(STATUS_FILTER, vals?.status ?? [FILTER_ALL_ITEMS])}
-        onClear={() => applyFilter(STATUS_FILTER, [FILTER_ALL_ITEMS])}
+        onApply={handlePopoverApply}
+        onClear={handlePopoverClear}
       />
     </>
   )
@@ -160,10 +192,12 @@ const ApplicationsFilters = ({ filters, applyFilter }) => {
 ApplicationsFilters.propTypes = {
   filters: PropTypes.shape({
     [NAME_FILTER]: PropTypes.string,
+    [OWNER_FILTER]: PropTypes.string,
     [DATES_FILTER]: PropTypes.object,
     [STATUS_FILTER]: PropTypes.array
   }).isRequired,
-  applyFilter: PropTypes.func.isRequired
+  applyFilter: PropTypes.func.isRequired,
+  applyMultipleFilters: PropTypes.func.isRequired
 }
 
 export default ApplicationsFilters

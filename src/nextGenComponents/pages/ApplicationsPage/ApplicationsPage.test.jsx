@@ -22,32 +22,27 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 
-import Applications from './Applications'
+import ApplicationsPage from './ApplicationsPage'
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
 const mockNavigate = vi.fn()
 const mockDispatch = vi.fn(() => ({ unwrap: () => Promise.resolve(null) }))
-const mockSetSearchParams = vi.fn()
 
 vi.mock('react-router-dom', () => ({
   Link: props => <a href={props.to}>{props.children}</a>,
-  useOutletContext: () => ({
-    applications: SAMPLE_APPLICATIONS,
-    paginatedApplications: SAMPLE_APPLICATIONS,
-    paginationConfigRef: { current: {} },
-    searchParams: new URLSearchParams(),
-    setSearchParams: mockSetSearchParams,
-    setIsDetailsReady: vi.fn()
-  }),
   useParams: () => ({ projectName: 'my-project' }),
-  useNavigate: () => mockNavigate,
-  useSearchParams: () => [new URLSearchParams(), mockSetSearchParams]
+  useNavigate: () => mockNavigate
 }))
 
 vi.mock('react-redux', () => ({
   useDispatch: () => mockDispatch,
-  useSelector: vi.fn(selector => selector({ functionsStore: { funcLoading: false } }))
+  useSelector: vi.fn(selector =>
+    selector({
+      functionsStore: { funcLoading: false },
+      nuclioStore: { nuclioFunctionLoading: false }
+    })
+  )
 }))
 
 vi.mock('igz-controls/nextGenComponents', () => ({
@@ -68,47 +63,12 @@ vi.mock('igz-controls/nextGenComponents', () => ({
       </tbody>
     </table>
   ),
+  Loader: () => <div data-testid="loader" />,
   Tooltip: props => <>{props.children}</>,
   TooltipTrigger: props => <>{props.children}</>,
-  TooltipContent: props => <div data-testid="tooltip-content">{props.children}</div>
+  TooltipContent: props => <div data-testid="tooltip-content">{props.children}</div>,
+  TooltipProvider: ({ children }) => <>{children}</>
 }))
-
-vi.mock('../../../../common/Pagination/Pagination', () => ({
-  default: () => <div data-testid="pagination" />
-}))
-
-vi.mock('../../../shared/UrlCell', () => ({
-  default: ({ items }) => <div data-testid="url-cell">{items.map(i => i.url).join(', ')}</div>,
-  buildUrlItems: (external = [], internal = []) => [
-    ...external.map(url => ({ url, allowCopy: true, openInNewTab: true })),
-    ...internal.map(url => ({ url }))
-  ]
-}))
-
-vi.mock('../ApplicationDetails/ApplicationDetails', () => ({
-  default: ({ application, onClose }) => (
-    <div data-testid="application-details">
-      <span data-testid="details-app-name">{application.name}</span>
-      <button data-testid="details-close" onClick={onClose}>
-        Close
-      </button>
-    </div>
-  )
-}))
-
-vi.mock('../../../../reducers/appReducer', () => ({
-  toggleYaml: vi.fn(data => ({ type: 'toggleYaml', payload: data }))
-}))
-
-vi.mock('../../../../reducers/functionReducer', () => ({
-  fetchFunction: vi.fn(() => ({ type: 'fetchFunction' }))
-}))
-
-vi.mock('../applicationsPage.util', () => ({
-  checkForSelectedApplication: vi.fn()
-}))
-
-// ── Test data ─────────────────────────────────────────────────────────────────
 
 const SAMPLE_APPLICATIONS = [
   {
@@ -119,7 +79,8 @@ const SAMPLE_APPLICATIONS = [
     external_invocation_urls: ['host-a.example.com:8080'],
     internal_invocation_urls: [],
     updated: '2026-05-10T12:00:00.000Z',
-    labels: { owner: 'alice' }
+    labels: { owner: 'alice' },
+    owner: 'alice'
   },
   {
     name: 'app-beta',
@@ -129,55 +90,159 @@ const SAMPLE_APPLICATIONS = [
     external_invocation_urls: [],
     internal_invocation_urls: [],
     updated: null,
-    labels: {}
+    labels: {},
+    owner: ''
   }
 ]
 
+vi.mock('../../../hooks/useFiltersFromSearchParams.hook', () => ({
+  useFiltersFromSearchParams: () => ({})
+}))
+
+vi.mock('../../../hooks/useNuclioEnrichedFunctions.hook', () => ({
+  useNuclioEnrichedFunctions: () => ({
+    fetchData: vi.fn(),
+    fetchSingleEnrichedFunction: vi.fn(() => Promise.resolve(null)),
+    filteredData: SAMPLE_APPLICATIONS,
+    counters: { total: 2, running: 1, failed: 1, deploying: 0 },
+    isLoading: false
+  })
+}))
+
+vi.mock('../../shared/UrlCell', () => ({
+  default: ({ items }) => <div data-testid="url-cell">{items.map(i => i.url).join(', ')}</div>,
+  buildUrlItems: (external = [], internal = []) => [
+    ...external.map(url => ({ url, allowCopy: true, openInNewTab: true })),
+    ...internal.map(url => ({ url }))
+  ]
+}))
+
+vi.mock('./ApplicationCounters/ApplicationCounters', () => ({
+  default: () => <div data-testid="application-counters" />
+}))
+
+vi.mock('./ApplicationsFilters/ApplicationsFilters', () => ({
+  default: () => <div data-testid="applications-filters" />
+}))
+
+vi.mock('../../shared/ActionBar/ActionBar', () => ({
+  default: ({ children }) => (
+    <div data-testid="action-bar">
+      {children?.({
+        filters: {},
+        applyFilter: vi.fn(),
+        applyMultipleFilters: vi.fn()
+      })}
+    </div>
+  )
+}))
+
+vi.mock('../../../common/Breadcrumbs/Breadcrumbs', () => ({
+  default: () => <div data-testid="breadcrumbs" />
+}))
+
+vi.mock('./ApplicationDetails/ApplicationDetails', () => ({
+  default: ({ application, onClose }) => (
+    <div data-testid="application-details">
+      <span data-testid="details-app-name">{application.name}</span>
+      <button data-testid="details-close" onClick={onClose}>
+        Close
+      </button>
+    </div>
+  )
+}))
+
+vi.mock('../../shared/YamlModal/YamlModal', () => ({
+  default: ({ open }) => (open ? <div data-testid="yaml-modal" /> : null)
+}))
+
+vi.mock('./applicationsPage.util', () => {
+  const mockCheckForSelectedApplication = vi.fn()
+  mockCheckForSelectedApplication.cancel = vi.fn()
+  return {
+    checkForSelectedApplication: mockCheckForSelectedApplication,
+    buildApiFilters: vi.fn(() => ({})),
+    filterApplications: vi.fn(apps => apps),
+    parseApplicationsQueryParams: vi.fn()
+  }
+})
+
+vi.mock('../../shared/NoData/NoData', () => ({
+  default: ({ message }) => <div data-testid="no-data">{message}</div>
+}))
+
+vi.mock('../../../utils/getNoDataMessage', () => ({
+  getNoDataMessage: vi.fn(() => 'No data')
+}))
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const renderApplications = () => render(<Applications />)
+const renderPage = () => render(<ApplicationsPage />)
 
 // ── Tests ──────────────────────────────────────────────────────────────────────
 
-describe('Applications', () => {
+describe('ApplicationsPage', () => {
   beforeEach(() => vi.clearAllMocks())
   afterEach(() => vi.restoreAllMocks())
 
-  // ── Rendering ──────────────────────────────────────────────────────────────
-
   describe('rendering', () => {
     it('renders the data table', () => {
-      renderApplications()
+      renderPage()
       expect(screen.getByTestId('data-table')).toBeInTheDocument()
     })
 
     it('renders one row per application', () => {
-      renderApplications()
+      renderPage()
       expect(screen.getAllByTestId('table-row')).toHaveLength(SAMPLE_APPLICATIONS.length)
     })
 
     it('renders "All Applications" heading', () => {
-      renderApplications()
+      renderPage()
       expect(screen.getByText('All Applications')).toBeInTheDocument()
     })
 
-    it('renders the pagination component', () => {
-      renderApplications()
-      expect(screen.getByTestId('pagination')).toBeInTheDocument()
+    it('renders owner cells for each application', () => {
+      renderPage()
+      const ownerCells = screen.getAllByTestId('owner-cell')
+      expect(ownerCells).toHaveLength(SAMPLE_APPLICATIONS.length)
+    })
+
+    it('renders owner name when present', () => {
+      renderPage()
+      expect(screen.getByText('alice')).toBeInTheDocument()
+    })
+
+    it('renders empty cell when owner is empty', () => {
+      renderPage()
+      const ownerCells = screen.getAllByTestId('owner-cell')
+      expect(ownerCells[1]).toHaveTextContent('')
+    })
+
+    it('renders breadcrumbs', () => {
+      renderPage()
+      expect(screen.getByTestId('breadcrumbs')).toBeInTheDocument()
+    })
+
+    it('renders application counters', () => {
+      renderPage()
+      expect(screen.getByTestId('application-counters')).toBeInTheDocument()
+    })
+
+    it('renders action bar', () => {
+      renderPage()
+      expect(screen.getByTestId('action-bar')).toBeInTheDocument()
     })
   })
 
-  // ── Name cell ──────────────────────────────────────────────────────────────
-
   describe('name cell', () => {
     it('renders application names as links', () => {
-      renderApplications()
+      renderPage()
       expect(screen.getByText('app-alpha')).toBeInTheDocument()
       expect(screen.getByText('app-beta')).toBeInTheDocument()
     })
 
     it('links to the application detail page with tag and hash identifier', () => {
-      renderApplications()
+      renderPage()
       const link = screen.getByText('app-alpha').closest('a')
       expect(link).toHaveAttribute(
         'href',
@@ -186,7 +251,7 @@ describe('Applications', () => {
     })
 
     it('links with hash-only identifier when tag is empty', () => {
-      renderApplications()
+      renderPage()
       const link = screen.getByText('app-beta').closest('a')
       expect(link).toHaveAttribute(
         'href',
@@ -195,76 +260,72 @@ describe('Applications', () => {
     })
 
     it('renders a status dot for each row', () => {
-      renderApplications()
-      expect(screen.getAllByTestId('status-dot')).toHaveLength(SAMPLE_APPLICATIONS.length)
+      renderPage()
+      expect(screen.getAllByTestId(/^application-status-dot-/)).toHaveLength(
+        SAMPLE_APPLICATIONS.length
+      )
     })
   })
-
-  // ── Updated cell ───────────────────────────────────────────────────────────
 
   describe('updated cell', () => {
     it('renders a formatted date when updated is provided', () => {
-      renderApplications()
+      renderPage()
       expect(screen.getByText(/May 10, 2026/)).toBeInTheDocument()
     })
 
-    it('renders "N/A" in the updated cell when updated is null', () => {
-      renderApplications()
+    it('renders empty cell when updated is null', () => {
+      renderPage()
       const updatedCell = screen.getAllByTestId('cell-updated')[1]
-      expect(updatedCell).toHaveTextContent('N/A')
+      expect(updatedCell).toHaveTextContent('')
     })
   })
 
-  // ── Status dot class ───────────────────────────────────────────────────────
-
   describe('status dot class', () => {
     it('applies the nuclioFunctions state className for the running app', () => {
-      renderApplications()
-      const dots = screen.getAllByTestId('status-dot')
-      expect(dots[0]).toHaveClass('state-running-nuclioFunctions')
+      renderPage()
+      expect(screen.getByTestId('application-status-dot-running')).toHaveClass(
+        'state-running-nuclioFunctions'
+      )
     })
 
     it('applies the nuclioFunctions state className for the failed app', () => {
-      renderApplications()
-      const dots = screen.getAllByTestId('status-dot')
-      expect(dots[1]).toHaveClass('state-failed-nuclioFunctions')
+      renderPage()
+      expect(screen.getByTestId('application-status-dot-error')).toHaveClass(
+        'state-failed-nuclioFunctions'
+      )
     })
 
     it('renders dots as <i> elements styled by main.scss state classes', () => {
-      renderApplications()
-      const dots = screen.getAllByTestId('status-dot')
+      renderPage()
+      const dots = screen.getAllByTestId(/^application-status-dot-/)
       dots.forEach(dot => expect(dot.tagName).toBe('I'))
     })
   })
 
-  // ── Status tooltip ─────────────────────────────────────────────────────────
-
   describe('status tooltip', () => {
     it('renders the state label as tooltip content for the running app', () => {
-      renderApplications()
+      renderPage()
       const tooltipContents = screen.getAllByTestId('tooltip-content')
       const labels = tooltipContents.map(el => el.textContent)
       expect(labels).toContain('Running')
     })
 
     it('renders the state label as tooltip content for the failed app', () => {
-      renderApplications()
+      renderPage()
       const tooltipContents = screen.getAllByTestId('tooltip-content')
       const labels = tooltipContents.map(el => el.textContent)
       expect(labels).toContain('Error')
     })
   })
 
-  // ── Help icon tooltip ──────────────────────────────────────────────────────
-
   describe('help icon tooltip', () => {
     it('renders the help icon', () => {
-      renderApplications()
+      renderPage()
       expect(screen.getByTestId('help-icon')).toBeInTheDocument()
     })
 
     it('renders the help tooltip description text', () => {
-      renderApplications()
+      renderPage()
       const tooltipContents = screen.getAllByTestId('tooltip-content')
       const descriptions = tooltipContents.map(el => el.textContent)
       expect(descriptions).toContain('List of all deployed applications in the project')

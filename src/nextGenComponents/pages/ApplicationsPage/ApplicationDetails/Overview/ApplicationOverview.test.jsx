@@ -27,13 +27,14 @@ import ApplicationOverview from './ApplicationOverview'
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
 vi.mock('igz-controls/nextGenComponents', () => ({
+  cn: (...args) => args.filter(Boolean).join(' '),
   Separator: () => <hr data-testid="separator" />,
   Tooltip: props => <>{props.children}</>,
   TooltipTrigger: props => <>{props.children}</>,
   TooltipContent: props => <div data-testid="tooltip-content">{props.children}</div>
 }))
 
-vi.mock('../../../shared/DetailsInfoTable/DetailsInfoTable', () => ({
+vi.mock('../../../../shared/DetailsInfoTable/DetailsInfoTable', () => ({
   default: ({ items }) => (
     <div data-testid="details-info-table">
       {items
@@ -48,7 +49,7 @@ vi.mock('../../../shared/DetailsInfoTable/DetailsInfoTable', () => ({
   )
 }))
 
-vi.mock('../../../shared/UrlItem/UrlItem', () => ({
+vi.mock('../../../../shared/UrlItem/UrlItem', () => ({
   default: ({ url }) => (
     <a data-testid="url-item" href={url}>
       {url}
@@ -61,23 +62,24 @@ vi.mock('../../../shared/UrlItem/UrlItem', () => ({
 const SAMPLE_APPLICATION = {
   name: 'Application_1',
   state: { value: 'running', label: 'Running', className: 'state-running-nuclioFunctions' },
-  external_invocation_urls: ['https://api-gateway.example.com/v1/project3-name'],
+  directUrls: ['https://api-gateway.example.com/v1/project3-name'],
+  indirectUrls: ['https://indirect-gw.example.com/v1/app'],
   internal_invocation_urls: ['tutorial-amitk-iris-streamlit-app.example.com'],
   description: 'description',
   application_image: '',
   image: '',
   build: { source: 'projects/tutorial-amitk/artifacts/streamlit-app-source.tar.gz' },
   labels: { owner: 'John Driller' },
+  owner: 'John Driller',
   tag: '',
   updated: new Date('2024-10-29T06:46:10.000Z'),
-  command: ['https://api-gateway.example.com/v1/project3-name'],
-  args: ['app:server --bind', '0.0.0.0:8050 --workers 4'],
-  ui: {
-    originalContent: {
-      spec: {
-        command: 'streamlit run'
+  config: {
+    'spec.sidecars': [
+      {
+        command: ['streamlit', 'run'],
+        args: ['app:server --bind', '0.0.0.0:8050 --workers 4']
       }
-    }
+    ]
   }
 }
 
@@ -113,6 +115,11 @@ describe('ApplicationOverview', () => {
       expect(screen.getByTestId('info-row-Source')).toBeInTheDocument()
     })
 
+    it('renders the Owner row', () => {
+      renderOverview()
+      expect(screen.getByTestId('info-row-Owner')).toBeInTheDocument()
+    })
+
     it('renders the Updated row', () => {
       renderOverview()
       expect(screen.getByTestId('info-row-Updated')).toBeInTheDocument()
@@ -145,14 +152,14 @@ describe('ApplicationOverview', () => {
   })
 
   describe('hidden fields', () => {
-    it('hides Direct URLs when external_invocation_urls is empty', () => {
-      renderOverview({ ...SAMPLE_APPLICATION, external_invocation_urls: [] })
-      expect(screen.queryByTestId('info-row-Direct URLs')).not.toBeInTheDocument()
+    it('shows Direct URLs row even when directUrls is empty', () => {
+      renderOverview({ ...SAMPLE_APPLICATION, directUrls: [] })
+      expect(screen.getByTestId('info-row-Direct URLs')).toBeInTheDocument()
     })
 
-    it('hides Indirect URLs when internal_invocation_urls is empty', () => {
-      renderOverview({ ...SAMPLE_APPLICATION, internal_invocation_urls: [] })
-      expect(screen.queryByTestId('info-row-Indirect URLs')).not.toBeInTheDocument()
+    it('shows Indirect URLs row even when indirectUrls is empty', () => {
+      renderOverview({ ...SAMPLE_APPLICATION, indirectUrls: [] })
+      expect(screen.getByTestId('info-row-Indirect URLs')).toBeInTheDocument()
     })
 
     it('hides Internal URLs when internal_invocation_urls is empty', () => {

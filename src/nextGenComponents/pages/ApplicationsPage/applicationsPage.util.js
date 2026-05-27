@@ -20,20 +20,15 @@ such restriction.
 import { debounce, isEqual } from 'lodash'
 
 import { parseIdentifier } from '../../../utils/parseUri'
-import { parseFunction } from '../../../utils/parseFunction'
 import { showErrorNotification } from 'igz-controls/utils/notification.util'
-import { fetchFunction } from '../../../reducers/functionReducer'
 import {
-  BE_PAGE,
   DATES_FILTER,
-  FE_PAGE,
   FILTER_ALL_ITEMS,
   APPLICATIONS_PAGE_PATH,
-  FUNCTIONS_PAGE,
   NAME_FILTER,
+  OWNER_FILTER,
   STATUS_FILTER
 } from '../../../constants'
-import getState from '../../../utils/getState'
 import { APPLICATION_STATUS, FAILED_API_STATES } from './applications.constants'
 
 export const parseApplicationsQueryParams = (paramName, paramValue) => {
@@ -77,70 +72,51 @@ export const buildApiFilters = filters => {
 }
 
 export const filterApplications = (applications, filters) => {
+  let filtered = applications ?? []
+
+  const ownerSearch = filters[OWNER_FILTER]?.trim().toLowerCase()
+  if (ownerSearch) {
+    filtered = filtered.filter(app => (app.owner ?? '').toLowerCase().includes(ownerSearch))
+  }
+
   const selectedStatuses = Array.isArray(filters[STATUS_FILTER])
     ? filters[STATUS_FILTER].filter(s => s !== FILTER_ALL_ITEMS)
     : []
 
-  if (selectedStatuses.length === 0) return applications
+  if (selectedStatuses.length > 0) {
+    const expandedStatuses = selectedStatuses.flatMap(uiStatus => {
+      if (uiStatus === APPLICATION_STATUS.FAILED) return FAILED_API_STATES
+      if (uiStatus === APPLICATION_STATUS.RUNNING)
+        return [APPLICATION_STATUS.RUNNING, APPLICATION_STATUS.READY]
+      return [uiStatus]
+    })
 
-  const expandedStatuses = selectedStatuses.flatMap(uiStatus => {
-    if (uiStatus === APPLICATION_STATUS.FAILED) return FAILED_API_STATES
-    if (uiStatus === APPLICATION_STATUS.RUNNING)
-      return [APPLICATION_STATUS.RUNNING, APPLICATION_STATUS.READY]
-    return [uiStatus]
-  })
+    filtered = filtered.filter(app => expandedStatuses.includes(app.state?.value))
+  }
 
-  return applications.filter(app => expandedStatuses.includes(app.state?.value))
+  return filtered
 }
 
 const DEBOUNCE_DELAY_MS = 30
-
-const fetchAndParseApplication = (dispatch, projectName, applicationName, hash, tag) => {
-  return dispatch(fetchFunction({ project: projectName, name: applicationName, hash, tag }))
-    .unwrap()
-    .then(rawFunc => {
-      if (!rawFunc) return null
-
-      const application = parseFunction(rawFunc, projectName)
-      const apiState = rawFunc.status?.state
-      const normalizedState =
-        apiState === APPLICATION_STATUS.READY ? APPLICATION_STATUS.RUNNING : apiState
-
-      return {
-        ...application,
-        state: getState(normalizedState, FUNCTIONS_PAGE, 'nuclioFunctions')
-      }
-    })
-}
 
 export const checkForSelectedApplication = debounce(
   ({
     applicationName,
     applicationId,
     applications,
-    paginatedApplications,
-    paginationConfigRef,
-    searchParams,
-    setSearchParams,
     navigate,
     projectName,
     setSelectedApplication,
+    fetchSingleEnrichedFunction,
     dispatch,
     lastCheckedApplicationIdRef
   }) => {
     if (applicationId) {
-      const searchBePage = parseInt(searchParams.get(BE_PAGE)) || 1
-      const configBePage = paginationConfigRef.current[BE_PAGE] ?? 1
-
-      if (
-        applications &&
-        searchBePage === configBePage &&
-        lastCheckedApplicationIdRef.current !== applicationId
-      ) {
+      if (applications && lastCheckedApplicationIdRef.current !== applicationId) {
         const { tag, uid: hash } = parseIdentifier(applicationId)
         lastCheckedApplicationIdRef.current = applicationId
 
-        fetchAndParseApplication(dispatch, projectName, applicationName, hash, tag)
+        fetchSingleEnrichedFunction({ name: applicationName, hash, tag })
           .then(selectedApplication => {
             if (!selectedApplication) {
               navigate(
@@ -148,29 +124,6 @@ export const checkForSelectedApplication = debounce(
                 { replace: true }
               )
             } else {
-              const findApplicationIndex = list =>
-                list.findIndex(app => {
-                  const appData = app.data ?? app
-                  return tag
-                    ? isEqual(appData.tag, tag) && isEqual(appData.name, applicationName)
-                    : isEqual(appData.hash, hash) && isEqual(appData.name, applicationName)
-                })
-
-              const indexInPaginatedList = findApplicationIndex(paginatedApplications)
-              const indexInMainList =
-                indexInPaginatedList !== -1
-                  ? indexInPaginatedList
-                  : findApplicationIndex(applications)
-
-              if (indexInPaginatedList === -1 && indexInMainList > -1) {
-                const { fePageSize } = paginationConfigRef.current
-
-                setSearchParams(prevSearchParams => {
-                  prevSearchParams.set(FE_PAGE, Math.ceil((indexInMainList + 1) / fePageSize))
-                  return prevSearchParams
-                })
-              }
-
               setSelectedApplication(prevState =>
                 isEqual(prevState, selectedApplication) ? prevState : selectedApplication
               )

@@ -25,16 +25,6 @@ import ApplicationDetails from './ApplicationDetails'
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
-const mockDispatch = vi.fn()
-
-vi.mock('react-redux', () => ({
-  useDispatch: () => mockDispatch
-}))
-
-vi.mock('../../../../reducers/appReducer', () => ({
-  toggleYaml: vi.fn(data => ({ type: 'toggleYaml', payload: data }))
-}))
-
 vi.mock('../../../shared/DetailsTabs/DetailsTabs', () => ({
   default: ({ title, tabs, activeTabId, onTabChange, onClose, actionsMenu }) => (
     <div data-testid="details-tabs">
@@ -60,8 +50,26 @@ vi.mock('../../../shared/DetailsTabs/DetailsTabs', () => ({
   )
 }))
 
-vi.mock('./ApplicationOverview', () => ({
+vi.mock('./Overview/ApplicationOverview', () => ({
   default: ({ application }) => <div data-testid="application-overview">{application.name}</div>
+}))
+
+vi.mock('./Configuration/ApplicationConfiguration', () => ({
+  default: ({ application }) => (
+    <div data-testid="application-configuration">{application.name}</div>
+  )
+}))
+
+vi.mock('./BuildLogs/ApplicationBuildLogs', () => ({
+  default: ({ application }) => <div data-testid="application-build-logs">{application.name}</div>
+}))
+
+vi.mock('./ApiGateways/ApplicationApiGateways', () => ({
+  default: ({ application }) => <div data-testid="application-api-gateways">{application.name}</div>
+}))
+
+vi.mock('../../../shared/YamlModal/YamlModal', () => ({
+  default: ({ open }) => (open ? <div data-testid="yaml-modal" /> : null)
 }))
 
 // ── Test data ─────────────────────────────────────────────────────────────────
@@ -138,10 +146,11 @@ describe('ApplicationDetails', () => {
       expect(screen.getByTestId('action-View YAML')).toBeInTheDocument()
     })
 
-    it('dispatches toggleYaml when "View YAML" is clicked', () => {
+    it('opens YamlModal when "View YAML" is clicked', () => {
       renderDetails()
+      expect(screen.queryByTestId('yaml-modal')).not.toBeInTheDocument()
       fireEvent.click(screen.getByTestId('action-View YAML'))
-      expect(mockDispatch).toHaveBeenCalled()
+      expect(screen.getByTestId('yaml-modal')).toBeInTheDocument()
     })
   })
 })

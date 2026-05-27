@@ -40,7 +40,9 @@ const ActionBar = ({
   filters,
   hidden = false,
   onRefresh,
-  setFilters
+  persistToUrl = true,
+  setFilters,
+  showRefreshButton = true
 }) => {
   const [, setSearchParams] = useSearchParams()
   const dispatch = useDispatch()
@@ -70,9 +72,11 @@ const ActionBar = ({
 
   const saveFiltersToUrl = useCallback(
     newFilters => {
+      if (!persistToUrl) return
+
       setSearchParams(
         prev => {
-          for (const [key, config] of Object.entries(filtersConfig)) {
+          for (const [key, config] of Object.entries(filtersConfig ?? {})) {
             const value = newFilters[key]
 
             if (!isNil(config.initialValue) && !isEqual(config.initialValue, value)) {
@@ -95,13 +99,13 @@ const ActionBar = ({
         { replace: true }
       )
     },
-    [filtersConfig, setSearchParams]
+    [filtersConfig, persistToUrl, setSearchParams]
   )
 
   const setFilterValue = useCallback(
     (key, value) => {
       const next = { ...filters, [key]: value }
-      setFilters(next)
+      setFilters?.(next)
       saveFiltersToUrl(next)
     },
     [filters, setFilters, saveFiltersToUrl]
@@ -110,9 +114,9 @@ const ActionBar = ({
   const applyFilter = useCallback(
     (key, value) => {
       const next = updateRelativeTimeValue({ ...filters, [key]: value })
-      setFilters(next)
+      setFilters?.(next)
       saveFiltersToUrl(next)
-      onRefresh(next, true)
+      onRefresh?.(next, true)
     },
     [filters, setFilters, saveFiltersToUrl, onRefresh, updateRelativeTimeValue]
   )
@@ -120,18 +124,18 @@ const ActionBar = ({
   const applyMultipleFilters = useCallback(
     updatedValues => {
       const next = updateRelativeTimeValue({ ...filters, ...updatedValues })
-      setFilters(next)
+      setFilters?.(next)
       saveFiltersToUrl(next)
-      onRefresh(next, true)
+      onRefresh?.(next, true)
     },
     [filters, setFilters, saveFiltersToUrl, onRefresh, updateRelativeTimeValue]
   )
 
   const handleRefresh = useCallback(() => {
     const refreshedFilters = updateRelativeTimeValue({ ...filters })
-    setFilters(refreshedFilters)
+    setFilters?.(refreshedFilters)
     saveFiltersToUrl(refreshedFilters)
-    onRefresh(refreshedFilters)
+    onRefresh?.(refreshedFilters)
   }, [filters, setFilters, onRefresh, saveFiltersToUrl, updateRelativeTimeValue])
 
   useEffect(() => {
@@ -139,9 +143,9 @@ const ActionBar = ({
 
     const intervalId = setInterval(() => {
       const refreshed = updateRelativeTimeValue({ ...filters })
-      setFilters(refreshed)
+      setFilters?.(refreshed)
       saveFiltersToUrl(refreshed)
-      onRefresh(refreshed)
+      onRefresh?.(refreshed)
     }, autoRefreshInterval)
 
     return () => clearInterval(intervalId)
@@ -164,9 +168,11 @@ const ActionBar = ({
         {typeof children === 'function' ? children(ctx) : children}
       </div>
 
-      <div className="shrink-0">
-        <RefreshButton onClick={handleRefresh} />
-      </div>
+      {showRefreshButton && onRefresh && (
+        <div className="shrink-0">
+          <RefreshButton onClick={handleRefresh} />
+        </div>
+      )}
     </div>
   )
 }
@@ -182,8 +188,10 @@ ActionBar.propTypes = {
   ).isRequired,
   filters: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
-  onRefresh: PropTypes.func.isRequired,
-  setFilters: PropTypes.func.isRequired
+  onRefresh: PropTypes.func,
+  persistToUrl: PropTypes.bool,
+  setFilters: PropTypes.func,
+  showRefreshButton: PropTypes.bool
 }
 
 export default memo(ActionBar)

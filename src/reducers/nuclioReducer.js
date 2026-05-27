@@ -21,8 +21,11 @@ import { groupBy, property } from 'lodash'
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
 import nuclioApi from '../api/nuclio'
+import functionsApi from '../api/functions-api'
 import { parseV3ioStreams } from '../utils/parseV3ioStreams'
 import { parseV3ioStreamShardLags } from '../utils/parseV3ioStreamShardLags'
+import { DEFAULT_ABORT_MSG, REQUEST_CANCELED } from '../constants'
+import { showErrorNotification } from 'igz-controls/utils/notification.util'
 
 export const fetchApiGateways = createAsyncThunk(
   'fetchApiGateways',
@@ -60,6 +63,16 @@ export const fetchAllNuclioFunctions = createAsyncThunk(
   }
 )
 
+export const fetchNuclioFunction = createAsyncThunk(
+  'fetchNuclioFunction',
+  ({ project, name, signal, enrichApiGateways = false }, { rejectWithValue }) => {
+    return nuclioApi
+      .getFunction(project, name, { signal, enrichApiGateways })
+      .then(({ data }) => data)
+      .catch(rejectWithValue)
+  }
+)
+
 export const fetchNuclioV3ioStreamShardLags = createAsyncThunk(
   'fetchNuclioV3ioStreamShardLags',
   ({ project, body }, { rejectWithValue }) => {
@@ -90,9 +103,35 @@ export const fetchNuclioV3ioStreams = createAsyncThunk(
   }
 )
 
+export const fetchProjectApiGateways = createAsyncThunk(
+  'fetchProjectApiGateways',
+  ({ project, signal }, { rejectWithValue, dispatch }) => {
+    return functionsApi
+      .getProjectApiGateways(project, { signal })
+      .then(({ data }) => {
+        const gateways = data?.api_gateways ?? data
+
+        if (Array.isArray(gateways)) return gateways
+        if (gateways && typeof gateways === 'object') return Object.values(gateways)
+
+        return []
+      })
+      .catch(error => {
+        if (![REQUEST_CANCELED, DEFAULT_ABORT_MSG].includes(error?.message)) {
+          showErrorNotification(dispatch, error, 'Failed to load API gateways')
+          return rejectWithValue(error)
+        }
+      })
+  }
+)
+
 const initialState = {
   apiGateways: 0,
+  projectApiGateways: [],
+  projectApiGatewaysLoading: false,
+  projectApiGatewaysError: null,
   functions: {},
+  nuclioFunctionLoading: false,
   v3ioStreams: {
     error: null,
     loading: false,
@@ -127,6 +166,11 @@ const nuclioSlice = createSlice({
     },
     resetV3ioStreamShardLagsError(state) {
       state.v3ioStreamShardLags.error = null
+    },
+    clearProjectApiGateways(state) {
+      state.projectApiGateways = []
+      state.projectApiGatewaysLoading = false
+      state.projectApiGatewaysError = null
     }
   },
   extraReducers: builder => {
@@ -168,6 +212,15 @@ const nuclioSlice = createSlice({
       state.functions = {}
       state.loading = false
       state.error = action.error?.message
+    })
+    builder.addCase(fetchNuclioFunction.pending, state => {
+      state.nuclioFunctionLoading = true
+    })
+    builder.addCase(fetchNuclioFunction.fulfilled, state => {
+      state.nuclioFunctionLoading = false
+    })
+    builder.addCase(fetchNuclioFunction.rejected, state => {
+      state.nuclioFunctionLoading = false
     })
     builder.addCase(fetchNuclioV3ioStreamShardLags.pending, state => {
       state.v3ioStreamShardLags = {
@@ -218,10 +271,29 @@ const nuclioSlice = createSlice({
         parsedData: []
       }
     })
+
+    builder.addCase(fetchProjectApiGateways.pending, state => {
+      state.projectApiGatewaysLoading = true
+      state.projectApiGatewaysError = null
+    })
+    builder.addCase(fetchProjectApiGateways.fulfilled, (state, action) => {
+      state.projectApiGateways = action.payload
+      state.projectApiGatewaysLoading = false
+      state.projectApiGatewaysError = null
+    })
+    builder.addCase(fetchProjectApiGateways.rejected, (state, action) => {
+      state.projectApiGateways = []
+      state.projectApiGatewaysLoading = false
+      state.projectApiGatewaysError = action.error?.message
+    })
   }
 })
 
-export const { removeV3ioStreams, resetV3ioStreamsError, resetV3ioStreamShardLagsError } =
-  nuclioSlice.actions
+export const {
+  clearProjectApiGateways,
+  removeV3ioStreams,
+  resetV3ioStreamsError,
+  resetV3ioStreamShardLagsError
+} = nuclioSlice.actions
 
 export default nuclioSlice.reducer

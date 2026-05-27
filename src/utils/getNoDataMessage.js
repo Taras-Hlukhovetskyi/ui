@@ -53,6 +53,7 @@ import {
   MONITOR_WORKFLOWS_TAB,
   MONITOR_JOBS_TAB,
   NAME_FILTER,
+  OWNER_FILTER,
   PROJECT_FILTER,
   REAL_TIME_PIPELINES_TAB,
   SCHEDULE_TAB,
@@ -211,6 +212,7 @@ const getVisibleFilterTypes = (filtersConfig, filters, filtersStore) => {
         type === MODEL_NAME_FILTER ||
         type === MODEL_TAG_FILTER ||
         type === NAME_FILTER ||
+        type === OWNER_FILTER ||
         type === PIPELINE_TOPOLOGY_FILTER) &&
       filters[type]?.length > 0
     const isStatusVisible =

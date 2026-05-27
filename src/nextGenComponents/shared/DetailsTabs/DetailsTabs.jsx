@@ -29,9 +29,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  Button
+  Button,
+  cn
 } from 'igz-controls/nextGenComponents'
 import { ArrowLeft, MoreVertical } from 'lucide-react'
+
+const TITLE_FONT_SIZE = 'text-[22px]'
 
 const DetailsTabs = ({
   activeTabId,
@@ -52,7 +55,7 @@ const DetailsTabs = ({
   )
 
   return (
-    <div className={`flex flex-col h-full ${className}`} data-testid="details-tabs">
+    <div className={cn('flex flex-col h-full', className)} data-testid="details-tabs">
       <div className="flex items-center justify-between px-6 pt-2 pb-4 shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <button
@@ -65,7 +68,7 @@ const DetailsTabs = ({
             <ArrowLeft className="w-5 h-5 text-igz-primary" />
           </button>
           <h1
-            className="text-[22px] font-bold text-igz-primary truncate"
+            className={cn(TITLE_FONT_SIZE, 'font-bold text-igz-primary truncate')}
             data-testid="details-title"
           >
             {title}
@@ -113,7 +116,7 @@ const DetailsTabs = ({
           className="flex flex-col flex-1 overflow-hidden"
         >
           <TabsList
-            className="shrink-0 w-full border-b border-igz-gray-light"
+            className="shrink-0 w-fit border-b border-igz-gray-light"
             data-testid="details-tabs-list"
           >
             {tabs.map(tab => (
@@ -122,7 +125,7 @@ const DetailsTabs = ({
                 value={tab.id}
                 disabled={tab.disabled}
                 data-testid={`details-tab-${tab.id}`}
-                className="first:px-0"
+                className="first:px-0 text-lg data-[state=active]:font-bold"
               >
                 {tab.label}
               </TabsTrigger>
@@ -136,7 +139,7 @@ const DetailsTabs = ({
               <TabsContent
                 key={tab.id}
                 value={tab.id}
-                className="flex-1 overflow-auto"
+                className="relative flex-1 overflow-auto"
                 data-testid={`details-tab-content-${tab.id}`}
               >
                 {TabComponent ? <TabComponent /> : null}

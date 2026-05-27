@@ -1,1 +1,671 @@
-{}
+{
+  "api-gateway-1": {
+    "metadata": {
+      "name": "api-gateway-1",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "Alaska Roller"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2025-04-04T07:43:27Z"
+    },
+    "spec": {
+      "name": "api-gateway-1",
+      "host": "tutorial-amlk-iris-streamlit-app-latest.default-tenant.app.customer-cluster.com",
+      "path": "",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/iris-streamlit-app"
+          },
+          "percentage": 0,
+          "port": 8080
+        }
+      ]
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "api-gateway-2": {
+    "metadata": {
+      "name": "api-gateway-2",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "Alaska Roller"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2025-04-04T07:43:27Z"
+    },
+    "spec": {
+      "name": "api-gateway-2",
+      "host": "tutorial-amlk-iris-streamlit-app-latest.default-tenant.app.customer-cluster.com",
+      "path": "custom-path",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/iris-streamlit-app"
+          },
+          "percentage": 0,
+          "port": 8080
+        }
+      ]
+    },
+    "status": {
+      "state": "error",
+      "last_error": "Failed to provision ingress"
+    }
+  },
+  "api-gateway-3": {
+    "metadata": {
+      "name": "api-gateway-3",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "Alaska Roller"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2025-04-04T07:43:27Z"
+    },
+    "spec": {
+      "name": "api-gateway-3",
+      "host": "tutorial-amlk-iris-streamlit-app-latest.default-tenant.app.customer-cluster.com",
+      "path": "canary",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/primary-func"
+          },
+          "percentage": 80,
+          "port": 8501
+        },
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/iris-streamlit-app"
+          },
+          "percentage": 20,
+          "port": 8501
+        }
+      ]
+    },
+    "status": {
+      "state": "waitingForProvisioning"
+    }
+  },
+  "iris-direct-gateway": {
+    "metadata": {
+      "name": "iris-direct-gateway",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2026-05-20T09:15:00Z"
+    },
+    "spec": {
+      "name": "iris-direct-gateway",
+      "host": "iris-app.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/iris-streamlit-app"
+          },
+          "percentage": 0,
+          "port": 8501
+        }
+      ]
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "iris-indirect-gateway": {
+    "metadata": {
+      "name": "iris-indirect-gateway",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "false"
+      },
+      "creationTimestamp": "2026-05-20T09:20:00Z"
+    },
+    "spec": {
+      "name": "iris-indirect-gateway",
+      "host": "iris-proxy.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "v2/predict",
+      "authenticationMode": "none",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/iris-streamlit-app"
+          },
+          "percentage": 0
+        }
+      ]
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "fraud-detection-gw": {
+    "metadata": {
+      "name": "fraud-detection-gw",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "john.doe"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2026-05-18T14:30:00Z"
+    },
+    "spec": {
+      "name": "fraud-detection-gw",
+      "host": "fraud-dashboard.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "",
+      "authenticationMode": "basicAuth",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/fraud-detection-dashboard"
+          },
+          "percentage": 0,
+          "port": 8080
+        }
+      ]
+    },
+    "status": {
+      "state": "error",
+      "last_error": "Backend service returned HTTP 503: upstream not healthy"
+    }
+  },
+  "fraud-detection-internal": {
+    "metadata": {
+      "name": "fraud-detection-internal",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "john.doe"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-05-18T14:35:00Z"
+    },
+    "spec": {
+      "name": "fraud-detection-internal",
+      "host": "fraud-internal.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "api/v1",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/fraud-detection-dashboard"
+          },
+          "percentage": 0
+        }
+      ]
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "recommender-primary": {
+    "metadata": {
+      "name": "recommender-primary",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "jane.smith"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2026-05-15T11:00:00Z"
+    },
+    "spec": {
+      "name": "recommender-primary",
+      "host": "recommender.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/real-time-recommender"
+          },
+          "percentage": 0,
+          "port": 8888
+        }
+      ]
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "recommender-canary": {
+    "metadata": {
+      "name": "recommender-canary",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "jane.smith"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2026-05-22T16:45:00Z"
+    },
+    "spec": {
+      "name": "recommender-canary",
+      "host": "recommender-canary.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "v2",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/real-time-recommender"
+          },
+          "percentage": 90,
+          "port": 8888
+        },
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/chatbot-assistant"
+          },
+          "percentage": 10,
+          "port": 7860
+        }
+      ]
+    },
+    "status": {
+      "state": "waitingForProvisioning"
+    }
+  },
+  "chatbot-gateway": {
+    "metadata": {
+      "name": "chatbot-gateway",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2026-05-26T10:00:00Z"
+    },
+    "spec": {
+      "name": "chatbot-gateway",
+      "host": "chatbot.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/chatbot-assistant"
+          },
+          "percentage": 0,
+          "port": 7860
+        }
+      ]
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "chatbot-api-v1": {
+    "metadata": {
+      "name": "chatbot-api-v1",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2026-05-26T10:05:00Z"
+    },
+    "spec": {
+      "name": "chatbot-api-v1",
+      "host": "chatbot-api.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "v1/chat",
+      "authenticationMode": "basicAuth",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/chatbot-assistant"
+          },
+          "percentage": 0,
+          "port": 7860
+        }
+      ]
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "chatbot-webhook": {
+    "metadata": {
+      "name": "chatbot-webhook",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-05-26T10:10:00Z"
+    },
+    "spec": {
+      "name": "chatbot-webhook",
+      "host": "chatbot-hook.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "webhook",
+      "authenticationMode": "none",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/chatbot-assistant"
+          },
+          "percentage": 0
+        }
+      ]
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "image-classifier-gateway": {
+    "metadata": {
+      "name": "image-classifier-gateway",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2026-05-22T17:00:00Z"
+    },
+    "spec": {
+      "name": "image-classifier-gateway",
+      "host": "image-classifier.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "v1/predict",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/image-classifier-service"
+          },
+          "percentage": 0,
+          "port": 9000
+        }
+      ]
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "anomaly-detector-gw": {
+    "metadata": {
+      "name": "anomaly-detector-gw",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2026-05-21T10:00:00Z"
+    },
+    "spec": {
+      "name": "anomaly-detector-gw",
+      "host": "anomaly-detector.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/anomaly-detector"
+          },
+          "percentage": 0,
+          "port": 8080
+        }
+      ]
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "price-optimizer-gw": {
+    "metadata": {
+      "name": "price-optimizer-gw",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "false"
+      },
+      "creationTimestamp": "2026-05-19T19:00:00Z"
+    },
+    "spec": {
+      "name": "price-optimizer-gw",
+      "host": "price-optimizer.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "api",
+      "authenticationMode": "none",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/price-optimizer"
+          },
+          "percentage": 0,
+          "port": 8080
+        }
+      ]
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "gw-test-direct": {
+    "metadata": {
+      "name": "gw-test-direct",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2026-05-24T08:10:00Z"
+    },
+    "spec": {
+      "name": "gw-test-direct",
+      "host": "gw-test.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/api-gateway-test-app"
+          },
+          "percentage": 0,
+          "port": 8080
+        }
+      ]
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "gw-test-indirect": {
+    "metadata": {
+      "name": "gw-test-indirect",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin"
+      },
+      "annotations": {},
+      "creationTimestamp": "2026-05-24T08:15:00Z"
+    },
+    "spec": {
+      "name": "gw-test-indirect",
+      "host": "gw-test-proxy.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "proxy",
+      "authenticationMode": "none",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/api-gateway-test-app"
+          },
+          "percentage": 0
+        }
+      ]
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "gw-test-error": {
+    "metadata": {
+      "name": "gw-test-error",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "ops-team"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2026-05-24T08:20:00Z"
+    },
+    "spec": {
+      "name": "gw-test-error",
+      "host": "gw-test-error.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "",
+      "authenticationMode": "basicAuth",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/api-gateway-test-app"
+          },
+          "percentage": 0,
+          "port": 8080
+        }
+      ]
+    },
+    "status": {
+      "state": "error",
+      "last_error": "TLS certificate validation failed: certificate has expired"
+    }
+  },
+  "gw-test-provisioning": {
+    "metadata": {
+      "name": "gw-test-provisioning",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2026-05-26T15:00:00Z"
+    },
+    "spec": {
+      "name": "gw-test-provisioning",
+      "host": "gw-test-new.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "v2",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/api-gateway-test-app"
+          },
+          "percentage": 0,
+          "port": 8080
+        }
+      ]
+    },
+    "status": {
+      "state": "waitingForProvisioning"
+    }
+  },
+  "vizro-gateway": {
+    "metadata": {
+      "name": "vizro-gateway",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin"
+      },
+      "annotations": {
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
+      },
+      "creationTimestamp": "2026-04-14T14:05:00Z"
+    },
+    "spec": {
+      "name": "vizro-gateway",
+      "host": "vizro.default-tenant.app.vmdev36.lab.iguazeng.com",
+      "path": "",
+      "authenticationMode": "accessKey",
+      "upstreams": [
+        {
+          "kind": "nucliofunction",
+          "nucliofunction": {
+            "name": "default/vizro"
+          },
+          "percentage": 0,
+          "port": 8050
+        }
+      ]
+    },
+    "status": {
+      "state": "ready"
+    }
+  }
+}

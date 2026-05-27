@@ -5,6 +5,7 @@
 @layer base {
   :root {
     --igz-light-purple: #869cff;
+    --igz-tab-active-bg: #f5f7ff;
     --igz-purple: #5f52cc;
     --igz-dark-purple: #5f52cc;
     --igz-green: #2ab57d;

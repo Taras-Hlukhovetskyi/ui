@@ -54,6 +54,7 @@ module.exports = {
           gray: 'var(--igz-gray, #C4C2C8)',
           'gray-light': 'var(--igz-gray-light, #E9E8EB)',
           'hover-bg': 'var(--igz-hover-bg, #483F561F)',
+          'tab-active-bg': 'var(--igz-tab-active-bg, #f5f7ff)',
           link: 'var(--igz-link, #2563eb)'
         },
         status: {
@@ -123,6 +124,10 @@ module.exports = {
         dropdown: {
           border: 'hsla(var(--dropdown-border))'
         }
+      },
+      fontSize: {
+        body: ['15px', { lineHeight: '1.4' }],
+        'body-sm': ['14px', { lineHeight: '1.4' }]
       },
       boxShadow: {
         dropdown: '0 0 30px 0 rgba(0, 0, 0, 0.15)',

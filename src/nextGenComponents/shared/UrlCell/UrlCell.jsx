@@ -95,11 +95,7 @@ const UrlCell = ({ items = [] }) => {
   }, [])
 
   if (!items.length) {
-    return (
-      <span className="text-igz-gray italic text-[15px]" data-testid="url-cell-empty">
-        N/A
-      </span>
-    )
+    return <span data-testid="url-cell-empty" />
   }
 
   const visibleItems = items.slice(0, visibleCount)

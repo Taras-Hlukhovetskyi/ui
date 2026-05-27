@@ -17,102 +17,95 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useMemo } from 'react'
-import { useSelector } from 'react-redux'
+import PropTypes from 'prop-types'
 import { StatsCard, Tooltip, TooltipContent, TooltipTrigger } from 'igz-controls/nextGenComponents'
 import { Loader2 } from 'lucide-react'
 
-import { APPLICATION_STATUS, FAILED_API_STATES } from '../applications.constants'
-
 const FAILED_TOOLTIP_TEXT = 'Error, Unhealthy'
 
-const ApplicationCounters = () => {
-  const { functions, loading } = useSelector(store => store.functionsStore)
-
-  const summary = useMemo(
-    () => ({
-      total: functions.length,
-      running: functions.filter(f => {
-        const state =
-          f.status?.state === APPLICATION_STATUS.READY
-            ? APPLICATION_STATUS.RUNNING
-            : f.status?.state
-        return state === APPLICATION_STATUS.RUNNING
-      }).length,
-      failed: functions.filter(f => FAILED_API_STATES.includes(f.status?.state)).length,
-      building: functions.filter(f => f.status?.state === APPLICATION_STATUS.BUILDING).length
-    }),
-    [functions]
-  )
-
+const ApplicationCounters = ({ counters, isLoading }) => {
   const spinner = <Loader2 size={18} className="animate-spin text-igz-secondary" />
 
   return (
     <div className="flex gap-5 mt-6" data-testid="application-counters">
-      <StatsCard className="flex-none bg-background border rounded-lg shadow-card">
-        <div className="p-5 pr-14 flex flex-col gap-3">
-          <span className="text-[15px] font-bold text-igz-primary">Applications</span>
-          <span
-            className="text-[28px] font-bold text-igz-primary leading-none"
-            data-testid="total-count"
-          >
-            {loading ? spinner : summary.total}
-          </span>
-        </div>
-      </StatsCard>
+      <div data-testid="applications-card">
+        <StatsCard className="flex-none bg-background border rounded-lg shadow-card">
+          <div className="p-5 pr-14 flex flex-col gap-3">
+            <span className="text-[15px] font-bold text-igz-primary">Applications</span>
+            <span
+              className="text-[28px] font-bold text-igz-primary leading-none"
+              data-testid="total-count"
+            >
+              {isLoading ? spinner : counters.total}
+            </span>
+          </div>
+        </StatsCard>
+      </div>
 
-      <StatsCard className="flex-none bg-background border rounded-lg shadow-card">
-        <div className="p-5 pr-14 flex flex-col gap-3">
-          <span className="text-[15px] font-bold text-igz-primary">Applications status</span>
-          <div className="flex items-baseline gap-6">
-            <div className="flex items-end gap-1.5">
-              <span
-                className="text-[28px] font-bold text-igz-primary leading-none"
-                data-testid="running-count"
-              >
-                {loading ? spinner : summary.running}
-              </span>
-              <div className="flex items-center gap-1">
-                <span className="text-sm text-igz-secondary">Running</span>
-                <div className="w-2 h-2 rounded-full bg-status-running" />
+      <div data-testid="applications-status-card">
+        <StatsCard className="flex-none bg-background border rounded-lg shadow-card">
+          <div className="p-5 pr-14 flex flex-col gap-3">
+            <span className="text-[15px] font-bold text-igz-primary">Applications status</span>
+            <div className="flex items-baseline gap-6">
+              <div className="flex items-end gap-1.5">
+                <span
+                  className="text-[28px] font-bold text-igz-primary leading-none"
+                  data-testid="running-count"
+                >
+                  {isLoading ? spinner : counters.running}
+                </span>
+                <div className="flex items-center gap-1">
+                  <span className="text-sm text-igz-secondary">Running</span>
+                  <div className="w-2 h-2 rounded-full bg-status-running" />
+                </div>
               </div>
-            </div>
 
-            <div className="flex items-end gap-1.5">
-              <span
-                className="text-[28px] font-bold text-igz-primary leading-none"
-                data-testid="failed-count"
-              >
-                {loading ? spinner : summary.failed}
-              </span>
-              <Tooltip delayDuration={100}>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1 cursor-default">
-                    <span className="text-sm text-igz-secondary">Failed</span>
-                    <div className="w-2 h-2 rounded-full bg-status-failed" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">{FAILED_TOOLTIP_TEXT}</TooltipContent>
-              </Tooltip>
-            </div>
+              <div className="flex items-end gap-1.5">
+                <span
+                  className="text-[28px] font-bold text-igz-primary leading-none"
+                  data-testid="failed-count"
+                >
+                  {isLoading ? spinner : counters.failed}
+                </span>
+                <Tooltip delayDuration={100}>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 cursor-default">
+                      <span className="text-sm text-igz-secondary">Failed</span>
+                      <div className="w-2 h-2 rounded-full bg-status-failed" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">{FAILED_TOOLTIP_TEXT}</TooltipContent>
+                </Tooltip>
+              </div>
 
-            <div className="flex items-end gap-1.5">
-              <span
-                className="text-[28px] font-bold text-igz-primary leading-none"
-                data-testid="building-count"
-              >
-                {loading ? spinner : summary.building || 0}
-              </span>
-              <div className="flex items-center gap-1">
-                <span className="text-sm text-igz-secondary">Deploying</span>
-                <div className="w-2 h-2 rounded-full bg-status-deploying" />
+              <div className="flex items-end gap-1.5">
+                <span
+                  className="text-[28px] font-bold text-igz-primary leading-none"
+                  data-testid="building-count"
+                >
+                  {isLoading ? spinner : counters.building}
+                </span>
+                <div className="flex items-center gap-1">
+                  <span className="text-sm text-igz-secondary">Deploying</span>
+                  <div className="w-2 h-2 rounded-full bg-status-deploying" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </StatsCard>
+        </StatsCard>
+      </div>
     </div>
   )
+}
+
+ApplicationCounters.propTypes = {
+  counters: PropTypes.shape({
+    total: PropTypes.number.isRequired,
+    running: PropTypes.number.isRequired,
+    failed: PropTypes.number.isRequired,
+    building: PropTypes.number.isRequired
+  }).isRequired,
+  isLoading: PropTypes.bool.isRequired
 }
 
 export default ApplicationCounters
