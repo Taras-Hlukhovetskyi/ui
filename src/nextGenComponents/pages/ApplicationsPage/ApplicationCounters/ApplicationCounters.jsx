@@ -28,68 +28,72 @@ const ApplicationCounters = ({ counters, isLoading }) => {
 
   return (
     <div className="flex gap-5 mt-6" data-testid="application-counters">
-      <StatsCard className="flex-none bg-background border rounded-lg shadow-card">
-        <div className="p-5 pr-14 flex flex-col gap-3">
-          <span className="text-[15px] font-bold text-igz-primary">Applications</span>
-          <span
-            className="text-[28px] font-bold text-igz-primary leading-none"
-            data-testid="total-count"
-          >
-            {isLoading ? spinner : counters.total}
-          </span>
-        </div>
-      </StatsCard>
+      <div data-testid="applications-card">
+        <StatsCard className="flex-none bg-background border rounded-lg shadow-card">
+          <div className="p-5 pr-14 flex flex-col gap-3">
+            <span className="text-[15px] font-bold text-igz-primary">Applications</span>
+            <span
+              className="text-[28px] font-bold text-igz-primary leading-none"
+              data-testid="total-count"
+            >
+              {isLoading ? spinner : counters.total}
+            </span>
+          </div>
+        </StatsCard>
+      </div>
 
-      <StatsCard className="flex-none bg-background border rounded-lg shadow-card">
-        <div className="p-5 pr-14 flex flex-col gap-3">
-          <span className="text-[15px] font-bold text-igz-primary">Applications status</span>
-          <div className="flex items-baseline gap-6">
-            <div className="flex items-end gap-1.5">
-              <span
-                className="text-[28px] font-bold text-igz-primary leading-none"
-                data-testid="running-count"
-              >
-                {isLoading ? spinner : counters.running}
-              </span>
-              <div className="flex items-center gap-1">
-                <span className="text-sm text-igz-secondary">Running</span>
-                <div className="w-2 h-2 rounded-full bg-status-running" />
+      <div data-testid="applications-status-card">
+        <StatsCard className="flex-none bg-background border rounded-lg shadow-card">
+          <div className="p-5 pr-14 flex flex-col gap-3">
+            <span className="text-[15px] font-bold text-igz-primary">Applications status</span>
+            <div className="flex items-baseline gap-6">
+              <div className="flex items-end gap-1.5">
+                <span
+                  className="text-[28px] font-bold text-igz-primary leading-none"
+                  data-testid="running-count"
+                >
+                  {isLoading ? spinner : counters.running}
+                </span>
+                <div className="flex items-center gap-1">
+                  <span className="text-sm text-igz-secondary">Running</span>
+                  <div className="w-2 h-2 rounded-full bg-status-running" />
+                </div>
               </div>
-            </div>
 
-            <div className="flex items-end gap-1.5">
-              <span
-                className="text-[28px] font-bold text-igz-primary leading-none"
-                data-testid="failed-count"
-              >
-                {isLoading ? spinner : counters.failed}
-              </span>
-              <Tooltip delayDuration={100}>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1 cursor-default">
-                    <span className="text-sm text-igz-secondary">Failed</span>
-                    <div className="w-2 h-2 rounded-full bg-status-failed" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">{FAILED_TOOLTIP_TEXT}</TooltipContent>
-              </Tooltip>
-            </div>
+              <div className="flex items-end gap-1.5">
+                <span
+                  className="text-[28px] font-bold text-igz-primary leading-none"
+                  data-testid="failed-count"
+                >
+                  {isLoading ? spinner : counters.failed}
+                </span>
+                <Tooltip delayDuration={100}>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 cursor-default">
+                      <span className="text-sm text-igz-secondary">Failed</span>
+                      <div className="w-2 h-2 rounded-full bg-status-failed" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">{FAILED_TOOLTIP_TEXT}</TooltipContent>
+                </Tooltip>
+              </div>
 
-            <div className="flex items-end gap-1.5">
-              <span
-                className="text-[28px] font-bold text-igz-primary leading-none"
-                data-testid="building-count"
-              >
-                {isLoading ? spinner : counters.building}
-              </span>
-              <div className="flex items-center gap-1">
-                <span className="text-sm text-igz-secondary">Deploying</span>
-                <div className="w-2 h-2 rounded-full bg-status-deploying" />
+              <div className="flex items-end gap-1.5">
+                <span
+                  className="text-[28px] font-bold text-igz-primary leading-none"
+                  data-testid="building-count"
+                >
+                  {isLoading ? spinner : counters.building}
+                </span>
+                <div className="flex items-center gap-1">
+                  <span className="text-sm text-igz-secondary">Deploying</span>
+                  <div className="w-2 h-2 rounded-full bg-status-deploying" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </StatsCard>
+        </StatsCard>
+      </div>
     </div>
   )
 }

@@ -78,6 +78,16 @@ describe('ApplicationCounters', () => {
       expect(screen.getByText('2')).toBeInTheDocument()
     })
 
+    it('renders the applications card with data-testid', () => {
+      renderCounters()
+      expect(screen.getByTestId('applications-card')).toBeInTheDocument()
+    })
+
+    it('renders the applications status card with data-testid', () => {
+      renderCounters()
+      expect(screen.getByTestId('applications-status-card')).toBeInTheDocument()
+    })
+
     it('renders the "Applications" label', () => {
       renderCounters()
       expect(screen.getByText('Applications')).toBeInTheDocument()

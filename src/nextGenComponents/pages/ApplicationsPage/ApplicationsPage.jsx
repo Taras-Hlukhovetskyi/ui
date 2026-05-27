@@ -234,6 +234,7 @@ const ApplicationsPage = () => {
                     <span
                       className="inline-flex cursor-default"
                       aria-label="About the applications list"
+                      data-testid="applications-heading-hint"
                     >
                       <HelpCircle
                         className="h-4 w-4 text-igz-gray"

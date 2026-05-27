@@ -163,9 +163,7 @@ export const useNuclioEnrichedFunctions = ({
           const [mlrunResult, nuclioResult] = results
 
           const gatewaysIndex = enrichApiGateways ? 2 : -1
-          const modelEndpointsIndex = enrichModelEndpoints
-            ? (enrichApiGateways ? 3 : 2)
-            : -1
+          const modelEndpointsIndex = enrichModelEndpoints ? (enrichApiGateways ? 3 : 2) : -1
 
           if (mlrunResult.status === 'fulfilled' && mlrunResult.value) {
             const nuclioMap = resolveNuclioMap(nuclioResult)
