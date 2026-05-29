@@ -37,6 +37,7 @@ import './breadcrumbs.scss'
 const Breadcrumbs = ({ itemName = '', onClick = () => {} }) => {
   const params = useParams()
   const location = useLocation()
+  const dispatch = useDispatch()
 
   const allMlrunScreens = useMemo(() => {
     return generateMlrunScreens(params?.projectName ?? '')

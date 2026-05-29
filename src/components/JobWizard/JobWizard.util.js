@@ -292,7 +292,7 @@ export const generateJobWizardDefaultData = (
       inputPath: defaultData.task.spec.input_path,
       outputPath: defaultData.task.spec.output_path,
       ...(IS_MF_MODE
-        ? { apiTokenInput: defaultData.task.spec?.auth?.token_name ?? '' }
+        ? { apiTokenInput: defaultData.task.spec?.auth?.token_name ?? 'default' }
         : {
             accessKey:
               defaultData.function?.metadata?.credentials?.access_key === PANEL_DEFAULT_ACCESS_KEY,

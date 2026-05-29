@@ -187,7 +187,8 @@ const MonitoringApplication = lazyRetry(
   'MonitoringApplication'
 )
 const ApplicationsPage = lazyRetry(
-  () => import('./nextGenComponents/pages/ApplicationsPage/ApplicationsPage')
+  () => import('./nextGenComponents/pages/ApplicationsPage/ApplicationsPage'),
+  'ApplicationsPage'
 )
 const App = () => {
   const { isNuclioModeDisabled } = useNuclioMode()

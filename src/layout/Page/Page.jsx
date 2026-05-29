@@ -26,6 +26,7 @@ import ModalContainer from 'react-modal-promise'
 
 import Sidebar from '../../nextGenComponents/shared/Sidebar'
 import { SidebarInset, SidebarProvider } from 'igz-controls/nextGenComponents'
+import TokenExpiryBanner from '../../common/TokenExpiryBanner/TokenExpiryBanner'
 import YamlModal from '../../common/YamlModal/YamlModal'
 import { Loader } from 'igz-controls/components'
 
@@ -104,6 +105,7 @@ const Page = () => {
         <>
           <Suspense fallback={<Loader />}>
             <main id="main" ref={mainRef}>
+            <TokenExpiryBanner />
               <div id="main-wrapper">{isProjectsFetched ? <Outlet /> : <Loader />}</div>
             </main>
           </Suspense>

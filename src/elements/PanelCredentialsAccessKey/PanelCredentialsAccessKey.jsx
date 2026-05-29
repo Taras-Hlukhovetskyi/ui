@@ -24,7 +24,7 @@ import PropTypes from 'prop-types'
 import CheckBox from '../../common/CheckBox/CheckBox'
 import Input from '../../common/Input/Input'
 
-import { PANEL_DEFAULT_ACCESS_KEY } from '../../constants'
+import { PANEL_DEFAULT_ACCESS_KEY, API_TOKEN_TIP } from '../../constants'
 
 import './panelCredentialsAccessKey.scss'
 
@@ -32,6 +32,7 @@ const PanelCredentialsAccessKey = ({
   className = '',
   credentialsAccessKey,
   frontendSpec,
+  isApiToken = false,
   isPanelEditMode = false,
   required = false,
   setCredentialsAccessKey,
@@ -49,7 +50,7 @@ const PanelCredentialsAccessKey = ({
 
   return (
     <div className={accessKeyClassNames}>
-      {!frontendSpec.ce?.version && (
+      {!frontendSpec.ce?.version && !isApiToken && (
         <CheckBox
           disabled={isPanelEditMode}
           item={{
@@ -69,10 +70,10 @@ const PanelCredentialsAccessKey = ({
           selectedId={credentialsAccessKey}
         />
       )}
-      {credentialsAccessKey !== PANEL_DEFAULT_ACCESS_KEY && (
+      {(isApiToken || credentialsAccessKey !== PANEL_DEFAULT_ACCESS_KEY) && (
         <Input
           floatingLabel
-          label="Access Key"
+          label={isApiToken ? 'API Token' : 'Access Key'}
           invalid={!validation.isAccessKeyValid}
           onBlur={event => {
             if (credentialsAccessKey !== event.target.value) {
@@ -87,6 +88,7 @@ const PanelCredentialsAccessKey = ({
               isAccessKeyValid: value
             }))
           }
+          tip={isApiToken ? API_TOKEN_TIP : ''}
           value={inputValue}
           wrapperClassName="access-key__input"
         />
@@ -99,6 +101,7 @@ PanelCredentialsAccessKey.propTypes = {
   className: PropTypes.string,
   credentialsAccessKey: PropTypes.string.isRequired,
   frontendSpec: PropTypes.object.isRequired,
+  isApiToken: PropTypes.bool,
   isPanelEditMode: PropTypes.bool,
   required: PropTypes.bool,
   setCredentialsAccessKey: PropTypes.func.isRequired,
