@@ -386,11 +386,12 @@ const getProbeAdditionalSettings = probe => {
 }
 
 export const getProbesData = application => {
-  const nuclioSpec = getNuclioSpec(application)
+  const mlrunSidecar = getApplicationRuntimeSidecar(application)
+  const nuclioSidecar = getNuclioSidecar(application)
 
-  const readinessProbe = nuclioSpec.readinessProbe
-  const livenessProbe = nuclioSpec.livenessProbe
-  const startupProbe = nuclioSpec.startupProbe
+  const readinessProbe = mlrunSidecar.readinessProbe ?? nuclioSidecar.readinessProbe
+  const livenessProbe = mlrunSidecar.livenessProbe ?? nuclioSidecar.livenessProbe
+  const startupProbe = mlrunSidecar.startupProbe ?? nuclioSidecar.startupProbe
 
   const probes = []
 
