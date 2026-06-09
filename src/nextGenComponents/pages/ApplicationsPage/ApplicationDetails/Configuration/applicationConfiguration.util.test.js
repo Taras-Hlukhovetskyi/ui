@@ -418,9 +418,9 @@ describe('applicationConfiguration.util', () => {
       expect(items[0]).toEqual({ label: 'Image name', value: null })
     })
 
-    it('returns null for pull at runtime when field is not boolean', () => {
+    it('returns "No" for pull at runtime when field is not set', () => {
       const items = getBuildItems(MINIMAL_APPLICATION)
-      expect(items[3].value).toBeNull()
+      expect(items[3].value).toBe('No')
     })
 
     it('returns "Yes" when load_source_on_run is true', () => {

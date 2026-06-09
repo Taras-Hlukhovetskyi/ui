@@ -189,9 +189,10 @@ export const getResourcesItems = application => {
     },
     {
       label: RESOURCES_FIELD.TARGET_CPU,
-      value: (mlrunSpec.targetCPU ?? nuclioSpec.targetCPU)
-        ? `${mlrunSpec.targetCPU ?? nuclioSpec.targetCPU}%`
-        : null
+      value:
+        (mlrunSpec.targetCPU ?? nuclioSpec.targetCPU)
+          ? `${mlrunSpec.targetCPU ?? nuclioSpec.targetCPU}%`
+          : null
     }
   ]
 }
