@@ -81,16 +81,10 @@ const MOCK_APPLICATION = {
     ]
   },
   spec: {
-    disable: false,
     service_account: 'my-service-account',
-    securityContext: { runAsUser: 1000, runAsGroup: 2000 },
-    loggerSinks: [{ level: 'debug' }],
-    minReplicas: 1,
-    maxReplicas: 4,
-    targetCPU: 75,
-    scaleToZero: {
-      scaleResources: [{ metricName: 'events', windowSize: '10m', threshold: 0 }]
-    },
+    security_context: { runAsUser: 1000, runAsGroup: 2000 },
+    min_replicas: 1,
+    max_replicas: 4,
     build: {
       functionSourceCode: 'base64...',
       noBaseImagesPull: false,
@@ -111,7 +105,7 @@ const MOCK_APPLICATION = {
     spec: {
       disable: false,
       description: 'Nuclio description',
-      service_account: 'my-service-account',
+      serviceAccount: 'my-service-account',
       securityContext: { runAsUser: 1000, runAsGroup: 2000 },
       loggerSinks: [{ level: 'debug' }],
       resources: {},
@@ -214,16 +208,26 @@ describe('applicationConfiguration.util', () => {
       expect(items[5]).toEqual({ label: 'Logger level', value: 'Debug' })
     })
 
-    it('returns "False" for Enabled when nuclioFunc disable is true', () => {
+    it('returns "No" for Enabled when MLRun spec disable is true', () => {
       const app = {
         ...MOCK_APPLICATION,
+        spec: { ...MOCK_APPLICATION.spec, disable: true }
+      }
+      const items = getBasicSettingsItems(app)
+      expect(items[0].value).toBe('No')
+    })
+
+    it('returns "Yes" for Enabled when MLRun spec disable is false even if Nuclio spec disable is true', () => {
+      const app = {
+        ...MOCK_APPLICATION,
+        spec: { ...MOCK_APPLICATION.spec, disable: false },
         nuclioFunc: {
           ...MOCK_APPLICATION.nuclioFunc,
           spec: { ...MOCK_APPLICATION.nuclioFunc.spec, disable: true }
         }
       }
       const items = getBasicSettingsItems(app)
-      expect(items[0].value).toBe('No')
+      expect(items[0].value).toBe('Yes')
     })
 
     it('uses Nuclio disable when MLRun spec does not include disable', () => {
@@ -239,18 +243,18 @@ describe('applicationConfiguration.util', () => {
       expect(items[0]).toEqual({ label: 'Enabled', value: 'No' })
     })
 
-    it('prefers MLRun spec for most fields but reads Enabled from Nuclio', () => {
+    it('prefers MLRun spec over Nuclio for most fields, falls back to Nuclio for Enabled when MLRun has no disable', () => {
       const app = {
         ...MOCK_APPLICATION,
+        config: { 'spec.loggerSinks': [{ level: 'info' }] },
         spec: {
           service_account: 'mlrun-service-account',
-          securityContext: { runAsUser: 3000, runAsGroup: 4000 },
-          loggerSinks: [{ level: 'info' }]
+          security_context: { runAsUser: 3000, runAsGroup: 4000 }
         },
         nuclioFunc: {
           spec: {
             disable: true,
-            service_account: 'nuclio-service-account',
+            serviceAccount: 'nuclio-service-account',
             securityContext: { runAsUser: 1000, runAsGroup: 2000 },
             loggerSinks: [{ level: 'debug' }]
           }
@@ -300,10 +304,9 @@ describe('applicationConfiguration.util', () => {
       expect(items.find(i => i.label === 'GPU (limit)').value).toBeNull()
     })
 
-    it('uses Nuclio target CPU when MLRun spec does not include target CPU', () => {
+    it('reads target CPU from Nuclio spec (targetCPU is Nuclio-only)', () => {
       const app = {
         ...MOCK_APPLICATION,
-        spec: { ...MOCK_APPLICATION.spec, targetCPU: undefined },
         nuclioFunc: {
           spec: { targetCPU: 80 }
         }
@@ -312,6 +315,20 @@ describe('applicationConfiguration.util', () => {
       const items = getResourcesItems(app)
 
       expect(items.find(i => i.label === 'Target CPU').value).toBe('80%')
+    })
+
+    it('prefers MLRun spec targetCPU over Nuclio', () => {
+      const app = {
+        ...MOCK_APPLICATION,
+        spec: { ...MOCK_APPLICATION.spec, targetCPU: 60 },
+        nuclioFunc: {
+          spec: { targetCPU: 90 }
+        }
+      }
+
+      const items = getResourcesItems(app)
+
+      expect(items.find(i => i.label === 'Target CPU').value).toBe('60%')
     })
 
     it('prefers Application Runtime sidecar resources over reverse proxy resources', () => {
@@ -406,11 +423,11 @@ describe('applicationConfiguration.util', () => {
       expect(items[3].value).toBeNull()
     })
 
-    it('returns "True" when loadSourceOnRun is true', () => {
+    it('returns "Yes" when load_source_on_run is true', () => {
       const app = {
         ...MINIMAL_APPLICATION,
         spec: {
-          loadSourceOnRun: true
+          load_source_on_run: true
         }
       }
       const items = getBuildItems(app)
@@ -436,7 +453,7 @@ describe('applicationConfiguration.util', () => {
       expect(result).toEqual([])
     })
 
-    it('prefers Nuclio sidecar env over MLRun sidecar config env', () => {
+    it('prefers MLRun sidecar config env over Nuclio sidecar env', () => {
       const app = {
         ...MOCK_APPLICATION,
         config: {
@@ -445,6 +462,28 @@ describe('applicationConfiguration.util', () => {
               env: [{ name: 'MLRUN_SIDECAR_ENV', value: 'mlrun' }]
             }
           ]
+        },
+        nuclioFunc: {
+          spec: {
+            sidecars: [
+              {
+                env: [{ name: 'NUCLIO_SIDECAR_ENV', value: 'nuclio' }]
+              }
+            ]
+          }
+        }
+      }
+
+      const result = getEnvironmentVariables(app)
+
+      expect(result).toEqual([{ type: 'Value', key: 'MLRUN_SIDECAR_ENV', value: 'mlrun' }])
+    })
+
+    it('falls back to Nuclio sidecar env when MLRun sidecar config has no env', () => {
+      const app = {
+        ...MOCK_APPLICATION,
+        config: {
+          'spec.sidecars': [{ name: 'my-sidecar' }]
         },
         nuclioFunc: {
           spec: {
@@ -561,6 +600,33 @@ describe('applicationConfiguration.util', () => {
     it('returns empty array when no volume mounts', () => {
       const result = getVolumesData(MINIMAL_APPLICATION)
       expect(result).toEqual([])
+    })
+
+    it('prefers MLRun sidecar config volume mounts over Nuclio sidecar', () => {
+      const app = {
+        ...MOCK_APPLICATION,
+        config: {
+          'spec.sidecars': [
+            {
+              volumeMounts: [{ name: 'mlrun-vol', mountPath: '/mlrun', readOnly: false }]
+            }
+          ]
+        },
+        nuclioFunc: {
+          spec: {
+            sidecars: [
+              {
+                volumeMounts: [{ name: 'nuclio-vol', mountPath: '/nuclio', readOnly: false }]
+              }
+            ]
+          }
+        }
+      }
+      const result = getVolumesData(app)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].name).toBe('mlrun-vol')
+      expect(result[0].mountPath).toBe('/mlrun')
     })
   })
 
