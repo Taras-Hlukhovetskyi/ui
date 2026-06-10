@@ -4156,34 +4156,65 @@
       "description": "Rolling aggregation over Metrics and Lables according to specifications",
       "disable": false,
       "env": [
-        { "name": "SIDECAR_PORT", "value": "8050" },
-        { "name": "SIDECAR_HOST", "value": "http://localhost" }
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8050"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
       ],
       "resources": {
-        "requests": { "memory": "1Mi", "cpu": "25m" },
-        "limits": { "memory": "20Gi", "cpu": "2" }
+        "requests": {
+          "memory": "1Mi",
+          "cpu": "25m"
+        },
+        "limits": {
+          "memory": "20Gi",
+          "cpu": "2"
+        }
       },
       "minReplicas": 1,
       "maxReplicas": 4,
       "targetCPU": 75,
       "serviceAccount": "mlrun-api",
-      "securityContext": { "runAsUser": 1000, "runAsGroup": 1000 },
-      "loggerSinks": [{ "level": "debug" }],
+      "securityContext": {
+        "runAsUser": 1000,
+        "runAsGroup": 1000
+      },
+      "loggerSinks": [
+        {
+          "level": "debug"
+        }
+      ],
       "sidecars": [
         {
           "env": [
-            { "name": "APP_MODE", "value": "production" }
+            {
+              "name": "APP_MODE",
+              "value": "production"
+            }
           ],
           "resources": {
-            "requests": { "memory": "256Mi", "cpu": "100m" },
-            "limits": { "memory": "2Gi", "cpu": "1" }
+            "requests": {
+              "memory": "256Mi",
+              "cpu": "100m"
+            },
+            "limits": {
+              "memory": "2Gi",
+              "cpu": "1"
+            }
           },
           "volumeMounts": []
         }
       ],
       "volumes": [],
       "readinessProbe": {
-        "httpGet": { "path": "/health", "port": 8050 },
+        "httpGet": {
+          "path": "/health",
+          "port": 8050
+        },
         "initialDelaySeconds": 10,
         "periodSeconds": 5,
         "failureThreshold": 3,
@@ -4228,46 +4259,93 @@
       "description": "Interactive Iris classification dashboard built with Streamlit",
       "disable": false,
       "env": [
-        { "name": "SIDECAR_PORT", "value": "8501" },
-        { "name": "SIDECAR_HOST", "value": "http://localhost" }
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8501"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
       ],
       "resources": {
-        "requests": { "memory": "256Mi", "cpu": "100m" },
-        "limits": { "memory": "1Gi", "cpu": "500m" }
+        "requests": {
+          "memory": "256Mi",
+          "cpu": "100m"
+        },
+        "limits": {
+          "memory": "1Gi",
+          "cpu": "500m"
+        }
       },
       "minReplicas": 1,
       "maxReplicas": 2,
       "targetCPU": 70,
       "serviceAccount": "mlrun-api",
-      "securityContext": { "runAsUser": 1000, "runAsGroup": 1000 },
-      "loggerSinks": [{ "level": "info" }],
+      "securityContext": {
+        "runAsUser": 1000,
+        "runAsGroup": 1000
+      },
+      "loggerSinks": [
+        {
+          "level": "info"
+        }
+      ],
       "sidecars": [
         {
           "env": [
-            { "name": "STREAMLIT_SERVER_PORT", "value": "8501" },
-            { "name": "STREAMLIT_THEME", "value": "dark" }
+            {
+              "name": "STREAMLIT_SERVER_PORT",
+              "value": "8501"
+            },
+            {
+              "name": "STREAMLIT_THEME",
+              "value": "dark"
+            }
           ],
           "resources": {
-            "requests": { "memory": "128Mi", "cpu": "50m" },
-            "limits": { "memory": "512Mi", "cpu": "250m" }
+            "requests": {
+              "memory": "128Mi",
+              "cpu": "50m"
+            },
+            "limits": {
+              "memory": "512Mi",
+              "cpu": "250m"
+            }
           },
-          "volumeMounts": []
+          "volumeMounts": [],
+          "livenessProbe": {
+            "httpGet": {
+              "path": "/",
+              "port": 5000,
+              "scheme": "HTTP"
+            },
+            "initialDelaySeconds": 17,
+            "periodSeconds": 11
+          },
+          "readinessProbe": {
+            "httpGet": {
+              "path": "/",
+              "port": 5000,
+              "scheme": "HTTP"
+            },
+            "initialDelaySeconds": 29,
+            "periodSeconds": 23
+          }
         }
       ],
       "volumes": [],
       "readinessProbe": {
-        "httpGet": { "path": "/_stcore/health", "port": 8501 },
-        "initialDelaySeconds": 15,
-        "periodSeconds": 10,
-        "failureThreshold": 3,
-        "timeoutSeconds": 5
+        "initialDelaySeconds": 5,
+        "timeoutSeconds": 1,
+        "periodSeconds": 1,
+        "failureThreshold": 10
       },
       "livenessProbe": {
-        "httpGet": { "path": "/_stcore/health", "port": 8501 },
-        "initialDelaySeconds": 30,
-        "periodSeconds": 30,
-        "failureThreshold": 5,
-        "timeoutSeconds": 5
+        "initialDelaySeconds": 10,
+        "timeoutSeconds": 3,
+        "periodSeconds": 5,
+        "failureThreshold": 3
       },
       "build": {
         "noBaseImagesPull": true,
@@ -4306,12 +4384,24 @@
       "runtime": "golang",
       "disable": false,
       "env": [
-        { "name": "SIDECAR_PORT", "value": "8080" },
-        { "name": "SIDECAR_HOST", "value": "http://localhost" }
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
       ],
       "resources": {
-        "requests": { "memory": "512Mi", "cpu": "250m" },
-        "limits": { "memory": "4Gi", "cpu": "2" }
+        "requests": {
+          "memory": "512Mi",
+          "cpu": "250m"
+        },
+        "limits": {
+          "memory": "4Gi",
+          "cpu": "2"
+        }
       },
       "minReplicas": 2,
       "maxReplicas": 6,
@@ -4319,47 +4409,102 @@
       "sidecars": [
         {
           "env": [
-            { "name": "DB_HOST", "value": "postgres.default-tenant.svc" },
-            { "name": "ALERT_THRESHOLD", "value": "0.85" },
-            { "name": "KAFKA_BROKERS", "value": "kafka-0.default-tenant.svc:9092,kafka-1.default-tenant.svc:9092" },
-            { "name": "DB_PASSWORD", "valueFrom": { "secretKeyRef": { "key": "password", "name": "fraud-db-secret" } } }
+            {
+              "name": "DB_HOST",
+              "value": "postgres.default-tenant.svc"
+            },
+            {
+              "name": "ALERT_THRESHOLD",
+              "value": "0.85"
+            },
+            {
+              "name": "KAFKA_BROKERS",
+              "value": "kafka-0.default-tenant.svc:9092,kafka-1.default-tenant.svc:9092"
+            },
+            {
+              "name": "DB_PASSWORD",
+              "valueFrom": {
+                "secretKeyRef": {
+                  "key": "password",
+                  "name": "fraud-db-secret"
+                }
+              }
+            }
           ],
           "resources": {
-            "requests": { "memory": "256Mi", "cpu": "100m" },
-            "limits": { "memory": "2Gi", "cpu": "1" }
+            "requests": {
+              "memory": "256Mi",
+              "cpu": "100m"
+            },
+            "limits": {
+              "memory": "2Gi",
+              "cpu": "1"
+            }
           },
           "volumeMounts": [
-            { "name": "fraud-models", "mountPath": "/models", "readOnly": true },
-            { "name": "fraud-config", "mountPath": "/etc/fraud", "readOnly": true }
+            {
+              "name": "fraud-models",
+              "mountPath": "/models",
+              "readOnly": true
+            },
+            {
+              "name": "fraud-config",
+              "mountPath": "/etc/fraud",
+              "readOnly": true
+            }
           ]
         }
       ],
       "volumes": [
         {
-          "volume": { "name": "fraud-models", "persistentVolumeClaim": { "claimName": "fraud-models-pvc" } },
-          "volumeMount": { "name": "fraud-models", "mountPath": "/models" }
+          "volume": {
+            "name": "fraud-models",
+            "persistentVolumeClaim": {
+              "claimName": "fraud-models-pvc"
+            }
+          },
+          "volumeMount": {
+            "name": "fraud-models",
+            "mountPath": "/models"
+          }
         },
         {
-          "volume": { "name": "fraud-config", "configMap": { "name": "fraud-detection-config" } },
-          "volumeMount": { "name": "fraud-config", "mountPath": "/etc/fraud" }
+          "volume": {
+            "name": "fraud-config",
+            "configMap": {
+              "name": "fraud-detection-config"
+            }
+          },
+          "volumeMount": {
+            "name": "fraud-config",
+            "mountPath": "/etc/fraud"
+          }
         }
       ],
       "readinessProbe": {
-        "httpGet": { "path": "/api/health", "port": 8080 },
+        "httpGet": {
+          "path": "/api/health",
+          "port": 8080
+        },
         "initialDelaySeconds": 10,
         "periodSeconds": 5,
         "failureThreshold": 3,
         "timeoutSeconds": 3
       },
       "livenessProbe": {
-        "tcpSocket": { "port": 8080 },
+        "tcpSocket": {
+          "port": 8080
+        },
         "initialDelaySeconds": 15,
         "periodSeconds": 20,
         "failureThreshold": 5,
         "timeoutSeconds": 5
       },
       "startupProbe": {
-        "httpGet": { "path": "/api/health", "port": 8080 },
+        "httpGet": {
+          "path": "/api/health",
+          "port": 8080
+        },
         "initialDelaySeconds": 5,
         "periodSeconds": 5,
         "failureThreshold": 30,
@@ -4394,24 +4539,50 @@
       "runtime": "golang",
       "disable": false,
       "env": [
-        { "name": "SIDECAR_PORT", "value": "5000" },
-        { "name": "SIDECAR_HOST", "value": "http://localhost" }
+        {
+          "name": "SIDECAR_PORT",
+          "value": "5000"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
       ],
       "resources": {
-        "requests": { "memory": "2Gi", "cpu": "500m" },
-        "limits": { "memory": "8Gi", "cpu": "4", "nvidia.com/gpu": "1" }
+        "requests": {
+          "memory": "2Gi",
+          "cpu": "500m"
+        },
+        "limits": {
+          "memory": "8Gi",
+          "cpu": "4",
+          "nvidia.com/gpu": "1"
+        }
       },
       "minReplicas": 1,
       "maxReplicas": 3,
       "sidecars": [
         {
           "env": [
-            { "name": "MODEL_NAME", "value": "distilbert-base-uncased-finetuned-sst-2-english" },
-            { "name": "BATCH_SIZE", "value": "32" }
+            {
+              "name": "MODEL_NAME",
+              "value": "distilbert-base-uncased-finetuned-sst-2-english"
+            },
+            {
+              "name": "BATCH_SIZE",
+              "value": "32"
+            }
           ],
           "resources": {
-            "requests": { "memory": "1Gi", "cpu": "250m" },
-            "limits": { "memory": "4Gi", "cpu": "2", "nvidia.com/gpu": "1" }
+            "requests": {
+              "memory": "1Gi",
+              "cpu": "250m"
+            },
+            "limits": {
+              "memory": "4Gi",
+              "cpu": "2",
+              "nvidia.com/gpu": "1"
+            }
           },
           "volumeMounts": []
         }
@@ -4445,12 +4616,24 @@
       "runtime": "golang",
       "disable": false,
       "env": [
-        { "name": "SIDECAR_PORT", "value": "8888" },
-        { "name": "SIDECAR_HOST", "value": "http://localhost" }
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8888"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
       ],
       "resources": {
-        "requests": { "memory": "1Gi", "cpu": "500m" },
-        "limits": { "memory": "4Gi", "cpu": "2" }
+        "requests": {
+          "memory": "1Gi",
+          "cpu": "500m"
+        },
+        "limits": {
+          "memory": "4Gi",
+          "cpu": "2"
+        }
       },
       "minReplicas": 2,
       "maxReplicas": 10,
@@ -4458,27 +4641,57 @@
       "sidecars": [
         {
           "env": [
-            { "name": "REDIS_URL", "value": "redis://redis.default-tenant.svc:6379" },
-            { "name": "MODEL_VERSION", "value": "v3.0.1" },
-            { "name": "CACHE_TTL", "value": "300" }
+            {
+              "name": "REDIS_URL",
+              "value": "redis://redis.default-tenant.svc:6379"
+            },
+            {
+              "name": "MODEL_VERSION",
+              "value": "v3.0.1"
+            },
+            {
+              "name": "CACHE_TTL",
+              "value": "300"
+            }
           ],
           "resources": {
-            "requests": { "memory": "512Mi", "cpu": "250m" },
-            "limits": { "memory": "2Gi", "cpu": "1" }
+            "requests": {
+              "memory": "512Mi",
+              "cpu": "250m"
+            },
+            "limits": {
+              "memory": "2Gi",
+              "cpu": "1"
+            }
           },
           "volumeMounts": [
-            { "name": "model-artifacts", "mountPath": "/models", "readOnly": true }
+            {
+              "name": "model-artifacts",
+              "mountPath": "/models",
+              "readOnly": true
+            }
           ]
         }
       ],
       "volumes": [
         {
-          "volume": { "name": "model-artifacts", "persistentVolumeClaim": { "claimName": "recommender-models-pvc" } },
-          "volumeMount": { "name": "model-artifacts", "mountPath": "/models" }
+          "volume": {
+            "name": "model-artifacts",
+            "persistentVolumeClaim": {
+              "claimName": "recommender-models-pvc"
+            }
+          },
+          "volumeMount": {
+            "name": "model-artifacts",
+            "mountPath": "/models"
+          }
         }
       ],
       "readinessProbe": {
-        "httpGet": { "path": "/health", "port": 8888 },
+        "httpGet": {
+          "path": "/health",
+          "port": 8888
+        },
         "initialDelaySeconds": 10,
         "periodSeconds": 10,
         "failureThreshold": 3,
@@ -4513,12 +4726,24 @@
       "runtime": "golang",
       "disable": true,
       "env": [
-        { "name": "SIDECAR_PORT", "value": "3000" },
-        { "name": "SIDECAR_HOST", "value": "http://localhost" }
+        {
+          "name": "SIDECAR_PORT",
+          "value": "3000"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
       ],
       "resources": {
-        "requests": { "memory": "128Mi", "cpu": "50m" },
-        "limits": { "memory": "512Mi", "cpu": "250m" }
+        "requests": {
+          "memory": "128Mi",
+          "cpu": "50m"
+        },
+        "limits": {
+          "memory": "512Mi",
+          "cpu": "250m"
+        }
       },
       "minReplicas": 0,
       "maxReplicas": 1,
@@ -4526,8 +4751,14 @@
         {
           "env": [],
           "resources": {
-            "requests": { "memory": "64Mi", "cpu": "25m" },
-            "limits": { "memory": "256Mi", "cpu": "100m" }
+            "requests": {
+              "memory": "64Mi",
+              "cpu": "25m"
+            },
+            "limits": {
+              "memory": "256Mi",
+              "cpu": "100m"
+            }
           },
           "volumeMounts": []
         }
@@ -4561,12 +4792,24 @@
       "runtime": "golang",
       "disable": false,
       "env": [
-        { "name": "SIDECAR_PORT", "value": "8502" },
-        { "name": "SIDECAR_HOST", "value": "http://localhost" }
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8502"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
       ],
       "resources": {
-        "requests": { "memory": "256Mi", "cpu": "100m" },
-        "limits": { "memory": "2Gi", "cpu": "1" }
+        "requests": {
+          "memory": "256Mi",
+          "cpu": "100m"
+        },
+        "limits": {
+          "memory": "2Gi",
+          "cpu": "1"
+        }
       },
       "minReplicas": 0,
       "maxReplicas": 1,
@@ -4574,8 +4817,14 @@
         {
           "env": [],
           "resources": {
-            "requests": { "memory": "128Mi", "cpu": "50m" },
-            "limits": { "memory": "1Gi", "cpu": "500m" }
+            "requests": {
+              "memory": "128Mi",
+              "cpu": "50m"
+            },
+            "limits": {
+              "memory": "1Gi",
+              "cpu": "500m"
+            }
           },
           "volumeMounts": []
         }
@@ -4618,12 +4867,24 @@
       "runtime": "golang",
       "disable": false,
       "env": [
-        { "name": "SIDECAR_PORT", "value": "8080" },
-        { "name": "SIDECAR_HOST", "value": "http://localhost" }
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
       ],
       "resources": {
-        "requests": { "memory": "512Mi", "cpu": "250m" },
-        "limits": { "memory": "2Gi", "cpu": "1" }
+        "requests": {
+          "memory": "512Mi",
+          "cpu": "250m"
+        },
+        "limits": {
+          "memory": "2Gi",
+          "cpu": "1"
+        }
       },
       "minReplicas": 1,
       "maxReplicas": 3,
@@ -4631,19 +4892,34 @@
       "sidecars": [
         {
           "env": [
-            { "name": "FORECAST_HORIZON", "value": "30" },
-            { "name": "UPDATE_INTERVAL", "value": "3600" }
+            {
+              "name": "FORECAST_HORIZON",
+              "value": "30"
+            },
+            {
+              "name": "UPDATE_INTERVAL",
+              "value": "3600"
+            }
           ],
           "resources": {
-            "requests": { "memory": "256Mi", "cpu": "100m" },
-            "limits": { "memory": "1Gi", "cpu": "500m" }
+            "requests": {
+              "memory": "256Mi",
+              "cpu": "100m"
+            },
+            "limits": {
+              "memory": "1Gi",
+              "cpu": "500m"
+            }
           },
           "volumeMounts": []
         }
       ],
       "volumes": [],
       "readinessProbe": {
-        "httpGet": { "path": "/ready", "port": 8080 },
+        "httpGet": {
+          "path": "/ready",
+          "port": 8080
+        },
         "initialDelaySeconds": 10,
         "periodSeconds": 10,
         "failureThreshold": 3,
@@ -4682,70 +4958,163 @@
       "description": "AI-powered conversational assistant with RAG capabilities",
       "disable": false,
       "env": [
-        { "name": "SIDECAR_PORT", "value": "7860" },
-        { "name": "SIDECAR_HOST", "value": "http://localhost" }
+        {
+          "name": "SIDECAR_PORT",
+          "value": "7860"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
       ],
       "resources": {
-        "requests": { "memory": "1Gi", "cpu": "500m" },
-        "limits": { "memory": "4Gi", "cpu": "2", "nvidia.com/gpu": "1" }
+        "requests": {
+          "memory": "1Gi",
+          "cpu": "500m"
+        },
+        "limits": {
+          "memory": "4Gi",
+          "cpu": "2",
+          "nvidia.com/gpu": "1"
+        }
       },
       "minReplicas": 1,
       "maxReplicas": 8,
       "targetCPU": 60,
       "serviceAccount": "mlrun-api",
-      "securityContext": { "runAsUser": 1000, "runAsGroup": 1000 },
-      "loggerSinks": [{ "level": "info" }],
+      "securityContext": {
+        "runAsUser": 1000,
+        "runAsGroup": 1000
+      },
+      "loggerSinks": [
+        {
+          "level": "info"
+        }
+      ],
       "sidecars": [
         {
           "env": [
-            { "name": "OPENAI_API_KEY", "valueFrom": { "secretKeyRef": { "key": "api-key", "name": "openai-secret" } } },
-            { "name": "MODEL_ENDPOINT", "value": "https://api.openai.com/v1/chat/completions" },
-            { "name": "MAX_TOKENS", "value": "4096" },
-            { "name": "TEMPERATURE", "value": "0.7" },
-            { "name": "VECTOR_DB_URL", "value": "http://milvus.default-tenant.svc:19530" },
-            { "name": "EMBEDDING_MODEL", "value": "text-embedding-ada-002" }
+            {
+              "name": "OPENAI_API_KEY",
+              "valueFrom": {
+                "secretKeyRef": {
+                  "key": "api-key",
+                  "name": "openai-secret"
+                }
+              }
+            },
+            {
+              "name": "MODEL_ENDPOINT",
+              "value": "https://api.openai.com/v1/chat/completions"
+            },
+            {
+              "name": "MAX_TOKENS",
+              "value": "4096"
+            },
+            {
+              "name": "TEMPERATURE",
+              "value": "0.7"
+            },
+            {
+              "name": "VECTOR_DB_URL",
+              "value": "http://milvus.default-tenant.svc:19530"
+            },
+            {
+              "name": "EMBEDDING_MODEL",
+              "value": "text-embedding-ada-002"
+            }
           ],
           "resources": {
-            "requests": { "memory": "1Gi", "cpu": "500m" },
-            "limits": { "memory": "4Gi", "cpu": "2", "nvidia.com/gpu": "1" }
+            "requests": {
+              "memory": "1Gi",
+              "cpu": "500m"
+            },
+            "limits": {
+              "memory": "4Gi",
+              "cpu": "2",
+              "nvidia.com/gpu": "1"
+            }
           },
           "volumeMounts": [
-            { "name": "model-cache", "mountPath": "/app/cache", "readOnly": false },
-            { "name": "config-volume", "mountPath": "/app/config", "readOnly": true },
-            { "name": "tls-certs", "mountPath": "/etc/ssl/custom", "readOnly": true }
+            {
+              "name": "model-cache",
+              "mountPath": "/app/cache",
+              "readOnly": false
+            },
+            {
+              "name": "config-volume",
+              "mountPath": "/app/config",
+              "readOnly": true
+            },
+            {
+              "name": "tls-certs",
+              "mountPath": "/etc/ssl/custom",
+              "readOnly": true
+            }
           ]
         }
       ],
       "volumes": [
         {
-          "volume": { "name": "model-cache", "emptyDir": {} },
-          "volumeMount": { "name": "model-cache", "mountPath": "/app/cache" }
+          "volume": {
+            "name": "model-cache",
+            "emptyDir": {}
+          },
+          "volumeMount": {
+            "name": "model-cache",
+            "mountPath": "/app/cache"
+          }
         },
         {
-          "volume": { "name": "config-volume", "configMap": { "name": "chatbot-config" } },
-          "volumeMount": { "name": "config-volume", "mountPath": "/app/config" }
+          "volume": {
+            "name": "config-volume",
+            "configMap": {
+              "name": "chatbot-config"
+            }
+          },
+          "volumeMount": {
+            "name": "config-volume",
+            "mountPath": "/app/config"
+          }
         },
         {
-          "volume": { "name": "tls-certs", "secret": { "secretName": "chatbot-tls" } },
-          "volumeMount": { "name": "tls-certs", "mountPath": "/etc/ssl/custom" }
+          "volume": {
+            "name": "tls-certs",
+            "secret": {
+              "secretName": "chatbot-tls"
+            }
+          },
+          "volumeMount": {
+            "name": "tls-certs",
+            "mountPath": "/etc/ssl/custom"
+          }
         }
       ],
       "readinessProbe": {
-        "httpGet": { "path": "/health", "port": 7860 },
+        "httpGet": {
+          "path": "/health",
+          "port": 7860
+        },
         "initialDelaySeconds": 30,
         "periodSeconds": 10,
         "failureThreshold": 5,
         "timeoutSeconds": 10
       },
       "livenessProbe": {
-        "httpGet": { "path": "/health", "port": 7860 },
+        "httpGet": {
+          "path": "/health",
+          "port": 7860
+        },
         "initialDelaySeconds": 60,
         "periodSeconds": 30,
         "failureThreshold": 3,
         "timeoutSeconds": 10
       },
       "startupProbe": {
-        "httpGet": { "path": "/health", "port": 7860 },
+        "httpGet": {
+          "path": "/health",
+          "port": 7860
+        },
         "initialDelaySeconds": 10,
         "periodSeconds": 10,
         "failureThreshold": 30,
@@ -4789,12 +5158,25 @@
       "runtime": "golang",
       "disable": false,
       "env": [
-        { "name": "SIDECAR_PORT", "value": "9000" },
-        { "name": "SIDECAR_HOST", "value": "http://localhost" }
+        {
+          "name": "SIDECAR_PORT",
+          "value": "9000"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
       ],
       "resources": {
-        "requests": { "memory": "2Gi", "cpu": "1" },
-        "limits": { "memory": "8Gi", "cpu": "4", "nvidia.com/gpu": "2" }
+        "requests": {
+          "memory": "2Gi",
+          "cpu": "1"
+        },
+        "limits": {
+          "memory": "8Gi",
+          "cpu": "4",
+          "nvidia.com/gpu": "2"
+        }
       },
       "minReplicas": 1,
       "maxReplicas": 5,
@@ -4802,27 +5184,56 @@
       "sidecars": [
         {
           "env": [
-            { "name": "MODEL_PATH", "value": "/models/resnet50.pt" },
-            { "name": "BATCH_SIZE", "value": "16" },
-            { "name": "NUM_CLASSES", "value": "1000" }
+            {
+              "name": "MODEL_PATH",
+              "value": "/models/resnet50.pt"
+            },
+            {
+              "name": "BATCH_SIZE",
+              "value": "16"
+            },
+            {
+              "name": "NUM_CLASSES",
+              "value": "1000"
+            }
           ],
           "resources": {
-            "requests": { "memory": "1Gi", "cpu": "500m" },
-            "limits": { "memory": "4Gi", "cpu": "2", "nvidia.com/gpu": "1" }
+            "requests": {
+              "memory": "1Gi",
+              "cpu": "500m"
+            },
+            "limits": {
+              "memory": "4Gi",
+              "cpu": "2",
+              "nvidia.com/gpu": "1"
+            }
           },
           "volumeMounts": [
-            { "name": "model-store", "mountPath": "/models", "readOnly": true },
-            { "name": "temp-data", "mountPath": "/tmp/inference", "readOnly": false }
+            {
+              "name": "model-store",
+              "mountPath": "/models",
+              "readOnly": true
+            },
+            {
+              "name": "temp-data",
+              "mountPath": "/tmp/inference",
+              "readOnly": false
+            }
           ],
           "readinessProbe": {
-            "httpGet": { "path": "/v1/health", "port": 9000 },
+            "httpGet": {
+              "path": "/v1/health",
+              "port": 9000
+            },
             "initialDelaySeconds": 30,
             "periodSeconds": 10,
             "failureThreshold": 5,
             "timeoutSeconds": 5
           },
           "livenessProbe": {
-            "grpc": { "port": 9001 },
+            "grpc": {
+              "port": 9001
+            },
             "initialDelaySeconds": 60,
             "periodSeconds": 30,
             "failureThreshold": 3,
@@ -4832,23 +5243,42 @@
       ],
       "volumes": [
         {
-          "volume": { "name": "model-store", "persistentVolumeClaim": { "claimName": "model-store-pvc" } },
-          "volumeMount": { "name": "model-store", "mountPath": "/models" }
+          "volume": {
+            "name": "model-store",
+            "persistentVolumeClaim": {
+              "claimName": "model-store-pvc"
+            }
+          },
+          "volumeMount": {
+            "name": "model-store",
+            "mountPath": "/models"
+          }
         },
         {
-          "volume": { "name": "temp-data", "emptyDir": {} },
-          "volumeMount": { "name": "temp-data", "mountPath": "/tmp/inference" }
+          "volume": {
+            "name": "temp-data",
+            "emptyDir": {}
+          },
+          "volumeMount": {
+            "name": "temp-data",
+            "mountPath": "/tmp/inference"
+          }
         }
       ],
       "readinessProbe": {
-        "httpGet": { "path": "/v1/health", "port": 9000 },
+        "httpGet": {
+          "path": "/v1/health",
+          "port": 9000
+        },
         "initialDelaySeconds": 30,
         "periodSeconds": 10,
         "failureThreshold": 5,
         "timeoutSeconds": 5
       },
       "livenessProbe": {
-        "grpc": { "port": 9001 },
+        "grpc": {
+          "port": 9001
+        },
         "initialDelaySeconds": 60,
         "periodSeconds": 30,
         "failureThreshold": 3,
@@ -4883,12 +5313,24 @@
       "runtime": "golang",
       "disable": false,
       "env": [
-        { "name": "SIDECAR_PORT", "value": "8080" },
-        { "name": "SIDECAR_HOST", "value": "http://localhost" }
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
       ],
       "resources": {
-        "requests": { "memory": "1Gi", "cpu": "500m" },
-        "limits": { "memory": "4Gi", "cpu": "2" }
+        "requests": {
+          "memory": "1Gi",
+          "cpu": "500m"
+        },
+        "limits": {
+          "memory": "4Gi",
+          "cpu": "2"
+        }
       },
       "minReplicas": 2,
       "maxReplicas": 4,
@@ -4896,27 +5338,56 @@
       "sidecars": [
         {
           "env": [
-            { "name": "DETECTION_ALGORITHM", "value": "isolation_forest" },
-            { "name": "SENSITIVITY", "value": "0.95" },
-            { "name": "PROMETHEUS_PORT", "value": "9090" }
+            {
+              "name": "DETECTION_ALGORITHM",
+              "value": "isolation_forest"
+            },
+            {
+              "name": "SENSITIVITY",
+              "value": "0.95"
+            },
+            {
+              "name": "PROMETHEUS_PORT",
+              "value": "9090"
+            }
           ],
           "resources": {
-            "requests": { "memory": "512Mi", "cpu": "250m" },
-            "limits": { "memory": "2Gi", "cpu": "1" }
+            "requests": {
+              "memory": "512Mi",
+              "cpu": "250m"
+            },
+            "limits": {
+              "memory": "2Gi",
+              "cpu": "1"
+            }
           },
           "volumeMounts": [
-            { "name": "anomaly-models", "mountPath": "/models", "readOnly": true }
+            {
+              "name": "anomaly-models",
+              "mountPath": "/models",
+              "readOnly": true
+            }
           ]
         }
       ],
       "volumes": [
         {
-          "volume": { "name": "anomaly-models", "hostPath": { "path": "/data/anomaly-models" } },
-          "volumeMount": { "name": "anomaly-models", "mountPath": "/models" }
+          "volume": {
+            "name": "anomaly-models",
+            "hostPath": {
+              "path": "/data/anomaly-models"
+            }
+          },
+          "volumeMount": {
+            "name": "anomaly-models",
+            "mountPath": "/models"
+          }
         }
       ],
       "readinessProbe": {
-        "tcpSocket": { "port": 8080 },
+        "tcpSocket": {
+          "port": 8080
+        },
         "initialDelaySeconds": 5,
         "periodSeconds": 10,
         "failureThreshold": 3,
@@ -4950,31 +5421,58 @@
       "runtime": "golang",
       "disable": false,
       "env": [
-        { "name": "SIDECAR_PORT", "value": "8080" },
-        { "name": "SIDECAR_HOST", "value": "http://localhost" }
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
       ],
       "resources": {
-        "requests": { "memory": "512Mi", "cpu": "250m" },
-        "limits": { "memory": "2Gi", "cpu": "1" }
+        "requests": {
+          "memory": "512Mi",
+          "cpu": "250m"
+        },
+        "limits": {
+          "memory": "2Gi",
+          "cpu": "1"
+        }
       },
       "minReplicas": 2,
       "maxReplicas": 6,
       "sidecars": [
         {
           "env": [
-            { "name": "PRICING_STRATEGY", "value": "dynamic" },
-            { "name": "AB_TEST_ENABLED", "value": "true" }
+            {
+              "name": "PRICING_STRATEGY",
+              "value": "dynamic"
+            },
+            {
+              "name": "AB_TEST_ENABLED",
+              "value": "true"
+            }
           ],
           "resources": {
-            "requests": { "memory": "256Mi", "cpu": "100m" },
-            "limits": { "memory": "1Gi", "cpu": "500m" }
+            "requests": {
+              "memory": "256Mi",
+              "cpu": "100m"
+            },
+            "limits": {
+              "memory": "1Gi",
+              "cpu": "500m"
+            }
           },
           "volumeMounts": []
         }
       ],
       "volumes": [],
       "readinessProbe": {
-        "httpGet": { "path": "/api/health", "port": 8080 },
+        "httpGet": {
+          "path": "/api/health",
+          "port": 8080
+        },
         "initialDelaySeconds": 10,
         "periodSeconds": 10,
         "failureThreshold": 3,
@@ -5008,12 +5506,24 @@
       "runtime": "golang",
       "disable": false,
       "env": [
-        { "name": "SIDECAR_PORT", "value": "8080" },
-        { "name": "SIDECAR_HOST", "value": "http://localhost" }
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
       ],
       "resources": {
-        "requests": { "memory": "64Mi", "cpu": "25m" },
-        "limits": { "memory": "256Mi", "cpu": "100m" }
+        "requests": {
+          "memory": "64Mi",
+          "cpu": "25m"
+        },
+        "limits": {
+          "memory": "256Mi",
+          "cpu": "100m"
+        }
       },
       "minReplicas": 1,
       "maxReplicas": 1,
@@ -5054,12 +5564,24 @@
       "runtime": "golang",
       "disable": false,
       "env": [
-        { "name": "SIDECAR_PORT", "value": "8080" },
-        { "name": "SIDECAR_HOST", "value": "http://localhost" }
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
       ],
       "resources": {
-        "requests": { "memory": "128Mi", "cpu": "50m" },
-        "limits": { "memory": "512Mi", "cpu": "250m" }
+        "requests": {
+          "memory": "128Mi",
+          "cpu": "50m"
+        },
+        "limits": {
+          "memory": "512Mi",
+          "cpu": "250m"
+        }
       },
       "minReplicas": 1,
       "maxReplicas": 2,
@@ -5067,15 +5589,24 @@
         {
           "env": [],
           "resources": {
-            "requests": { "memory": "64Mi", "cpu": "25m" },
-            "limits": { "memory": "256Mi", "cpu": "100m" }
+            "requests": {
+              "memory": "64Mi",
+              "cpu": "25m"
+            },
+            "limits": {
+              "memory": "256Mi",
+              "cpu": "100m"
+            }
           },
           "volumeMounts": []
         }
       ],
       "volumes": [],
       "readinessProbe": {
-        "httpGet": { "path": "/health", "port": 8080 },
+        "httpGet": {
+          "path": "/health",
+          "port": 8080
+        },
         "initialDelaySeconds": 5,
         "periodSeconds": 5,
         "failureThreshold": 3,
