@@ -26,6 +26,7 @@ import { createPortal } from 'react-dom'
 import ModalContainer from 'react-modal-promise'
 
 import Navbar from '../Navbar/Navbar'
+import HostLeaveGuard from '../../common/HostLeaveGuard/HostLeaveGuard'
 import TokenExpiryBanner from '../../common/TokenExpiryBanner/TokenExpiryBanner'
 import YamlModal from '../../common/YamlModal/YamlModal'
 import { Loader } from 'igz-controls/components'
@@ -110,6 +111,7 @@ const Page = () => {
 
   return (
     <>
+      <HostLeaveGuard />
       {projectName && <Navbar projectName={projectName} setIsNavbarPinned={setIsNavbarPinned} />}
       <main id="main" className={pinnedClasses} ref={mainRef} style={mainStyles}>
         <TokenExpiryBanner />
