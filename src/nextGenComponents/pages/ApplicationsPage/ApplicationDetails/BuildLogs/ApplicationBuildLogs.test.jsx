@@ -241,6 +241,22 @@ describe('ApplicationBuildLogs', () => {
       expect(screen.getByTestId(`logs-loading-${LOGS_SECTION_KEY.APPLICATION}`)).toBeInTheDocument()
       expect(screen.getByTestId(`logs-loading-${LOGS_SECTION_KEY.FUNCTION}`)).toBeInTheDocument()
     })
+
+    it('hides copy buttons while logs are loading', async () => {
+      mockDispatch.mockImplementation(() =>
+        makeDispatchResponse({
+          data: 'building...',
+          headers: { 'x-mlrun-function-status': 'running' }
+        })
+      )
+
+      await act(async () => renderComponent())
+
+      expect(
+        screen.queryByTestId(`copy-logs-${LOGS_SECTION_KEY.APPLICATION}`)
+      ).not.toBeInTheDocument()
+      expect(screen.queryByTestId(`copy-logs-${LOGS_SECTION_KEY.FUNCTION}`)).not.toBeInTheDocument()
+    })
   })
 
   describe('polling', () => {
