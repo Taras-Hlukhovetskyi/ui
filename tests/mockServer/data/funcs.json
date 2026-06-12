@@ -1,6 +1,46 @@
 {
   "funcs": [
     {
+      "kind": "application",
+      "metadata": {
+        "project": "default",
+        "tag": "latest",
+        "name": "test-initialized-app",
+        "hash": "1111111111111111111111111111111111111111",
+        "updated": "2026-06-12T09:00:00.000000+00:00"
+      },
+      "spec": {
+        "image": "mlrun/mlrun",
+        "description": "ML-12730 manual test: application in the Initialized state (never deployed).",
+        "internal_application_port": 8080,
+        "command": ""
+      },
+      "verbose": false,
+      "status": {}
+    },
+    {
+      "kind": "application",
+      "metadata": {
+        "project": "default",
+        "tag": "latest",
+        "name": "test-deploying-app",
+        "hash": "2222222222222222222222222222222222222222",
+        "updated": "2026-06-12T09:00:00.000000+00:00"
+      },
+      "spec": {
+        "image": "mlrun/mlrun",
+        "description": "ML-12730 manual test: application in the Deploying state; build/deploy logs return 404.",
+        "internal_application_port": 8080,
+        "command": ""
+      },
+      "verbose": false,
+      "status": {
+        "state": "building",
+        "application_image": "iguazio/test-deploying:0.1.0",
+        "sidecar_name": "test-deploying-sidecar"
+      }
+    },
+    {
       "metadata": {
         "tag": "latest",
         "name": "function-with-llm",

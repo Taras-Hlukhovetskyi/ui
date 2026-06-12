@@ -41,8 +41,8 @@ const LogSection = ({ title, logs, isLoading, isCopied, onCopy }) => (
         {isLoading && (
           <Loader
             mode="inline"
-            size="sm"
-            className="absolute top-2 right-4 border-white/20 border-t-white/70"
+            size="md"
+            className="absolute top-2 right-4 border-white/40 border-t-white"
             aria-label="Loading logs"
             data-testid={`logs-loading-${title.toLowerCase()}`}
           />
