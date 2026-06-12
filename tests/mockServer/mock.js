@@ -909,18 +909,18 @@ function getRuns(req, res) {
   let collectedRuns = runs.runs
   //get runs for Projects Monitoring page
   if (req.params['project'] === '*') {
-    const { start_time_from, state } = req.query
+    const { start_time_from, states } = req.query
     collectedRuns = runs.runs
       .filter(run => run.kind === 'run')
       .filter(run => {
         const runStartTime = new Date(run.status.start_time)
 
         if (!start_time_from || runStartTime >= new Date(start_time_from)) {
-          if (state) {
-            if (isArray(state)) {
-              return state.includes(run.status.state)
+          if (states) {
+            if (isArray(states)) {
+              return states.includes(run.status.state)
             } else {
-              return run.status.state === state
+              return run.status.state === states
             }
           } else {
             return true
@@ -947,14 +947,14 @@ function getRuns(req, res) {
       )
     }
 
-    if (req.query['state']) {
-      const state = req.query['state']
+    if (req.query['states']) {
+      const states = req.query['states']
 
       collectedRuns = collectedRuns.filter(run => {
-        if (isArray(state)) {
-          return state.includes(run.status.state)
+        if (isArray(states)) {
+          return states.includes(run.status.state)
         } else {
-          return run.status.state === state
+          return run.status.state === states
         }
       })
     }
