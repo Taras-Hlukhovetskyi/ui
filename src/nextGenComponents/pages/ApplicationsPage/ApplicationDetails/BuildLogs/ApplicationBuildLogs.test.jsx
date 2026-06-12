@@ -319,9 +319,8 @@ describe('ApplicationBuildLogs', () => {
 
   describe('application state gating', () => {
     it('shows a placeholder message and skips fetching when the application is Initialized', async () => {
-      const { fetchFunctionLogs, fetchFunctionNuclioLogs } = await import(
-        '../../../../../reducers/functionReducer'
-      )
+      const { fetchFunctionLogs, fetchFunctionNuclioLogs } =
+        await import('../../../../../reducers/functionReducer')
 
       await act(async () =>
         renderComponent({

@@ -157,7 +157,7 @@ const ApplicationBuildLogs = ({ application }) => {
         })
         .catch(error => {
           if (cancelled) return
-          
+
           if (isDeploying && error?.response?.status === NOTFOUND_ERROR_STATUS_CODE) {
             setIsFunctionLogsLoading(true)
             clearPolling(functionLogsPollingRef)
