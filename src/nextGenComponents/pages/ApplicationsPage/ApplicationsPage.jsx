@@ -49,6 +49,7 @@ import {
   APPLICATION_KIND,
   APPLICATIONS_ERROR_MESSAGE,
   APPLICATIONS_FILTERS_CONFIG,
+  DEFAULT_UPDATED_SORTING,
   TAG_WILDCARD
 } from './applications.constants'
 import {
@@ -59,7 +60,6 @@ import {
 import { APPLICATIONS_PAGE, APPLICATIONS_PAGE_PATH } from '../../../constants'
 import {
   DEFAULT_APPLICATION_DETAILS_TAB,
-  DEFAULT_NAME_SORTING,
   VIEW_YAML_LABEL
 } from './ApplicationDetails/applicationDetails.constants'
 
@@ -281,7 +281,7 @@ const ApplicationsPage = () => {
                     data={applications}
                     columns={columns}
                     rowActions={rowActions}
-                    initialSorting={DEFAULT_NAME_SORTING}
+                    initialSorting={DEFAULT_UPDATED_SORTING}
                   />
                 )}
               </div>
