@@ -26,6 +26,7 @@ import ModalContainer from 'react-modal-promise'
 
 import Sidebar from '../../nextGenComponents/shared/Sidebar'
 import { SidebarInset, SidebarProvider } from 'igz-controls/nextGenComponents'
+import HostLeaveGuard from '../../common/HostLeaveGuard/HostLeaveGuard'
 import TokenExpiryBanner from '../../common/TokenExpiryBanner/TokenExpiryBanner'
 import YamlModal from '../../common/YamlModal/YamlModal'
 import { Loader } from 'igz-controls/components'
@@ -100,6 +101,7 @@ const Page = () => {
 
   return (
     <SidebarProvider defaultOpen={false}>
+      <HostLeaveGuard />
       {projectName && <Sidebar projectName={projectName} />}
       <SidebarInset>
         <>
