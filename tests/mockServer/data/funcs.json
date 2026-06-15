@@ -5,6 +5,28 @@
       "metadata": {
         "project": "default",
         "tag": "latest",
+        "name": "test-no-logs-app",
+        "hash": "3333333333333333333333333333333333333333",
+        "updated": "2026-06-15T15:00:00.000000+00:00"
+      },
+      "spec": {
+        "image": "mlrun/mlrun",
+        "description": "ML-12730 manual test: application in Ready state with no build logs (shows 'No data to show' inside the log panel).",
+        "internal_application_port": 8080,
+        "command": ""
+      },
+      "verbose": false,
+      "status": {
+        "state": "ready",
+        "nuclio_name": "app-demo-test-no-logs",
+        "sidecar_name": "test-no-logs-sidecar"
+      }
+    },
+    {
+      "kind": "application",
+      "metadata": {
+        "project": "default",
+        "tag": "latest",
         "name": "test-initialized-app",
         "hash": "1111111111111111111111111111111111111111",
         "updated": "2026-06-12T09:00:00.000000+00:00"
