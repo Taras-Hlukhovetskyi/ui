@@ -909,18 +909,18 @@ function getRuns(req, res) {
   let collectedRuns = runs.runs
   //get runs for Projects Monitoring page
   if (req.params['project'] === '*') {
-    const { start_time_from, state } = req.query
+    const { start_time_from, states } = req.query
     collectedRuns = runs.runs
       .filter(run => run.kind === 'run')
       .filter(run => {
         const runStartTime = new Date(run.status.start_time)
 
         if (!start_time_from || runStartTime >= new Date(start_time_from)) {
-          if (state) {
-            if (isArray(state)) {
-              return state.includes(run.status.state)
+          if (states) {
+            if (isArray(states)) {
+              return states.includes(run.status.state)
             } else {
-              return run.status.state === state
+              return run.status.state === states
             }
           } else {
             return true
@@ -947,14 +947,14 @@ function getRuns(req, res) {
       )
     }
 
-    if (req.query['state']) {
-      const state = req.query['state']
+    if (req.query['states']) {
+      const states = req.query['states']
 
       collectedRuns = collectedRuns.filter(run => {
-        if (isArray(state)) {
-          return state.includes(run.status.state)
+        if (isArray(states)) {
+          return states.includes(run.status.state)
         } else {
-          return run.status.state === state
+          return run.status.state === states
         }
       })
     }
@@ -1972,6 +1972,10 @@ function getFuncs(req, res) {
     })
   }
 
+  if (req.query['kind']) {
+    collectedFuncs = collectedFuncs.filter(func => func.kind === req.query['kind'])
+  }
+
   if (req.query['format'] === 'minimal') {
     collectedFuncs = collectedFuncs.map(func => {
       const specFields = [
@@ -2085,7 +2089,18 @@ function deleteFunc(req, res) {
   }
 }
 
+const NOT_FOUND_LOGS_FUNCTION = 'test-deploying-app'
+
+function sendLogsNotFound(name, res) {
+  res.statusCode = 404
+  res.send({ detail: { reason: `MLRunNotFoundError('build pod not found for ${name}')` } })
+}
+
 function getNuclioLogs(req, res) {
+  if (req.params.func === NOT_FOUND_LOGS_FUNCTION) {
+    return sendLogsNotFound(req.params.func, res)
+  }
+
   sendLogsData(
     {
       project: req.params.project,
@@ -2098,6 +2113,10 @@ function getNuclioLogs(req, res) {
 }
 
 function getBuildStatus(req, res) {
+  if (req.query.name === NOT_FOUND_LOGS_FUNCTION) {
+    return sendLogsNotFound(req.query.name, res)
+  }
+
   sendLogsData(
     {
       project: req.query.name,
@@ -2762,8 +2781,23 @@ function getNuclioFunctions(req, res) {
   res.send(nuclioFunctions)
 }
 
+function getNuclioFunction(req, res) {
+  const funcName = req.params.name
+  const func = nuclioFunctions[funcName]
+
+  if (func) {
+    res.send(func)
+  } else {
+    res.status(404).send({ error: `Function not found: ${funcName}` })
+  }
+}
+
 function getNuclioAPIGateways(req, res) {
-  res.send(nuclioAPIGateways)
+  if (req.path.startsWith('/api/v1/projects')) {
+    res.send({ api_gateways: nuclioAPIGateways })
+  } else {
+    res.send(nuclioAPIGateways)
+  }
 }
 
 // Iguazio
@@ -3150,9 +3184,12 @@ app.get(`${mlrunAPIIngress}/projects/:project/feature-vectors`, getProjectsFeatu
 
 app.post(`${mlrunAPIIngress}/submit_job`, postSubmitJob)
 
+app.get(`${nuclioApiUrl}/api/functions/:name`, getNuclioFunction)
 app.get(`${nuclioApiUrl}/api/functions`, getNuclioFunctions)
 
 app.get(`${nuclioApiUrl}/api/api_gateways`, getNuclioAPIGateways)
+
+app.get(`${mlrunAPIIngress}/projects/:project/api-gateways`, getNuclioAPIGateways)
 
 app.get(`${nuclioApiUrl}/api/v3io_streams`, getNuclioStreams)
 

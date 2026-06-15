@@ -22,6 +22,7 @@ import {
   ADD_TO_FEATURE_VECTOR_TAB,
   ALERTS_PAGE,
   ANY_TIME,
+  APPLICATIONS_PAGE,
   CONSUMER_GROUP_PAGE,
   CONSUMER_GROUPS_PAGE,
   DATES_FILTER,
@@ -52,6 +53,7 @@ import {
   MONITOR_WORKFLOWS_TAB,
   MONITOR_JOBS_TAB,
   NAME_FILTER,
+  OWNER_FILTER,
   PROJECT_FILTER,
   REAL_TIME_PIPELINES_TAB,
   SCHEDULE_TAB,
@@ -74,6 +76,9 @@ import { formatDatetime } from 'igz-controls/utils/datetime.util'
 const messageNamesList = {
   [ADD_TO_FEATURE_VECTOR_TAB]: {
     plural: 'Features'
+  },
+  [APPLICATIONS_PAGE]: {
+    plural: 'Applications'
   },
   [DATASETS_PAGE]: {
     plural: 'Datasets'
@@ -172,11 +177,14 @@ const getSelectedDateValue = (filterType, filters) => {
 const generateNoEntriesFoundMessage = (visibleFilterTypes, filtersConfig, filters) => {
   return visibleFilterTypes.reduce((message, filterType, index) => {
     const label = filtersConfig[filterType].label
+    const formatFilterValue = filtersConfig[filterType].formatFilterValue
     const value = [ITERATIONS_FILTER].includes(filterType)
       ? 'true'
       : filterType === DATE_RANGE_TIME_FILTER || filterType === DATES_FILTER
         ? getSelectedDateValue(filterType, filters)
-        : filters[filterType]
+        : formatFilterValue
+          ? formatFilterValue(filters[filterType])
+          : filters[filterType]
     const isLastElement = index === visibleFilterTypes.length - 1
 
     return (
@@ -204,6 +212,7 @@ const getVisibleFilterTypes = (filtersConfig, filters, filtersStore) => {
         type === MODEL_NAME_FILTER ||
         type === MODEL_TAG_FILTER ||
         type === NAME_FILTER ||
+        type === OWNER_FILTER ||
         type === PIPELINE_TOPOLOGY_FILTER) &&
       filters[type]?.length > 0
     const isStatusVisible =
@@ -223,7 +232,7 @@ const getVisibleFilterTypes = (filtersConfig, filters, filtersStore) => {
         !isEqual(filters[DATES_FILTER]?.value, DATE_FILTER_ANY_TIME)) ||
       (type === DATES_FILTER && !isEqual(filters[DATES_FILTER]?.value, DATE_FILTER_ANY_TIME))
     const isShowUntaggedVisible = type === SHOW_UNTAGGED_FILTER && !filters[SHOW_UNTAGGED_FILTER]
-    const isGroupByVisible = type === GROUP_BY_FILTER && filtersStore.groupBy !== GROUP_BY_NONE
+    const isGroupByVisible = type === GROUP_BY_FILTER && filtersStore?.groupBy !== GROUP_BY_NONE
     const isMEModeVisible = type === ME_MODE_FILTER && filters[ME_MODE_FILTER] !== FILTER_ALL_ITEMS
 
     return (

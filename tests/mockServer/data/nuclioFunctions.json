@@ -4135,5 +4135,1490 @@
     "status": {
       "state": "ready"
     }
+  },
+  "app-demo-vizro": {
+    "metadata": {
+      "name": "app-demo-vizro",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin",
+        "mlrun/class": "application"
+      },
+      "annotations": {
+        "nuclio.io/generated_by": "mlrun"
+      },
+      "resourceVersion": "40001001"
+    },
+    "spec": {
+      "handler": "reverse_proxy:Handler",
+      "runtime": "golang",
+      "description": "Rolling aggregation over Metrics and Lables according to specifications",
+      "disable": false,
+      "env": [
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8050"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
+      ],
+      "resources": {
+        "requests": {
+          "memory": "1Mi",
+          "cpu": "25m"
+        },
+        "limits": {
+          "memory": "20Gi",
+          "cpu": "2"
+        }
+      },
+      "minReplicas": 1,
+      "maxReplicas": 4,
+      "targetCPU": 75,
+      "serviceAccount": "mlrun-api",
+      "securityContext": {
+        "runAsUser": 1000,
+        "runAsGroup": 1000
+      },
+      "loggerSinks": [
+        {
+          "level": "debug"
+        }
+      ],
+      "sidecars": [
+        {
+          "env": [
+            {
+              "name": "APP_MODE",
+              "value": "production"
+            }
+          ],
+          "resources": {
+            "requests": {
+              "memory": "256Mi",
+              "cpu": "100m"
+            },
+            "limits": {
+              "memory": "2Gi",
+              "cpu": "1"
+            }
+          },
+          "volumeMounts": []
+        }
+      ],
+      "volumes": [],
+      "readinessProbe": {
+        "httpGet": {
+          "path": "/health",
+          "port": 8050
+        },
+        "initialDelaySeconds": 10,
+        "periodSeconds": 5,
+        "failureThreshold": 3,
+        "timeoutSeconds": 2
+      },
+      "build": {
+        "noBaseImagesPull": true,
+        "codeEntryType": "sourceCode"
+      },
+      "scaleToZero": {
+        "scaleResources": [
+          {
+            "metricName": "nuclio_processor_handled_events_total",
+            "windowSize": "15m",
+            "threshold": 0
+          }
+        ]
+      }
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "default-iris-streamlit-app": {
+    "metadata": {
+      "name": "default-iris-streamlit-app",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin",
+        "mlrun/class": "application"
+      },
+      "annotations": {
+        "nuclio.io/generated_by": "mlrun",
+        "description": "Iris classification dashboard"
+      },
+      "resourceVersion": "40001002"
+    },
+    "spec": {
+      "handler": "reverse_proxy:Handler",
+      "runtime": "golang",
+      "description": "Interactive Iris classification dashboard built with Streamlit",
+      "disable": false,
+      "env": [
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8501"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
+      ],
+      "resources": {
+        "requests": {
+          "memory": "256Mi",
+          "cpu": "100m"
+        },
+        "limits": {
+          "memory": "1Gi",
+          "cpu": "500m"
+        }
+      },
+      "minReplicas": 1,
+      "maxReplicas": 2,
+      "targetCPU": 70,
+      "serviceAccount": "mlrun-api",
+      "securityContext": {
+        "runAsUser": 1000,
+        "runAsGroup": 1000
+      },
+      "loggerSinks": [
+        {
+          "level": "info"
+        }
+      ],
+      "sidecars": [
+        {
+          "env": [
+            {
+              "name": "STREAMLIT_SERVER_PORT",
+              "value": "8501"
+            },
+            {
+              "name": "STREAMLIT_THEME",
+              "value": "dark"
+            }
+          ],
+          "resources": {
+            "requests": {
+              "memory": "128Mi",
+              "cpu": "50m"
+            },
+            "limits": {
+              "memory": "512Mi",
+              "cpu": "250m"
+            }
+          },
+          "volumeMounts": [],
+          "livenessProbe": {
+            "httpGet": {
+              "path": "/",
+              "port": 5000,
+              "scheme": "HTTP"
+            },
+            "initialDelaySeconds": 17,
+            "periodSeconds": 11
+          },
+          "readinessProbe": {
+            "httpGet": {
+              "path": "/",
+              "port": 5000,
+              "scheme": "HTTP"
+            },
+            "initialDelaySeconds": 29,
+            "periodSeconds": 23
+          }
+        }
+      ],
+      "volumes": [],
+      "readinessProbe": {
+        "initialDelaySeconds": 5,
+        "timeoutSeconds": 1,
+        "periodSeconds": 1,
+        "failureThreshold": 10
+      },
+      "livenessProbe": {
+        "initialDelaySeconds": 10,
+        "timeoutSeconds": 3,
+        "periodSeconds": 5,
+        "failureThreshold": 3
+      },
+      "build": {
+        "noBaseImagesPull": true,
+        "codeEntryType": "sourceCode"
+      },
+      "scaleToZero": {
+        "scaleResources": [
+          {
+            "metricName": "nuclio_processor_handled_events_total",
+            "windowSize": "10m",
+            "threshold": 0
+          }
+        ]
+      }
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "default-fraud-detection-dashboard": {
+    "metadata": {
+      "name": "default-fraud-detection-dashboard",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "john.doe",
+        "mlrun/class": "application"
+      },
+      "annotations": {
+        "nuclio.io/generated_by": "mlrun"
+      },
+      "resourceVersion": "40001003"
+    },
+    "spec": {
+      "handler": "reverse_proxy:Handler",
+      "runtime": "golang",
+      "disable": false,
+      "env": [
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
+      ],
+      "resources": {
+        "requests": {
+          "memory": "512Mi",
+          "cpu": "250m"
+        },
+        "limits": {
+          "memory": "4Gi",
+          "cpu": "2"
+        }
+      },
+      "minReplicas": 2,
+      "maxReplicas": 6,
+      "targetCPU": 80,
+      "sidecars": [
+        {
+          "env": [
+            {
+              "name": "DB_HOST",
+              "value": "postgres.default-tenant.svc"
+            },
+            {
+              "name": "ALERT_THRESHOLD",
+              "value": "0.85"
+            },
+            {
+              "name": "KAFKA_BROKERS",
+              "value": "kafka-0.default-tenant.svc:9092,kafka-1.default-tenant.svc:9092"
+            },
+            {
+              "name": "DB_PASSWORD",
+              "valueFrom": {
+                "secretKeyRef": {
+                  "key": "password",
+                  "name": "fraud-db-secret"
+                }
+              }
+            }
+          ],
+          "resources": {
+            "requests": {
+              "memory": "256Mi",
+              "cpu": "100m"
+            },
+            "limits": {
+              "memory": "2Gi",
+              "cpu": "1"
+            }
+          },
+          "volumeMounts": [
+            {
+              "name": "fraud-models",
+              "mountPath": "/models",
+              "readOnly": true
+            },
+            {
+              "name": "fraud-config",
+              "mountPath": "/etc/fraud",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "volume": {
+            "name": "fraud-models",
+            "persistentVolumeClaim": {
+              "claimName": "fraud-models-pvc"
+            }
+          },
+          "volumeMount": {
+            "name": "fraud-models",
+            "mountPath": "/models"
+          }
+        },
+        {
+          "volume": {
+            "name": "fraud-config",
+            "configMap": {
+              "name": "fraud-detection-config"
+            }
+          },
+          "volumeMount": {
+            "name": "fraud-config",
+            "mountPath": "/etc/fraud"
+          }
+        }
+      ],
+      "readinessProbe": {
+        "httpGet": {
+          "path": "/api/health",
+          "port": 8080
+        },
+        "initialDelaySeconds": 10,
+        "periodSeconds": 5,
+        "failureThreshold": 3,
+        "timeoutSeconds": 3
+      },
+      "livenessProbe": {
+        "tcpSocket": {
+          "port": 8080
+        },
+        "initialDelaySeconds": 15,
+        "periodSeconds": 20,
+        "failureThreshold": 5,
+        "timeoutSeconds": 5
+      },
+      "startupProbe": {
+        "httpGet": {
+          "path": "/api/health",
+          "port": 8080
+        },
+        "initialDelaySeconds": 5,
+        "periodSeconds": 5,
+        "failureThreshold": 30,
+        "timeoutSeconds": 3
+      },
+      "build": {
+        "noBaseImagesPull": true,
+        "codeEntryType": "sourceCode"
+      }
+    },
+    "status": {
+      "state": "error",
+      "message": "Failed to deploy: OOMKilled - container exceeded memory limit of 4Gi"
+    }
+  },
+  "default-customer-sentiment-analyzer": {
+    "metadata": {
+      "name": "default-customer-sentiment-analyzer",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin",
+        "mlrun/class": "application"
+      },
+      "annotations": {
+        "nuclio.io/generated_by": "mlrun"
+      },
+      "resourceVersion": "40001004"
+    },
+    "spec": {
+      "handler": "reverse_proxy:Handler",
+      "runtime": "golang",
+      "disable": false,
+      "env": [
+        {
+          "name": "SIDECAR_PORT",
+          "value": "5000"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
+      ],
+      "resources": {
+        "requests": {
+          "memory": "2Gi",
+          "cpu": "500m"
+        },
+        "limits": {
+          "memory": "8Gi",
+          "cpu": "4",
+          "nvidia.com/gpu": "1"
+        }
+      },
+      "minReplicas": 1,
+      "maxReplicas": 3,
+      "sidecars": [
+        {
+          "env": [
+            {
+              "name": "MODEL_NAME",
+              "value": "distilbert-base-uncased-finetuned-sst-2-english"
+            },
+            {
+              "name": "BATCH_SIZE",
+              "value": "32"
+            }
+          ],
+          "resources": {
+            "requests": {
+              "memory": "1Gi",
+              "cpu": "250m"
+            },
+            "limits": {
+              "memory": "4Gi",
+              "cpu": "2",
+              "nvidia.com/gpu": "1"
+            }
+          },
+          "volumeMounts": []
+        }
+      ],
+      "volumes": [],
+      "build": {
+        "noBaseImagesPull": true,
+        "codeEntryType": "sourceCode"
+      }
+    },
+    "status": {
+      "state": "building"
+    }
+  },
+  "default-real-time-recommender": {
+    "metadata": {
+      "name": "default-real-time-recommender",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "jane.smith",
+        "mlrun/class": "application"
+      },
+      "annotations": {
+        "nuclio.io/generated_by": "mlrun"
+      },
+      "resourceVersion": "40001005"
+    },
+    "spec": {
+      "handler": "reverse_proxy:Handler",
+      "runtime": "golang",
+      "disable": false,
+      "env": [
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8888"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
+      ],
+      "resources": {
+        "requests": {
+          "memory": "1Gi",
+          "cpu": "500m"
+        },
+        "limits": {
+          "memory": "4Gi",
+          "cpu": "2"
+        }
+      },
+      "minReplicas": 2,
+      "maxReplicas": 10,
+      "targetCPU": 65,
+      "sidecars": [
+        {
+          "env": [
+            {
+              "name": "REDIS_URL",
+              "value": "redis://redis.default-tenant.svc:6379"
+            },
+            {
+              "name": "MODEL_VERSION",
+              "value": "v3.0.1"
+            },
+            {
+              "name": "CACHE_TTL",
+              "value": "300"
+            }
+          ],
+          "resources": {
+            "requests": {
+              "memory": "512Mi",
+              "cpu": "250m"
+            },
+            "limits": {
+              "memory": "2Gi",
+              "cpu": "1"
+            }
+          },
+          "volumeMounts": [
+            {
+              "name": "model-artifacts",
+              "mountPath": "/models",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "volume": {
+            "name": "model-artifacts",
+            "persistentVolumeClaim": {
+              "claimName": "recommender-models-pvc"
+            }
+          },
+          "volumeMount": {
+            "name": "model-artifacts",
+            "mountPath": "/models"
+          }
+        }
+      ],
+      "readinessProbe": {
+        "httpGet": {
+          "path": "/health",
+          "port": 8888
+        },
+        "initialDelaySeconds": 10,
+        "periodSeconds": 10,
+        "failureThreshold": 3,
+        "timeoutSeconds": 5
+      },
+      "build": {
+        "noBaseImagesPull": true,
+        "codeEntryType": "sourceCode"
+      }
+    },
+    "status": {
+      "state": "unhealthy",
+      "message": "Function is not responding to health checks"
+    }
+  },
+  "default-data-pipeline-monitor": {
+    "metadata": {
+      "name": "default-data-pipeline-monitor",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin",
+        "mlrun/class": "application"
+      },
+      "annotations": {
+        "nuclio.io/generated_by": "mlrun"
+      },
+      "resourceVersion": "40001006"
+    },
+    "spec": {
+      "handler": "reverse_proxy:Handler",
+      "runtime": "golang",
+      "disable": true,
+      "env": [
+        {
+          "name": "SIDECAR_PORT",
+          "value": "3000"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
+      ],
+      "resources": {
+        "requests": {
+          "memory": "128Mi",
+          "cpu": "50m"
+        },
+        "limits": {
+          "memory": "512Mi",
+          "cpu": "250m"
+        }
+      },
+      "minReplicas": 0,
+      "maxReplicas": 1,
+      "sidecars": [
+        {
+          "env": [],
+          "resources": {
+            "requests": {
+              "memory": "64Mi",
+              "cpu": "25m"
+            },
+            "limits": {
+              "memory": "256Mi",
+              "cpu": "100m"
+            }
+          },
+          "volumeMounts": []
+        }
+      ],
+      "volumes": [],
+      "build": {
+        "noBaseImagesPull": true,
+        "codeEntryType": "sourceCode"
+      }
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "default-ml-model-explorer": {
+    "metadata": {
+      "name": "default-ml-model-explorer",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "data-team",
+        "mlrun/class": "application"
+      },
+      "annotations": {
+        "nuclio.io/generated_by": "mlrun"
+      },
+      "resourceVersion": "40001007"
+    },
+    "spec": {
+      "handler": "reverse_proxy:Handler",
+      "runtime": "golang",
+      "disable": false,
+      "env": [
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8502"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
+      ],
+      "resources": {
+        "requests": {
+          "memory": "256Mi",
+          "cpu": "100m"
+        },
+        "limits": {
+          "memory": "2Gi",
+          "cpu": "1"
+        }
+      },
+      "minReplicas": 0,
+      "maxReplicas": 1,
+      "sidecars": [
+        {
+          "env": [],
+          "resources": {
+            "requests": {
+              "memory": "128Mi",
+              "cpu": "50m"
+            },
+            "limits": {
+              "memory": "1Gi",
+              "cpu": "500m"
+            }
+          },
+          "volumeMounts": []
+        }
+      ],
+      "volumes": [],
+      "build": {
+        "noBaseImagesPull": true,
+        "codeEntryType": "sourceCode"
+      },
+      "scaleToZero": {
+        "scaleResources": [
+          {
+            "metricName": "nuclio_processor_handled_events_total",
+            "windowSize": "5m",
+            "threshold": 0
+          }
+        ]
+      }
+    },
+    "status": {
+      "state": "scaledToZero"
+    }
+  },
+  "default-inventory-forecaster": {
+    "metadata": {
+      "name": "default-inventory-forecaster",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "ops-team",
+        "mlrun/class": "application"
+      },
+      "annotations": {
+        "nuclio.io/generated_by": "mlrun"
+      },
+      "resourceVersion": "40001008"
+    },
+    "spec": {
+      "handler": "reverse_proxy:Handler",
+      "runtime": "golang",
+      "disable": false,
+      "env": [
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
+      ],
+      "resources": {
+        "requests": {
+          "memory": "512Mi",
+          "cpu": "250m"
+        },
+        "limits": {
+          "memory": "2Gi",
+          "cpu": "1"
+        }
+      },
+      "minReplicas": 1,
+      "maxReplicas": 3,
+      "targetCPU": 70,
+      "sidecars": [
+        {
+          "env": [
+            {
+              "name": "FORECAST_HORIZON",
+              "value": "30"
+            },
+            {
+              "name": "UPDATE_INTERVAL",
+              "value": "3600"
+            }
+          ],
+          "resources": {
+            "requests": {
+              "memory": "256Mi",
+              "cpu": "100m"
+            },
+            "limits": {
+              "memory": "1Gi",
+              "cpu": "500m"
+            }
+          },
+          "volumeMounts": []
+        }
+      ],
+      "volumes": [],
+      "readinessProbe": {
+        "httpGet": {
+          "path": "/ready",
+          "port": 8080
+        },
+        "initialDelaySeconds": 10,
+        "periodSeconds": 10,
+        "failureThreshold": 3,
+        "timeoutSeconds": 5
+      },
+      "build": {
+        "noBaseImagesPull": true,
+        "codeEntryType": "sourceCode"
+      }
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "default-chatbot-assistant": {
+    "metadata": {
+      "name": "default-chatbot-assistant",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin",
+        "mlrun/class": "application",
+        "team": "ai-research",
+        "version": "4.2.1"
+      },
+      "annotations": {
+        "nuclio.io/generated_by": "mlrun",
+        "mlrun/framework": "langchain",
+        "description": "Production RAG chatbot"
+      },
+      "resourceVersion": "40001009"
+    },
+    "spec": {
+      "handler": "reverse_proxy:Handler",
+      "runtime": "golang",
+      "description": "AI-powered conversational assistant with RAG capabilities",
+      "disable": false,
+      "env": [
+        {
+          "name": "SIDECAR_PORT",
+          "value": "7860"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
+      ],
+      "resources": {
+        "requests": {
+          "memory": "1Gi",
+          "cpu": "500m"
+        },
+        "limits": {
+          "memory": "4Gi",
+          "cpu": "2",
+          "nvidia.com/gpu": "1"
+        }
+      },
+      "minReplicas": 1,
+      "maxReplicas": 8,
+      "targetCPU": 60,
+      "serviceAccount": "mlrun-api",
+      "securityContext": {
+        "runAsUser": 1000,
+        "runAsGroup": 1000
+      },
+      "loggerSinks": [
+        {
+          "level": "info"
+        }
+      ],
+      "sidecars": [
+        {
+          "env": [
+            {
+              "name": "OPENAI_API_KEY",
+              "valueFrom": {
+                "secretKeyRef": {
+                  "key": "api-key",
+                  "name": "openai-secret"
+                }
+              }
+            },
+            {
+              "name": "MODEL_ENDPOINT",
+              "value": "https://api.openai.com/v1/chat/completions"
+            },
+            {
+              "name": "MAX_TOKENS",
+              "value": "4096"
+            },
+            {
+              "name": "TEMPERATURE",
+              "value": "0.7"
+            },
+            {
+              "name": "VECTOR_DB_URL",
+              "value": "http://milvus.default-tenant.svc:19530"
+            },
+            {
+              "name": "EMBEDDING_MODEL",
+              "value": "text-embedding-ada-002"
+            }
+          ],
+          "resources": {
+            "requests": {
+              "memory": "1Gi",
+              "cpu": "500m"
+            },
+            "limits": {
+              "memory": "4Gi",
+              "cpu": "2",
+              "nvidia.com/gpu": "1"
+            }
+          },
+          "volumeMounts": [
+            {
+              "name": "model-cache",
+              "mountPath": "/app/cache",
+              "readOnly": false
+            },
+            {
+              "name": "config-volume",
+              "mountPath": "/app/config",
+              "readOnly": true
+            },
+            {
+              "name": "tls-certs",
+              "mountPath": "/etc/ssl/custom",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "volume": {
+            "name": "model-cache",
+            "emptyDir": {}
+          },
+          "volumeMount": {
+            "name": "model-cache",
+            "mountPath": "/app/cache"
+          }
+        },
+        {
+          "volume": {
+            "name": "config-volume",
+            "configMap": {
+              "name": "chatbot-config"
+            }
+          },
+          "volumeMount": {
+            "name": "config-volume",
+            "mountPath": "/app/config"
+          }
+        },
+        {
+          "volume": {
+            "name": "tls-certs",
+            "secret": {
+              "secretName": "chatbot-tls"
+            }
+          },
+          "volumeMount": {
+            "name": "tls-certs",
+            "mountPath": "/etc/ssl/custom"
+          }
+        }
+      ],
+      "readinessProbe": {
+        "httpGet": {
+          "path": "/health",
+          "port": 7860
+        },
+        "initialDelaySeconds": 30,
+        "periodSeconds": 10,
+        "failureThreshold": 5,
+        "timeoutSeconds": 10
+      },
+      "livenessProbe": {
+        "httpGet": {
+          "path": "/health",
+          "port": 7860
+        },
+        "initialDelaySeconds": 60,
+        "periodSeconds": 30,
+        "failureThreshold": 3,
+        "timeoutSeconds": 10
+      },
+      "startupProbe": {
+        "httpGet": {
+          "path": "/health",
+          "port": 7860
+        },
+        "initialDelaySeconds": 10,
+        "periodSeconds": 10,
+        "failureThreshold": 30,
+        "timeoutSeconds": 5
+      },
+      "build": {
+        "noBaseImagesPull": true,
+        "codeEntryType": "sourceCode"
+      },
+      "scaleToZero": {
+        "scaleResources": [
+          {
+            "metricName": "nuclio_processor_handled_events_total",
+            "windowSize": "30m",
+            "threshold": 0
+          }
+        ]
+      }
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "default-image-classifier-service": {
+    "metadata": {
+      "name": "default-image-classifier-service",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin",
+        "mlrun/class": "application",
+        "framework": "pytorch"
+      },
+      "annotations": {
+        "nuclio.io/generated_by": "mlrun"
+      },
+      "resourceVersion": "40001010"
+    },
+    "spec": {
+      "handler": "reverse_proxy:Handler",
+      "runtime": "golang",
+      "disable": false,
+      "env": [
+        {
+          "name": "SIDECAR_PORT",
+          "value": "9000"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
+      ],
+      "resources": {
+        "requests": {
+          "memory": "2Gi",
+          "cpu": "1"
+        },
+        "limits": {
+          "memory": "8Gi",
+          "cpu": "4",
+          "nvidia.com/gpu": "2"
+        }
+      },
+      "minReplicas": 1,
+      "maxReplicas": 5,
+      "targetCPU": 70,
+      "sidecars": [
+        {
+          "env": [
+            {
+              "name": "MODEL_PATH",
+              "value": "/models/resnet50.pt"
+            },
+            {
+              "name": "BATCH_SIZE",
+              "value": "16"
+            },
+            {
+              "name": "NUM_CLASSES",
+              "value": "1000"
+            }
+          ],
+          "resources": {
+            "requests": {
+              "memory": "1Gi",
+              "cpu": "500m"
+            },
+            "limits": {
+              "memory": "4Gi",
+              "cpu": "2",
+              "nvidia.com/gpu": "1"
+            }
+          },
+          "volumeMounts": [
+            {
+              "name": "model-store",
+              "mountPath": "/models",
+              "readOnly": true
+            },
+            {
+              "name": "temp-data",
+              "mountPath": "/tmp/inference",
+              "readOnly": false
+            }
+          ],
+          "readinessProbe": {
+            "httpGet": {
+              "path": "/v1/health",
+              "port": 9000
+            },
+            "initialDelaySeconds": 30,
+            "periodSeconds": 10,
+            "failureThreshold": 5,
+            "timeoutSeconds": 5
+          },
+          "livenessProbe": {
+            "grpc": {
+              "port": 9001
+            },
+            "initialDelaySeconds": 60,
+            "periodSeconds": 30,
+            "failureThreshold": 3,
+            "timeoutSeconds": 10
+          }
+        }
+      ],
+      "volumes": [
+        {
+          "volume": {
+            "name": "model-store",
+            "persistentVolumeClaim": {
+              "claimName": "model-store-pvc"
+            }
+          },
+          "volumeMount": {
+            "name": "model-store",
+            "mountPath": "/models"
+          }
+        },
+        {
+          "volume": {
+            "name": "temp-data",
+            "emptyDir": {}
+          },
+          "volumeMount": {
+            "name": "temp-data",
+            "mountPath": "/tmp/inference"
+          }
+        }
+      ],
+      "readinessProbe": {
+        "httpGet": {
+          "path": "/v1/health",
+          "port": 9000
+        },
+        "initialDelaySeconds": 30,
+        "periodSeconds": 10,
+        "failureThreshold": 5,
+        "timeoutSeconds": 5
+      },
+      "livenessProbe": {
+        "grpc": {
+          "port": 9001
+        },
+        "initialDelaySeconds": 60,
+        "periodSeconds": 30,
+        "failureThreshold": 3,
+        "timeoutSeconds": 10
+      },
+      "build": {
+        "noBaseImagesPull": true,
+        "codeEntryType": "sourceCode"
+      }
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "default-anomaly-detector": {
+    "metadata": {
+      "name": "default-anomaly-detector",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin",
+        "mlrun/class": "application",
+        "team": "data-science"
+      },
+      "annotations": {
+        "nuclio.io/generated_by": "mlrun"
+      },
+      "resourceVersion": "40001011"
+    },
+    "spec": {
+      "handler": "reverse_proxy:Handler",
+      "runtime": "golang",
+      "disable": false,
+      "env": [
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
+      ],
+      "resources": {
+        "requests": {
+          "memory": "1Gi",
+          "cpu": "500m"
+        },
+        "limits": {
+          "memory": "4Gi",
+          "cpu": "2"
+        }
+      },
+      "minReplicas": 2,
+      "maxReplicas": 4,
+      "targetCPU": 75,
+      "sidecars": [
+        {
+          "env": [
+            {
+              "name": "DETECTION_ALGORITHM",
+              "value": "isolation_forest"
+            },
+            {
+              "name": "SENSITIVITY",
+              "value": "0.95"
+            },
+            {
+              "name": "PROMETHEUS_PORT",
+              "value": "9090"
+            }
+          ],
+          "resources": {
+            "requests": {
+              "memory": "512Mi",
+              "cpu": "250m"
+            },
+            "limits": {
+              "memory": "2Gi",
+              "cpu": "1"
+            }
+          },
+          "volumeMounts": [
+            {
+              "name": "anomaly-models",
+              "mountPath": "/models",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "volume": {
+            "name": "anomaly-models",
+            "hostPath": {
+              "path": "/data/anomaly-models"
+            }
+          },
+          "volumeMount": {
+            "name": "anomaly-models",
+            "mountPath": "/models"
+          }
+        }
+      ],
+      "readinessProbe": {
+        "tcpSocket": {
+          "port": 8080
+        },
+        "initialDelaySeconds": 5,
+        "periodSeconds": 10,
+        "failureThreshold": 3,
+        "timeoutSeconds": 3
+      },
+      "build": {
+        "noBaseImagesPull": true,
+        "codeEntryType": "sourceCode"
+      }
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "default-price-optimizer": {
+    "metadata": {
+      "name": "default-price-optimizer",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin",
+        "mlrun/class": "application"
+      },
+      "annotations": {
+        "nuclio.io/generated_by": "mlrun"
+      },
+      "resourceVersion": "40001012"
+    },
+    "spec": {
+      "handler": "reverse_proxy:Handler",
+      "runtime": "golang",
+      "disable": false,
+      "env": [
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
+      ],
+      "resources": {
+        "requests": {
+          "memory": "512Mi",
+          "cpu": "250m"
+        },
+        "limits": {
+          "memory": "2Gi",
+          "cpu": "1"
+        }
+      },
+      "minReplicas": 2,
+      "maxReplicas": 6,
+      "sidecars": [
+        {
+          "env": [
+            {
+              "name": "PRICING_STRATEGY",
+              "value": "dynamic"
+            },
+            {
+              "name": "AB_TEST_ENABLED",
+              "value": "true"
+            }
+          ],
+          "resources": {
+            "requests": {
+              "memory": "256Mi",
+              "cpu": "100m"
+            },
+            "limits": {
+              "memory": "1Gi",
+              "cpu": "500m"
+            }
+          },
+          "volumeMounts": []
+        }
+      ],
+      "volumes": [],
+      "readinessProbe": {
+        "httpGet": {
+          "path": "/api/health",
+          "port": 8080
+        },
+        "initialDelaySeconds": 10,
+        "periodSeconds": 10,
+        "failureThreshold": 3,
+        "timeoutSeconds": 5
+      },
+      "build": {
+        "noBaseImagesPull": true,
+        "codeEntryType": "sourceCode"
+      }
+    },
+    "status": {
+      "state": "ready"
+    }
+  },
+  "default-log-analyzer": {
+    "metadata": {
+      "name": "default-log-analyzer",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin",
+        "mlrun/class": "application"
+      },
+      "annotations": {
+        "nuclio.io/generated_by": "mlrun"
+      },
+      "resourceVersion": "40001013"
+    },
+    "spec": {
+      "handler": "reverse_proxy:Handler",
+      "runtime": "golang",
+      "disable": false,
+      "env": [
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
+      ],
+      "resources": {
+        "requests": {
+          "memory": "64Mi",
+          "cpu": "25m"
+        },
+        "limits": {
+          "memory": "256Mi",
+          "cpu": "100m"
+        }
+      },
+      "minReplicas": 1,
+      "maxReplicas": 1,
+      "sidecars": [
+        {
+          "env": [],
+          "resources": {},
+          "volumeMounts": []
+        }
+      ],
+      "volumes": [],
+      "build": {
+        "noBaseImagesPull": true,
+        "codeEntryType": "sourceCode"
+      }
+    },
+    "status": {
+      "state": "building"
+    }
+  },
+  "default-api-gateway-test-app": {
+    "metadata": {
+      "name": "default-api-gateway-test-app",
+      "namespace": "default-tenant",
+      "labels": {
+        "nuclio.io/project-name": "default",
+        "iguazio.com/username": "admin",
+        "mlrun/class": "application",
+        "env": "staging"
+      },
+      "annotations": {
+        "nuclio.io/generated_by": "mlrun"
+      },
+      "resourceVersion": "40001014"
+    },
+    "spec": {
+      "handler": "reverse_proxy:Handler",
+      "runtime": "golang",
+      "disable": false,
+      "env": [
+        {
+          "name": "SIDECAR_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "SIDECAR_HOST",
+          "value": "http://localhost"
+        }
+      ],
+      "resources": {
+        "requests": {
+          "memory": "128Mi",
+          "cpu": "50m"
+        },
+        "limits": {
+          "memory": "512Mi",
+          "cpu": "250m"
+        }
+      },
+      "minReplicas": 1,
+      "maxReplicas": 2,
+      "sidecars": [
+        {
+          "env": [],
+          "resources": {
+            "requests": {
+              "memory": "64Mi",
+              "cpu": "25m"
+            },
+            "limits": {
+              "memory": "256Mi",
+              "cpu": "100m"
+            }
+          },
+          "volumeMounts": []
+        }
+      ],
+      "volumes": [],
+      "readinessProbe": {
+        "httpGet": {
+          "path": "/health",
+          "port": 8080
+        },
+        "initialDelaySeconds": 5,
+        "periodSeconds": 5,
+        "failureThreshold": 3,
+        "timeoutSeconds": 2
+      },
+      "build": {
+        "noBaseImagesPull": true,
+        "codeEntryType": "sourceCode"
+      }
+    },
+    "status": {
+      "state": "ready"
+    }
   }
 }

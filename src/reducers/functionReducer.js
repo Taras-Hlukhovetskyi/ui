@@ -152,7 +152,16 @@ export const fetchFunctionTemplate = createAsyncThunk(
 )
 export const fetchFunctions = createAsyncThunk(
   'fetchFunctions',
-  ({ project, filters, config, setRequestErrorMessage = () => {} }, thunkAPI) => {
+  (
+    {
+      project,
+      filters,
+      config,
+      setRequestErrorMessage = () => {},
+      errorMessage = 'Failed to fetch functions'
+    },
+    thunkAPI
+  ) => {
     const setRequestErrorMessageLocal = config?.ui?.setRequestErrorMessage || setRequestErrorMessage
 
     setRequestErrorMessageLocal('')
@@ -165,7 +174,7 @@ export const fetchFunctions = createAsyncThunk(
       .catch(error => {
         largeResponseCatchHandler(
           error,
-          'Failed to fetch functions',
+          errorMessage,
           thunkAPI.dispatch,
           setRequestErrorMessageLocal
         )
@@ -221,9 +230,9 @@ export const fetchHubFunctions = createAsyncThunk(
 )
 export const fetchFunction = createAsyncThunk(
   'fetchFunction',
-  ({ project, name, hash, tag }, thunkAPI) => {
+  ({ project, name, hash, tag, signal }, thunkAPI) => {
     return functionsApi
-      .getFunction(project, name, hash, tag)
+      .getFunction(project, name, hash, tag, undefined, signal)
       .then(result => {
         return result.data.func
       })

@@ -20,7 +20,6 @@ such restriction.
 import { debounce, isEqual } from 'lodash'
 
 import { showErrorNotification } from 'igz-controls/utils/notification.util'
-import { fetchArtifactsFunction } from '../../../reducers/artifactsReducer'
 import {
   DATES_FILTER,
   DETAILS_MODEL_ENDPOINTS_TAB,
@@ -38,6 +37,13 @@ import {
   datePickerPastOptions,
   getDatePickerFilterValue
 } from '../../../utils/datePicker.util'
+
+export const MONITORING_INFRA_LABEL_KEY = 'mlrun__type'
+export const MONITORING_INFRA_LABEL_VALUE = 'mlrun__model-monitoring-infra'
+export const PIPELINES_ERROR_MESSAGE = 'Failed to fetch real-time pipelines'
+export const PIPELINES_DEFAULT_FETCH_CONFIG = {
+  config: { params: { kind: 'serving' } }
+}
 
 export const filtersConfig = {
   [NAME_FILTER]: { label: 'Name:', initialValue: '' },
@@ -102,37 +108,17 @@ export const generatePageData = hideFilterMenu => ({
   }
 })
 
-export const fetchAndParsePipeline = (dispatch, selectedFunction) => {
-  return dispatch(
-    fetchArtifactsFunction({
-      project: selectedFunction.project,
-      name: selectedFunction.name,
-      hash: selectedFunction.hash,
-      tag: selectedFunction.tag
-    })
-  )
-    .unwrap()
-    .catch(error => {
-      showErrorNotification(
-        dispatch,
-        error,
-        '',
-        'This real-time pipeline either does not exist or was deleted'
-      )
-      return null
-    })
-}
-
 export const checkForSelectedPipeline = debounce(
-  (
+  ({
     pipelines,
     pipelineId,
     navigate,
     projectName,
     setSelectedPipeline,
+    fetchSingleEnrichedFunction,
     dispatch,
     lastCheckedPipelineIdRef
-  ) => {
+  }) => {
     if (pipelineId) {
       if (pipelines.length > 0 && lastCheckedPipelineIdRef.current !== pipelineId) {
         lastCheckedPipelineIdRef.current = pipelineId
@@ -140,18 +126,37 @@ export const checkForSelectedPipeline = debounce(
         const foundPipeline = pipelines.find(item => item.hash === pipelineId)
 
         if (foundPipeline) {
-          fetchAndParsePipeline(dispatch, foundPipeline).then(selectedPipeline => {
-            if (selectedPipeline) {
-              setSelectedPipeline(prevState => {
-                return isEqual(prevState, selectedPipeline) ? prevState : selectedPipeline
-              })
-            } else {
+          fetchSingleEnrichedFunction({
+            name: foundPipeline.name,
+            hash: foundPipeline.hash,
+            tag: foundPipeline.tag,
+            nuclioName: foundPipeline.nuclio_name
+          })
+            .then(selectedPipeline => {
+              if (selectedPipeline) {
+                setSelectedPipeline(prevState => {
+                  return isEqual(prevState, selectedPipeline) ? prevState : selectedPipeline
+                })
+              } else {
+                navigate(
+                  `/projects/${projectName}/models/${REAL_TIME_PIPELINES_TAB}${window.location.search}`,
+                  { replace: true }
+                )
+              }
+            })
+            .catch(error => {
+              setSelectedPipeline({})
+              showErrorNotification(
+                dispatch,
+                error,
+                '',
+                'This real-time pipeline either does not exist or was deleted'
+              )
               navigate(
                 `/projects/${projectName}/models/${REAL_TIME_PIPELINES_TAB}${window.location.search}`,
                 { replace: true }
               )
-            }
-          })
+            })
         } else {
           navigate(
             `/projects/${projectName}/models/${REAL_TIME_PIPELINES_TAB}${window.location.search}`,

@@ -25,7 +25,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import BreadcrumbsStep from './BreadcrumbsStep/BreadcrumbsStep'
 
 import { generateMlrunScreens, generateTabsList } from './breadcrumbs.util'
-import { MONITORING_APP_PAGE, PROJECTS_PAGE_PATH } from '../../constants'
+import { APPLICATIONS_PAGE_PATH, MONITORING_APP_PAGE, PROJECTS_PAGE_PATH } from '../../constants'
 import { generateProjectsList } from '../../utils/projects'
 import { fetchNuclioFunctions } from '../../reducers/nuclioReducer'
 
@@ -71,7 +71,7 @@ const Breadcrumbs = ({ onClick = () => {} }) => {
       const screen = mlrunScreens.find(screen => screen.id === screenName)
       let tab = projectTabs.find(tab => pathParts[2] === tab.id)
 
-      if (screen?.id === MONITORING_APP_PAGE) {
+      if (screen?.id === MONITORING_APP_PAGE || screen?.id === APPLICATIONS_PAGE_PATH) {
         tab = {}
       }
 

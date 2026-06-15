@@ -48,6 +48,17 @@ const nuclioApi = {
       : { signal }
 
     return nuclioHttpClient.get('/functions', config)
+  },
+  getFunction: (project, name, { signal, enrichApiGateways = false } = {}) => {
+    const headers = {
+      'x-nuclio-project-name': project
+    }
+
+    if (enrichApiGateways) {
+      headers['x-nuclio-function-enrich-apigateways'] = 'true'
+    }
+
+    return nuclioHttpClient.get(`/functions/${name}`, { headers, signal })
   }
 }
 
