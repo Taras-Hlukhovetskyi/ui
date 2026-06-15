@@ -72,9 +72,9 @@ export const iguazioHttpClient = axios.create({
   baseURL:
     import.meta.env.MODE === 'production'
       ? import.meta.env.VITE_FEDERATION === 'true'
-        ? '/igz/api'
+        ? '/oris/api'
         : '/api'
-      : '/iguazio/api',
+      : import.meta.env.VITE_FEDERATION === 'true' ? '/oris-mlrun/api' : '/iguazio/api',
   headers
 })
 
