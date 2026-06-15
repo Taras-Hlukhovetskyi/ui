@@ -55,14 +55,14 @@ const LogsBlock = ({ logs, isLoading = false, loadingMessage = '' }) => {
         <pre className="text-white m-0 font-mono text-xs whitespace-pre-wrap leading-5">{logs}</pre>
       ) : isEmpty && isLoading && loadingMessage ? (
         <div
-          className="flex items-center justify-center h-full text-white text-sm text-center break-words px-4"
+          className="flex items-center justify-center h-full text-white text-medium text-center break-words px-4"
           data-testid="logs-block-loading-message"
         >
           <span>{loadingMessage}</span>
         </div>
       ) : isEmpty && !isLoading ? (
         <div
-          className="flex items-center justify-center h-full text-white text-sm"
+          className="flex items-center justify-center h-full text-white text-medium"
           data-testid="logs-block-empty"
         >
           <span>No data to show</span>
