@@ -65,6 +65,13 @@ export const FUNCTION_STATUS_HEADER = 'x-mlrun-function-status'
 // Values mirror src/constants.js to avoid a cross-layer import from nextGenComponents into legacy.
 export const TRANSIENT_FUNCTION_STATUSES = ['pending', 'running']
 
+// Application state values (mirror src/utils/getState.js) used to gate build logs fetching.
+export const APPLICATION_INITIALIZED_STATE = 'initialized'
+export const APPLICATION_DEPLOYING_STATES = ['build', 'building', 'deploying', 'pending']
+
+export const BUILD_LOGS_INITIALIZED_MESSAGE =
+  'Build logs will be available once the application is deployed.'
+
 export const VIEW_YAML_LABEL = 'View YAML'
 
 export const API_GATEWAY_STATE = {

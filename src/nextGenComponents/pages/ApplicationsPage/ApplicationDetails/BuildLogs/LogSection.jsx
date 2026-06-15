@@ -41,32 +41,34 @@ const LogSection = ({ title, logs, isLoading, isCopied, onCopy }) => (
         {isLoading && (
           <Loader
             mode="inline"
-            size="sm"
-            className="absolute top-2 right-4 border-white/20 border-t-white/70"
+            size="md"
+            className="absolute top-2 right-4 border-white/40 border-t-white"
             aria-label="Loading logs"
             data-testid={`logs-loading-${title.toLowerCase()}`}
           />
         )}
 
-        <button
-          type="button"
-          onClick={onCopy}
-          className="absolute bottom-3 right-4 flex items-center justify-center w-7 h-7 rounded text-white transition-colors bg-white/[0.12]"
-          aria-label={`Copy ${title} logs`}
-          data-testid={`copy-logs-${title.toLowerCase()}`}
-        >
-          {isCopied ? (
-            <CheckIcon
-              className="w-4 h-4 [&>*]:fill-current"
-              data-testid={`check-icon-${title.toLowerCase()}`}
-            />
-          ) : (
-            <CopyIcon
-              className="w-4 h-4 [&>*]:fill-current"
-              data-testid={`copy-icon-${title.toLowerCase()}`}
-            />
-          )}
-        </button>
+        {!isLoading && (
+          <button
+            type="button"
+            onClick={onCopy}
+            className="absolute bottom-3 right-4 flex items-center justify-center w-7 h-7 rounded text-white transition-colors bg-white/[0.12]"
+            aria-label={`Copy ${title} logs`}
+            data-testid={`copy-logs-${title.toLowerCase()}`}
+          >
+            {isCopied ? (
+              <CheckIcon
+                className="w-4 h-4 [&>*]:fill-current"
+                data-testid={`check-icon-${title.toLowerCase()}`}
+              />
+            ) : (
+              <CopyIcon
+                className="w-4 h-4 [&>*]:fill-current"
+                data-testid={`copy-icon-${title.toLowerCase()}`}
+              />
+            )}
+          </button>
+        )}
       </div>
     </div>
   </div>

@@ -2089,7 +2089,18 @@ function deleteFunc(req, res) {
   }
 }
 
+const NOT_FOUND_LOGS_FUNCTION = 'test-deploying-app'
+
+function sendLogsNotFound(name, res) {
+  res.statusCode = 404
+  res.send({ detail: { reason: `MLRunNotFoundError('build pod not found for ${name}')` } })
+}
+
 function getNuclioLogs(req, res) {
+  if (req.params.func === NOT_FOUND_LOGS_FUNCTION) {
+    return sendLogsNotFound(req.params.func, res)
+  }
+
   sendLogsData(
     {
       project: req.params.project,
@@ -2102,6 +2113,10 @@ function getNuclioLogs(req, res) {
 }
 
 function getBuildStatus(req, res) {
+  if (req.query.name === NOT_FOUND_LOGS_FUNCTION) {
+    return sendLogsNotFound(req.query.name, res)
+  }
+
   sendLogsData(
     {
       project: req.query.name,
