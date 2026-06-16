@@ -131,7 +131,7 @@ export const getLinks = projectName => {
       icon: <APIIcon />,
       id: 'api-gateways',
       label: 'API gateways',
-      link: generateNuclioLink(`${pathname}/api-gateways`),
+      link: generateNuclioLink(`${pathname}/api-gateways`)
     },
     {
       icon: <ApplicationsIcon />,
