@@ -217,7 +217,10 @@ export const getBuildItems = application => {
     },
     {
       label: BUILD_FIELD.PULL_AT_RUNTIME,
-      value: mlrunSpec.load_source_on_run ? 'Yes' : 'No'
+      value:
+        (application.build?.load_source_on_run ?? mlrunSpec.build?.load_source_on_run)
+          ? 'Yes'
+          : 'No'
     }
   ]
 }

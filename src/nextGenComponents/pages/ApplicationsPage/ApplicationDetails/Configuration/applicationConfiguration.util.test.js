@@ -88,7 +88,8 @@ const MOCK_APPLICATION = {
     build: {
       functionSourceCode: 'base64...',
       noBaseImagesPull: false,
-      codeEntryType: 'sourceCode'
+      codeEntryType: 'sourceCode',
+      load_source_on_run: true
     }
   },
   nuclioFunc: {
@@ -397,6 +398,7 @@ describe('applicationConfiguration.util', () => {
         label: 'Build commands',
         value: 'pip install pandas\npip install numpy'
       })
+      expect(items[3]).toEqual({ label: 'Pull at runtime', value: 'Yes' })
     })
 
     it('prefers application_image over image for Image name', () => {
@@ -423,10 +425,23 @@ describe('applicationConfiguration.util', () => {
       expect(items[3].value).toBe('No')
     })
 
-    it('returns "Yes" when load_source_on_run is true', () => {
+    it('returns "Yes" when spec.build.load_source_on_run is true', () => {
       const app = {
         ...MINIMAL_APPLICATION,
         spec: {
+          build: {
+            load_source_on_run: true
+          }
+        }
+      }
+      const items = getBuildItems(app)
+      expect(items[3].value).toBe('Yes')
+    })
+
+    it('returns "Yes" when application.build.load_source_on_run is true', () => {
+      const app = {
+        ...MINIMAL_APPLICATION,
+        build: {
           load_source_on_run: true
         }
       }
