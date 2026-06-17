@@ -20,6 +20,7 @@ such restriction.
 import React from 'react'
 
 import {
+  APPLICATIONS_PAGE,
   DOCUMENTS_PAGE,
   LLM_PROMPTS_PAGE,
   PROJECT_MONITOR,
@@ -40,6 +41,7 @@ import FeatureStoreIcon from 'igz-controls/images/navbar/mlrun-feature-store.svg
 import Documents from 'igz-controls/images/navbar/documents-icon.svg?react'
 import LLMPrompts from 'igz-controls/images/navbar/llm-prompt-icon.svg?react'
 import ModelMonitoringIcon from 'igz-controls/images/navbar/model-monitoring.svg?react'
+import ApplicationsIcon from 'igz-controls/images/application-icon.svg?react'
 
 // import RTPiplinesIcon from 'igz-controls/images/timer-outline-icon.svg?react'
 
@@ -130,6 +132,12 @@ export const getLinks = projectName => {
       id: 'api-gateways',
       label: 'API gateways',
       link: generateNuclioLink(`${pathname}/api-gateways`)
+    },
+    {
+      icon: <ApplicationsIcon />,
+      id: APPLICATIONS_PAGE,
+      label: 'Applications',
+      link: `${pathname}/applications`
     }
   ]
 }

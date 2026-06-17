@@ -78,7 +78,31 @@ const functionsApi = {
 
     return mainHttpClient.get(`/projects/${project}/functions`, newConfig)
   },
-  getFunction: (project, functionName, hash, tag, uid) => {
+  getApplications: (project, filters = {}, config = {}) => {
+    const params = { ...config.params, kind: 'application', tag: '*' }
+
+    if (filters.name) {
+      params.name = `~${filters.name}`
+    }
+
+    if (filters.since) {
+      params.since = filters.since
+    }
+
+    if (filters.until) {
+      params.until = filters.until
+    }
+
+    if (Array.isArray(filters.state) && filters.state.length > 0) {
+      params.state = filters.state
+    }
+
+    return mainHttpClient.get(`/projects/${project}/functions`, {
+      ...config,
+      params
+    })
+  },
+  getFunction: (project, functionName, hash, tag, uid, signal) => {
     const params = {}
 
     if (hash) {
@@ -93,7 +117,7 @@ const functionsApi = {
       params.tag = tag
     }
 
-    return mainHttpClient.get(`/projects/${project}/functions/${functionName}`, { params })
+    return mainHttpClient.get(`/projects/${project}/functions/${functionName}`, { params, signal })
   },
   getFunctionLogs: (project, name, tag, offset) => {
     const params = {
@@ -121,7 +145,10 @@ const functionsApi = {
       return functionTemplatesHttpClient.get(path)
     }
   },
-  getFunctionTemplatesCatalog: () => functionTemplatesHttpClient.get('catalog.json')
+  getFunctionTemplatesCatalog: () => functionTemplatesHttpClient.get('catalog.json'),
+  getProjectApiGateways: (project, config = {}) => {
+    return mainHttpClient.get(`/projects/${project}/api-gateways`, config)
+  }
 }
 
 export default functionsApi

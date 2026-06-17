@@ -21,14 +21,6 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import CheckBox from './CheckBox'
 
-vi.mock('igz-controls/images/checkbox-unchecked.svg?react', () => ({
-  default: props => <svg data-testid="unchecked-icon" {...props} />
-}))
-
-vi.mock('igz-controls/images/checkbox-checked.svg?react', () => ({
-  default: props => <svg data-testid="checked-icon" {...props} />
-}))
-
 describe('CheckBox Component', () => {
   const defaultProps = {
     item: { id: 'item-1', label: 'Test Label' },
@@ -41,20 +33,18 @@ describe('CheckBox Component', () => {
   })
 
   it('renders correctly with default props', () => {
-    render(<CheckBox {...defaultProps} />)
+    const { container } = render(<CheckBox {...defaultProps} />)
 
     expect(screen.getByText('Test Label')).toBeInTheDocument()
-    expect(screen.getByTestId('unchecked-icon')).toBeInTheDocument()
-    expect(screen.getByTestId('unchecked-icon')).toHaveClass('unchecked')
-    expect(screen.queryByTestId('checked-icon')).not.toBeInTheDocument()
+    expect(container.querySelector('svg.unchecked')).toBeInTheDocument()
+    expect(container.querySelector('svg.checked')).not.toBeInTheDocument()
   })
 
   it('renders as checked when selected', () => {
-    render(<CheckBox {...defaultProps} selectedId="item-1" />)
+    const { container } = render(<CheckBox {...defaultProps} selectedId="item-1" />)
 
-    expect(screen.getByTestId('checked-icon')).toBeInTheDocument()
-    expect(screen.getByTestId('checked-icon')).toHaveClass('checked')
-    expect(screen.queryByTestId('unchecked-icon')).not.toBeInTheDocument()
+    expect(container.querySelector('svg.checked')).toBeInTheDocument()
+    expect(container.querySelector('svg.unchecked')).not.toBeInTheDocument()
   })
 
   it('calls onChange with id when clicked', () => {

@@ -34,6 +34,7 @@ import 'prismjs/components/prism-json.min.js'
 import 'prismjs/components/prism-python.min.js'
 
 import { LoaderForSuspenseFallback } from 'igz-controls/components'
+import { TooltipProvider } from 'igz-controls/nextGenComponents'
 import Header from './layout/Header/Header'
 import Notifications from './common/Notifications/Notifications'
 
@@ -45,6 +46,7 @@ import wrapComponentForNavbarNavigationTracking from './utils/wrapComponentForNa
 
 import {
   ALERTS_PAGE_PATH,
+  APPLICATIONS_PAGE_PATH,
   ALL_VERSIONS_PATH,
   FEATURE_SETS_TAB,
   FEATURE_VECTORS_TAB,
@@ -68,6 +70,7 @@ import {
 
 import 'reactflow/dist/style.css'
 import 'igz-controls/index.css'
+import './tailwind.css'
 import './scss/main.scss'
 import RemoteNuclioRouteWrapper from './components/RemoteNuclio/RemoteNuclioRouteWrapper'
 
@@ -140,7 +143,9 @@ const MonitoringApplication = lazyRetry(
   () =>
     import('./components/MonitoringApplicationsPage/MonitoringApplications/MonitoringApplication/MonitoringApplication')
 )
-
+const ApplicationsPage = lazyRetry(
+  () => import('./nextGenComponents/pages/ApplicationsPage/ApplicationsPage')
+)
 const App = () => {
   const { isNuclioModeDisabled } = useNuclioMode()
   const { isDemoMode } = useMode()
@@ -376,6 +381,14 @@ const App = () => {
             ))}
           </Route>
           {[
+            `projects/:projectName/${APPLICATIONS_PAGE_PATH}`,
+            `projects/:projectName/${APPLICATIONS_PAGE_PATH}/:name/:id/:tab`
+          ].map((path, index) => (
+            <Fragment key={`app-${index}`}>
+              <Route path={path} element={<ApplicationsPage />} />
+            </Fragment>
+          ))}
+          {[
             'projects/:projectName/documents',
             'projects/:projectName/documents/:artifactName/:id/:tab',
             `projects/:projectName/documents/:artifactName/${ALL_VERSIONS_PATH}`,
@@ -413,9 +426,11 @@ const App = () => {
     <div className="ml-app">
       {isHeaderShown && <Header />}
       <div className={mlAppContainerClasses}>
-        <Suspense fallback={<LoaderForSuspenseFallback />}>
-          <RouterProvider router={router} />
-        </Suspense>
+        <TooltipProvider>
+          <Suspense fallback={<LoaderForSuspenseFallback />}>
+            <RouterProvider router={router} />
+          </Suspense>
+        </TooltipProvider>
         {createPortal(<Notifications />, document.getElementById('overlay_container'))}
       </div>
     </div>

@@ -80,6 +80,7 @@ const BreadcrumbsDropdown = forwardRef(
                     data-testid={`breadcrumbs-dropdown-item-${listItem.id}`}
                     key={listItem.id}
                     className={dropdownItemClassNames}
+                    target="_top"
                   >
                     <span>{listItem.label}</span>
                     {isItemSelected && <CheckmarkIcon className="checkmark" />}
