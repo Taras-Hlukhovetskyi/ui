@@ -62,10 +62,8 @@ export const UNKNOWN_STATE = 'unknown'
 
 /*=========== SIDEBAR =============*/
 
-export const MAX_VISIBLE_PROJECTS = 8
 export const PLACEHOLDER_SEARCH = 'Search project...'
 export const NO_PROJECTS_TEXT = 'No Projects Found'
-export const SEE_ALL_PROJECTS_TEXT = 'See All Projects'
 
 /*=========== PAGINATION =============*/
 

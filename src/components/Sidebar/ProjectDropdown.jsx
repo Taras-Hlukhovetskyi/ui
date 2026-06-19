@@ -17,17 +17,16 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
-import { ChevronDown } from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from './ui/sidebar'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from './ui/dropdown-menu'
 import { Input } from './ui/input'
@@ -36,13 +35,7 @@ import { generateProjectsList } from '../../utils/projects'
 
 import HomepageIcon from './icons/mlrun-project-home.svg?react'
 import SearchIcon from 'igz-controls/images/search.svg?react'
-import { Button } from '@/ui/button'
-import {
-  MAX_VISIBLE_PROJECTS,
-  NO_PROJECTS_TEXT,
-  PLACEHOLDER_SEARCH,
-  SEE_ALL_PROJECTS_TEXT
-} from '../../constants'
+import { NO_PROJECTS_TEXT, PLACEHOLDER_SEARCH } from '../../constants'
 
 const ProjectDropdown = ({ projectName }) => {
   const { pathname } = useLocation()
@@ -50,17 +43,29 @@ const ProjectDropdown = ({ projectName }) => {
   const { setHoverLocked } = useSidebar()
   const [open, setOpen] = useState(false)
   const [filter, setFilter] = useState('')
-  const [showAllProjects, setShowAllProjects] = useState(false)
+  const currentProjectRef = useRef(null)
 
   const projectsList = useMemo(() => {
-    const projects = generateProjectsList(projectStore.projectsNames.data, projectName)
-    return projects
+    return generateProjectsList(projectStore.projectsNames.data)
       .map(project => ({
         ...project,
-        link: pathname.replace(projectName, project.id)
+        link: pathname.replace(projectName, project.id),
+        isCurrent: project.id === projectName
       }))
       .filter(project => project.label.toLowerCase().includes(filter.toLowerCase()))
   }, [projectStore.projectsNames.data, projectName, pathname, filter])
+
+  useEffect(() => {
+    if (!open) {
+      return
+    }
+
+    const timer = setTimeout(() => {
+      currentProjectRef.current?.scrollIntoView(true)
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [open])
 
   return (
     <SidebarMenu>
@@ -77,7 +82,6 @@ const ProjectDropdown = ({ projectName }) => {
             setOpen(isOpen)
             setHoverLocked(isOpen)
             setFilter('')
-            setShowAllProjects(false)
           }}
         >
           <DropdownMenuTrigger
@@ -120,41 +124,24 @@ const ProjectDropdown = ({ projectName }) => {
 
             {projectsList.length > 0 ? (
               <div className="flex flex-col min-h-0 overflow-y-auto flex-1">
-                {(showAllProjects ? projectsList : projectsList.slice(0, MAX_VISIBLE_PROJECTS)).map(
-                  project => {
-                    const isExternal = project.link.startsWith('http')
-                    return (
-                      <DropdownMenuItem key={project.id} asChild>
-                        {isExternal ? (
-                          <a href={project.link} target="_blank" rel="noopener noreferrer">
-                            {project.label}
-                          </a>
-                        ) : (
-                          <Link to={project.link}>{project.label}</Link>
-                        )}
-                      </DropdownMenuItem>
-                    )
-                  }
-                )}
+                {projectsList.map(project => {
+                  const itemClassName = 'flex w-full items-center justify-between gap-2'
 
-                {!showAllProjects && projectsList.length > MAX_VISIBLE_PROJECTS && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Button
-                        variant="outline"
-                        onClick={e => {
-                          e.preventDefault()
-                          setShowAllProjects(true)
-                        }}
-                        className="w-full justify-start font-normal text-sm px-3 py-2"
+                  return (
+                    <DropdownMenuItem key={project.id} asChild>
+                      <Link
+                        ref={project.isCurrent ? currentProjectRef : null}
+                        to={project.link}
+                        className={itemClassName}
                       >
-                        <HomepageIcon className="h-[15px] w-[15px]" />
-                        {SEE_ALL_PROJECTS_TEXT}
-                      </Button>
+                        <span>{project.label}</span>
+                        {project.isCurrent && (
+                          <Check className="h-4 w-4 shrink-0 text-green-600" aria-hidden="true" />
+                        )}
+                      </Link>
                     </DropdownMenuItem>
-                  </>
-                )}
+                  )
+                })}
               </div>
             ) : (
               <div className="text-sm">{NO_PROJECTS_TEXT}</div>
