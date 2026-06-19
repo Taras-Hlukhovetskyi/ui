@@ -51,7 +51,7 @@ const SidebarCollapseItem = ({ icon, label, nestedLinks }) => {
             isActive={(!open && isAnyChildActive) || (!sidebarOpen && isAnyChildActive)}
           >
             {icon}
-            <span className="flex justify-between whitespace-nowrap w-full items-center group-data-[collapsible=icon]:hidden">
+            <span className="flex justify-between whitespace-nowrap w-full items-center overflow-hidden transition-[max-width,opacity] duration-300 max-w-full group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0">
               {label}
               {sidebarOpen &&
                 (open ? (

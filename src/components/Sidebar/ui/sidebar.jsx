@@ -168,6 +168,7 @@ const Sidebar = React.forwardRef(
         data-collapsible={state === 'collapsed' ? collapsible : ''}
         data-variant={variant}
         data-side={side}
+        data-pinned={pinned}
         onMouseEnter={() => {
           setIsMouseOver(true)
           if (!pinned) setOpen(true)
@@ -191,10 +192,10 @@ const Sidebar = React.forwardRef(
         />
         <div
           className={cn(
-            'inset-y-0 z-10 h-full w-[--sidebar-width] transition-[left,right,width] duration-300 ease-linear md:flex',
+            'h-full w-[--sidebar-width] transition-[left,right,width] duration-300 ease-linear md:flex',
             side === 'left'
-              ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
-              : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
+              ? 'group-data-[pinned=false]:left-0 group-data-[pinned=false]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
+              : 'group-data-[pinned=false]:right-0 group-data-[pinned=false]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
             variant === 'floating' || variant === 'inset'
               ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]'
               : 'group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l',
