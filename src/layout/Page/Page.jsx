@@ -25,7 +25,7 @@ import { createPortal } from 'react-dom'
 import ModalContainer from 'react-modal-promise'
 
 import Sidebar from '../../nextGenComponents/shared/Sidebar'
-import { SidebarInset, SidebarProvider } from '@/ui/sidebar'
+import { SidebarInset, SidebarProvider } from 'igz-controls/nextGenComponents'
 import YamlModal from '../../common/YamlModal/YamlModal'
 import { Loader } from 'igz-controls/components'
 

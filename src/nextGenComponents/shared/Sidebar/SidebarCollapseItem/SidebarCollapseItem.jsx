@@ -21,10 +21,17 @@ import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { ChevronRightIcon, ChevronDownIcon } from 'lucide-react'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/ui/collapsible'
-import { SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, useSidebar } from '@/ui/sidebar'
-import SidebarItem from './SidebarItem'
-import { toTestId } from '../../../utils/toTestId'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  useSidebar
+} from 'igz-controls/nextGenComponents'
+import SidebarItem from '../SidebarItem'
+import { toTestId } from '../../../../utils/toTestId'
 
 const SidebarCollapseItem = ({ icon, label, nestedLinks }) => {
   const { pathname } = useLocation()

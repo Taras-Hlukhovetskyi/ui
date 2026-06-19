@@ -27,7 +27,7 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarSeparator
-} from '@/ui/sidebar'
+} from 'igz-controls/nextGenComponents'
 import { getFooterLinks, getLinks } from './navbarList.util'
 import PropTypes from 'prop-types'
 import ProjectDropdown from './ProjectDropdown'

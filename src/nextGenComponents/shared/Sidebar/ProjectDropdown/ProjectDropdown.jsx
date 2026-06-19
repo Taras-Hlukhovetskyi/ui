@@ -22,20 +22,26 @@ import { useLocation, Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 import { Check, ChevronDown } from 'lucide-react'
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/ui/sidebar'
 import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/ui/dropdown-menu'
-import { Input } from '@/ui/input'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/ui/tooltip'
-import { generateProjectsList } from '../../../utils/projects'
+  DropdownMenuTrigger,
+  Input,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from 'igz-controls/nextGenComponents'
+import { generateProjectsList } from '../../../../utils/projects'
 
-import HomepageIcon from './icons/mlrun-project-home.svg?react'
+import HomepageIcon from 'igz-controls/images/mlrun-project-home.svg?react'
 import SearchIcon from 'igz-controls/images/search.svg?react'
-import { NO_PROJECTS_TEXT, PLACEHOLDER_SEARCH } from '../../../constants'
+import { NO_PROJECTS_TEXT, PLACEHOLDER_SEARCH } from '../../../../constants'
 
 const ProjectDropdown = ({ projectName }) => {
   const { pathname } = useLocation()
