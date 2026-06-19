@@ -42,15 +42,9 @@ vi.mock('igz-controls/nextGenComponents', () => ({
   ),
   CollapsibleTrigger: ({ children, asChild }) =>
     asChild ? <>{children}</> : <button data-testid="collapsible-trigger">{children}</button>,
-  CollapsibleContent: ({ children }) => (
-    <div data-testid="collapsible-content">{children}</div>
-  ),
+  CollapsibleContent: ({ children }) => <div data-testid="collapsible-content">{children}</div>,
   SidebarMenuButton: ({ children, isActive, className }) => (
-    <button
-      data-testid="sidebar-menu-button"
-      data-active={isActive}
-      className={className}
-    >
+    <button data-testid="sidebar-menu-button" data-active={isActive} className={className}>
       {children}
     </button>
   ),

@@ -14,7 +14,7 @@ permissions and limitations under the License.
 
 In addition, you may not use the software for any purposes that are
 illegal under applicable law, and the grant of the foregoing license
-under the Apache 2.0 command is conditioned upon your compliance with
+under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 /* eslint-disable react/prop-types */
@@ -64,19 +64,13 @@ vi.mock('igz-controls/nextGenComponents', () => ({
   ),
   useSidebar: () => ({ open: mockSidebarOpen, setHoverLocked: mockSetHoverLocked }),
   DropdownMenu: ({ children, open, onOpenChange }) => (
-    <div
-      data-testid="dropdown-menu"
-      data-open={open}
-      onClick={() => onOpenChange(!open)}
-    >
+    <div data-testid="dropdown-menu" data-open={open} onClick={() => onOpenChange(!open)}>
       {children}
     </div>
   ),
   DropdownMenuTrigger: ({ children, asChild, ...rest }) =>
     asChild ? <>{React.cloneElement(children, rest)}</> : <button {...rest}>{children}</button>,
-  DropdownMenuContent: ({ children }) => (
-    <div data-testid="dropdown-menu-content">{children}</div>
-  ),
+  DropdownMenuContent: ({ children }) => <div data-testid="dropdown-menu-content">{children}</div>,
   DropdownMenuItem: ({ children, asChild }) =>
     asChild ? <>{children}</> : <div data-testid="dropdown-menu-item">{children}</div>,
   Input: ({ value, onChange, placeholder, ...rest }) => (
@@ -95,8 +89,7 @@ vi.mock('igz-controls/nextGenComponents', () => ({
 }))
 
 vi.mock('../../../../utils/projects', () => ({
-  generateProjectsList: names =>
-    (names || []).map(name => ({ id: name, label: name }))
+  generateProjectsList: names => (names || []).map(name => ({ id: name, label: name }))
 }))
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

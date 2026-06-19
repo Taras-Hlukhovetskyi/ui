@@ -53,13 +53,13 @@ vi.mock('igz-controls/nextGenComponents', () => ({
 }))
 
 vi.mock('./ProjectDropdown', () => ({
-  default: ({ projectName }) => (
-    <div data-testid="project-dropdown">{projectName}</div>
-  )
+  default: ({ projectName }) => <div data-testid="project-dropdown">{projectName}</div>
 }))
 
 vi.mock('./SidebarItem', () => ({
-  default: ({ label }) => <li data-testid={`sidebar-item-${label.toLowerCase().replace(/\s+/g, '-')}`}>{label}</li>
+  default: ({ label }) => (
+    <li data-testid={`sidebar-item-${label.toLowerCase().replace(/\s+/g, '-')}`}>{label}</li>
+  )
 }))
 
 vi.mock('./SidebarCollapseItem', () => ({
@@ -75,9 +75,7 @@ const MOCK_LINKS = [
   {
     id: 'jobs',
     label: 'Jobs and workflows',
-    nestedLinks: [
-      { id: 'jobs-tab', label: 'Jobs', link: '/projects/demo/jobs/monitor-jobs' }
-    ]
+    nestedLinks: [{ id: 'jobs-tab', label: 'Jobs', link: '/projects/demo/jobs/monitor-jobs' }]
   },
   { id: 'functions', label: 'ML functions', link: '/projects/demo/functions' }
 ]
@@ -94,8 +92,7 @@ vi.mock('./navbarList.util', () => ({
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const renderSidebar = (projectName = 'demo') =>
-  render(<SidebarList projectName={projectName} />)
+const renderSidebar = (projectName = 'demo') => render(<SidebarList projectName={projectName} />)
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 

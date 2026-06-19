@@ -44,7 +44,12 @@ vi.mock('igz-controls/nextGenComponents', () => ({
         {children}
       </div>
     ) : (
-      <button data-testid="sidebar-menu-button" data-active={isActive} className={className} {...rest}>
+      <button
+        data-testid="sidebar-menu-button"
+        data-active={isActive}
+        className={className}
+        {...rest}
+      >
         {children}
       </button>
     ),
@@ -120,9 +125,7 @@ describe('SidebarItem', () => {
   describe('external link', () => {
     it('renders an external anchor when externalLink is true', () => {
       renderItem({ externalLink: true })
-      expect(
-        screen.getByTestId('sidebar-menu-item-ml-functions-external-link')
-      ).toBeInTheDocument()
+      expect(screen.getByTestId('sidebar-menu-item-ml-functions-external-link')).toBeInTheDocument()
     })
 
     it('external anchor has target="_top"', () => {

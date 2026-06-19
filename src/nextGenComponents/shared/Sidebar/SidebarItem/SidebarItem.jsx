@@ -64,12 +64,16 @@ const SidebarItem = ({
             data-testid={`sidebar-menu-item-${toTestId(label)}-external-link`}
           >
             {icon}
-            <span className="overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-300 max-w-full group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0">{label}</span>
+            <span className="overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-300 max-w-full group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0">
+              {label}
+            </span>
           </a>
         ) : (
           <Link to={link} data-testid={`sidebar-menu-item-${toTestId(label)}-internal-link`}>
             {icon}
-            <span className="overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-300 max-w-full group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0">{label}</span>
+            <span className="overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-300 max-w-full group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0">
+              {label}
+            </span>
           </Link>
         )}
       </SidebarMenuButton>
