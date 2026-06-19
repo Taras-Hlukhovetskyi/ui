@@ -24,7 +24,7 @@ import { ChevronRightIcon, ChevronDownIcon } from 'lucide-react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/ui/collapsible'
 import { SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, useSidebar } from '@/ui/sidebar'
 import SidebarItem from './SidebarItem'
-import { toTestId } from '../../utils/toTestId'
+import { toTestId } from '../../../utils/toTestId'
 
 const SidebarCollapseItem = ({ icon, label, nestedLinks }) => {
   const { pathname } = useLocation()
@@ -51,7 +51,7 @@ const SidebarCollapseItem = ({ icon, label, nestedLinks }) => {
             isActive={(!open && isAnyChildActive) || (!sidebarOpen && isAnyChildActive)}
           >
             {icon}
-            <span className="flex justify-between whitespace-nowrap w-full items-center overflow-hidden transition-[max-width,opacity] duration-300 max-w-full group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0">
+            <span className="flex justify-between whitespace-nowrap w-full items-center overflow-hidden transition-[max-width,opacity] duration-300 max-w-full group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0 [&_svg_path]:fill-none">
               {label}
               {sidebarOpen &&
                 (open ? (

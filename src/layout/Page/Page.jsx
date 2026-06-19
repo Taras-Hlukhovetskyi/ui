@@ -24,8 +24,8 @@ import { isEmpty } from 'lodash'
 import { createPortal } from 'react-dom'
 import ModalContainer from 'react-modal-promise'
 
-import Sidebar from '../../components/Sidebar'
-import { SidebarInset, SidebarProvider } from '../../components/Sidebar/ui/sidebar'
+import Sidebar from '../../nextGenComponents/shared/Sidebar'
+import { SidebarInset, SidebarProvider } from '@/ui/sidebar'
 import YamlModal from '../../common/YamlModal/YamlModal'
 import { Loader } from 'igz-controls/components'
 

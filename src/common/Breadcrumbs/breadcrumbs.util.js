@@ -19,7 +19,6 @@ such restriction.
 */
 import {
   ALERTS_PAGE_PATH,
-  APPLICATIONS_PAGE_PATH,
   FEATURE_SETS_TAB,
   FEATURE_STORE_PAGE_PATH,
   FEATURE_VECTORS_TAB,
@@ -29,7 +28,7 @@ import {
   PROJECTS_PAGE_PATH,
   PROJECTS_SETTINGS_PAGE_PATH
 } from '../../constants'
-import { getLinks } from '../../components/Sidebar/navbarList.util'
+import { getLinks } from '../../nextGenComponents/shared/Sidebar/navbarList.util'
 
 export const generateMlrunScreens = projectName => {
   const navbarLinks = getLinks(projectName)

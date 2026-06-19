@@ -11,8 +11,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tool
 import { ChevronLeftIcon, ChevronRightIcon, MenuIcon } from 'lucide-react'
 import PropTypes from 'prop-types'
 
-import SidebarClose from '../icons/navbar-closed-icon.svg?react'
-import SidebarOpen from '../icons/navbar-opened-icon.svg?react'
+import SidebarClose from '../shared/Sidebar/icons/navbar-closed-icon.svg?react'
+import SidebarOpen from '../shared/Sidebar/icons/navbar-opened-icon.svg?react'
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -35,7 +35,13 @@ const SidebarProvider = React.forwardRef(
     { children, className, defaultOpen = true, onOpenChange, open: openProp, style, ...props },
     ref
   ) => {
-    const [pinned, setPinned] = React.useState(localStorage.getItem('isNavbarPinned') === 'true')
+    const [pinned, setPinned] = React.useState(() => {
+      try {
+        return JSON.parse(localStorage.getItem('isNavbarPinned') || 'false')
+      } catch {
+        return false
+      }
+    })
     const [hoverLocked, setHoverLocked] = React.useState(false)
     const [_open, _setOpen] = React.useState(defaultOpen || pinned)
     const open = openProp ?? _open
@@ -59,9 +65,10 @@ const SidebarProvider = React.forwardRef(
       setPinned(prev => {
         const newValue = !prev
         localStorage.setItem('isNavbarPinned', JSON.stringify(newValue))
+        setOpen(newValue)
         return newValue
       })
-    }, [])
+    }, [setOpen])
 
     React.useEffect(() => {
       const handleKeyDown = event => {
@@ -100,7 +107,7 @@ const SidebarProvider = React.forwardRef(
               ...style
             }}
             className={cn(
-              'group/sidebar-wrapper flex w-full has-[[data-variant=inset]]:bg-sidebar',
+              'group/sidebar-wrapper flex h-full w-full has-[[data-variant=inset]]:bg-sidebar',
               className
             )}
             ref={ref}
@@ -138,10 +145,13 @@ const Sidebar = React.forwardRef(
   ) => {
     const [isMouseOver, setIsMouseOver] = React.useState(false)
     const { hoverLocked, open, pinned, state, togglePin, setOpen } = useSidebar()
+    const openTimerRef = React.useRef(null)
+    const closeTimerRef = React.useRef(null)
 
     React.useEffect(() => {
       if (!hoverLocked && !isMouseOver && !pinned) {
-        setTimeout(() => setOpen(false), 200)
+        closeTimerRef.current = setTimeout(() => setOpen(false), 200)
+        return () => clearTimeout(closeTimerRef.current)
       }
     }, [hoverLocked, isMouseOver, pinned, setOpen])
 
@@ -163,42 +173,54 @@ const Sidebar = React.forwardRef(
     return (
       <nav
         ref={ref}
-        className="group peer text-sidebar-foreground"
+        className={cn(
+          'group peer relative shrink-0 self-stretch overflow-visible text-sidebar-foreground',
+          'transition-[width] duration-300 ease-linear',
+          pinned && open ? 'w-[--sidebar-width]' : 'w-[--sidebar-width-icon]'
+        )}
         data-state={state}
         data-collapsible={state === 'collapsed' ? collapsible : ''}
         data-variant={variant}
         data-side={side}
         data-pinned={pinned}
         onMouseEnter={() => {
+          clearTimeout(closeTimerRef.current)
+          clearTimeout(openTimerRef.current)
           setIsMouseOver(true)
-          if (!pinned) setOpen(true)
+          if (!pinned) {
+            openTimerRef.current = setTimeout(() => setOpen(true), 100)
+          }
         }}
         onMouseLeave={() => {
+          clearTimeout(openTimerRef.current)
           setIsMouseOver(false)
           if (!pinned && !hoverLocked) {
             setOpen(false)
           }
         }}
+        onTransitionEnd={e => {
+          if (e.target === e.currentTarget && e.propertyName === 'width') {
+            window.dispatchEvent(new CustomEvent('mainResize'))
+          }
+        }}
       >
         <div
           className={cn(
-            'fixed w-[--sidebar-width] bg-transparent transition-[width] duration-300 ease-linear',
-            'group-data-[collapsible=offcanvas]:w-0',
-            'group-data-[side=right]:rotate-180',
-            variant === 'floating' || variant === 'inset'
-              ? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]'
-              : 'group-data-[collapsible=icon]:w-[--sidebar-width-icon]'
-          )}
-        />
-        <div
-          className={cn(
-            'h-full w-[--sidebar-width] transition-[left,right,width] duration-300 ease-linear md:flex',
-            side === 'left'
-              ? 'group-data-[pinned=false]:left-0 group-data-[pinned=false]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
-              : 'group-data-[pinned=false]:right-0 group-data-[pinned=false]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
+            'absolute inset-y-0 left-0 z-20 flex flex-col transition-[width] duration-300 ease-linear md:flex',
+            side === 'left' &&
+              pinned &&
+              'group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]',
+            side === 'right' &&
+              pinned &&
+              'group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
             variant === 'floating' || variant === 'inset'
               ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]'
-              : 'group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l',
+              : cn(
+                  'group-data-[side=left]:border-r group-data-[side=right]:border-l',
+                  (open && !pinned) || (pinned && state === 'expanded')
+                    ? 'w-[--sidebar-width]'
+                    : 'w-[--sidebar-width-icon]'
+                ),
             className
           )}
           {...props}
@@ -214,10 +236,12 @@ const Sidebar = React.forwardRef(
                 tooltip={pinned ? 'Unpin sidebar' : 'Pin sidebar'}
                 data-testid="pin-sidebar-button"
                 side="right"
-                className="absolute top-2 left-full border bg-[#FAFAFA] border-gray-200 border-solid
-                  w-fit h-fit rounded-l-none border-l-0 py-2 pr-[3px] pl-[1px]
-                  opacity-0 group-hover:opacity-100 transition-opacity
-                  hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                className={cn(
+                  'absolute top-2 left-full border bg-[#FAFAFA] border-gray-200 border-solid',
+                  'w-fit h-fit rounded-l-none border-l-0 py-2 pr-[3px] pl-[1px]',
+                  'transition-opacity hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                  pinned ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                )}
                 onClick={togglePin}
               >
                 {pinned ? (
@@ -304,7 +328,7 @@ const SidebarInset = React.forwardRef(({ className, ...props }, ref) => {
     <main
       ref={ref}
       className={cn(
-        'relative flex flex-1 flex-col bg-background',
+        'relative flex min-h-0 flex-1 flex-col bg-background transition-[width] duration-300 ease-linear',
         'peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow',
         className
       )}
@@ -492,7 +516,7 @@ SidebarMenuItem.propTypes = {
 }
 
 const sidebarMenuButtonVariants = cva(
-  'peer/menu-button flex flex-1 w-full items-center gap-2 text-inherit overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-active-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-active-accent-foreground data-[active=true]:[&_svg_path]:fill-white\n data-[state=open]:hover:bg-sidebar-accent whitespace-nowrap [&>svg]:size-5 [&>svg]:shrink-0',
+  'peer/menu-button flex flex-1 w-full items-center gap-2 text-inherit overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-active-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-active-accent-foreground [&_svg_path]:fill-current data-[state=open]:hover:bg-sidebar-accent whitespace-nowrap [&>svg]:size-5 [&>svg]:shrink-0',
   {
     variants: {
       variant: {

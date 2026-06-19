@@ -20,8 +20,8 @@ such restriction.
 import { useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { Link, useMatch } from 'react-router-dom'
-import { SidebarMenuButton, SidebarMenuItem, useSidebar } from './ui/sidebar'
-import { toTestId } from '../../utils/toTestId'
+import { SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/ui/sidebar'
+import { toTestId } from '../../../utils/toTestId'
 
 const SidebarItem = ({
   link,

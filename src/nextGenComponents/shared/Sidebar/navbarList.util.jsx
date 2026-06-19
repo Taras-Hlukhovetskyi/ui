@@ -20,6 +20,7 @@ such restriction.
 import React from 'react'
 
 import {
+  APPLICATIONS_PAGE_PATH,
   ARTIFACTS_PAGE,
   API_GATEWAYS_PAGE,
   DATASETS_PAGE,
@@ -41,8 +42,8 @@ import {
   REAL_TIME_FUNCTIONS_PAGE,
   SCHEDULE_TAB,
   ALERTS_PAGE_PATH
-} from '../../constants'
-import { generateNuclioLink } from '../../utils'
+} from '../../../constants'
+import { generateNuclioLink } from '../../../utils'
 
 import Alerts from './icons/alerts-icon.svg?react'
 import DatasetsIcon from './icons/mlrun-datasets.svg?react'
@@ -52,6 +53,7 @@ import JobsWorkflowIcon from './icons/mlrun-jobs-and-workflows.svg?react'
 import ModelsIcon from './icons/mlrun-models.svg?react'
 import NuclioIcon from './icons/mlrun-realtime-functions.svg?react'
 import SettingsIcon from './icons/mlrun-project-settings.svg?react'
+import ApplicationsIcon from 'igz-controls/images/application-icon.svg?react'
 
 export const getLinks = projectName => {
   const pathname = `/${PROJECTS_PAGE_PATH}/${projectName}`
@@ -168,6 +170,12 @@ export const getLinks = projectName => {
           externalLink: true
         }
       ]
+    },
+    {
+      icon: <ApplicationsIcon />,
+      id: APPLICATIONS_PAGE_PATH,
+      label: 'Applications',
+      link: `${pathname}/${APPLICATIONS_PAGE_PATH}`
     }
   ]
 }

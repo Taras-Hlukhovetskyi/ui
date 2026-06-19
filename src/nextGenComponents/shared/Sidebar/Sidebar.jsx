@@ -19,7 +19,7 @@ such restriction.
 */
 import React, { useMemo } from 'react'
 
-import '../../tailwind.css'
+import '../../../tailwind.css'
 import {
   Sidebar,
   SidebarContent,
@@ -46,7 +46,7 @@ function SidebarList({ projectName }) {
   return (
     <Sidebar
       collapsible="icon"
-      className="sticky border-0 border-r border-solid border-gray-200 top-14 z-10 flex flex-col"
+      className="border-0 border-r border-solid border-gray-200 z-10 flex flex-col"
       data-testid="sidebar"
     >
       <SidebarHeader className="px-3 min-h-[70px]">
