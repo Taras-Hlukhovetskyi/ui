@@ -99,10 +99,10 @@ export const apiGatewaysColumns = [
     header: 'SSL redirect',
     size: 8,
     accessorFn: row =>
-      Boolean(row.metadata?.annotations?.[FORCE_SSL_REDIRECT_ANNOTATION]) ? 'True' : 'False',
+      row.metadata?.annotations?.[FORCE_SSL_REDIRECT_ANNOTATION] === 'true' ? 'True' : 'False',
     cell: ({ row }) => (
       <span className="text-igz-secondary">
-        {Boolean(row.original.metadata?.annotations?.[FORCE_SSL_REDIRECT_ANNOTATION])
+        {row.original.metadata?.annotations?.[FORCE_SSL_REDIRECT_ANNOTATION] === 'true'
           ? 'True'
           : 'False'}
       </span>
