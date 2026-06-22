@@ -98,12 +98,12 @@ export const apiGatewaysColumns = [
     id: 'sslRedirect',
     header: 'SSL redirect',
     size: 8,
-    accessorFn: row => row.metadata?.annotations?.[FORCE_SSL_REDIRECT_ANNOTATION] ?? '',
+    accessorFn: row => Boolean(row.metadata?.annotations?.[FORCE_SSL_REDIRECT_ANNOTATION]) ? 'True' : 'False',
     cell: ({ row }) => (
-      <span className="text-igz-secondary">
-        {row.original.metadata?.annotations?.[FORCE_SSL_REDIRECT_ANNOTATION] ?? ''}
-      </span>
-    )
+        <span className="text-igz-secondary">
+        {Boolean(row.original.metadata?.annotations?.[FORCE_SSL_REDIRECT_ANNOTATION]) ? 'True' : 'False'}
+        </span>
+      )
   },
   {
     id: 'createdAt',
@@ -121,9 +121,13 @@ export const apiGatewaysColumns = [
     header: 'Port',
     size: 6,
     accessorFn: row => row.matchedUpstream?.port ?? '',
-    cell: ({ row }) => (
-      <span className="text-igz-secondary">{row.original.matchedUpstream?.port ?? ''}</span>
-    )
+    cell: ({ row }) => {
+      return (
+        <span className="text-igz-secondary">
+          {parseInt(row.original.matchedUpstream?.port) || ''}
+        </span>
+      )
+    }
   },
   {
     id: 'owner',
