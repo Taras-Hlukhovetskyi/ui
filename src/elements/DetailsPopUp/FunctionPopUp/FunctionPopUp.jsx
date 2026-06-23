@@ -43,8 +43,8 @@ const FunctionPopUp = ({ funcTag = '', funcUri = null, isOpen, onResolve }) => {
   const { isDemoMode, isStagingMode } = useMode()
   const [isLoading, setIsLoading] = useState(true)
   const [selectedFunction, setSelectedFunction] = useState({})
-  const fetchFunctionLogsTimeout = useRef(null)
-  const fetchFunctionNuclioLogsTimeout = useRef(null)
+  const [fetchFunctionLogsTimeout] = useState(() => ({ current: null }))
+  const [fetchFunctionNuclioLogsTimeout] = useState(() => ({ current: null }))
   const toggleConvertedYaml = useCallback(
     data => {
       return dispatch(toggleYaml(data))

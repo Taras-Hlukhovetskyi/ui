@@ -50,7 +50,7 @@ export const usePagination = ({
   const resetPaginationTriggerRef = useRef(resetPaginationTrigger)
   const lastRequestedPageRef = useRef(null)
   const filtersStore = useSelector(store => store.filtersStore)
-  let forceRefreshData = useMemo(() => ({ isForce: false }), [])
+  const forceRefreshDataRef = useRef({ isForce: false })
 
   const refreshContentDebounced = useMemo(() => {
     return debounce(filters => refreshContent(filters))
@@ -118,7 +118,7 @@ export const usePagination = ({
           prevSearchParams => {
             prevSearchParams.set(BE_PAGE, newPaginationConfig[BE_PAGE])
             prevSearchParams.set(FE_PAGE, newPaginationConfig[FE_PAGE])
-            forceRefreshData.isForce = searchParams.get(FORCE_REFRESH) === 'true'
+            forceRefreshDataRef.current.isForce = searchParams.get(FORCE_REFRESH) === 'true'
             prevSearchParams.delete(FORCE_REFRESH)
             return prevSearchParams
           },
@@ -154,16 +154,7 @@ export const usePagination = ({
           : newPaginatedContent
       })
     }
-  }, [
-    bePageSize,
-    fePageSize,
-    paginationConfigRef,
-    content,
-    searchParams,
-    setSearchParams,
-    hidden,
-    forceRefreshData
-  ])
+  }, [bePageSize, fePageSize, paginationConfigRef, content, searchParams, setSearchParams, hidden])
 
   useEffect(() => {
     if (resetPaginationTrigger !== resetPaginationTriggerRef.current) {
@@ -180,17 +171,17 @@ export const usePagination = ({
 
     const bePage = Number(searchParams.get(BE_PAGE))
 
-    if (!bePage && !forceRefreshData.isForce) return
+    if (!bePage && !forceRefreshDataRef.current.isForce) return
 
-    if (lastRequestedPageRef.current === bePage && !forceRefreshData.isForce) {
+    if (lastRequestedPageRef.current === bePage && !forceRefreshDataRef.current.isForce) {
       return
     }
 
-    forceRefreshData.isForce = false
+    forceRefreshDataRef.current.isForce = false
 
     lastRequestedPageRef.current = bePage
     refreshContentDebounced(filters)
-  }, [filters, hidden, refreshContentDebounced, searchParams, forceRefreshData])
+  }, [filters, hidden, refreshContentDebounced, searchParams])
 
   useEffect(() => {
     queueMicrotask(() => {

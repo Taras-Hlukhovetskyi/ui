@@ -28,18 +28,18 @@ export const useInitialTableFetch = ({ fetchData, fetchTags, filters, requestTri
   const sendInitialRequest = useMemo(
     () =>
       debounce(({ filters, fetchData, fetchTags } = {}) => {
-        if (!isInitialRequestSent.current) {
-          if (fetchTags) {
-            fetchTags()
-          }
-          fetchData(filters)
-          isInitialRequestSent.current = true
+        if (fetchTags) {
+          fetchTags()
         }
+        fetchData(filters)
       }),
     []
   )
 
   useEffect(() => {
+    if (isInitialRequestSent.current) return
+
+    isInitialRequestSent.current = true
     sendInitialRequest({
       filters,
       fetchData,

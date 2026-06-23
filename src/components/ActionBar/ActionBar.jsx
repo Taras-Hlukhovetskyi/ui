@@ -146,7 +146,7 @@ const ActionBar = ({
     return initialValues
   }, [autoRefreshIsEnabled, formFiltersInitialValues, internalAutoRefreshIsEnabled])
 
-  const formRef = React.useRef(
+  const [formRef] = React.useState(() =>
     createForm({
       initialValues: formInitialValues,
       mutators: { ...arrayMutators, setFieldState },
@@ -210,7 +210,7 @@ const ActionBar = ({
           filters[DATES_FILTER].initialSelectedOptionId,
           isFuture
         )
-        formRef.current.change(DATES_FILTER, filters[DATES_FILTER])
+        formRef.change(DATES_FILTER, filters[DATES_FILTER])
         dispatch(setFilters({ relativeDateChange: Date.now() }))
       }
     },
@@ -338,10 +338,10 @@ const ActionBar = ({
   }
 
   useEffect(() => {
-    if (!isEqual(formRef.current?.getState().values, filterMenu)) {
-      formRef.current?.batch(() => {
+    if (!isEqual(formRef?.getState().values, filterMenu)) {
+      formRef?.batch(() => {
         for (const filterName in filterMenu) {
-          formRef.current?.change(filterName, filterMenu[filterName])
+          formRef?.change(filterName, filterMenu[filterName])
         }
       })
     }
@@ -355,7 +355,7 @@ const ActionBar = ({
     ) {
       const intervalId = setInterval(() => {
         if (!autoRefreshIsStopped) {
-          refresh(formRef.current.getState())
+          refresh(formRef.getState())
         }
       }, 30000)
 
@@ -372,14 +372,14 @@ const ActionBar = ({
 
   useEffect(() => {
     if (autoRefreshStopTrigger && filtersStore.internalAutoRefresh) {
-      formRef.current?.change(INTERNAL_AUTO_REFRESH_ID, false)
+      formRef?.change(INTERNAL_AUTO_REFRESH_ID, false)
       setInternalAutoRefreshPrevValue(true)
       dispatch(toggleInternalAutoRefresh(false))
       handleAutoRefreshPrevValueChange && handleAutoRefreshPrevValueChange(true)
     } else if (!autoRefreshStopTrigger && internalAutoRefreshPrevValue) {
       setInternalAutoRefreshPrevValue(false)
       dispatch(toggleInternalAutoRefresh(true))
-      formRef.current?.change(INTERNAL_AUTO_REFRESH_ID, true)
+      formRef?.change(INTERNAL_AUTO_REFRESH_ID, true)
       handleAutoRefreshPrevValueChange && handleAutoRefreshPrevValueChange(false)
     }
   }, [
@@ -397,19 +397,19 @@ const ActionBar = ({
   }, [])
 
   useLayoutEffect(() => {
-    const prevValues = formRef.current.getState().values
+    const prevValues = formRef.getState().values
     const valuesToReset = {
       [INTERNAL_AUTO_REFRESH_ID]: prevValues[INTERNAL_AUTO_REFRESH_ID],
       [AUTO_REFRESH_ID]: prevValues[AUTO_REFRESH_ID],
       ...formFiltersInitialValues
     }
-    formRef.current.reset(valuesToReset)
+    formRef.reset(valuesToReset)
   }, [formFiltersInitialValues])
 
   useLayoutEffect(() => {
-    formRef.current?.batch(() => {
-      formRef.current?.change(AUTO_REFRESH_ID, autoRefreshIsEnabled)
-      formRef.current?.change(INTERNAL_AUTO_REFRESH_ID, internalAutoRefreshIsEnabled)
+    formRef?.batch(() => {
+      formRef?.change(AUTO_REFRESH_ID, autoRefreshIsEnabled)
+      formRef?.change(INTERNAL_AUTO_REFRESH_ID, internalAutoRefreshIsEnabled)
     })
   }, [autoRefreshIsEnabled, internalAutoRefreshIsEnabled])
 
@@ -419,7 +419,7 @@ const ActionBar = ({
   }, [dispatch, params.projectName])
 
   return (
-    <Form form={formRef.current} onSubmit={() => {}}>
+    <Form form={formRef} onSubmit={() => {}}>
       {formState => (
         <div className={actionBarClassNames}>
           <div className="action-bar__filters">

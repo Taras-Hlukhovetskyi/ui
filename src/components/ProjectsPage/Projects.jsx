@@ -129,6 +129,12 @@ const Projects = () => {
     [isDescendingOrder, sortProjectId]
   )
 
+  const refreshProjectsRef = useRef(null)
+  const handleArchiveProjectRef = useRef(null)
+  const handleUnarchiveProjectRef = useRef(null)
+  const exportYamlRef = useRef(null)
+  const viewYamlRef = useRef(null)
+
   const refreshProjects = useCallback(() => {
     abortControllerRef.current = new AbortController()
 
@@ -139,7 +145,10 @@ const Projects = () => {
     dispatch(removeProjects())
     fetchMinimalProjects()
     dispatch(
-      fetchProjectsSummary({ signal: abortControllerRef.current.signal, refresh: refreshProjects })
+      fetchProjectsSummary({
+        signal: abortControllerRef.current.signal,
+        refresh: refreshProjectsRef.current
+      })
     )
       .unwrap()
       .then(result => {
@@ -174,7 +183,12 @@ const Projects = () => {
             }, {})
 
           if (!isEmpty(newDeletingProjects)) {
-            pollDeletingProjects(terminatePollRef, newDeletingProjects, refreshProjects, dispatch)
+            pollDeletingProjects(
+              terminatePollRef,
+              newDeletingProjects,
+              refreshProjectsRef.current,
+              dispatch
+            )
           } else {
             dispatch(setDeletingProjects({}))
           }
@@ -219,7 +233,7 @@ const Projects = () => {
               : `Failed to archive project ${project.metadata.name}`
 
           showErrorNotification(dispatch, error, '', customErrorMsg, () =>
-            handleArchiveProject(project)
+            handleArchiveProjectRef.current(project)
           )
         })
       setConfirmData(null)
@@ -245,7 +259,7 @@ const Projects = () => {
                 : `Failed to unarchive project ${project.metadata.name}`
 
           showErrorNotification(dispatch, error, '', customErrorMsg, () =>
-            handleUnarchiveProject(project)
+            handleUnarchiveProjectRef.current(project)
           )
         })
     },
@@ -294,7 +308,7 @@ const Projects = () => {
           })
           .catch(error => {
             showErrorNotification(dispatch, error, '', "Failed to fetch project's YAML", () =>
-              exportYaml(projectMinimal)
+              exportYamlRef.current(projectMinimal)
             )
           })
       }
@@ -326,7 +340,7 @@ const Projects = () => {
             setConvertedYaml('')
 
             showErrorNotification(dispatch, error, '', "Failed to fetch project's YAML", () =>
-              viewYaml(projectMinimal)
+              viewYamlRef.current(projectMinimal)
             )
           })
       } else {
@@ -335,6 +349,14 @@ const Projects = () => {
     },
     [convertToYaml, dispatch, exportYaml]
   )
+
+  useEffect(() => {
+    refreshProjectsRef.current = refreshProjects
+    handleArchiveProjectRef.current = handleArchiveProject
+    handleUnarchiveProjectRef.current = handleUnarchiveProject
+    exportYamlRef.current = exportYaml
+    viewYamlRef.current = viewYaml
+  })
 
   const handleOnDeleteProject = useCallback(
     project =>

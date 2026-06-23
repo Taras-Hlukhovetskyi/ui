@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
@@ -56,7 +56,16 @@ const Select = ({
   const [isConfirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [isOpen, setOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
-  const { width: dropdownWidth } = selectRef?.current?.getBoundingClientRect() || {}
+  const [dropdownWidth, setDropdownWidth] = useState(0)
+
+  useLayoutEffect(() => {
+    const measuredWidth = selectRef.current?.getBoundingClientRect().width
+
+    if (measuredWidth && measuredWidth !== dropdownWidth) {
+      setDropdownWidth(measuredWidth)
+    }
+  })
+
   const selectClassName = classNames(
     'select',
     className,
@@ -77,6 +86,18 @@ const Select = ({
   )
   const selectedOption = options.find(option => option.id === selectedId)
 
+  const clickHandler = event => {
+    if (selectRef.current !== event.target.closest('.select')) {
+      setOpen(false)
+    }
+  }
+
+  const handleScroll = event => {
+    if (!event.target.closest('.select__body')) {
+      setOpen(false)
+    }
+  }
+
   useEffect(() => {
     if (isOpen) {
       window.addEventListener('scroll', handleScroll, true)
@@ -89,18 +110,6 @@ const Select = ({
       window.removeEventListener('scroll', handleScroll, true)
     }
   }, [isOpen])
-
-  const clickHandler = event => {
-    if (selectRef.current !== event.target.closest('.select')) {
-      setOpen(false)
-    }
-  }
-
-  const handleScroll = event => {
-    if (!event.target.closest('.select__body')) {
-      setOpen(false)
-    }
-  }
 
   const toggleOpen = () => {
     !disabled && setOpen(!isOpen)

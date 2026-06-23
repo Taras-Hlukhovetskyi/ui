@@ -66,13 +66,13 @@ const DeployModelPopUp = ({
   })
   const dispatch = useDispatch()
 
-  const formRef = React.useRef(
+  const [formRef] = React.useState(() =>
     createForm({
       onSubmit: () => {}
     })
   )
   const location = useLocation()
-  const { handleCloseModal, resolveModal } = useModalBlockHistory(onResolve, formRef.current)
+  const { handleCloseModal, resolveModal } = useModalBlockHistory(onResolve, formRef)
 
   const getTagOptions = useCallback((functionList, selectedFunctionName) => {
     return chain(functionList)
@@ -202,14 +202,14 @@ const DeployModelPopUp = ({
     )?.default_class
 
     setTagOptionList(tags)
-    formRef.current.change('selectedTag', tags[0]?.id ?? '')
-    formRef.current.change('className', defaultClass ?? '')
+    formRef.change('selectedTag', tags[0]?.id ?? '')
+    formRef.change('className', defaultClass ?? '')
   }
 
   return (
     <>
       <Form
-        form={formRef.current}
+        form={formRef}
         initialValues={initialValues}
         mutators={{ ...arrayMutators, setFieldState }}
         onSubmit={submitHandler}

@@ -69,7 +69,7 @@ const ApplicationMonitoringEndpoints = ({ application }) => {
       if (!frontendSpec?.model_monitoring_dashboard_url) return
       monitorModelEndpoint(frontendSpec.model_monitoring_dashboard_url, item, projectName)
     },
-    [frontendSpec?.model_monitoring_dashboard_url, projectName]
+    [frontendSpec, projectName]
   )
 
   const labelOptions = useMemo(() => {

@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { isEmpty, orderBy } from 'lodash'
@@ -131,11 +131,12 @@ const DetailsInputs = ({ inputs, isDetailsPopUp = false }) => {
     [dispatch]
   )
 
+  const getInputsContentRef = useRef(null)
   const getInputsContent = useCallback(
     inputs => {
       Object.entries(inputs || {}).forEach(([inputName, inputPath]) => {
         if (inputPath && typeof inputPath === 'object') {
-          getInputsContent(inputPath)
+          getInputsContentRef.current(inputPath)
           return
         }
 
@@ -217,6 +218,10 @@ const DetailsInputs = ({ inputs, isDetailsPopUp = false }) => {
     },
     [params.projectName, fetchFeatureVector, fetchArtifactByKind]
   )
+
+  useEffect(() => {
+    getInputsContentRef.current = getInputsContent
+  }, [getInputsContent])
 
   useEffect(() => {
     getInputsContent(inputs)

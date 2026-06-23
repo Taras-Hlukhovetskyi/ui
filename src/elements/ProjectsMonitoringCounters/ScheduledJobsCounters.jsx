@@ -64,12 +64,7 @@ const ScheduledJobsCounters = () => {
       }
     }
     return projectStore?.jobsMonitoringData.scheduled || {}
-  }, [
-    projectName,
-    projectStore.projectSummary?.data?.distinct_scheduled_jobs_pending_count,
-    projectStore.projectSummary?.data?.distinct_scheduled_pipelines_pending_count,
-    projectStore.jobsMonitoringData?.scheduled
-  ])
+  }, [projectName, projectStore])
 
   const scheduledStats = useMemo(
     () =>

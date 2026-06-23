@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 
@@ -50,7 +50,15 @@ const Search = ({
   const searchRef = useRef()
   const popUpRef = useRef()
 
-  const { width: searchWidth } = searchRef?.current?.getBoundingClientRect() || {}
+  const [searchWidth, setSearchWidth] = useState(0)
+
+  useLayoutEffect(() => {
+    const measuredWidth = searchRef.current?.getBoundingClientRect().width
+
+    if (measuredWidth && measuredWidth !== searchWidth) {
+      setSearchWidth(measuredWidth)
+    }
+  })
 
   const searchClassNames = classnames('search-container', className)
 

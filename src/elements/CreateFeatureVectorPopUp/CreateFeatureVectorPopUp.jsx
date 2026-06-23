@@ -75,7 +75,7 @@ const CreateFeatureVectorPopUp = ({
     })
   }
 
-  const formRef = React.useRef(
+  const [formRef] = React.useState(() =>
     createForm({
       initialValues,
       mutators: { ...arrayMutators, setFieldState },
@@ -89,7 +89,7 @@ const CreateFeatureVectorPopUp = ({
       headerText={`${!featureVectorData.name ? 'Create' : 'Edit'} feature vector`}
       closePopUp={closePopUp}
     >
-      <Form form={formRef.current} onSubmit={handleCreateFeatureVector}>
+      <Form form={formRef} onSubmit={handleCreateFeatureVector}>
         {formState => {
           return (
             <>

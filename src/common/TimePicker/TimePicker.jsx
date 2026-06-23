@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useEffect, useState, useRef, useCallback, useId } from 'react'
+import React, { useEffect, useLayoutEffect, useState, useRef, useCallback, useId } from 'react'
 import PropTypes from 'prop-types'
 import MaskedInput from 'react-text-mask'
 import classNames from 'classnames'
@@ -51,6 +51,15 @@ const TimePicker = ({
   const dropdownRef = useRef()
   const buttonRef = useRef()
   const selectKey = useId()
+  const [pickerWidth, setPickerWidth] = useState(0)
+
+  useLayoutEffect(() => {
+    const measuredWidth = timePickerRef.current?.clientWidth
+
+    if (measuredWidth && measuredWidth !== pickerWidth) {
+      setPickerWidth(measuredWidth)
+    }
+  })
 
   const wrapperClassNames = classNames('time-picker-container', className)
   const inputWrapperClassNames = classNames(
@@ -153,7 +162,7 @@ const TimePicker = ({
               position: 'bottom-right'
             }}
             ref={dropdownRef}
-            style={{ width: `${timePickerRef.current?.clientWidth || 116}px` }}
+            style={{ width: `${pickerWidth || 116}px` }}
           >
             <TimePickerOptions key={selectKey} handleInputChange={handleInputChange} />
           </PopUpDialog>

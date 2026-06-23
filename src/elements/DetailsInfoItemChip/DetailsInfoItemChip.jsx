@@ -78,14 +78,12 @@ const DetailsInfoItemChip = ({
   }, [
     currentField,
     detailsInfoDispatch,
-    commonDetailsStore.changes.data,
+    commonDetailsStore,
     dispatch,
-    formState.form,
-    formState.values,
+    formState,
     handleFinishEdit,
     isFieldInEditMode,
-    item?.editModeType,
-    item.fieldData.name
+    item
   ])
 
   useEffect(() => {

@@ -40,9 +40,10 @@ const Notification = ({ notification, timeoutMs = 10000, ...rest }) => {
   // rest is required for Transition
   const dispatch = useDispatch()
   const nodeRef = useRef()
+  const handleRemoveNotificationRef = useRef(null)
 
   const { pauseTimeout, resumeTimeout, cancelTimeout } = useTimeout(
-    () => handleRemoveNotification(notification.id),
+    () => handleRemoveNotificationRef.current(notification.id),
     timeoutMs
   )
 
@@ -71,6 +72,11 @@ const Notification = ({ notification, timeoutMs = 10000, ...rest }) => {
     dispatch(removeNotification(itemId))
     cancelTimeout()
   }
+
+  useEffect(() => {
+    handleRemoveNotificationRef.current = handleRemoveNotification
+  })
+
   const handleRetry = item => {
     handleRemoveNotification(item.id)
     cancelTimeout()

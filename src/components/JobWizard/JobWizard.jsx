@@ -95,7 +95,7 @@ const JobWizard = ({
   prePopulatedData = {},
   wizardTitle = 'Batch run'
 }) => {
-  const formRef = React.useRef(
+  const [formRef] = React.useState(() =>
     createForm({
       onSubmit: () => {},
       mutators: { ...arrayMutators, setFieldState },
@@ -134,7 +134,7 @@ const JobWizard = ({
     onWizardClose && onWizardClose()
   }, [dispatch, onResolve, onWizardClose, showSchedule])
 
-  const { handleCloseModal, resolveModal } = useModalBlockHistory(closeModal, formRef.current)
+  const { handleCloseModal, resolveModal } = useModalBlockHistory(closeModal, formRef)
 
   useEffect(() => {
     if (!isEditMode) {
@@ -467,7 +467,7 @@ const JobWizard = ({
   )
 
   return (
-    <Form form={formRef.current} onSubmit={() => {}}>
+    <Form form={formRef} onSubmit={() => {}}>
       {formState => {
         formStateRef.current = formState
 

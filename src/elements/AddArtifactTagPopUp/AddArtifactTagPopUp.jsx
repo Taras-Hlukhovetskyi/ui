@@ -43,14 +43,14 @@ const AddArtifactTagPopUp = ({ artifact, isOpen, onAddTag = () => {}, onResolve,
   })
   const [isLoading, setIsLoading] = useState(false)
 
-  const formRef = React.useRef(
+  const [formRef] = React.useState(() =>
     createForm({
       initialValues,
       onSubmit: () => {}
     })
   )
   const location = useLocation()
-  const { handleCloseModal, resolveModal } = useModalBlockHistory(onResolve, formRef.current)
+  const { handleCloseModal, resolveModal } = useModalBlockHistory(onResolve, formRef)
 
   const addArtifactTag = values => {
     const identifier = {
@@ -126,7 +126,7 @@ const AddArtifactTagPopUp = ({ artifact, isOpen, onAddTag = () => {}, onResolve,
   }
 
   return (
-    <Form form={formRef.current} initialValues={initialValues} onSubmit={addArtifactTagHandler}>
+    <Form form={formRef} initialValues={initialValues} onSubmit={addArtifactTagHandler}>
       {formState => {
         return (
           <>

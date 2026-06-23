@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { isEmpty } from 'lodash'
@@ -89,6 +89,7 @@ export const useJobsPageData = (initialTabData, selectedTab) => {
     setAbortingJobs({})
   }, [])
 
+  const refreshJobsRef = useRef(null)
   const refreshJobs = useCallback(
     (filters, { forceFetchJobs = false } = {}) => {
       const isJobRunsRequest = params.jobName && !forceFetchJobs
@@ -159,7 +160,7 @@ export const useJobsPageData = (initialTabData, selectedTab) => {
                 filters.project?.toLowerCase?.() || params.projectName || '*',
                 abortJobRef,
                 responseAbortingJobs,
-                () => refreshJobs(filters),
+                () => refreshJobsRef.current(filters),
                 dispatch
               )
             }
@@ -191,6 +192,10 @@ export const useJobsPageData = (initialTabData, selectedTab) => {
     },
     [dispatch, params.jobName, params.projectName, terminateAbortTasksPolling]
   )
+
+  useEffect(() => {
+    refreshJobsRef.current = refreshJobs
+  }, [refreshJobs])
 
   const refreshScheduled = useCallback(
     filters => {

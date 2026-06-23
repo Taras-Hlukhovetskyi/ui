@@ -54,7 +54,7 @@ const FilterMenuModal = ({
   const [filtersWizardIsShown, setFiltersWizardIsShown] = useState(false)
   const filtersIconButtonRef = useRef()
   const dispatch = useDispatch()
-  const formRef = React.useRef(
+  const [formRef] = React.useState(() =>
     createForm({
       onSubmit: () => {},
       initialValues
@@ -68,10 +68,10 @@ const FilterMenuModal = ({
   const filtersWizardClassnames = classnames('filters-wizard', wizardClassName)
 
   useEffect(() => {
-    if (!isEqual(formRef.current?.getState().values, values)) {
-      formRef.current?.batch(() => {
+    if (!isEqual(formRef?.getState().values, values)) {
+      formRef?.batch(() => {
         for (const filterName in values) {
-          formRef.current?.change(filterName, values[filterName])
+          formRef?.change(filterName, values[filterName])
         }
       })
     }
@@ -102,7 +102,7 @@ const FilterMenuModal = ({
   }, [hideFiltersWizard])
 
   useLayoutEffect(() => {
-    formRef.current.reset(initialValues)
+    formRef.reset(initialValues)
   }, [initialValues])
 
   const getFilterCounter = formState => {
@@ -144,7 +144,7 @@ const FilterMenuModal = ({
       }
 
       if (actionCanBePerformed) {
-        formRef.current.restart(initialValues)
+        formRef.restart(initialValues)
         setFiltersWizardIsShown(false)
 
         if (counter > 0) {
@@ -164,7 +164,7 @@ const FilterMenuModal = ({
   }
 
   return (
-    <Form form={formRef.current} onSubmit={() => {}}>
+    <Form form={formRef} onSubmit={() => {}}>
       {formState => {
         const counter = getFilterCounter(formState)
         return (

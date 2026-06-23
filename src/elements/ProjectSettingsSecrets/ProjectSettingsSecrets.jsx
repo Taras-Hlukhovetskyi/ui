@@ -48,7 +48,7 @@ const ProjectSettingsSecrets = ({ setNotification }) => {
   const params = useParams()
   const dispatch = useDispatch()
   const projectStore = useSelector(store => store.projectStore)
-  const formRef = React.useRef(
+  const [formRef] = React.useState(() =>
     createForm({
       initialValues: {},
       mutators: { ...arrayMutators, setFieldState },
@@ -57,6 +57,7 @@ const ProjectSettingsSecrets = ({ setNotification }) => {
   )
   const formStateRef = useRef(null)
 
+  const fetchSecretsRef = useRef(null)
   const fetchSecrets = useCallback(() => {
     setIsUserAllowed(true)
     dispatch(fetchProjectSecrets({ project: params.projectName }))
@@ -68,10 +69,14 @@ const ProjectSettingsSecrets = ({ setNotification }) => {
             : getErrorMsg(error, 'Failed to fetch project data')
 
         showErrorNotification(dispatch, error, '', customErrorMsg, () => {
-          fetchSecrets()
+          fetchSecretsRef.current()
         })
       })
   }, [dispatch, params.projectName])
+
+  useEffect(() => {
+    fetchSecretsRef.current = fetchSecrets
+  }, [fetchSecrets])
 
   useEffect(() => {
     fetchSecrets()
@@ -175,7 +180,7 @@ const ProjectSettingsSecrets = ({ setNotification }) => {
   }, [modifyProjectSecret, lastEditedFormValues])
 
   return (
-    <Form form={formRef.current} onSubmit={() => {}}>
+    <Form form={formRef} onSubmit={() => {}}>
       {formState => {
         formStateRef.current = formState
 

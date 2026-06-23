@@ -116,6 +116,7 @@ const AddToFeatureVectorPage = () => {
     navigateToFeatureVectorsScreen()
   }, [dispatch, navigateToFeatureVectorsScreen])
 
+  const handleCreateFeatureVectorRef = useRef(null)
   const handleCreateFeatureVector = useCallback(
     featureVector => {
       dispatch(createNewFeatureVector({ data: featureVector }))
@@ -138,7 +139,7 @@ const AddToFeatureVectorPage = () => {
               : 'Feature vector creation failed'
 
           showErrorNotification(dispatch, error, '', customErrorMsg, () =>
-            handleCreateFeatureVector(featureVector)
+            handleCreateFeatureVectorRef.current(featureVector)
           )
 
           if (error.response.status === FORBIDDEN_ERROR_STATUS_CODE) {
@@ -149,6 +150,10 @@ const AddToFeatureVectorPage = () => {
     },
     [dispatch, navigateToFeatureVectorsScreen]
   )
+
+  useEffect(() => {
+    handleCreateFeatureVectorRef.current = handleCreateFeatureVector
+  }, [handleCreateFeatureVector])
 
   const pageData = useMemo(
     () => ({

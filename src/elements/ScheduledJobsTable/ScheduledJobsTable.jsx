@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import PropTypes from 'prop-types'
@@ -107,6 +107,7 @@ const ScheduledJobsTable = ({
     [dispatch]
   )
 
+  const handleRunJobRef = useRef(null)
   const handleRunJob = useCallback(
     job => {
       dispatch(
@@ -134,11 +135,17 @@ const ScheduledJobsTable = ({
               ? 'You do not have permission to run a new job.'
               : getErrorMsg(error, 'Failed to start job')
 
-          showErrorNotification(dispatch, error, '', customErrorMsg, () => handleRunJob(job))
+          showErrorNotification(dispatch, error, '', customErrorMsg, () =>
+            handleRunJobRef.current(job)
+          )
         })
     },
     [dispatch, params.projectName]
   )
+
+  useEffect(() => {
+    handleRunJobRef.current = handleRunJob
+  }, [handleRunJob])
 
   const handleRemoveScheduledJob = useCallback(
     schedule => {

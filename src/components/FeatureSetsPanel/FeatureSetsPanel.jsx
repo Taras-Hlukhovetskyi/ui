@@ -73,7 +73,7 @@ const FeatureSetsPanel = ({ closePanel, createFeatureSetSuccess, project }) => {
   const [accessKeyRequired, setAccessKeyRequired] = useState(false)
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const formRef = React.useRef(
+  const [formRef] = React.useState(() =>
     createForm({
       initialValues: { labels: [] },
       mutators: { ...arrayMutators, setFieldState },
@@ -87,7 +87,7 @@ const FeatureSetsPanel = ({ closePanel, createFeatureSetSuccess, project }) => {
       ...featureStore.newFeatureSet,
       metadata: {
         ...featureStore.newFeatureSet.metadata,
-        labels: convertChipsData(formRef.current.getFieldState('labels')?.value),
+        labels: convertChipsData(formRef.getFieldState('labels')?.value),
         tag: featureStore.newFeatureSet.metadata.tag || TAG_FILTER_LATEST
       }
     }
@@ -171,7 +171,7 @@ const FeatureSetsPanel = ({ closePanel, createFeatureSetSuccess, project }) => {
   }
 
   return createPortal(
-    <Form form={formRef.current} onSubmit={() => {}}>
+    <Form form={formRef} onSubmit={() => {}}>
       {formState => {
         return (
           <>
@@ -195,7 +195,7 @@ const FeatureSetsPanel = ({ closePanel, createFeatureSetSuccess, project }) => {
             <FormSpy
               subscription={{ valid: true }}
               onChange={() => {
-                const areLabelsValid = formRef.current?.getFieldState?.('labels')?.valid ?? true
+                const areLabelsValid = formRef?.getFieldState?.('labels')?.valid ?? true
                 setValidation(prevState => {
                   if (prevState.areLabelsValid === areLabelsValid) {
                     return prevState

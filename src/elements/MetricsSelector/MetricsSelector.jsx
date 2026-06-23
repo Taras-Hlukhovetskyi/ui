@@ -64,7 +64,7 @@ const MetricsSelector = ({
   const [appliedMetrics, setAppliedMetrics] = useState([])
   const selectorFieldRef = useRef()
   const dropdownRef = useRef()
-  const formRef = React.useRef(
+  const [formRef] = React.useState(() =>
     createForm({
       initialValues: {
         metrics: [],
@@ -99,12 +99,12 @@ const MetricsSelector = ({
 
   useEffect(() => {
     if (!isOpen) {
-      formRef.current?.batch(() => {
-        formRef.current.change(
+      formRef?.batch(() => {
+        formRef.change(
           'metrics',
           appliedMetrics.map(metricItem => metricItem.full_name)
         )
-        formRef.current.change('metricSearchName', '')
+        formRef.change('metricSearchName', '')
       })
 
       setNameFilter('')
@@ -113,7 +113,7 @@ const MetricsSelector = ({
 
   useEffect(() => {
     if (preselectedMetrics) {
-      formRef.current.reset({
+      formRef.reset({
         metrics: preselectedMetrics.map(metricItem => metricItem.full_name)
       })
       setAppliedMetrics(preselectedMetrics)
@@ -157,7 +157,7 @@ const MetricsSelector = ({
 
   const handleApply = () => {
     const newAppliedMetrics =
-      formRef.current?.getFieldState('metrics')?.value?.map(metricFullName => {
+      formRef?.getFieldState('metrics')?.value?.map(metricFullName => {
         return metrics.find(metric => metric.full_name === metricFullName)
       }) || []
 
@@ -167,7 +167,7 @@ const MetricsSelector = ({
   }
 
   const handleClear = () => {
-    formRef.current?.change('metrics', [])
+    formRef?.change('metrics', [])
   }
 
   const getSelectValue = () => {
@@ -204,7 +204,7 @@ const MetricsSelector = ({
   }
 
   return (
-    <Form form={formRef.current} onSubmit={() => {}}>
+    <Form form={formRef} onSubmit={() => {}}>
       {formState => (
         <Tooltip
           hidden={!disabled}

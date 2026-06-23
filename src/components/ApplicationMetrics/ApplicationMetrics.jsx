@@ -111,7 +111,7 @@ const ApplicationMetrics = () => {
     tableId: LIST_ITEMS_ID
   })
 
-  const formRef = React.useRef(
+  const [formRef] = React.useState(() =>
     createForm({
       initialValues: {
         MEPSearchName: ''
@@ -278,7 +278,7 @@ const ApplicationMetrics = () => {
             ) : (
               <>
                 <div className="list-view__section list-view__section-list">
-                  <Form form={formRef.current} onSubmit={() => {}}>
+                  <Form form={formRef} onSubmit={() => {}}>
                     {() => (
                       <div className="list-view__section-list__search">
                         <div className="list-view__section-list__search__name-filter">

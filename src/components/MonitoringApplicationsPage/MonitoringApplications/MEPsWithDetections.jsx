@@ -40,8 +40,7 @@ const MEPsWithDetections = () => {
   } = useSelector(store => store.monitoringApplicationsStore)
 
   const renderPlugin = useMemo(() => {
-    let savedCopyWidth = 0
-    let savedCopyHeight = 0
+    const saved = { copyWidth: 0, copyHeight: 0 }
 
     return {
       id: 'renderTracker',
@@ -50,12 +49,12 @@ const MEPsWithDetections = () => {
         const copyHeight = chart.scales.y.height + 20
 
         if (
-          (copyWidth !== savedCopyWidth || copyHeight !== savedCopyHeight) &&
+          (copyWidth !== saved.copyWidth || copyHeight !== saved.copyHeight) &&
           chartYAxisRef.current &&
           chartWrapperRef.current
         ) {
-          savedCopyWidth = copyWidth
-          savedCopyHeight = copyHeight
+          saved.copyWidth = copyWidth
+          saved.copyHeight = copyHeight
           const sourceCanvas = chart.ctx.canvas
           const copyWidthWithRatio = copyWidth * chart.currentDevicePixelRatio
           const copyHeightWithRatio = copyHeight * chart.currentDevicePixelRatio

@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
@@ -55,7 +55,15 @@ const ChangeOwnerPopUp = ({ changeOwnerCallback, projectId }) => {
   const dispatch = useDispatch()
   useDetectOutsideClick(searchInputRef, () => setShowSuggestionList(false))
 
-  const { width: dropdownWidth } = searchRowRef?.current?.getBoundingClientRect() || {}
+  const [dropdownWidth, setDropdownWidth] = useState(0)
+
+  useLayoutEffect(() => {
+    const measuredWidth = searchRowRef.current?.getBoundingClientRect().width
+
+    if (measuredWidth && measuredWidth !== dropdownWidth) {
+      setDropdownWidth(measuredWidth)
+    }
+  })
 
   useEffect(() => {
     if (

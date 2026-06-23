@@ -110,10 +110,12 @@ const RealTimePipelines = () => {
   })
 
   const { pipelines, statistics, childPipelinesMap } = useMemo(() => {
-    let totalPipelines = 0
-    let runningFunctions = 0
-    let failedFunctions = 0
-    let modelEndpoints = 0
+    const stats = {
+      totalPipelines: 0,
+      runningFunctions: 0,
+      failedFunctions: 0,
+      modelEndpoints: 0
+    }
     const childFunctionsMap = {}
 
     const filteredPipelines = enrichedFunctions.reduce((pipelinesList, func) => {
@@ -138,13 +140,13 @@ const RealTimePipelines = () => {
 
       if (parent || (!showSystems && isMonitoringInfra) || !isCorrectTopology) return pipelinesList
 
-      totalPipelines += 1
+      stats.totalPipelines += 1
 
       const stateValue = func.state?.value
       if (stateValue === FUNCTION_READY_STATE || stateValue === FUNCTION_RUNNING_STATE) {
-        runningFunctions += 1
+        stats.runningFunctions += 1
       } else if (stateValue === ERROR_STATE || stateValue === UNHEALTHY_STATE) {
-        failedFunctions += 1
+        stats.failedFunctions += 1
       }
 
       const modelEndpointsMainCount =
@@ -160,7 +162,7 @@ const RealTimePipelines = () => {
       }, 0)
 
       const modelEndpointsCount = modelEndpointsMainCount + routesInFlowCount
-      modelEndpoints += modelEndpointsCount
+      stats.modelEndpoints += modelEndpointsCount
 
       pipelinesList.push({ ...func, modelEndpointsCount })
       return pipelinesList
@@ -168,7 +170,7 @@ const RealTimePipelines = () => {
 
     return {
       pipelines: filteredPipelines,
-      statistics: { totalPipelines, runningFunctions, failedFunctions, modelEndpoints },
+      statistics: stats,
       childPipelinesMap: childFunctionsMap
     }
   }, [enrichedFunctions, filters])

@@ -92,8 +92,8 @@ const Functions = () => {
   const [requestErrorMessage, setRequestErrorMessage] = useState('')
   const [deletingFunctions, setDeletingFunctions] = useState({})
   const abortControllerRef = useRef(new AbortController())
-  const fetchFunctionLogsTimeout = useRef(null)
-  const fetchFunctionNuclioLogsTimeout = useRef(null)
+  const [fetchFunctionLogsTimeout] = useState(() => ({ current: null }))
+  const [fetchFunctionNuclioLogsTimeout] = useState(() => ({ current: null }))
   const terminatePollRef = useRef(null)
   const { isDemoMode, isStagingMode } = useMode()
   const params = useParams()
@@ -134,6 +134,7 @@ const Functions = () => {
     setDeletingFunctions({})
   }, [])
 
+  const fetchDataRef = useRef(null)
   const fetchData = useCallback(
     (filters, filtersAreHandled = false) => {
       terminateDeleteTasksPolling()
@@ -175,7 +176,7 @@ const Functions = () => {
                 params.projectName,
                 terminatePollRef,
                 deletingFunctions,
-                () => fetchData(filters),
+                () => fetchDataRef.current(filters),
                 dispatch
               )
             }
@@ -215,6 +216,10 @@ const Functions = () => {
       terminateDeleteTasksPolling
     ]
   )
+
+  useEffect(() => {
+    fetchDataRef.current = fetchData
+  }, [fetchData])
 
   const refreshFunctions = useCallback(
     (filters, filtersAreHandled) => {
@@ -367,6 +372,7 @@ const Functions = () => {
     [removeFunction]
   )
 
+  const buildAndRunFuncRef = useRef(null)
   const buildAndRunFunc = useCallback(
     func => {
       const data = {
@@ -461,12 +467,16 @@ const Functions = () => {
         })
         .catch(error => {
           showErrorNotification(dispatch, error, 'Failed to build and run function.', '', () => {
-            buildAndRunFunc(func)
+            buildAndRunFuncRef.current(func)
           })
         })
     },
     [dispatch, functionsFilters, refreshFunctions]
   )
+
+  useEffect(() => {
+    buildAndRunFuncRef.current = buildAndRunFunc
+  }, [buildAndRunFunc])
 
   const pageData = useMemo(
     () =>
