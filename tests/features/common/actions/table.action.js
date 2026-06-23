@@ -18,7 +18,7 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import { expect } from 'chai'
-import { difference  } from 'lodash'
+import { difference  } from 'lodash-es'
 import {
   getOptionValues,
   openDropdown,

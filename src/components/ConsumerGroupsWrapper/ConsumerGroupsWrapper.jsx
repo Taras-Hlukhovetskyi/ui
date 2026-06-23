@@ -20,7 +20,7 @@ such restriction.
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, Outlet } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 
 import { Loader } from 'igz-controls/components'
 import Breadcrumbs from '../../common/Breadcrumbs/Breadcrumbs'

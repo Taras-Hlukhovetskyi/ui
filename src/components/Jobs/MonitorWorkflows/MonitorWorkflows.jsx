@@ -20,7 +20,7 @@ such restriction.
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 
 import WorkflowsTable from '../../../elements/WorkflowsTable/WorkflowsTable'
 

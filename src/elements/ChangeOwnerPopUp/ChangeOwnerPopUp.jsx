@@ -21,7 +21,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
-import { debounce } from 'lodash'
+import { debounce } from 'lodash-es'
 
 import Input from '../../common/Input/Input'
 import { Button, PopUpDialog } from 'igz-controls/components'

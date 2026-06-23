@@ -21,7 +21,7 @@ import React, { useEffect, useState, useRef, useCallback, useId } from 'react'
 import PropTypes from 'prop-types'
 import MaskedInput from 'react-text-mask'
 import classNames from 'classnames'
-import { throttle } from 'lodash'
+import { throttle } from 'lodash-es'
 import moment from 'moment'
 
 import { DENSITY_OPTIONS } from 'igz-controls/types'

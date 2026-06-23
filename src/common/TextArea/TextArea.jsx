@@ -20,7 +20,7 @@ such restriction.
 import React, { useEffect, useState, useCallback, useRef } from 'react'
 import classnames from 'classnames'
 import PropTypes from 'prop-types'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 
 import { Tip, Tooltip, TextTooltipTemplate } from 'igz-controls/components'
 import { OptionsMenu, ValidationTemplate } from 'igz-controls/elements'

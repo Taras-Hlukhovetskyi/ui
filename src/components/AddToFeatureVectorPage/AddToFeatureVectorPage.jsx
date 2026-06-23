@@ -20,7 +20,7 @@ such restriction.
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 
 import AddToFeatureVectorView from './AddToFeatureVectorView'
 import FeaturesTablePanel from '../../elements/FeaturesTablePanel/FeaturesTablePanel'

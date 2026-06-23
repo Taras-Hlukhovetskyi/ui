@@ -21,7 +21,7 @@ import React, { useCallback, useEffect, useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { isArray, isEmpty, isObject } from 'lodash'
+import { isArray, isEmpty, isObject } from 'lodash-es'
 
 import ArtifactsPreview from '../ArtifactsPreview/ArtifactsPreview'
 

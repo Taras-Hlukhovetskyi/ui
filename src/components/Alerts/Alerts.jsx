@@ -20,7 +20,7 @@ such restriction.
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 
 import { Loader } from 'igz-controls/components'
 import ActionBar from '../ActionBar/ActionBar'

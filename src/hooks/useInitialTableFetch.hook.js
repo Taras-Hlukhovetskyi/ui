@@ -19,7 +19,7 @@ such restriction.
 */
 import { useEffect, useMemo, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { debounce } from 'lodash'
+import { debounce } from 'lodash-es'
 
 export const useInitialTableFetch = ({ fetchData, fetchTags, filters, requestTrigger } = {}) => {
   const params = useParams()

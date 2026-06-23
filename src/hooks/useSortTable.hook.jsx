@@ -18,7 +18,7 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import { useCallback, useEffect, useState, useMemo } from 'react'
-import { isEmpty, isNumber, orderBy, isEqual } from 'lodash'
+import { isEmpty, isNumber, orderBy, isEqual } from 'lodash-es'
 
 import ArrowIcon from 'igz-controls/images/back-arrow.svg?react'
 

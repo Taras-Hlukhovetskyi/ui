@@ -19,7 +19,7 @@ such restriction.
 */
 import React, { useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { isNil } from 'lodash'
+import { isNil } from 'lodash-es'
 import classnames from 'classnames'
 
 import ArtifactInfoSources from '../ArtifactInfoSources/ArtifactInfoSources'

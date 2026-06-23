@@ -1,5 +1,3 @@
-import commonjs from 'vite-plugin-commonjs'
-import eslint from 'vite-plugin-eslint'
 import path from 'node:path'
 import react from '@vitejs/plugin-react-swc'
 import svgr from 'vite-plugin-svgr'
@@ -9,7 +7,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, path.resolve(process.cwd()), '')
 
   return {
-    plugins: [commonjs(), react(), svgr(), eslint({ failOnError: false })],
+    plugins: [react(), svgr()],
     base: env.NODE_ENV === 'production' ? env.VITE_PUBLIC_URL : '/',
     server: {
       proxy: {
@@ -57,14 +55,14 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         'igz-controls/nextGenComponents': path.resolve(
-          __dirname,
+          import.meta.dirname,
           'node_modules/iguazio.dashboard-react-controls/dist/nextGenComponents/index.mjs'
         ),
         'igz-controls': path.resolve(
-          __dirname,
+          import.meta.dirname,
           'node_modules/iguazio.dashboard-react-controls/dist'
         ),
-        '@': path.resolve(__dirname, './src/nextGenComponents')
+        '@': path.resolve(import.meta.dirname, './src/nextGenComponents')
       },
       dedupe: [
         'react',
@@ -79,9 +77,6 @@ export default defineConfig(({ mode }) => {
         'react-modal-promise',
         'react-transition-group'
       ]
-    },
-    optimizeDeps: {
-      force: true
     },
     build: {
       sourcemap: true,

@@ -1,9 +1,12 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react-swc'
 import svgr from 'vite-plugin-svgr'
-import path from 'path'
+import path from 'node:path'
 
-const drcDist = path.resolve(__dirname, './node_modules/iguazio.dashboard-react-controls/dist')
+const drcDist = path.resolve(
+  import.meta.dirname,
+  './node_modules/iguazio.dashboard-react-controls/dist'
+)
 
 export default defineConfig({
   plugins: [react(), svgr()],
@@ -17,17 +20,23 @@ export default defineConfig({
       deps: {
         inline: ['iguazio.dashboard-react-controls'],
         moduleDirectories: ['node_modules']
-      },
+      }
     },
     alias: [
-      { find: /^igz-controls\/images\/(.+)\.svg\?react$/, replacement: path.join(__dirname, 'src/__mocks__/svgMock.jsx') }
-    ],
+      {
+        find: /^igz-controls\/images\/(.+)\.svg\?react$/,
+        replacement: path.join(import.meta.dirname, 'src/__mocks__/svgMock.jsx')
+      }
+    ]
   },
   resolve: {
     alias: [
-      { find: 'igz-controls/nextGenComponents', replacement: path.join(drcDist, 'nextGenComponents/index.mjs') },
+      {
+        find: 'igz-controls/nextGenComponents',
+        replacement: path.join(drcDist, 'nextGenComponents/index.mjs')
+      },
       { find: 'igz-controls', replacement: drcDist },
-      { find: '@', replacement: path.resolve(__dirname, './src/nextGenComponents') }
+      { find: '@', replacement: path.resolve(import.meta.dirname, './src/nextGenComponents') }
     ]
   }
 })

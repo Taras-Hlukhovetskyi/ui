@@ -20,7 +20,7 @@ such restriction.
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 import Prism from 'prismjs'
 import { useSelector } from 'react-redux'
 

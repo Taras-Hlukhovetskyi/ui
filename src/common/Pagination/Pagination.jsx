@@ -21,7 +21,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { max, min } from 'lodash'
+import { max, min } from 'lodash-es'
 
 import { RoundedIcon } from 'igz-controls/components'
 

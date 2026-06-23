@@ -20,7 +20,7 @@ such restriction.
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 
 import { monitorJob, pollAbortingJobs, rerunJob } from '../components/Jobs/jobs.util'
 

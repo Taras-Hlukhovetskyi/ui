@@ -20,7 +20,7 @@ such restriction.
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useParams } from 'react-router-dom'
-import { isEmpty, orderBy } from 'lodash'
+import { isEmpty, orderBy } from 'lodash-es'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 

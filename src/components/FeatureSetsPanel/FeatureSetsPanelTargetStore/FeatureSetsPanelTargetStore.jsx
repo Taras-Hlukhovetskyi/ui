@@ -20,7 +20,7 @@ such restriction.
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
-import { cloneDeep, isEmpty, isNumber } from 'lodash'
+import { cloneDeep, isEmpty, isNumber } from 'lodash-es'
 
 import FeatureSetsPanelTargetStoreView from './FeatureSetsPanelTargetStoreView'
 import { ConfirmDialog } from 'igz-controls/components'

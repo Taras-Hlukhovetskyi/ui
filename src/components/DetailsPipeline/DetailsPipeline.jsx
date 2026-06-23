@@ -20,7 +20,7 @@ such restriction.
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
-import { groupBy, forEach, isEmpty, map } from 'lodash'
+import { groupBy, forEach, isEmpty, map } from 'lodash-es'
 import { useSelector } from 'react-redux'
 import { Group, Panel } from 'react-resizable-panels'
 import { Position, ReactFlowProvider, useStoreApi } from 'reactflow'

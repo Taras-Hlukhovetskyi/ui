@@ -19,7 +19,7 @@ such restriction.
 */
 import React from 'react'
 import PropTypes from 'prop-types'
-import { isEqual, pickBy } from 'lodash'
+import { isEqual, pickBy } from 'lodash-es'
 import { useForm } from 'react-final-form'
 
 import { FormCheckBox, FormOnChange } from 'igz-controls/components'

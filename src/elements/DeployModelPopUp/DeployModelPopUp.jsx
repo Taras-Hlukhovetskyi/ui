@@ -20,7 +20,7 @@ such restriction.
 import React, { useCallback, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux'
-import { chain, cloneDeep, keyBy, mapValues } from 'lodash'
+import { chain, cloneDeep, keyBy, mapValues } from 'lodash-es'
 import { Form } from 'react-final-form'
 import { createForm } from 'final-form'
 import arrayMutators from 'final-form-arrays'

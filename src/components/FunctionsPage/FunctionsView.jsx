@@ -43,7 +43,7 @@ import { PRIMARY_BUTTON } from 'igz-controls/constants'
 import { getCloseDetailsLink } from '../../utils/link-helper.util'
 import { getNoDataMessage } from '../../utils/getNoDataMessage'
 import { getSavedSearchParams } from 'igz-controls/utils/filter.util'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 
 const FunctionsView = ({
   actionsMenu,

@@ -20,7 +20,7 @@ such restriction.
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 
 import { INPUT_VALIDATION_RULES } from 'igz-controls/types'
 import { OptionsMenu, ValidationTemplate } from 'igz-controls/elements'

@@ -20,7 +20,7 @@ such restriction.
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 import { createPortal } from 'react-dom'
 import ModalContainer from 'react-modal-promise'
 

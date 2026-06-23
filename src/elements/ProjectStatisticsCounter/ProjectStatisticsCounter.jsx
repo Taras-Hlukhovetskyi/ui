@@ -24,7 +24,7 @@ import classnames from 'classnames'
 import { Tooltip, TextTooltipTemplate, Loader } from 'igz-controls/components'
 
 import Arrow from 'igz-controls/images/arrow.svg?react'
-import { isNil } from 'lodash'
+import { isNil } from 'lodash-es'
 
 const ProjectStatisticsCounter = ({ counterObject }) => {
   const MAX_VISIBLE_COUNTER = 999999

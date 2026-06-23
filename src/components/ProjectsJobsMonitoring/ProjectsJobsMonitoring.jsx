@@ -20,7 +20,7 @@ such restriction.
 import React, { useLayoutEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { defaultsDeep, isEmpty } from 'lodash'
+import { defaultsDeep, isEmpty } from 'lodash-es'
 
 import { ConfirmDialog, Loader } from 'igz-controls/components'
 import ContentMenu from '../../elements/ContentMenu/ContentMenu'

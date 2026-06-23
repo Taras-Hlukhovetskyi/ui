@@ -18,7 +18,7 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import React from 'react'
-import { debounce, get, isEmpty, isEqual } from 'lodash'
+import { debounce, get, isEmpty, isEqual } from 'lodash-es'
 
 import {
   DETAILS_BUILD_LOG_TAB,

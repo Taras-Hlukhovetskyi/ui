@@ -19,7 +19,7 @@ such restriction.
 */
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { isEmpty, last, orderBy } from 'lodash'
+import { isEmpty, last, orderBy } from 'lodash-es'
 import FileSaver from 'file-saver'
 import yaml from 'js-yaml'
 

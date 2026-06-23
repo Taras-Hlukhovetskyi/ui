@@ -19,7 +19,7 @@ such restriction.
 */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 

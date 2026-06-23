@@ -20,7 +20,7 @@ such restriction.
 import { useParams } from 'react-router-dom'
 import { useEffect, useState, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { isNil } from 'lodash'
+import { isNil } from 'lodash-es'
 
 import {
   GROUP_BY_FILTER,

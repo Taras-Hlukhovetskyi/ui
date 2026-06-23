@@ -27,7 +27,7 @@ import React, {
   useMemo
 } from 'react'
 import PropTypes from 'prop-types'
-import { isNil } from 'lodash'
+import { isNil } from 'lodash-es'
 import moment from 'moment'
 
 import DatePickerView from './DatePickerView'

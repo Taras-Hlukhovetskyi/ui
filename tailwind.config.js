@@ -19,7 +19,9 @@ such restriction.
 */
 /** @type {import('tailwindcss').Config} */
 
-module.exports = {
+import tailwindcssAnimate from 'tailwindcss-animate'
+
+export default {
   darkMode: ['class'],
   content: [
     './src/nextGenComponents/**/*.{js,jsx,ts,tsx}',
@@ -137,7 +139,7 @@ module.exports = {
     }
   },
   plugins: [
-    require('tailwindcss-animate'),
+    tailwindcssAnimate,
     function ({ addComponents }) {
       addComponents({
         '.status-dot': { '@apply inline-block w-2 h-2 rounded-full': {} }
