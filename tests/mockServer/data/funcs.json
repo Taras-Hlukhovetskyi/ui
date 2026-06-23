@@ -106,10 +106,7 @@
                   },
                   "endpoint3": {
                     "inputs": [],
-                    "outputs": [
-                      "output1",
-                      "output2"
-                    ],
+                    "outputs": ["output1", "output2"],
                     "input_path": "input_path",
                     "result_path": "result_path",
                     "creation_strategy": "inplace",
@@ -144,24 +141,18 @@
                 }
               },
               "shape": "folder",
-              "cycle_from": [
-                "route"
-              ]
+              "cycle_from": ["route"]
             },
             "step-above-1": {
               "model_endpoint_creation_strategy": "skip",
-              "after": [
-                "model-runner"
-              ],
+              "after": ["model-runner"],
               "kind": "task",
               "class_name": "LoopStep",
               "endpoint_type": 1
             },
             "step-above-2": {
               "model_endpoint_creation_strategy": "skip",
-              "after": [
-                "model-runner"
-              ],
+              "after": ["model-runner"],
               "kind": "task",
               "class_name": "LoopStep",
               "endpoint_type": 1,
@@ -169,31 +160,23 @@
             },
             "step1": {
               "model_endpoint_creation_strategy": "skip",
-              "after": [
-                "model-runner"
-              ],
+              "after": ["model-runner"],
               "kind": "task",
               "class_name": "LoopStep",
               "endpoint_type": 1,
               "function": "function-test",
-              "cycle_from": [
-                "step2"
-              ]
+              "cycle_from": ["step2"]
             },
             "step-below-1": {
               "model_endpoint_creation_strategy": "skip",
-              "after": [
-                "model-runner"
-              ],
+              "after": ["model-runner"],
               "kind": "task",
               "class_name": "LoopStep",
               "endpoint_type": 1
             },
             "step2": {
               "model_endpoint_creation_strategy": "skip",
-              "after": [
-                "step1"
-              ],
+              "after": ["step1"],
               "kind": "task",
               "class_name": "DecideNext",
               "endpoint_type": 1,
@@ -201,23 +184,17 @@
                 "limit": 5
               },
               "function": "function-test",
-              "cycle_from": [
-                "route"
-              ]
+              "cycle_from": ["route"]
             },
             "stream": {
-              "after": [
-                "step2"
-              ],
+              "after": ["step2"],
               "shards": 7,
               "kind": "queue",
               "path": "v3io:///projects/mronetttbl//out-stream"
             },
             "route": {
               "model_endpoint_creation_strategy": "skip",
-              "after": [
-                "stream"
-              ],
+              "after": ["stream"],
               "kind": "task",
               "class_name": "mlrun.serving.steps.ChoiceByField",
               "endpoint_type": 1,
@@ -228,9 +205,7 @@
             "exit": {
               "responder": true,
               "model_endpoint_creation_strategy": "skip",
-              "after": [
-                "route"
-              ],
+              "after": ["route"],
               "kind": "task",
               "endpoint_type": 1,
               "handler": "exit_handler"
@@ -266,9 +241,7 @@
             },
             "extend_step": {
               "model_endpoint_creation_strategy": "skip",
-              "after": [
-                "choice_by_field"
-              ],
+              "after": ["choice_by_field"],
               "endpoint_type": 1,
               "class_name": "storey.Extend",
               "class_args": {
@@ -280,9 +253,7 @@
             },
             "flatmap_step": {
               "model_endpoint_creation_strategy": "skip",
-              "after": [
-                "extend_step"
-              ],
+              "after": ["extend_step"],
               "endpoint_type": 1,
               "class_name": "storey.FlatMap",
               "class_args": {
@@ -294,18 +265,14 @@
             },
             "flatten_step": {
               "model_endpoint_creation_strategy": "skip",
-              "after": [
-                "flatmap_step"
-              ],
+              "after": ["flatmap_step"],
               "endpoint_type": 1,
               "class_name": "storey.Flatten",
               "kind": "task"
             },
             "map_with_state_step": {
               "model_endpoint_creation_strategy": "skip",
-              "after": [
-                "flatten_step"
-              ],
+              "after": ["flatten_step"],
               "endpoint_type": 1,
               "class_name": "storey.MapWithState",
               "class_args": {
@@ -317,9 +284,7 @@
             },
             "batch_step": {
               "model_endpoint_creation_strategy": "skip",
-              "after": [
-                "map_with_state_step"
-              ],
+              "after": ["map_with_state_step"],
               "endpoint_type": 1,
               "class_name": "storey.Batch",
               "class_args": {
@@ -332,18 +297,14 @@
             },
             "foreach_step": {
               "model_endpoint_creation_strategy": "skip",
-              "after": [
-                "batch_step"
-              ],
+              "after": ["batch_step"],
               "endpoint_type": 1,
               "class_name": "storey.ForEach",
               "kind": "task"
             },
             "filter_step": {
               "model_endpoint_creation_strategy": "skip",
-              "after": [
-                "foreach_step"
-              ],
+              "after": ["foreach_step"],
               "endpoint_type": 1,
               "class_name": "storey.Filter",
               "class_args": {
@@ -356,9 +317,7 @@
             "sample_window_step": {
               "model_endpoint_creation_strategy": "skip",
               "on_error": "sample_window_error_handler",
-              "after": [
-                "filter_step"
-              ],
+              "after": ["filter_step"],
               "endpoint_type": 1,
               "class_name": "storey.SampleWindow",
               "class_args": {
@@ -381,9 +340,7 @@
               "kind": "task"
             },
             "custom_step": {
-              "after": [
-                "remote_step"
-              ],
+              "after": ["remote_step"],
               "model_endpoint_creation_strategy": "skip",
               "endpoint_type": 1,
               "class_name": "CustomLogicStep",
@@ -393,15 +350,11 @@
               "kind": "task"
             },
             "queue_step": {
-              "after": [
-                "router_step_mock"
-              ],
+              "after": ["router_step_mock"],
               "kind": "queue"
             },
             "final": {
-              "after": [
-                "queue_step"
-              ],
+              "after": ["queue_step"],
               "responder": true,
               "model_endpoint_creation_strategy": "skip",
               "endpoint_type": 1,
@@ -443,9 +396,7 @@
               "base_step": "remote_step"
             },
             "router_step_mock": {
-              "after": [
-                "custom_step"
-              ],
+              "after": ["custom_step"],
               "routes": {
                 "model_0": {
                   "model_endpoint_creation_strategy": "inplace",
@@ -509,18 +460,8 @@
               "kind": "router"
             },
             "s1": {
-              "after": [
-                "s2",
-                "s3",
-                "s4",
-                "s5"
-              ],
-              "cycle_from": [
-                "s2",
-                "s3",
-                "s4",
-                "s5"
-              ],
+              "after": ["s2", "s3", "s4", "s5"],
+              "cycle_from": ["s2", "s3", "s4", "s5"],
               "model_endpoint_creation_strategy": "skip",
               "endpoint_type": 1,
               "class_args": {
@@ -530,9 +471,7 @@
               "class_name": "HubStep"
             },
             "s2": {
-              "after": [
-                "s1"
-              ],
+              "after": ["s1"],
               "model_endpoint_creation_strategy": "skip",
               "endpoint_type": 1,
               "class_args": {
@@ -542,9 +481,7 @@
               "class_name": "CycleStep"
             },
             "s3": {
-              "after": [
-                "s1"
-              ],
+              "after": ["s1"],
               "model_endpoint_creation_strategy": "skip",
               "endpoint_type": 1,
               "class_args": {
@@ -554,9 +491,7 @@
               "class_name": "CycleStep"
             },
             "s4": {
-              "after": [
-                "s1"
-              ],
+              "after": ["s1"],
               "model_endpoint_creation_strategy": "skip",
               "endpoint_type": 1,
               "class_args": {
@@ -566,9 +501,7 @@
               "class_name": "CycleStep"
             },
             "s5": {
-              "after": [
-                "s1"
-              ],
+              "after": ["s1"],
               "model_endpoint_creation_strategy": "skip",
               "endpoint_type": 1,
               "class_args": {
@@ -578,18 +511,14 @@
               "class_name": "CycleStep"
             },
             "s6": {
-              "after": [
-                "s1"
-              ],
+              "after": ["s1"],
               "model_endpoint_creation_strategy": "skip",
               "endpoint_type": 1,
               "kind": "task",
               "class_name": "ExitStep"
             },
             "final2": {
-              "after": [
-                "s6"
-              ],
+              "after": ["s6"],
               "model_endpoint_creation_strategy": "skip",
               "endpoint_type": 1,
               "responder": true,
@@ -24688,9 +24617,7 @@
           "code_origin": "/User/apps/iris_streamlit.py",
           "source": "https://github.com/mlrun/demos.git#refs/heads/main",
           "base_image": "python:3.9-slim",
-          "commands": [
-            "pip install streamlit pandas scikit-learn"
-          ]
+          "commands": ["pip install streamlit pandas scikit-learn"]
         },
         "max_replicas": 2,
         "description": "Interactive Iris classification dashboard built with Streamlit",
@@ -24749,9 +24676,7 @@
         "address": "default-iris-streamlit-app.default-tenant.app.vmdev36.lab.iguazeng.com/",
         "container_image": "docker-registry.default-tenant.app.vmdev36.lab.iguazeng.com:80/nuclio/default-iris-streamlit-app-processor:latest",
         "state": "ready",
-        "internal_invocation_urls": [
-          "nuclio-app-demo-vizro.default-tenant.svc.cluster.local:8080"
-        ]
+        "internal_invocation_urls": ["nuclio-app-demo-vizro.default-tenant.svc.cluster.local:8080"]
       }
     },
     {
@@ -24796,9 +24721,7 @@
           "code_origin": "/User/apps/iris_streamlit.py",
           "source": "https://github.com/mlrun/demos.git#refs/heads/main",
           "base_image": "python:3.9-slim",
-          "commands": [
-            "pip install streamlit pandas scikit-learn"
-          ]
+          "commands": ["pip install streamlit pandas scikit-learn"]
         },
         "max_replicas": 2,
         "description": "Interactive Iris classification dashboard built with Streamlit",
@@ -24894,10 +24817,7 @@
         "build": {
           "source": "https://github.com/mlrun/fraud-demo.git",
           "base_image": "python:3.9",
-          "commands": [
-            "pip install flask pandas numpy",
-            "pip install scikit-learn xgboost"
-          ]
+          "commands": ["pip install flask pandas numpy", "pip install scikit-learn xgboost"]
         },
         "max_replicas": 6,
         "description": "Real-time fraud detection dashboard with ML-powered transaction scoring and alerting system",
@@ -25065,23 +24985,15 @@
                   "protocol": "TCP"
                 }
               ],
-              "command": [
-                "/bin/sh",
-                "-c"
-              ],
-              "args": [
-                "python app.py --workers 4 --model-cache-size 1024"
-              ]
+              "command": ["/bin/sh", "-c"],
+              "args": ["python app.py --workers 4 --model-cache-size 1024"]
             }
           ]
         },
         "build": {
           "source": "https://github.com/mlrun/recommender-demo.git",
           "base_image": "python:3.9",
-          "commands": [
-            "pip install fastapi uvicorn redis",
-            "pip install scipy implicit"
-          ]
+          "commands": ["pip install fastapi uvicorn redis", "pip install scipy implicit"]
         },
         "max_replicas": 10,
         "description": "Real-time product recommendation engine using collaborative filtering with Redis-backed feature store and A/B testing support",
@@ -25382,9 +25294,7 @@
                   "protocol": "TCP"
                 }
               ],
-              "command": [
-                "python"
-              ],
+              "command": ["python"],
               "args": [
                 "-m",
                 "uvicorn",
@@ -25778,9 +25688,7 @@
                   "protocol": "TCP"
                 }
               ],
-              "command": [
-                "gunicorn"
-              ],
+              "command": ["gunicorn"],
               "args": [
                 "--bind",
                 "0.0.0.0:8080",
@@ -32024,6 +31932,71 @@
       },
       "verbose": false,
       "kind": "serving"
+    },
+    {
+      "kind": "serving",
+      "metadata": {
+        "name": "test-pipeline",
+        "tag": "latest",
+        "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "project": "default",
+        "labels": {
+          "mlrun/class": "serving"
+        },
+        "updated": "2026-06-23T12:00:00.000000+00:00"
+      },
+      "spec": {
+        "command": "",
+        "args": [],
+        "image": "mlrun/mlrun",
+        "description": "ML-12395 manual test: serving pipeline with a child function in building state.",
+        "min_replicas": 1,
+        "max_replicas": 4,
+        "function_kind": "serving_v2",
+        "graph": {
+          "kind": "router",
+          "routes": {
+            "child-model": {
+              "kind": "task",
+              "class_name": "mlrun.serving.ModelRouter"
+            }
+          }
+        },
+        "build": {
+          "commands": []
+        },
+        "secret_sources": []
+      },
+      "verbose": false,
+      "kind": "serving"
+    },
+    {
+      "kind": "serving",
+      "metadata": {
+        "name": "test-pipeline-child",
+        "tag": "latest",
+        "hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "project": "default",
+        "labels": {
+          "mlrun/class": "serving",
+          "parent-function": "test-pipeline"
+        },
+        "updated": "2026-06-23T12:00:00.000000+00:00"
+      },
+      "spec": {
+        "command": "",
+        "args": [],
+        "image": "mlrun/mlrun",
+        "description": "ML-12395 manual test: child function in building state.",
+        "function_kind": "serving_v2",
+        "build": {
+          "commands": []
+        }
+      },
+      "verbose": false,
+      "status": {
+        "state": "building"
+      }
     }
   ]
 }
