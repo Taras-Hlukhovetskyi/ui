@@ -109,7 +109,7 @@
     "nui": "npm unlink iguazio.dashboard-react-controls"
   },
   "devDependencies": {
-    "@cucumber/cucumber": "^10.1.9",
+    "@cucumber/cucumber": "^12.6.0",
     "@d4c/numjs": "^0.17.34",
     "@eslint/js": "^9.36.0",
     "@storybook/addon-docs": "10.1.9",
@@ -142,6 +142,7 @@
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.14",
+    "eslint-plugin-storybook": "10.1.9",
     "express": "^4.17.1",
     "file-loader": "^6.2.0",
     "geckodriver": "^6.1.0",
@@ -179,6 +180,6 @@
     "vite": "^7.2.4",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-svgr": "^4.5.0",
-    "vitest": "^4.0.10"
+    "vitest": "^4.1.0"
   }
 }
