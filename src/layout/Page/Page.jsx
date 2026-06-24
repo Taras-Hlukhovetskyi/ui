@@ -107,7 +107,7 @@ const Page = () => {
         <>
           <Suspense fallback={<Loader />}>
             <main id="main" ref={mainRef}>
-            <TokenExpiryBanner />
+              <TokenExpiryBanner />
               <div id="main-wrapper">{isProjectsFetched ? <Outlet /> : <Loader />}</div>
             </main>
           </Suspense>
