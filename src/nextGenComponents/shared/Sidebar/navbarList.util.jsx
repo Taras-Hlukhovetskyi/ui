@@ -160,7 +160,7 @@ export const getLinks = projectName => {
         {
           id: REAL_TIME_FUNCTIONS_PAGE,
           label: 'Real-time functions',
-          link: generateNuclioLink(`${pathname}/${FUNCTIONS_PAGE_PATH}`),
+          link: generateNuclioLink(`${pathname}/${REAL_TIME_FUNCTIONS_PAGE}`),
           externalLink: true
         },
         {
