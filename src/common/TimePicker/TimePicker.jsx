@@ -46,6 +46,7 @@ const TimePicker = ({
   const [valueInput, setValueInput] = useState(
     value ? (is12HourFormat() ? moment(value, 'HH:mm').format('hh:mm A') : value) : ''
   )
+  const [prevValue, setPrevValue] = useState(value)
   const [isDropDownMenuOpen, setIsDropDownMenuOpen] = useState(false)
   const timePickerRef = useRef()
   const dropdownRef = useRef()
@@ -68,11 +69,12 @@ const TimePicker = ({
     'time-picker__control'
   )
 
-  useEffect(() => {
+  if (value !== prevValue) {
+    setPrevValue(value)
     setValueInput(
       value ? (is12HourFormat() ? moment(value, 'HH:mm').format('hh:mm A') : value) : ''
     )
-  }, [value])
+  }
 
   const timeMask = value => {
     const chars = value.split('')

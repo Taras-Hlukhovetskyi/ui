@@ -24,16 +24,12 @@ export const PARENT_ROW_EXPANDED_CLASS = 'parent-row_expanded'
 
 /**
  * Checks if a row is expanded.
- * @param {React.RefObject} parentRef - Reference to the parent element.
  * @param {Object} expandedRowsData - Data of expanded rows.
  * @param {Object} rowItem - Data of the row item.
  * @returns {boolean} - True if the row is expanded, false otherwise.
  */
-export const isRowExpanded = (parentRef, expandedRowsData, rowItem) => {
-  return (
-    parentRef.current?.classList.value.includes(PARENT_ROW_EXPANDED_CLASS) ||
-    (expandedRowsData && rowItem.data.ui.identifier in expandedRowsData)
-  )
+export const isRowExpanded = (expandedRowsData, rowItem) => {
+  return Boolean(expandedRowsData && rowItem.data.ui.identifier in expandedRowsData)
 }
 
 /**

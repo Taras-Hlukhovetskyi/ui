@@ -47,6 +47,11 @@ export const usePagination = ({
 }) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [paginatedContent, setPaginatedContent] = useState([])
+  // Render-safe snapshot of paginationConfigRef.current. The ref keeps its
+  // live-mutation contract (consumers' fetchData writes paginationResponse to
+  // it), while this state lets consumers read the config during render without
+  // a react-hooks/refs violation.
+  const [paginationConfig, setPaginationConfig] = useState({})
   const resetPaginationTriggerRef = useRef(resetPaginationTrigger)
   const lastRequestedPageRef = useRef(null)
   const filtersStore = useSelector(store => store.filtersStore)
@@ -72,7 +77,7 @@ export const usePagination = ({
       )
 
       lastRequestedPageRef.current = null
-      paginationConfigRef.current = {
+      const resetConfig = {
         [BE_PAGE_SIZE]: bePageSize,
         [FE_PAGE_SIZE]: fePageSize,
         [BE_PAGE]: 1,
@@ -80,6 +85,8 @@ export const usePagination = ({
         isNewResponse: false,
         paginationResponse: null
       }
+      paginationConfigRef.current = resetConfig
+      setPaginationConfig(resetConfig)
     },
     [bePageSize, fePageSize, paginationConfigRef, setSearchParams]
   )
@@ -126,33 +133,37 @@ export const usePagination = ({
         )
       }
 
-      setPaginatedContent(prevPaginatedContent => {
-        const newPaginatedContent = getPaginatedContent(
-          content,
-          newPaginationConfig,
-          FE_PAGE,
-          BE_PAGE
-        )
+      const newPaginatedContent = getPaginatedContent(
+        content,
+        newPaginationConfig,
+        FE_PAGE,
+        BE_PAGE
+      )
 
-        const prevItemsCount =
-          (newPaginationConfig[FE_PAGE] - 1) * newPaginationConfig[FE_PAGE_SIZE]
-        const itemsCountStart = newPaginatedContent.length === 0 ? 0 : prevItemsCount + 1
-        const itemsCountEnd = prevItemsCount + newPaginatedContent.length
+      const prevItemsCount = (newPaginationConfig[FE_PAGE] - 1) * newPaginationConfig[FE_PAGE_SIZE]
+      const itemsCountStart = newPaginatedContent.length === 0 ? 0 : prevItemsCount + 1
+      const itemsCountEnd = prevItemsCount + newPaginatedContent.length
 
-        if (itemsCountStart && itemsCountEnd) {
-          newPaginationConfig[ITEMS_COUNT_START] = itemsCountStart
-          newPaginationConfig[ITEMS_COUNT_END] = itemsCountEnd
-        }
+      if (itemsCountStart && itemsCountEnd) {
+        newPaginationConfig[ITEMS_COUNT_START] = itemsCountStart
+        newPaginationConfig[ITEMS_COUNT_END] = itemsCountEnd
+      }
 
-        paginationConfigRef.current = {
-          ...paginationConfigRef.current,
-          ...newPaginationConfig
-        }
+      const updatedPaginationConfig = {
+        ...paginationConfigRef.current,
+        ...newPaginationConfig
+      }
 
-        return isEqual(prevPaginatedContent, newPaginatedContent)
+      paginationConfigRef.current = updatedPaginationConfig
+      setPaginationConfig(prevConfig =>
+        isEqual(prevConfig, updatedPaginationConfig) ? prevConfig : updatedPaginationConfig
+      )
+
+      setPaginatedContent(prevPaginatedContent =>
+        isEqual(prevPaginatedContent, newPaginatedContent)
           ? prevPaginatedContent
           : newPaginatedContent
-      })
+      )
     }
   }, [bePageSize, fePageSize, paginationConfigRef, content, searchParams, setSearchParams, hidden])
 
@@ -241,7 +252,14 @@ export const usePagination = ({
     }
   }
 
-  return [handleRefresh, paginatedContent, searchParams, setSearchParams, resetPagination]
+  return [
+    handleRefresh,
+    paginatedContent,
+    searchParams,
+    setSearchParams,
+    resetPagination,
+    paginationConfig
+  ]
 }
 
 export const getPaginatedContent = (

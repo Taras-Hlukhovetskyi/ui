@@ -72,7 +72,7 @@ const ApplicationsPage = () => {
   )
   const lastCheckedApplicationIdRef = useRef(null)
   const [selectedApplication, setSelectedApplication] = useState({})
-  const [detailsRefreshKey, setDetailsRefreshKey] = useState(Date.now())
+  const [detailsRefreshKey, setDetailsRefreshKey] = useState(() => Date.now())
   const [yamlData, setYamlData] = useState(null)
 
   const isDetailsOpen = !isEmpty(selectedApplication)

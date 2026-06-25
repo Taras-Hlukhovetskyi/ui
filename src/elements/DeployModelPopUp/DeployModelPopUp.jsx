@@ -85,37 +85,29 @@ const DeployModelPopUp = ({
       .value()
   }, [])
 
-  useEffect(() => {
+  if (initialValues.modelName !== model?.db_key) {
     setInitialValues(prev => ({ ...prev, modelName: model?.db_key }))
-  }, [model])
+  }
 
-  useEffect(() => {
-    if (!initialValues.selectedTag && functionList.length > 0) {
-      const tags = getTagOptions(functionList, initialValues.selectedFunctionName)
+  if (!initialValues.selectedTag && functionList.length > 0) {
+    const tags = getTagOptions(functionList, initialValues.selectedFunctionName)
 
+    if (tags.length > 0) {
       setTagOptionList(tags)
-      setInitialValues(prev => ({ ...prev, selectedTag: tags[0]?.id }))
+      setInitialValues(prev => ({ ...prev, selectedTag: tags[0].id }))
     }
-  }, [functionList, getTagOptions, initialValues.selectedFunctionName, initialValues.selectedTag])
+  }
 
-  useEffect(() => {
-    if (!initialValues.className) {
-      const selectedFunction = functionList.find(
-        func =>
-          func.name === initialValues.selectedFunctionName && func.tag === initialValues.selectedTag
-      )
+  if (!initialValues.className) {
+    const selectedFunction = functionList.find(
+      func =>
+        func.name === initialValues.selectedFunctionName && func.tag === initialValues.selectedTag
+    )
 
-      setInitialValues(prev => ({
-        ...prev,
-        className: selectedFunction ? selectedFunction.default_class : ''
-      }))
+    if (selectedFunction?.default_class) {
+      setInitialValues(prev => ({ ...prev, className: selectedFunction.default_class }))
     }
-  }, [
-    functionList,
-    initialValues.className,
-    initialValues.selectedFunctionName,
-    initialValues.selectedTag
-  ])
+  }
 
   useEffect(() => {
     return () => {

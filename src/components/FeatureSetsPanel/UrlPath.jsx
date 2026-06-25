@@ -75,7 +75,6 @@ const UrlPath = ({
     project: '',
     projectItemType: ''
   })
-  const [comboboxMatches, setComboboxMatches] = useState([])
   const [projects, setProjects] = useState([])
   const [artifacts, setArtifacts] = useState([])
   const [artifactsReferences, setArtifactsReferences] = useState([])
@@ -100,28 +99,22 @@ const UrlPath = ({
   const dispatch = useDispatch()
   const { projectName: project } = useParams()
 
-  useEffect(() => {
-    if (
-      defaultPath?.path.length > 0 &&
-      urlData?.path.length === 0 &&
-      inputDefaultValue.length === 0 &&
-      !editMode.isActive
-    ) {
-      const { schema, path } = targetPath(defaultPath.path)
+  if (
+    defaultPath?.path.length > 0 &&
+    urlData?.path.length === 0 &&
+    inputDefaultValue.length === 0 &&
+    !editMode.isActive
+  ) {
+    const { schema, path } = targetPath(defaultPath.path)
+
+    if (path.length > 0) {
       const selectDefaultValues =
         comboboxSelectList.find(option => option.id === `${schema}://`) ?? comboboxSelectList[0]
 
       setUrlData(state => ({ ...state, pathType: selectDefaultValues.id, path }))
       setInputDefaultValue(path)
     }
-  }, [
-    comboboxSelectList,
-    defaultPath.path,
-    inputDefaultValue,
-    invalid,
-    urlData.path,
-    editMode.isActive
-  ])
+  }
 
   const handleGetProjectNames = useCallback(() => {
     getProjectsNames(dispatch, setProjects, project)
@@ -168,10 +161,9 @@ const UrlPath = ({
     urlProjectPathEntered
   ])
 
-  useEffect(() => {
-    if (urlData.pathType === MLRUN_STORAGE_INPUT_PATH_SCHEME) {
-      setComboboxMatches(
-        generateComboboxMatchesList(
+  const comboboxMatches = useMemo(() => {
+    return urlData.pathType === MLRUN_STORAGE_INPUT_PATH_SCHEME
+      ? generateComboboxMatchesList(
           urlData,
           artifacts,
           projects,
@@ -181,13 +173,11 @@ const UrlPath = ({
           artifactsReferences,
           urlProjectItemTypeEntered
         )
-      )
-    }
+      : []
   }, [
     artifacts,
     artifactsReferences,
     urlData,
-    project,
     projects,
     urlArtifactPathEntered,
     urlArtifactReferencePathEntered,
@@ -199,14 +189,12 @@ const UrlPath = ({
     withActionButtons && handleUrlOnEditModeChange(editMode.isActive)
   }, [editMode.isActive, withActionButtons, handleUrlOnEditModeChange])
 
-  useEffect(() => {
-    if (withActionButtons && invalid) {
-      setEditMode(prevState => ({
-        ...prevState,
-        isActive: true
-      }))
-    }
-  }, [invalid, withActionButtons, setEditMode])
+  if (withActionButtons && invalid && !editMode.isActive) {
+    setEditMode(prevState => ({
+      ...prevState,
+      isActive: true
+    }))
+  }
 
   const generatedPathTips = useMemo(() => {
     const pathTipsList = pathTips(urlData.projectItemType)

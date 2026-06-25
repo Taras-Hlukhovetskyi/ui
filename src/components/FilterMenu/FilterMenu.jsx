@@ -21,7 +21,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } fro
 import PropTypes from 'prop-types'
 import { useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { cloneDeep, isEqual } from 'lodash'
+import { cloneDeep } from 'lodash'
 
 import CheckBox from '../../common/CheckBox/CheckBox'
 import DatePicker from '../../common/DatePicker/DatePicker'
@@ -74,11 +74,6 @@ const FilterMenu = ({
   toggleAllRows = () => {},
   withoutExpandButton = false
 }) => {
-  const [labels, setLabels] = useState('')
-  const [name, setName] = useState('')
-  const [entities, setEntities] = useState('')
-  const [tagOptions, setTagOptions] = useState(tagFilterOptions)
-  const [autoRefresh, setAutoRefresh] = useState(AUTO_REFRESH_ID)
   const params = useParams()
   const selectOptions = useMemo(() => cloneDeep(filterSelectOptions), [])
   const dispatch = useDispatch()
@@ -86,13 +81,33 @@ const FilterMenu = ({
   const projectStore = useSelector(store => store.projectStore)
   const changes = useSelector(store => store.commonDetailsStore.changes)
 
-  useEffect(() => {
+  const [labels, setLabels] = useState(filtersStore.labels)
+  const [name, setName] = useState(filtersStore.name)
+  const [entities, setEntities] = useState(filtersStore.entities)
+  const [autoRefresh, setAutoRefresh] = useState(AUTO_REFRESH_ID)
+
+  const [prevFilterValues, setPrevFilterValues] = useState({
+    labels: filtersStore.labels,
+    name: filtersStore.name,
+    entities: filtersStore.entities
+  })
+
+  if (
+    filtersStore.labels !== prevFilterValues.labels ||
+    filtersStore.name !== prevFilterValues.name ||
+    filtersStore.entities !== prevFilterValues.entities
+  ) {
+    setPrevFilterValues({
+      labels: filtersStore.labels,
+      name: filtersStore.name,
+      entities: filtersStore.entities
+    })
     setLabels(filtersStore.labels)
     setName(filtersStore.name)
     setEntities(filtersStore.entities)
-  }, [filtersStore.entities, filtersStore.labels, filtersStore.name])
+  }
 
-  useEffect(() => {
+  const tagOptions = useMemo(() => {
     if (filters.find(filter => filter.type === TAG_FILTER)) {
       let newTagOptions = tagFilterOptions
 
@@ -113,11 +128,11 @@ const FilterMenu = ({
         ]
       }
 
-      if (!isEqual(newTagOptions, filtersStore.tagOptions)) {
-        setTagOptions(() => newTagOptions)
-      }
+      return newTagOptions
     }
-  }, [dispatch, filters, filtersStore.tagOptions])
+
+    return tagFilterOptions
+  }, [filters, filtersStore.tagOptions])
 
   useLayoutEffect(() => {
     if (

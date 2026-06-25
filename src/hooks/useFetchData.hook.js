@@ -23,8 +23,21 @@ import { REQUEST_CANCELED } from '../constants'
 
 export const useFetchData = ({ action, filter, skipFetching = false }) => {
   const [loadingState, setLoadingState] = useState(true)
+  const [prevFetchDeps, setPrevFetchDeps] = useState({ action, filter, skipFetching })
   const dispatch = useDispatch()
   const abortRef = useRef()
+
+  if (
+    prevFetchDeps.action !== action ||
+    prevFetchDeps.filter !== filter ||
+    prevFetchDeps.skipFetching !== skipFetching
+  ) {
+    setPrevFetchDeps({ action, filter, skipFetching })
+
+    if (!skipFetching) {
+      setLoadingState(true)
+    }
+  }
 
   useEffect(() => {
     return () => {
@@ -36,7 +49,6 @@ export const useFetchData = ({ action, filter, skipFetching = false }) => {
 
   useEffect(() => {
     if (!skipFetching) {
-      setLoadingState(true)
       abortRef.current = new AbortController()
 
       dispatch(

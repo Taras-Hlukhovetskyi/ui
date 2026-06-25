@@ -47,11 +47,15 @@ const Combobox = ({
   selectPlaceholder = ''
 }) => {
   const [inputValue, setInputValue] = useState('')
-  const [selectValue, setSelectValue] = useState({
-    label: '',
-    id: '',
-    className: ''
-  })
+  const [selectValue, setSelectValue] = useState(() =>
+    selectDefaultValue?.label.length > 0
+      ? selectDefaultValue
+      : {
+          label: '',
+          id: '',
+          className: ''
+        }
+  )
   const [dropdownStyle, setDropdownStyle] = useState({
     left: 0,
     paddingTop: '10px'
@@ -71,19 +75,27 @@ const Combobox = ({
     }
   }, [inputDefaultValue, inputOnChange, inputValue.length, selectValue.id.length])
 
-  useLayoutEffect(() => {
+  const [prevSelectDefaultValue, setPrevSelectDefaultValue] = useState(selectDefaultValue)
+
+  if (selectDefaultValue !== prevSelectDefaultValue) {
+    setPrevSelectDefaultValue(selectDefaultValue)
+
     if (selectDefaultValue?.label.length > 0 && selectValue.label.length === 0) {
       setSelectValue(selectDefaultValue)
     }
-  }, [selectDefaultValue, selectValue.label.length])
+  }
 
-  useEffect(() => {
-    if (!searchIsFocused) {
-      if (JSON.stringify(dropdownList) !== JSON.stringify(matches)) {
-        setDropdownList(matches)
-      }
+  const [prevMatches, setPrevMatches] = useState(matches)
+  const [prevSearchIsFocused, setPrevSearchIsFocused] = useState(searchIsFocused)
+
+  if (matches !== prevMatches || searchIsFocused !== prevSearchIsFocused) {
+    setPrevMatches(matches)
+    setPrevSearchIsFocused(searchIsFocused)
+
+    if (!searchIsFocused && JSON.stringify(dropdownList) !== JSON.stringify(matches)) {
+      setDropdownList(matches)
     }
-  }, [dropdownList, matches, searchIsFocused])
+  }
 
   useEffect(() => {
     if (isInvalid !== invalid) {

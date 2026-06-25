@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useEffect, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import FunctionsPanelEnvironmentVariablesView from './FunctionsPanelEnvironmentVariablesView'
@@ -28,14 +28,14 @@ import { useMode } from '../../hooks/mode.hook'
 import { setNewFunctionEnv } from '../../reducers/functionReducer'
 
 const FunctionsPanelEnvironmentVariables = () => {
-  const [envVariables, setEnvVariables] = useState([])
   const { isStagingMode } = useMode()
   const dispatch = useDispatch()
   const functionsStore = useSelector(store => store.functionsStore)
 
-  useEffect(() => {
-    setEnvVariables(parseEnvVariables(functionsStore.newFunction.spec.env))
-  }, [functionsStore.newFunction.spec.env])
+  const envVariables = useMemo(
+    () => parseEnvVariables(functionsStore.newFunction.spec.env),
+    [functionsStore.newFunction.spec.env]
+  )
 
   const handleAddNewEnv = env => {
     if (isStagingMode) {

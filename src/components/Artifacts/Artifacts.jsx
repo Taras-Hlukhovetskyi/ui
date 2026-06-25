@@ -369,7 +369,9 @@ const Artifacts = ({
     handleRefreshArtifacts,
     paginatedArtifacts,
     searchArtifactsParams,
-    setSearchArtifactsParams
+    setSearchArtifactsParams,
+    ,
+    paginationConfigArtifacts
   ] = usePagination({
     hidden: isAllVersions,
     content: artifacts ?? [],
@@ -383,7 +385,9 @@ const Artifacts = ({
     handleRefreshArtifactVersions,
     paginatedArtifactVersions,
     searchArtifactVersionsParams,
-    setSearchArtifactVersionsParams
+    setSearchArtifactVersionsParams,
+    ,
+    paginationConfigArtifactVersions
   ] = usePagination({
     hidden: !isAllVersions,
     content: artifactVersions ?? [],
@@ -533,6 +537,9 @@ const Artifacts = ({
       isSelectedArtifactBeyondTheList={isSelectedArtifactBeyondTheList}
       page={page}
       pageData={pageData}
+      paginationConfig={
+        isAllVersions ? paginationConfigArtifactVersions : paginationConfigArtifacts
+      }
       paginationConfigArtifactsRef={
         isAllVersions ? paginationConfigArtifactVersionsRef : paginationConfigArtifactsRef
       }

@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useMemo, useRef } from 'react'
+import React, { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import { useParams } from 'react-router-dom'
@@ -45,10 +45,9 @@ const FeatureStoreTableRow = ({
   toggleRow = () => {},
   withQuickActions = false
 }) => {
-  const parent = useRef()
   const params = useParams()
   const rowIsExpanded = useMemo(
-    () => isRowExpanded(parent, selectedRowData, rowItem),
+    () => isRowExpanded(selectedRowData, rowItem),
     [rowItem, selectedRowData]
   )
   const getIdentifier = useMemo(() => getIdentifierMethod(pageTab), [pageTab])
@@ -64,7 +63,7 @@ const FeatureStoreTableRow = ({
   )
 
   return (
-    <tr className={rowClassNames} ref={parent}>
+    <tr className={rowClassNames}>
       {rowIsExpanded ? (
         <>
           <td

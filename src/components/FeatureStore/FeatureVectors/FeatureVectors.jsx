@@ -82,6 +82,13 @@ const FeatureVectors = () => {
   const projectStore = useSelector(store => store.projectStore)
   const filtersStore = useSelector(store => store.filtersStore)
   const featureVectorsFilters = useFiltersFromSearchParams(filtersConfig)
+  const [prevFilterTag, setPrevFilterTag] = useState(featureVectorsFilters.tag)
+
+  if (featureVectorsFilters.tag !== prevFilterTag) {
+    setPrevFilterTag(featureVectorsFilters.tag)
+    setSelectedRowData({})
+  }
+
   const featureStoreRef = useRef(null)
   const abortControllerRef = useRef(new AbortController())
   const tagAbortControllerRef = useRef(new AbortController())
@@ -415,10 +422,6 @@ const FeatureVectors = () => {
       navigate(`/projects/${params.projectName}/feature-store/add-to-feature-vector`)
     }
   }
-
-  useEffect(() => {
-    setSelectedRowData({})
-  }, [featureVectorsFilters.tag])
 
   useInitialTableFetch({
     fetchData,

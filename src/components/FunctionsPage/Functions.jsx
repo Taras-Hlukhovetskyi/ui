@@ -649,7 +649,9 @@ const Functions = ({ isAllVersions = false }) => {
     handleRefreshFunctions,
     paginatedFunctions,
     searchFunctionsParams,
-    setSearchFunctionsParams
+    setSearchFunctionsParams,
+    ,
+    paginationConfigFunctions
   ] = usePagination({
     hidden: isAllVersions,
     content: functions ?? [],
@@ -662,7 +664,9 @@ const Functions = ({ isAllVersions = false }) => {
     handleRefreshFunctionVersions,
     paginatedFunctionVersions,
     searchFunctionVersionsParams,
-    setSearchFunctionVersionsParams
+    setSearchFunctionVersionsParams,
+    ,
+    paginationConfigFunctionVersions
   ] = usePagination({
     hidden: !isAllVersions,
     content: functionVersions ?? [],
@@ -750,6 +754,9 @@ const Functions = ({ isAllVersions = false }) => {
       isAllVersions={isAllVersions}
       isDemoMode={isDemoMode}
       pageData={pageData}
+      paginationConfig={
+        isAllVersions ? paginationConfigFunctionVersions : paginationConfigFunctions
+      }
       paginationConfigFunctionsRef={
         isAllVersions ? paginationConfigFunctionVersionsRef : paginationConfigFunctionsRef
       }

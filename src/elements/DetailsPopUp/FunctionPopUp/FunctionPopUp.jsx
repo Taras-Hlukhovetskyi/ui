@@ -55,7 +55,6 @@ const FunctionPopUp = ({ funcTag = '', funcUri = null, isOpen, onResolve }) => {
   const fetchFunction = useCallback(() => {
     const parsedFuncUri = parseFunctionUri(funcUri)
 
-    setIsLoading(true)
     return functionsApi
       .getFunction(
         parsedFuncUri.project,
@@ -79,6 +78,11 @@ const FunctionPopUp = ({ funcTag = '', funcUri = null, isOpen, onResolve }) => {
       })
   }, [dispatch, funcTag, funcUri, onResolve])
 
+  const refreshFunction = useCallback(() => {
+    setIsLoading(true)
+    return fetchFunction()
+  }, [fetchFunction])
+
   const actionsMenu = useMemo(
     () => func =>
       generateActionsMenu(
@@ -94,10 +98,10 @@ const FunctionPopUp = ({ funcTag = '', funcUri = null, isOpen, onResolve }) => {
         () => {},
         {},
         selectedFunction,
-        fetchFunction,
+        refreshFunction,
         true
       ),
-    [dispatch, isDemoMode, isStagingMode, toggleConvertedYaml, selectedFunction, fetchFunction]
+    [dispatch, isDemoMode, isStagingMode, toggleConvertedYaml, selectedFunction, refreshFunction]
   )
 
   const pageData = useMemo(
@@ -108,9 +112,9 @@ const FunctionPopUp = ({ funcTag = '', funcUri = null, isOpen, onResolve }) => {
         fetchFunctionLogsTimeout,
         fetchFunctionNuclioLogsTimeout,
         navigate,
-        fetchFunction
+        refreshFunction
       ),
-    [dispatch, fetchFunction, navigate, selectedFunction]
+    [dispatch, refreshFunction, navigate, selectedFunction]
   )
 
   useEffect(() => {
@@ -122,7 +126,7 @@ const FunctionPopUp = ({ funcTag = '', funcUri = null, isOpen, onResolve }) => {
   return (
     <DetailsPopUp
       actionsMenu={actionsMenu}
-      handleRefresh={fetchFunction}
+      handleRefresh={refreshFunction}
       isLoading={isLoading}
       isOpen={isOpen}
       onResolve={onResolve}

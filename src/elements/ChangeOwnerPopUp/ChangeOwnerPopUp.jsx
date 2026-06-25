@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
@@ -50,6 +50,8 @@ const ChangeOwnerPopUp = ({ changeOwnerCallback, projectId }) => {
   const [newOwnerId, setNewOwnerId] = useState('')
   const [usersList, setUsersList] = useState([])
   const [showSuggestionList, setShowSuggestionList] = useState(false)
+  const [prevSearchValue, setPrevSearchValue] = useState(searchValue)
+  const [prevUsersList, setPrevUsersList] = useState(usersList)
   const searchInputRef = useRef(null)
   const searchRowRef = useRef(null)
   const dispatch = useDispatch()
@@ -65,7 +67,10 @@ const ChangeOwnerPopUp = ({ changeOwnerCallback, projectId }) => {
     }
   })
 
-  useEffect(() => {
+  if (searchValue !== prevSearchValue || usersList !== prevUsersList) {
+    setPrevSearchValue(searchValue)
+    setPrevUsersList(usersList)
+
     if (
       usersList.filter(member => {
         return member.label.toLowerCase().includes(searchValue.toLowerCase())
@@ -73,7 +78,7 @@ const ChangeOwnerPopUp = ({ changeOwnerCallback, projectId }) => {
     ) {
       setShowSuggestionList(false)
     }
-  }, [searchValue, usersList])
+  }
 
   const handleOnClose = () => {
     setSearchValue('')

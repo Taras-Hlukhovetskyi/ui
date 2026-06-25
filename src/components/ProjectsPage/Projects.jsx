@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { isEmpty, last, orderBy } from 'lodash'
 import FileSaver from 'file-saver'
@@ -67,7 +67,6 @@ const Projects = () => {
   const [confirmData, setConfirmData] = useState(null)
   const [convertedYaml, setConvertedYaml] = useState('')
   const [createProject, setCreateProject] = useState(false)
-  const [filteredProjects, setFilteredProjects] = useState([])
   const [filterByName, setFilterByName] = useState('')
   const [filterMatches, setFilterMatches] = useState([])
   const [isDescendingOrder, setIsDescendingOrder] = useState(false)
@@ -407,15 +406,23 @@ const Projects = () => {
     }
   }, [])
 
-  useEffect(() => {
-    setFilteredProjects(handleSortProjects(projectStore.projects.filter(handleFilterProject)))
-  }, [handleFilterProject, handleSortProjects, projectStore.projects])
+  const filteredProjects = useMemo(
+    () => handleSortProjects(projectStore.projects.filter(handleFilterProject)),
+    [handleFilterProject, handleSortProjects, projectStore.projects]
+  )
 
-  useEffect(() => {
+  const [prevFilterMatchKey, setPrevFilterMatchKey] = useState({ filterByName, filteredProjects })
+
+  if (
+    prevFilterMatchKey.filterByName !== filterByName ||
+    prevFilterMatchKey.filteredProjects !== filteredProjects
+  ) {
+    setPrevFilterMatchKey({ filterByName, filteredProjects })
+
     if (filterByName.length > 0) {
       setFilterMatches(filteredProjects.map(func => func.metadata.name))
     }
-  }, [filterByName, filteredProjects])
+  }
 
   const closeNewProjectPopUp = useCallback(() => {
     if (projectStore.newProject.error) {

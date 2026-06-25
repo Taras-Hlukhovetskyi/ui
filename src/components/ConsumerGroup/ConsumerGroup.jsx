@@ -44,7 +44,6 @@ import RefreshIcon from 'igz-controls/images/refresh.svg?react'
 const ConsumerGroup = () => {
   const [currentV3ioStream, setCurrentV3ioStream] = useState([])
   const [requestErrorMessage, setRequestErrorMessage] = useState('')
-  const [filteredV3ioStreamShardLags, setFilteredV3ioStreamShardLags] = useState([])
   const filtersStore = useSelector(store => store.filtersStore)
   const nuclioStore = useSelector(store => store.nuclioStore)
   const [localFilters, setLocalFilters] = useState({ [NAME_FILTER]: '' })
@@ -89,15 +88,15 @@ const ConsumerGroup = () => {
     }
   }, [currentV3ioStream, refreshConsumerGroup])
 
-  useEffect(() => {
-    setFilteredV3ioStreamShardLags(
+  const filteredV3ioStreamShardLags = useMemo(
+    () =>
       nuclioStore.v3ioStreamShardLags.parsedData.filter(shardLag =>
         localFilters[NAME_FILTER]
           ? shardLag.shardLagId.toLowerCase().includes(localFilters[NAME_FILTER])
           : true
-      )
-    )
-  }, [localFilters, nuclioStore.v3ioStreamShardLags.parsedData])
+      ),
+    [localFilters, nuclioStore.v3ioStreamShardLags.parsedData]
+  )
 
   useEffect(() => {
     if (!isEmpty(currentV3ioStream) && nuclioStore.v3ioStreamShardLags.error) {

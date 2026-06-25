@@ -132,12 +132,16 @@ const DetailsMetrics = ({
       .then(() => setMetricOptionsAreLoaded(true))
   }, [applicationNameProp, dispatch, selectedItem.metadata.project, selectedItem.metadata.uid])
 
-  useEffect(() => {
-    const selectedDate = detailsStore.dates.selectedOptionId
-    if (!selectedDate || !(selectedDate in timeRangeMapping)) return
+  const storeSelectedOptionId = detailsStore.dates.selectedOptionId
+  const [prevStoreSelectedOptionId, setPrevStoreSelectedOptionId] = useState(storeSelectedOptionId)
 
-    setSelectedDate(timeRangeMapping[selectedDate])
-  }, [detailsStore.dates.selectedOptionId])
+  if (storeSelectedOptionId !== prevStoreSelectedOptionId) {
+    setPrevStoreSelectedOptionId(storeSelectedOptionId)
+
+    if (storeSelectedOptionId && storeSelectedOptionId in timeRangeMapping) {
+      setSelectedDate(timeRangeMapping[storeSelectedOptionId])
+    }
+  }
 
   const fetchData = useCallback(
     (selectedMetricsParams, preInvocationMetricParams, selectedItemProject, selectedItemUid) => {

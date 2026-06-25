@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useCallback, useEffect, useState, useMemo } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { isEmpty, isNumber, orderBy, isEqual } from 'lodash'
 
 import ArrowIcon from 'igz-controls/images/back-arrow.svg?react'
@@ -27,20 +27,13 @@ export const useSortTable = ({ headers, content, sortConfig = {} }) => {
   const [selectedColumnName, setSelectedColumnName] = useState('')
   const [sortedTableContent, setSortedTableContent] = useState(content)
   const [sortedTableHeaders, setSortedTableHeaders] = useState(headers)
-  const [config, setConfig] = useState(sortConfig)
 
   const {
     allowSortBy = null,
     excludeSortBy = null,
     defaultSortBy = null,
     defaultDirection = null
-  } = useMemo(() => config, [config])
-
-  useEffect(() => {
-    if (!isEqual(config, sortConfig)) {
-      setConfig(sortConfig)
-    }
-  }, [sortConfig, config])
+  } = sortConfig
 
   const isDateValid = date => {
     const dateString = String(date)

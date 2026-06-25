@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useLayoutEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { defaultsDeep, isEmpty } from 'lodash'
@@ -54,10 +54,16 @@ import './projectsJobsMonitoring.scss'
 
 export const ProjectJobsMonitoringContext = React.createContext({})
 
+const getSelectedTabFromPathname = pathname =>
+  pathname.includes(JOBS_MONITORING_WORKFLOWS_TAB)
+    ? JOBS_MONITORING_WORKFLOWS_TAB
+    : pathname.includes(JOBS_MONITORING_SCHEDULED_TAB)
+      ? JOBS_MONITORING_SCHEDULED_TAB
+      : JOBS_MONITORING_JOBS_TAB
+
 const ProjectsJobsMonitoring = () => {
   const [selectedJob, setSelectedJob] = useState({})
   const [confirmData, setConfirmData] = useState(null)
-  const [selectedTab, setSelectedTab] = useState(null)
   const { jobsMonitoringData } = useSelector(store => store.projectStore)
   const [selectedCard, setSelectedCard] = useState(
     jobsMonitoringData.filters?.status || STATS_TOTAL_CARD
@@ -66,6 +72,15 @@ const ProjectsJobsMonitoring = () => {
   const location = useLocation()
   const params = useParams()
   const navigate = useNavigate()
+  const [selectedTab, setSelectedTab] = useState(() =>
+    getSelectedTabFromPathname(location.pathname)
+  )
+  const [prevPathname, setPrevPathname] = useState(location.pathname)
+
+  if (location.pathname !== prevPathname) {
+    setPrevPathname(location.pathname)
+    setSelectedTab(getSelectedTabFromPathname(location.pathname))
+  }
   const artifactsStore = useSelector(store => store.artifactsStore)
   const jobsStore = useSelector(store => store.jobsStore)
   const workflowsStore = useSelector(store => store.workflowsStore)
@@ -137,16 +152,6 @@ const ProjectsJobsMonitoring = () => {
     setSelectedTab(tabName)
     navigate(`/projects/*/${JOBS_MONITORING_PAGE}/${tabName}`)
   }
-
-  useLayoutEffect(() => {
-    setSelectedTab(
-      location.pathname.includes(JOBS_MONITORING_WORKFLOWS_TAB)
-        ? JOBS_MONITORING_WORKFLOWS_TAB
-        : location.pathname.includes(JOBS_MONITORING_SCHEDULED_TAB)
-          ? JOBS_MONITORING_SCHEDULED_TAB
-          : JOBS_MONITORING_JOBS_TAB
-    )
-  }, [location.pathname])
 
   const tabData = useMemo(() => {
     return defaultsDeep(

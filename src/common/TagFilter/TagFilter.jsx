@@ -34,15 +34,18 @@ const TagFilter = ({ label, onChange, page, tagFilterOptions, value }) => {
   const [isDropDownMenuOpen, setIsDropDownMenuOpen] = useState(false)
   const [tagFilter, setTagFilter] = useState(TAG_FILTER_LATEST)
   const [tagIsTyped, setTagIsTyped] = useState(false)
+  const [prevValue, setPrevValue] = useState(value)
   const params = useParams()
   const navigate = useNavigate()
   const tagFilterRef = useRef()
 
-  useEffect(() => {
-    if (tagFilter !== value && !tagIsTyped) {
+  if (value !== prevValue) {
+    setPrevValue(value)
+
+    if (value !== tagFilter && !tagIsTyped) {
       setTagFilter(value)
     }
-  }, [setTagFilter, value, tagFilter, tagIsTyped])
+  }
 
   const handlerOverall = useCallback(
     event => {

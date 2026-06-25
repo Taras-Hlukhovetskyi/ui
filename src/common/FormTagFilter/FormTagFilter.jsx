@@ -91,11 +91,15 @@ const FormTagFilter = ({ content = null, label, name, onlyLatestByDefault = fals
     return [...pageTagList, ...newTagOptions]
   }, [content, filtersStore.tagOptions, onlyLatestByDefault])
 
-  useEffect(() => {
+  const [prevOptions, setPrevOptions] = useState(options)
+
+  if (options !== prevOptions) {
+    setPrevOptions(options)
+
     if (!isEqual(options, filtersStore.tagOptions)) {
       setTagOptions(options)
     }
-  }, [filtersStore.tagOptions, options])
+  }
 
   const handleInputChange = event => {
     const filteredOptions = options.filter(tag => tag.label.startsWith(event.target.value))

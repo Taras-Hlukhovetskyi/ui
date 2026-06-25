@@ -48,6 +48,7 @@ let ArtifactsView = React.forwardRef(
       isOnlyTabScreen,
       page,
       pageData,
+      paginationConfig,
       paginationConfigArtifactsRef,
       params,
       requestErrorMessage = '',
@@ -83,6 +84,7 @@ let ArtifactsView = React.forwardRef(
           isOnlyTabScreen={isOnlyTabScreen}
           page={page}
           pageData={pageData}
+          paginationConfig={paginationConfig}
           paginationConfigArtifactsRef={paginationConfigArtifactsRef}
           requestErrorMessage={requestErrorMessage}
           selectedArtifact={selectedArtifact}
@@ -122,6 +124,7 @@ let ArtifactsView = React.forwardRef(
               isOnlyTabScreen={isOnlyTabScreen}
               page={page}
               pageData={pageData}
+              paginationConfig={paginationConfig}
               paginationConfigArtifactsRef={paginationConfigArtifactsRef}
               requestErrorMessage={requestErrorMessage}
               selectedArtifact={selectedArtifact}
@@ -164,6 +167,7 @@ ArtifactsView.propTypes = {
   isOnlyTabScreen: PropTypes.bool.isRequired,
   page: PropTypes.string.isRequired,
   pageData: PropTypes.object.isRequired,
+  paginationConfig: PropTypes.object.isRequired,
   paginationConfigArtifactsRef: PropTypes.object.isRequired,
   params: PropTypes.object.isRequired,
   requestErrorMessage: PropTypes.string,

@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useEffect, useState, useMemo, useLayoutEffect } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate, useParams, Outlet, useLocation } from 'react-router-dom'
 import { defaultsDeep, isEmpty } from 'lodash'
@@ -57,7 +57,6 @@ export const JobsContext = React.createContext({})
 
 const Jobs = () => {
   const [confirmData, setConfirmData] = useState(null)
-  const [selectedTab, setSelectedTab] = useState(null)
   const [autoRefreshPrevValue, setAutoRefreshPrevValue] = useState(false)
   const [selectedJob, setSelectedJob] = useState({})
   const params = useParams()
@@ -69,6 +68,14 @@ const Jobs = () => {
   const artifactsStore = useSelector(store => store.artifactsStore)
   const appStore = useSelector(store => store.appStore)
   const filtersStore = useSelector(store => store.filtersStore)
+
+  const selectedTab = useMemo(() => {
+    return location.pathname.includes(`${JOBS_PAGE_PATH}/${MONITOR_JOBS_TAB}`)
+      ? MONITOR_JOBS_TAB
+      : location.pathname.includes(`${JOBS_PAGE_PATH}/${SCHEDULE_TAB}`)
+        ? SCHEDULE_TAB
+        : MONITOR_WORKFLOWS_TAB
+  }, [location.pathname])
 
   const initialTabData = useMemo(() => {
     return {
@@ -155,16 +162,6 @@ const Jobs = () => {
       initialTabData
     )
   }, [getWorkflows, handleRefreshJobs, initialTabData, refreshScheduled])
-
-  useLayoutEffect(() => {
-    setSelectedTab(
-      location.pathname.includes(`${JOBS_PAGE_PATH}/${MONITOR_JOBS_TAB}`)
-        ? MONITOR_JOBS_TAB
-        : location.pathname.includes(`${JOBS_PAGE_PATH}/${SCHEDULE_TAB}`)
-          ? SCHEDULE_TAB
-          : MONITOR_WORKFLOWS_TAB
-    )
-  }, [location.pathname])
 
   useEffect(() => {
     const urlPathArray = location.pathname.split('/')

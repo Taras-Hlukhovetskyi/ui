@@ -54,6 +54,10 @@ const Page = () => {
     return generateProjectsList(projectsNames.data)
   }, [projectsNames.data])
 
+  if (!isProjectsFetched && (projectsList.length > 0 || location.pathname === '/projects')) {
+    setProjectFetched(true)
+  }
+
   useEffect(() => {
     if (projectsList.length === 0 && location.pathname !== '/projects') {
       dispatch(fetchProjects({ params: { format: 'minimal' }, showNotification: false }))
@@ -66,8 +70,6 @@ const Page = () => {
           setProjectFetched(true)
           navigate('/projects')
         })
-    } else {
-      setProjectFetched(true)
     }
   }, [dispatch, location.pathname, navigate, projectName, projectsList.length])
 

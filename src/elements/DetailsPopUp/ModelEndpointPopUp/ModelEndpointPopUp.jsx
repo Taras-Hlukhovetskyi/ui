@@ -53,8 +53,6 @@ const ModelEndpointPopUp = ({
   )
 
   const fetchModelEndpoint = useCallback(() => {
-    setIsLoading(true)
-
     return modelEndpointsApi
       .getModelEndpoint(params.projectName, modelEndpointName, modelEndpointUid)
       .then(({ data: endpoint }) => {
@@ -72,6 +70,11 @@ const ModelEndpointPopUp = ({
         onResolve()
       })
   }, [dispatch, modelEndpointName, modelEndpointUid, onResolve, params.projectName])
+
+  const refreshModelEndpoint = useCallback(() => {
+    setIsLoading(true)
+    return fetchModelEndpoint()
+  }, [fetchModelEndpoint])
 
   const actionsMenu = useMemo(
     () =>
@@ -105,7 +108,7 @@ const ModelEndpointPopUp = ({
   return (
     <DetailsPopUp
       actionsMenu={actionsMenu}
-      handleRefresh={fetchModelEndpoint}
+      handleRefresh={refreshModelEndpoint}
       isLoading={isLoading}
       isOpen={isOpen}
       onResolve={onResolve}

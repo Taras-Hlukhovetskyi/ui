@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 import Prism from 'prismjs'
@@ -33,8 +33,6 @@ import './detailsPods.scss'
 import { PENDING_STATE } from '../../constants'
 
 const DetailsPods = ({ isDetailsPopUp = false, noDataMessage = '' }) => {
-  const [selectedPod, setSelectedPod] = useState(null)
-  const [table, setTable] = useState([])
   const params = useParams()
   const detailsStore = useSelector(store => store.detailsStore)
 
@@ -42,19 +40,19 @@ const DetailsPods = ({ isDetailsPopUp = false, noDataMessage = '' }) => {
     return isDetailsPopUp ? detailsStore.detailsJobPods : detailsStore.pods
   }, [detailsStore.detailsJobPods, detailsStore.pods, isDetailsPopUp])
 
-  useEffect(() => {
-    setTable(generatePods(podsData))
+  const table = useMemo(() => generatePods(podsData), [podsData])
 
-    return () => {
-      setSelectedPod(null)
-    }
-  }, [podsData, params.jobId])
+  const [selectedPod, setSelectedPod] = useState(table[0] ?? null)
+  const [prevPodsKey, setPrevPodsKey] = useState({ podsData, jobId: params.jobId })
 
-  useEffect(() => {
-    if (!selectedPod) {
-      setSelectedPod(table[0])
-    }
-  }, [selectedPod, table])
+  if (prevPodsKey.podsData !== podsData || prevPodsKey.jobId !== params.jobId) {
+    setPrevPodsKey({ podsData, jobId: params.jobId })
+    setSelectedPod(table[0] ?? null)
+  }
+
+  if (!selectedPod && table[0]) {
+    setSelectedPod(table[0])
+  }
 
   return (
     <>

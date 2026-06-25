@@ -38,7 +38,7 @@ import { usePods } from '../../../hooks/usePods.hook'
 
 const WorkflowsMonitoring = () => {
   const [selectedFunction, setSelectedFunction] = useState({})
-  const [workflowsAreLoaded, setWorkflowsAreLoaded] = useState(false)
+  const workflowsAreLoadedRef = useRef(false)
   const [workflowIsLoaded, setWorkflowIsLoaded] = useState(false)
   const [itemIsSelected, setItemIsSelected] = useState(false)
   const [selectedJob, setSelectedJob] = useState({})
@@ -73,7 +73,7 @@ const WorkflowsMonitoring = () => {
 
     return () => {
       setWorkflowIsLoaded(false)
-      setWorkflowsAreLoaded(false)
+      workflowsAreLoadedRef.current = false
       setItemIsSelected(false)
       setSelectedJob({})
       setSelectedFunction({})
@@ -84,23 +84,17 @@ const WorkflowsMonitoring = () => {
   useEffect(() => {
     return () => {
       dispatch(deleteWorkflows())
-      setWorkflowsAreLoaded(false)
+      workflowsAreLoadedRef.current = false
     }
   }, [dispatch])
 
   useEffect(() => {
-    if (!workflowsAreLoaded && !params.workflowId) {
+    if (!workflowsAreLoadedRef.current && !params.workflowId) {
       getWorkflows(filters)
 
-      setWorkflowsAreLoaded(true)
+      workflowsAreLoadedRef.current = true
     }
-  }, [
-    filters,
-    getWorkflows,
-    params.workflowId,
-    workflowsAreLoaded,
-    workflowsStore.workflows.data.length
-  ])
+  }, [filters, getWorkflows, params.workflowId, workflowsStore.workflows.data.length])
 
   return (
     <>

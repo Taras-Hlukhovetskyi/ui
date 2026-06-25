@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import PropTypes from 'prop-types'
 
 import VolumesTableView from './VolumesTableView'
@@ -55,7 +55,10 @@ export const VolumesTable = ({
   const [showAddNewVolumeRow, setShowAddNewVolumeRow] = useState(false)
   const [selectedVolume, setSelectedVolume] = useState(null)
 
-  useEffect(() => {
+  const [prevVolumeType, setPrevVolumeType] = useState(newVolume.type)
+
+  if (prevVolumeType !== newVolume.type) {
+    setPrevVolumeType(newVolume.type)
     setValidation({
       isNameValid: true,
       isTypeValid: true,
@@ -69,7 +72,7 @@ export const VolumesTable = ({
       accessKey: '',
       subPath: ''
     }))
-  }, [newVolume.type])
+  }
 
   const handleSetSelectedVolume = useCallback(
     selectedVolume => {

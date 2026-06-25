@@ -96,6 +96,12 @@ const FeatureSets = () => {
     [frontendSpec.internal_labels, selectedFeatureSet.description, selectedFeatureSet.labels]
   )
   const featureSetsFilters = useFiltersFromSearchParams(filtersConfig)
+  const [prevFilterTag, setPrevFilterTag] = useState(featureSetsFilters.tag)
+
+  if (featureSetsFilters.tag !== prevFilterTag) {
+    setPrevFilterTag(featureSetsFilters.tag)
+    setSelectedRowData({})
+  }
 
   const { featureSetsPanelIsOpen, setFeatureSetsPanelIsOpen, toggleConvertedYaml } =
     React.useContext(FeatureStoreContext)
@@ -339,10 +345,6 @@ const FeatureSets = () => {
       params.projectName
     )
   }, [dispatch, navigate, params.projectName, selectedFeatureSetMin])
-
-  useEffect(() => {
-    setSelectedRowData({})
-  }, [featureSetsFilters.tag])
 
   useInitialTableFetch({
     fetchData,

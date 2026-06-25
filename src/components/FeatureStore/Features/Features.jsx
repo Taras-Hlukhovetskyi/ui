@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { mapValues, map } from 'lodash'
@@ -107,7 +107,10 @@ const Features = () => {
     [toggleConvertedYaml]
   )
 
-  useLayoutEffect(() => {
+  const [prevIsTablePanelOpen, setPrevIsTablePanelOpen] = useState(tableStore.isTablePanelOpen)
+
+  if (prevIsTablePanelOpen !== tableStore.isTablePanelOpen) {
+    setPrevIsTablePanelOpen(tableStore.isTablePanelOpen)
     setSelectedRowData(prevSelectedRowData => {
       return mapValues(prevSelectedRowData, feature => ({
         ...feature,
@@ -116,7 +119,7 @@ const Features = () => {
         )
       }))
     })
-  }, [tableStore.isTablePanelOpen, setSelectedRowData])
+  }
 
   const fetchData = useCallback(
     filters => {

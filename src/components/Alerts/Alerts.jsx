@@ -66,6 +66,7 @@ const Alerts = () => {
     handleRefreshAlerts,
     lastCheckedAlertIdRef,
     paginatedAlerts,
+    paginationConfig,
     paginationConfigAlertsRef,
     requestErrorMessage,
     searchParams,
@@ -92,10 +93,10 @@ const Alerts = () => {
 
   const handleFetchJobLogs = useCallback(
     (item, projectName, setDetailsLogs, streamLogsRef) => {
-      lastCheckedAlertIdRef.current &&
+      !isEmpty(selectedAlert) &&
         getJobLogs(item.uid, projectName, streamLogsRef, setDetailsLogs, dispatch)
     },
-    [dispatch, lastCheckedAlertIdRef]
+    [dispatch, selectedAlert]
   )
 
   const pageData = useMemo(
@@ -182,7 +183,7 @@ const Alerts = () => {
               <Pagination
                 closeParamName={isCrossProjects ? MONITOR_ALERTS_PAGE : ALERTS_PAGE_PATH}
                 page={pageData.page}
-                paginationConfig={paginationConfigAlertsRef.current}
+                paginationConfig={paginationConfig}
               />
             </>
           )}

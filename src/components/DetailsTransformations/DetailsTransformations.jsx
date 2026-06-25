@@ -191,11 +191,9 @@ const DetailsTransformations = ({ selectedItem }) => {
     generateGraphData()
   }, [generateGraphData])
 
-  useEffect(() => {
-    if (selectedItem.uid !== selectedItemUid) {
-      setSelectedItemUid(selectedItem.uid)
-    }
-  }, [selectedItem, selectedItemUid])
+  if (selectedItem.uid !== selectedItemUid) {
+    setSelectedItemUid(selectedItem.uid)
+  }
 
   return (
     <div className="graph-container transformations-tab">
