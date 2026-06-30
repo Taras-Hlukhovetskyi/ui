@@ -70,11 +70,16 @@ export default defineConfig(({ mode }) => {
       alias: {
         'igz-controls/nextGenComponents': path.resolve(
           import.meta.dirname,
-          'node_modules/iguazio.dashboard-react-controls/dist/nextGenComponents/index.mjs'
+          'src/igz-controls/nextGenComponents/index.ts'
         ),
-        'igz-controls': path.resolve(
+        'igz-controls/index.css': path.resolve(
           import.meta.dirname,
-          'node_modules/iguazio.dashboard-react-controls/dist'
+          'src/igz-controls/index.scss'
+        ),
+        'igz-controls': path.resolve(import.meta.dirname, 'src/igz-controls'),
+        '@igz-controls': path.resolve(
+          import.meta.dirname,
+          'src/igz-controls/nextGenComponents'
         ),
         '@': path.resolve(import.meta.dirname, './src/nextGenComponents')
       },
