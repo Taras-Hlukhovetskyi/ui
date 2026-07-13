@@ -20,6 +20,7 @@ such restriction.
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { vi, describe, it, expect } from 'vitest'
+import PropTypes from 'prop-types'
 
 import { getMonitoringEndpointsColumns } from './monitoringEndpointsColumns'
 import {
@@ -32,11 +33,35 @@ import {
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
+function MockTooltip({ children }) {
+  return <>{children}</>
+}
+
+MockTooltip.propTypes = {
+  children: PropTypes.node.isRequired
+}
+
+function MockTooltipTrigger({ children }) {
+  return <>{children}</>
+}
+
+MockTooltipTrigger.propTypes = {
+  children: PropTypes.node.isRequired
+}
+
+function MockTooltipContent({ children }) {
+  return <div data-testid="tooltip-content">{children}</div>
+}
+
+MockTooltipContent.propTypes = {
+  children: PropTypes.node.isRequired
+}
+
 vi.mock('igz-controls/nextGenComponents', () => ({
   BadgeCell: () => <div data-testid="badge-cell" />,
-  Tooltip: ({ children }) => <>{children}</>,
-  TooltipTrigger: ({ children }) => <>{children}</>,
-  TooltipContent: ({ children }) => <div data-testid="tooltip-content">{children}</div>
+  Tooltip: MockTooltip,
+  TooltipTrigger: MockTooltipTrigger,
+  TooltipContent: MockTooltipContent
 }))
 
 vi.mock('igz-controls/utils/datetime.util', () => ({
