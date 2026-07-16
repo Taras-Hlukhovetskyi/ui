@@ -48,10 +48,6 @@ export default defineConfig({
         replacement: path.resolve(import.meta.dirname, 'src/igz-controls')
       },
       {
-        find: '@igz-controls',
-        replacement: path.resolve(import.meta.dirname, 'src/igz-controls/nextGenComponents')
-      },
-      {
         find: '@',
         replacement: path.resolve(import.meta.dirname, './src/nextGenComponents')
       }

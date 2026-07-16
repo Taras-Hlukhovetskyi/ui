@@ -25,7 +25,8 @@ export default {
   darkMode: ['class'],
   content: [
     './src/nextGenComponents/**/*.{js,jsx,ts,tsx}',
-    './node_modules/iguazio.dashboard-react-controls/dist/nextGenComponents/**/*.{js,mjs}'
+    './src/igz-controls/nextGenComponents/**/*.{js,jsx,ts,tsx}',
+    './src/layout/**/*.{js,jsx,ts,tsx}'
   ],
   corePlugins: {
     preflight: false
