@@ -19,7 +19,8 @@ export default [
         ...globals.browser,
         ...globals.jest,
         ...globals.node,
-        ...viteGlobals
+        ...viteGlobals,
+        ...globals.vitest
       },
       parserOptions: {
         ecmaFeatures: {
