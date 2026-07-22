@@ -19,6 +19,7 @@ such restriction.
 */
 import React, { useEffect, useState, Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
+import { useParams } from 'react-router-dom'
 import { ensureNuclioRemote, loadNuclioApp } from '../../utils/nuclio.remotes.utils'
 import NuclioRemoteError from './NuclioRemoteError'
 import { Loader } from 'igz-controls/components'
@@ -28,9 +29,15 @@ import Breadcrumbs from '../../common/Breadcrumbs/Breadcrumbs'
 
 const RemoteNuclioApp = React.lazy(() => loadNuclioApp())
 
+const isNuclioPath = pathname =>
+  /^\/projects\/[^/]+\/(real-time-functions|create-function|api-gateways)(\/|$)/.test(pathname)
+
 const RemoteNuclioRouteWrapper = () => {
+  const params = useParams()
   const [ready, setReady] = useState(false)
   const [error, setError] = useState(false)
+
+  const nuclioItemName = params?.['*']?.split('/').filter(Boolean)[0] ?? ''
 
   useEffect(() => {
     const origPushState = history.pushState
@@ -39,14 +46,18 @@ const RemoteNuclioRouteWrapper = () => {
     history.pushState = function (...args) {
       origPushState.apply(this, args)
       Promise.resolve().then(() => {
-        window.dispatchEvent(new PopStateEvent('popstate'))
+        if (isNuclioPath(window.location.pathname)) {
+          window.dispatchEvent(new PopStateEvent('popstate'))
+        }
       })
     }
 
     history.replaceState = function (...args) {
       origReplaceState.apply(this, args)
       Promise.resolve().then(() => {
-        window.dispatchEvent(new PopStateEvent('popstate'))
+        if (isNuclioPath(window.location.pathname)) {
+          window.dispatchEvent(new PopStateEvent('popstate'))
+        }
       })
     }
 
@@ -57,6 +68,9 @@ const RemoteNuclioRouteWrapper = () => {
   }, [])
 
   useEffect(() => {
+    setReady(false)
+    setError(false)
+
     const init = async () => {
       try {
         await ensureNuclioRemote()
@@ -66,7 +80,7 @@ const RemoteNuclioRouteWrapper = () => {
       }
     }
     void init()
-  }, [])
+  }, [params.projectName])
 
   const renderContent = () => {
     if (error) {
@@ -82,7 +96,7 @@ const RemoteNuclioRouteWrapper = () => {
     }
 
     return (
-      <ErrorBoundary fallback={<NuclioRemoteError />}>
+      <ErrorBoundary key={params.projectName} fallback={<NuclioRemoteError />}>
         <Suspense
           fallback={
             <div className="flex-center">
@@ -92,7 +106,7 @@ const RemoteNuclioRouteWrapper = () => {
         >
           <div className="nuclio-app-wrapper">
             <div className="content__header">
-              <Breadcrumbs />
+              <Breadcrumbs itemName={nuclioItemName} />
             </div>
             <RemoteNuclioApp />
           </div>
