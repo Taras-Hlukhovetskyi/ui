@@ -17,32 +17,19 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useContext, useEffect } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import { isEqual, pickBy } from 'lodash'
-import { useSelector } from 'react-redux'
 import { useForm } from 'react-final-form'
 
-import { FilterMenuWizardContext } from '../FilterMenuModal'
 import { FormCheckBox, FormOnChange } from 'igz-controls/components'
 
-import { FILTER_MENU_MODAL, HUB_CATEGORIES_FILTER } from '../../../constants'
+import { HUB_CATEGORIES_FILTER } from '../../../constants'
 
 import './hubCategoriesFilter.scss'
 
 const HubCategoriesFilter = ({ templates }) => {
   const form = useForm()
-  const filtersContext = useContext(FilterMenuWizardContext)
-  const filtersStoreHubCategories = useSelector(
-    store =>
-      store.filtersStore[FILTER_MENU_MODAL][filtersContext.filterMenuName]?.values?.[
-        HUB_CATEGORIES_FILTER
-      ]
-  )
-
-  useEffect(() => {
-    form.change(HUB_CATEGORIES_FILTER, filtersStoreHubCategories)
-  }, [filtersStoreHubCategories, form])
 
   const handleHubCategoriesChange = (next, prev) => {
     if (!isEqual(prev, next)) {

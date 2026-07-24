@@ -19,7 +19,7 @@ such restriction.
 */
 import React, { useState, useRef, useEffect, useCallback, useMemo, useLayoutEffect } from 'react'
 import PropTypes from 'prop-types'
-import { Field, useField } from 'react-final-form'
+import { useField } from 'react-final-form'
 import { useSelector } from 'react-redux'
 import { isEqual, uniq } from 'lodash'
 import classnames from 'classnames'
@@ -40,6 +40,7 @@ const FormTagFilter = ({ content = null, label, name, onlyLatestByDefault = fals
   const [tagOptions, setTagOptions] = useState(getTagFilterOptions(onlyLatestByDefault))
   const tagFilterRef = useRef()
   const dropdownRef = useRef()
+  const previousInputValueRef = useRef(input.value)
   const filtersStore = useSelector(store => store.filtersStore)
   const [dropdownWidth, setDropdownWidth] = useState(200)
 
@@ -96,6 +97,13 @@ const FormTagFilter = ({ content = null, label, name, onlyLatestByDefault = fals
       setTagOptions(options)
     }
   }, [filtersStore.tagOptions, options])
+
+  useEffect(() => {
+    if (!isEqual(input.value, previousInputValueRef.current)) {
+      previousInputValueRef.current = input.value
+      setTagFilter(input.value ?? '')
+    }
+  }, [input.value])
 
   const handleInputChange = event => {
     const filteredOptions = options.filter(tag => tag.label.startsWith(event.target.value))
@@ -171,71 +179,67 @@ const FormTagFilter = ({ content = null, label, name, onlyLatestByDefault = fals
   }
 
   return (
-    <Field name={name}>
-      {() => (
-        <div
-          className="form-tag-filter"
-          ref={tagFilterRef}
-          onClick={() => {
-            !isDropDownMenuOpen && tagOptions.length > 0 && setIsDropDownMenuOpen(true)
+    <div
+      className="form-tag-filter"
+      ref={tagFilterRef}
+      onClick={() => {
+        !isDropDownMenuOpen && tagOptions.length > 0 && setIsDropDownMenuOpen(true)
+      }}
+    >
+      <div className="form-tag-filter__label" onClick={handleLabelClick}>
+        {label}
+      </div>
+      <div className="form-tag-filter__input-wrapper">
+        <input
+          className="form-tag-filter__input"
+          value={tagFilter}
+          title={tagFilter?.length >= 14 ? tagFilter : null}
+          onChange={handleInputChange}
+          onFocus={event => {
+            if (event.target.value.length !== 0) {
+              event.target.select()
+            }
           }}
-        >
-          <div className="form-tag-filter__label" onClick={handleLabelClick}>
-            {label}
-          </div>
-          <div className="form-tag-filter__input-wrapper">
-            <input
-              className="form-tag-filter__input"
-              value={tagFilter}
-              title={tagFilter?.length >= 14 ? tagFilter : null}
-              onChange={handleInputChange}
-              onFocus={event => {
-                if (event.target.value.length !== 0) {
-                  event.target.select()
-                }
-              }}
-            />
-            <div className="form-tag-filter__dropdown-button" onClick={toggleDropdown}>
-              <Caret />
-            </div>
-          </div>
-          {isDropDownMenuOpen && (
-            <PopUpDialog
-              className="form-tag-filter__dropdown"
-              headerIsHidden
-              customPosition={{
-                element: tagFilterRef,
-                position: 'bottom-right'
-              }}
-              ref={dropdownRef}
-              style={{ width: `${dropdownWidth}px` }}
-            >
-              {tagOptions.map(tag => {
-                const dropdownItemClassName = classnames(
-                  'form-tag-filter__dropdown-item',
-                  tagFilter.length !== 0 &&
-                    tagFilter === tag.id &&
-                    'form-tag-filter__dropdown-item_selected',
-                  tag.className
-                )
-
-                return (
-                  <div
-                    key={tag.id}
-                    className={dropdownItemClassName}
-                    onClick={event => handleSelectFilter(event, tag)}
-                  >
-                    <Tooltip template={<TextTooltipTemplate text={tag.label} />}>
-                      <span>{tag.label}</span>
-                    </Tooltip>
-                  </div>
-                )
-              })}
-            </PopUpDialog>
-          )}
+        />
+        <div className="form-tag-filter__dropdown-button" onClick={toggleDropdown}>
+          <Caret />
         </div>
+      </div>
+      {isDropDownMenuOpen && (
+        <PopUpDialog
+          className="form-tag-filter__dropdown"
+          headerIsHidden
+          customPosition={{
+            element: tagFilterRef,
+            position: 'bottom-right'
+          }}
+          ref={dropdownRef}
+          style={{ width: `${dropdownWidth}px` }}
+        >
+          {tagOptions.map(tag => {
+            const dropdownItemClassName = classnames(
+              'form-tag-filter__dropdown-item',
+              tagFilter.length !== 0 &&
+                tagFilter === tag.id &&
+                'form-tag-filter__dropdown-item_selected',
+              tag.className
+            )
+
+            return (
+              <div
+                key={tag.id}
+                className={dropdownItemClassName}
+                onClick={event => handleSelectFilter(event, tag)}
+              >
+                <Tooltip template={<TextTooltipTemplate text={tag.label} />}>
+                  <span>{tag.label}</span>
+                </Tooltip>
+              </div>
+            )
+          })}
+        </PopUpDialog>
       )}
-    </Field>
+    </div>
   )
 }
 
