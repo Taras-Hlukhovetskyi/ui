@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
@@ -34,6 +34,7 @@ import {
 } from 'igz-controls/constants'
 import { deleteUnsafeHtml } from 'igz-controls/utils/string.util'
 import { getErrorMsg } from 'igz-controls/utils/common.util'
+import { useElementWidth } from '../../hooks/useElementWidth.hook'
 import { isIgzVersionCompatible } from '../../utils/isIgzVersionCompatible'
 import { setNotification } from 'igz-controls/reducers/notificationReducer'
 import { showErrorNotification } from 'igz-controls/utils/notification.util'
@@ -57,15 +58,7 @@ const ChangeOwnerPopUp = ({ changeOwnerCallback, projectId }) => {
   const dispatch = useDispatch()
   useDetectOutsideClick(searchInputRef, () => setShowSuggestionList(false))
 
-  const [dropdownWidth, setDropdownWidth] = useState(0)
-
-  useLayoutEffect(() => {
-    const measuredWidth = searchRowRef.current?.getBoundingClientRect().width
-
-    if (measuredWidth && measuredWidth !== dropdownWidth) {
-      setDropdownWidth(measuredWidth)
-    }
-  })
+  const dropdownWidth = useElementWidth(searchRowRef)
 
   if (searchValue !== prevSearchValue || usersList !== prevUsersList) {
     setPrevSearchValue(searchValue)

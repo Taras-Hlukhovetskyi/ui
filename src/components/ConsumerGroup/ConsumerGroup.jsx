@@ -19,7 +19,7 @@ such restriction.
 */
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { isEmpty } from 'lodash'
+import { isEmpty, isEqual } from 'lodash'
 import { useParams } from 'react-router-dom'
 
 import ConsumerGroupShardLagTableRow from '../../elements/ConsumerGroupShardLagTableRow/ConsumerGroupShardLagTableRow'
@@ -56,16 +56,14 @@ const ConsumerGroup = () => {
     }
   }, [])
 
-  useEffect(() => {
-    const v3ioStream = nuclioStore.v3ioStreams.parsedData.find(
-      stream =>
-        stream.functionName === params.functionName && stream.streamName === params.streamName
-    )
+  const matchedV3ioStream = nuclioStore.v3ioStreams.parsedData.find(
+    stream => stream.functionName === params.functionName && stream.streamName === params.streamName
+  )
 
-    if (v3ioStream) {
-      setCurrentV3ioStream(v3ioStream)
-    }
-  }, [nuclioStore.v3ioStreams.parsedData, params.functionName, params.streamName])
+  if (matchedV3ioStream && !isEqual(currentV3ioStream, matchedV3ioStream)) {
+    setCurrentV3ioStream(matchedV3ioStream)
+    setRequestErrorMessage('')
+  }
 
   const refreshConsumerGroup = useCallback(
     currentV3ioStream => {
@@ -84,9 +82,18 @@ const ConsumerGroup = () => {
 
   useEffect(() => {
     if (!isEmpty(currentV3ioStream)) {
-      refreshConsumerGroup(currentV3ioStream)
+      dispatch(
+        fetchNuclioV3ioStreamShardLags({
+          project: params.projectName,
+          body: {
+            consumerGroup: currentV3ioStream.consumerGroup,
+            containerName: currentV3ioStream.containerName,
+            streamPath: currentV3ioStream.streamPath
+          }
+        })
+      )
     }
-  }, [currentV3ioStream, refreshConsumerGroup])
+  }, [currentV3ioStream, dispatch, params.projectName])
 
   const filteredV3ioStreamShardLags = useMemo(
     () =>

@@ -26,6 +26,7 @@ import { Loader } from 'igz-controls/components'
 import Breadcrumbs from '../../common/Breadcrumbs/Breadcrumbs'
 
 import { GROUP_BY_NONE } from '../../constants'
+import { useHasValueChanged } from '../../hooks/useHasValueChanged.hook'
 import { areNuclioStreamsEnabled } from '../../utils/helper'
 import { fetchNuclioV3ioStreams, resetV3ioStreamsError } from '../../reducers/nuclioReducer'
 import { setFilters } from '../../reducers/filtersReducer'
@@ -74,11 +75,17 @@ const ConsumerGroupsWrapper = () => {
     }
   }, [frontendSpec, navigate, nuclioStreamsAreEnabled, params.projectName, refreshConsumerGroups])
 
+  if (useHasValueChanged(nuclioStreamsAreEnabled)) {
+    if (nuclioStreamsAreEnabled) {
+      setRequestErrorMessage('')
+    }
+  }
+
   useEffect(() => {
     if (nuclioStreamsAreEnabled) {
-      refreshConsumerGroups()
+      dispatch(fetchNuclioV3ioStreams({ project: params.projectName }))
     }
-  }, [nuclioStreamsAreEnabled, refreshConsumerGroups])
+  }, [nuclioStreamsAreEnabled, dispatch, params.projectName])
 
   if (isEmpty(frontendSpec)) {
     return <Loader />

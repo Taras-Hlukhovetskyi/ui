@@ -93,7 +93,12 @@ export const useRefreshAlerts = (filters, isAlertsPage) => {
   )
 
   useEffect(() => {
-    !isAlertsPage && refreshAlerts(filters)
+    // Deferred to a microtask (same convention used in DetailsTransformations.jsx): refreshAlerts
+    // resets local state and starts a fetch together, so queuing the call keeps that a reaction
+    // to filters/isAlertsPage settling, rather than a call synchronous with this effect's body.
+    queueMicrotask(() => {
+      !isAlertsPage && refreshAlerts(filters)
+    })
   }, [isAlertsPage, refreshAlerts, filters])
 
   return {

@@ -23,7 +23,7 @@ import arrayMutators from 'final-form-arrays'
 import { Form } from 'react-final-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { createForm } from 'final-form'
-import { isEmpty, get } from 'lodash'
+import { isEmpty, isEqual, get } from 'lodash'
 import { useNavigate } from 'react-router-dom'
 
 import FormDirtySpy from '../../common/FormDirtySpy/FormDirtySpy'
@@ -186,14 +186,16 @@ const JobWizard = ({
     }
   }, [dispatch, isBatchInference, isTrain, resolveModal])
 
-  useEffect(() => {
-    if (!isEmpty(jobsStore.jobFunc)) {
-      setSelectedFunctionData({
-        name: jobsStore.jobFunc.metadata.name,
-        functions: [jobsStore.jobFunc]
-      })
+  if (!isEmpty(jobsStore.jobFunc)) {
+    const nextSelectedFunctionData = {
+      name: jobsStore.jobFunc.metadata.name,
+      functions: [jobsStore.jobFunc]
     }
-  }, [isEditMode, isRunMode, jobsStore.jobFunc])
+
+    if (!isEqual(selectedFunctionData, nextSelectedFunctionData)) {
+      setSelectedFunctionData(nextSelectedFunctionData)
+    }
+  }
 
   const setJobData = useCallback(
     (formState, jobFormData, jobAdditionalData) => {

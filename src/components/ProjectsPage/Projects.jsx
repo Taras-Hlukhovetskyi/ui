@@ -129,10 +129,6 @@ const Projects = () => {
   )
 
   const refreshProjectsRef = useRef(null)
-  const handleArchiveProjectRef = useRef(null)
-  const handleUnarchiveProjectRef = useRef(null)
-  const exportYamlRef = useRef(null)
-  const viewYamlRef = useRef(null)
 
   const refreshProjects = useCallback(() => {
     abortControllerRef.current = new AbortController()
@@ -219,7 +215,7 @@ const Projects = () => {
   }
 
   const handleArchiveProject = useCallback(
-    project => {
+    function handleArchiveProject(project) {
       dispatch(changeProjectState({ project: project.metadata.name, status: 'archived' }))
         .unwrap()
         .then(() => {
@@ -232,7 +228,7 @@ const Projects = () => {
               : `Failed to archive project ${project.metadata.name}`
 
           showErrorNotification(dispatch, error, '', customErrorMsg, () =>
-            handleArchiveProjectRef.current(project)
+            handleArchiveProject(project)
           )
         })
       setConfirmData(null)
@@ -241,7 +237,7 @@ const Projects = () => {
   )
 
   const handleUnarchiveProject = useCallback(
-    project => {
+    function handleUnarchiveProject(project) {
       dispatch(
         changeProjectState({ project: project.metadata.name, status: PROJECT_ONLINE_STATUS })
       )
@@ -258,7 +254,7 @@ const Projects = () => {
                 : `Failed to unarchive project ${project.metadata.name}`
 
           showErrorNotification(dispatch, error, '', customErrorMsg, () =>
-            handleUnarchiveProjectRef.current(project)
+            handleUnarchiveProject(project)
           )
         })
     },
@@ -296,7 +292,7 @@ const Projects = () => {
   )
 
   const exportYaml = useCallback(
-    projectMinimal => {
+    function exportYaml(projectMinimal) {
       if (projectMinimal?.metadata?.name) {
         dispatch(fetchProject({ project: projectMinimal.metadata.name }))
           .unwrap()
@@ -307,7 +303,7 @@ const Projects = () => {
           })
           .catch(error => {
             showErrorNotification(dispatch, error, '', "Failed to fetch project's YAML", () =>
-              exportYamlRef.current(projectMinimal)
+              exportYaml(projectMinimal)
             )
           })
       }
@@ -316,7 +312,7 @@ const Projects = () => {
   )
 
   const viewYaml = useCallback(
-    projectMinimal => {
+    function viewYaml(projectMinimal) {
       const yamlByteSizeLimit = 2000000
       if (projectMinimal?.metadata?.name) {
         dispatch(fetchProject({ project: projectMinimal.metadata.name }))
@@ -339,7 +335,7 @@ const Projects = () => {
             setConvertedYaml('')
 
             showErrorNotification(dispatch, error, '', "Failed to fetch project's YAML", () =>
-              viewYamlRef.current(projectMinimal)
+              viewYaml(projectMinimal)
             )
           })
       } else {
@@ -351,10 +347,6 @@ const Projects = () => {
 
   useEffect(() => {
     refreshProjectsRef.current = refreshProjects
-    handleArchiveProjectRef.current = handleArchiveProject
-    handleUnarchiveProjectRef.current = handleUnarchiveProject
-    exportYamlRef.current = exportYaml
-    viewYamlRef.current = viewYaml
   })
 
   const handleOnDeleteProject = useCallback(

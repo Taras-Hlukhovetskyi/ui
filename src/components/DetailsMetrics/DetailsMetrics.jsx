@@ -49,6 +49,7 @@ import {
   setSelectedMetricsOptions
 } from '../../reducers/detailsReducer'
 import { groupMetricByApplication } from '../../elements/MetricsSelector/metricsSelector.util'
+import { useHasValueChanged } from '../../hooks/useHasValueChanged.hook'
 import { REQUEST_CANCELED } from '../../constants'
 
 import MetricsIcon from 'igz-controls/images/metrics-icon.svg?react'
@@ -69,7 +70,6 @@ const DetailsMetrics = ({
   const invocationBodyCardRef = useRef(null)
   const metricsContainerRef = useRef(null)
   const metricsValuesAbortController = useRef(new AbortController())
-  const prevSelectedEndPointNameRef = useRef('')
   const [metricOptionsAreLoaded, setMetricOptionsAreLoaded] = useState(false)
   const detailsStore = useSelector(store => store.detailsStore)
   const dispatch = useDispatch()
@@ -177,17 +177,24 @@ const DetailsMetrics = ({
     [dispatch, setMetrics, metricsValuesAbortController]
   )
 
+  const justSwitchedEndpoint = useHasValueChanged(selectedItem.metadata.uid)
+
+  const shouldFetchMetrics =
+    metricOptionsAreLoaded &&
+    selectedItem.metadata?.uid &&
+    detailsStore.metricsOptions.all.length > 0 &&
+    detailsStore.metricsOptions.selectedByEndpoint[selectedItem.metadata?.uid]
+
+  if (!justSwitchedEndpoint && !shouldFetchMetrics && metrics.length > 0) {
+    setMetrics([])
+  }
+
   useEffect(() => {
-    if (selectedItem.metadata.uid !== prevSelectedEndPointNameRef.current) {
-      prevSelectedEndPointNameRef.current = selectedItem.metadata.uid
+    if (justSwitchedEndpoint) {
       return
     }
-    if (
-      metricOptionsAreLoaded &&
-      selectedItem.metadata?.uid &&
-      detailsStore.metricsOptions.all.length > 0 &&
-      detailsStore.metricsOptions.selectedByEndpoint[selectedItem.metadata?.uid]
-    ) {
+
+    if (shouldFetchMetrics) {
       const selectedMetrics =
         detailsStore.metricsOptions.selectedByEndpoint[selectedItem.metadata?.uid]
       const invocationMetric = detailsStore.metricsOptions.all.find(
@@ -223,8 +230,6 @@ const DetailsMetrics = ({
         selectedItem.metadata.project,
         selectedItem.metadata.uid
       )
-    } else {
-      setMetrics([])
     }
 
     return () => {
@@ -232,7 +237,8 @@ const DetailsMetrics = ({
       setMetrics([])
     }
   }, [
-    metricOptionsAreLoaded,
+    justSwitchedEndpoint,
+    shouldFetchMetrics,
     fetchData,
     selectedItem.metadata.uid,
     selectedItem.metadata.project,

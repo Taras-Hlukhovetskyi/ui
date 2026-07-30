@@ -102,7 +102,8 @@ const DeleteArtifactPopUp = ({
     filters,
     refreshArtifacts,
     refreshAfterDeleteCallback,
-    params.projectName
+    params.projectName,
+    formRef
   ])
 
   const toggleExtendedDeletionStrategy = value => {

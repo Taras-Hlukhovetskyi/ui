@@ -21,7 +21,7 @@ import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { FieldArray } from 'react-final-form-arrays'
 import classNames from 'classnames'
-import { capitalize, debounce, isEmpty } from 'lodash'
+import { capitalize, debounce, isEmpty, isEqual } from 'lodash'
 import { Form } from 'react-final-form'
 import arrayMutators from 'final-form-arrays'
 import { createForm } from 'final-form'
@@ -97,6 +97,10 @@ const MetricsSelector = ({
     disabled && 'metrics-selector-header_disabled'
   )
 
+  if (!isOpen && nameFilter !== '') {
+    setNameFilter('')
+  }
+
   useEffect(() => {
     if (!isOpen) {
       formRef?.batch(() => {
@@ -106,19 +110,20 @@ const MetricsSelector = ({
         )
         formRef.change('metricSearchName', '')
       })
-
-      setNameFilter('')
     }
-  }, [appliedMetrics, isOpen])
+  }, [appliedMetrics, isOpen, formRef])
+
+  if (preselectedMetrics && !isEqual(appliedMetrics, preselectedMetrics)) {
+    setAppliedMetrics(preselectedMetrics)
+  }
 
   useEffect(() => {
     if (preselectedMetrics) {
       formRef.reset({
         metrics: preselectedMetrics.map(metricItem => metricItem.full_name)
       })
-      setAppliedMetrics(preselectedMetrics)
     }
-  }, [preselectedMetrics])
+  }, [preselectedMetrics, formRef])
 
   const windowClickHandler = useCallback(
     event => {

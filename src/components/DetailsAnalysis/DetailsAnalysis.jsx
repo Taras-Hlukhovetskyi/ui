@@ -57,18 +57,22 @@ const DetailsAnalysis = ({ artifact }) => {
     })
   }, [artifact, noData, params.projectName, frontendSpec])
 
+  const analysisIsMalformed =
+    artifact.analysis && (!isObject(artifact.analysis) || isArray(artifact.analysis))
+
+  if ((!artifact.analysis || isEmpty(artifact.analysis) || analysisIsMalformed) && !noData) {
+    setNoData(true)
+  }
+
   useEffect(() => {
     if (artifact.analysis && preview.length === 0 && !previewIsFetchedRef.current && frontendSpec) {
       if (isObject(artifact.analysis) && !isArray(artifact.analysis)) {
         fetchPreviewFromAnalysis()
       } else {
         showErrorNotification(dispatch, '', '', 'The analysis type is malformed. Expected dict')
-        setNoData(true)
       }
 
       previewIsFetchedRef.current = true
-    } else if (!artifact.analysis || isEmpty(artifact.analysis)) {
-      setNoData(true)
     }
   }, [artifact.analysis, fetchPreviewFromAnalysis, preview.length, frontendSpec, dispatch])
 

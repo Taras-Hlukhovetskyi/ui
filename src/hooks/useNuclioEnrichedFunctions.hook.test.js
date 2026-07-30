@@ -28,7 +28,7 @@ vi.mock('../utils/getNuclioFuncState', () => ({
 }))
 
 vi.mock('../utils/getState', () => ({
-  default: vi.fn((state, _page, _kind) => ({
+  default: vi.fn(state => ({
     value: state,
     label: state.charAt(0).toUpperCase() + state.slice(1),
     className: `state-${state}-nuclioFunctions`

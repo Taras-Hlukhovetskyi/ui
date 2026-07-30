@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { isEmpty, isNumber, orderBy, isEqual } from 'lodash'
 
 import ArrowIcon from 'igz-controls/images/back-arrow.svg?react'
@@ -194,30 +194,28 @@ export const useSortTable = ({ headers, content, sortConfig = {} }) => {
     )
   }
 
-  useEffect(() => {
-    if (direction && selectedColumnName) {
-      sortTable(selectedColumnName, direction)
-    } else if (defaultSortBy !== null && (!direction || defaultDirection) && content.length > 0) {
-      sortTable(
-        selectedColumnName
-          ? selectedColumnName
-          : isNumber(defaultSortBy)
-            ? headers[defaultSortBy].headerId
-            : defaultSortBy,
-        defaultDirection
-      )
-    } else {
-      setSortedTableContent(content)
-    }
-  }, [content, defaultDirection, defaultSortBy, direction, headers, selectedColumnName, sortTable])
+  if (direction && selectedColumnName) {
+    sortTable(selectedColumnName, direction)
+  } else if (defaultSortBy !== null && (!direction || defaultDirection) && content.length > 0) {
+    sortTable(
+      selectedColumnName
+        ? selectedColumnName
+        : isNumber(defaultSortBy)
+          ? headers[defaultSortBy].headerId
+          : defaultSortBy,
+      defaultDirection
+    )
+  } else if (!isEqual(sortedTableContent, content)) {
+    setSortedTableContent(content)
+  }
 
-  useEffect(() => {
-    if (headers && headers.length > 0 && (excludeSortBy || allowSortBy)) {
-      const header = getSortableHeaders()
+  if (headers && headers.length > 0 && (excludeSortBy || allowSortBy)) {
+    const header = getSortableHeaders()
 
+    if (!isEqual(sortedTableHeaders, header)) {
       setSortedTableHeaders(header)
     }
-  }, [allowSortBy, excludeSortBy, getSortableHeaders, headers])
+  }
 
   return { sortTable, selectedColumnName, getSortingIcon, sortedTableContent, sortedTableHeaders }
 }

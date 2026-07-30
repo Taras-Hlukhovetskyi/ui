@@ -282,23 +282,23 @@ const DatePicker = ({
     }
   }, [handleCloseDatePickerOutside, isDatePickerOpened, isDatePickerOptionsOpened])
 
-  useEffect(() => {
-    if (isInputInvalid !== externalInvalid) {
-      if (required && getInputValueValidity(valueDatePickerInput)) {
+  const requiredValueIsValid = required && getInputValueValidity(valueDatePickerInput)
+
+  if (isInputInvalid !== externalInvalid) {
+    if (requiredValueIsValid) {
+      if (!isInputInvalid) {
         setInputIsInvalid(true)
-        setExternalInvalid(false)
-      } else if (!isNil(externalInvalid)) {
-        setInputIsInvalid(externalInvalid)
       }
+    } else if (!isNil(externalInvalid)) {
+      setInputIsInvalid(externalInvalid)
     }
-  }, [
-    getInputValueValidity,
-    externalInvalid,
-    isInputInvalid,
-    required,
-    setExternalInvalid,
-    valueDatePickerInput
-  ])
+  }
+
+  useEffect(() => {
+    if (isInputInvalid && requiredValueIsValid && externalInvalid !== false) {
+      setExternalInvalid(false)
+    }
+  }, [isInputInvalid, requiredValueIsValid, externalInvalid, setExternalInvalid])
 
   const isRangeDateValid = day => {
     const dateFromMs = new Date(datePickerState.configFrom.selectedDate).setHours(0, 0, 0, 0)

@@ -75,7 +75,7 @@ const FilterMenuModal = ({
         }
       })
     }
-  }, [values])
+  }, [values, formRef])
 
   const hideFiltersWizard = useCallback(event => {
     if (
@@ -103,7 +103,7 @@ const FilterMenuModal = ({
 
   useLayoutEffect(() => {
     formRef.reset(initialValues)
-  }, [initialValues])
+  }, [initialValues, formRef])
 
   const getFilterCounter = formState => {
     const initialValuesLocal = applyChanges ? initialValues : formState.initialValues

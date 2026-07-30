@@ -41,7 +41,10 @@ export default [
       'react/no-unescaped-entities': 'off',
       'import/no-anonymous-default-export': 'off',
       'import/named': process.env.NODE_ENV === 'production' ? 2 : 1,
-      'no-unused-vars': process.env.NODE_ENV === 'production' ? 2 : 1,
+      'no-unused-vars': [
+        process.env.NODE_ENV === 'production' ? 'error' : 'warn',
+        { ignoreRestSiblings: true }
+      ],
       'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 1,
       'no-console': process.env.NODE_ENV === 'production' ? 2 : 1,
       quotes: ['error', 'single', { avoidEscape: true, allowTemplateLiterals: false }],
@@ -49,7 +52,7 @@ export default [
     }
   },
   {
-    files: ["**/*.test.jsx"],
+    files: ["**/*.test.js", "**/*.test.jsx"],
     rules: {
       "import/named": "off"
     }

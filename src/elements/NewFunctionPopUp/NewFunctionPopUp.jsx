@@ -36,6 +36,7 @@ import { FUNCTION_TYPE_JOB } from '../../constants'
 import { PRIMARY_BUTTON, TERTIARY_BUTTON } from 'igz-controls/constants'
 import { getValidationRules } from 'igz-controls/utils/validation.util'
 import { runtimeOptions } from './newFuctionPopUp.util'
+import { useHasValueChanged } from '../../hooks/useHasValueChanged.hook'
 import { useMode } from '../../hooks/mode.hook'
 import { useOpenPanel } from '../../hooks/openPanel.hook'
 
@@ -108,15 +109,21 @@ const NewFunctionPopUp = ({
     [dispatch]
   )
 
-  useEffect(() => {
+  if (useHasValueChanged(openPanelByDefault)) {
     if (openPanelByDefault) {
       setIsPopUpOpen(true)
     }
+  }
 
+  if (runtime && data.runtime !== runtime) {
+    setData(state => ({ ...state, runtime }))
+  }
+
+  useEffect(() => {
     if (runtime) {
-      selectRuntime(runtime)
+      dispatch(setNewFunctionKind(runtime))
     }
-  }, [openPanelByDefault, selectRuntime, runtime])
+  }, [runtime, dispatch])
 
   return (
     <div className="new-function">

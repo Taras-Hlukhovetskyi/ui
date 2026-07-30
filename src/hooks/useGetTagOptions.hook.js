@@ -39,18 +39,20 @@ export const useGetTagOptions = (fetchTags, filters, category, modalFiltersName)
   const abortControllerRef = useRef(new AbortController())
   const isInitialRequestSent = useRef(false)
 
+  const tagFilterIsActive =
+    filters.length > 0 && filters.find(filter => filter.type === TAG_FILTER) && isNil(tagOptions)
+  const nextUrlTagOption = tagFilterIsActive ? paramTag || TAG_FILTER_LATEST : null
+
+  if (urlTagOption !== nextUrlTagOption) {
+    setUrlTagOption(nextUrlTagOption)
+  }
+
   useEffect(() => {
     if (
       filters.length > 0 &&
       filters.find(filter => filter.type === TAG_FILTER) &&
       isNil(tagOptions)
     ) {
-      if (!paramTag) {
-        setUrlTagOption(TAG_FILTER_LATEST)
-      } else if (paramTag) {
-        setUrlTagOption(paramTag)
-      }
-
       if (fetchTags && !isInitialRequestSent.current) {
         abortControllerRef.current = new AbortController()
 
@@ -104,8 +106,6 @@ export const useGetTagOptions = (fetchTags, filters, category, modalFiltersName)
             })
           )
       }
-    } else {
-      setUrlTagOption(null)
     }
   }, [category, dispatch, fetchTags, filters, modalFiltersName, paramTag, projectName, tagOptions])
 

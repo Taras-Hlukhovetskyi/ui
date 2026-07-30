@@ -243,34 +243,23 @@ export const useVirtualization = ({
   const headerRowHeightLocal = useMemo(() => parseInt(headerRowHeight), [headerRowHeight])
   const prevScrollTop = useRef(null)
 
-  useLayoutEffect(() => {
-    if (isEmpty(rowsData.content) && !isEqual(rowsSizes, rowsSizesLocal)) {
+  if (isEmpty(rowsData.content)) {
+    if (!isEqual(rowsSizes, rowsSizesLocal)) {
       setRowsSizesLocal(rowsSizes)
     }
-  }, [rowsSizesLocal, rowsData, rowsSizes])
+  } else {
+    const newRowsSizes = getRowsSizes(
+      rowsData.content,
+      rowsData.selectedItem,
+      rowsData.expandedRowsData,
+      rowHeightLocal,
+      extendedRowHeightLocal
+    )
 
-  useLayoutEffect(() => {
-    if (!isEmpty(rowsData.content)) {
-      const newRowsSizes = getRowsSizes(
-        rowsData.content,
-        rowsData.selectedItem,
-        rowsData.expandedRowsData,
-        rowHeightLocal,
-        extendedRowHeightLocal
-      )
-
-      if (!isEqual(rowsSizesLocal, newRowsSizes)) {
-        setRowsSizesLocal(newRowsSizes)
-      }
+    if (!isEqual(rowsSizesLocal, newRowsSizes)) {
+      setRowsSizesLocal(newRowsSizes)
     }
-  }, [
-    extendedRowHeightLocal,
-    rowsSizesLocal,
-    rowHeightLocal,
-    rowsData.content,
-    rowsData.selectedItem,
-    rowsData.expandedRowsData
-  ])
+  }
 
   useLayoutEffect(() => {
     const tableElement = document.getElementById(tableId || MAIN_TABLE_ID)

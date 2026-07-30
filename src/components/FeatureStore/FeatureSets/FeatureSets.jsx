@@ -20,7 +20,7 @@ such restriction.
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
-import { cloneDeep, isEmpty } from 'lodash'
+import { cloneDeep, isEmpty, isEqual } from 'lodash'
 
 import FeatureSetsView from './FeatureSetsView'
 import { FeatureStoreContext } from '../FeatureStore'
@@ -366,6 +366,21 @@ const FeatureSets = () => {
     }
   }, [filtersStore.groupBy, featureSetsFilters.tag, dispatch])
 
+  if (params.name && featureStore.featureSets?.allData?.length > 0) {
+    const selectedItem = featureStore.featureSets.allData.find(contentItem => {
+      return (
+        contentItem.name === params.name &&
+        (contentItem.tag === params.tag || contentItem.uid === params.tag)
+      )
+    })
+
+    if (selectedItem && !isEqual(selectedFeatureSetMin, selectedItem)) {
+      setSelectedFeatureSetMin(selectedItem)
+    }
+  } else if (!isEqual(selectedFeatureSetMin, {})) {
+    setSelectedFeatureSetMin({})
+  }
+
   useEffect(() => {
     const content = cloneDeep(featureStore.featureSets?.allData)
 
@@ -384,11 +399,7 @@ const FeatureSets = () => {
             replace: true
           }
         )
-      } else {
-        setSelectedFeatureSetMin(selectedItem)
       }
-    } else {
-      setSelectedFeatureSetMin({})
     }
   }, [featureStore.featureSets.allData, navigate, params.name, params.projectName, params.tag])
 

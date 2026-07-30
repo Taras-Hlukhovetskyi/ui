@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 import { cloneDeep, isEmpty, isNumber } from 'lodash'
@@ -44,6 +44,7 @@ import {
 } from './featureSetsPanelTargetStore.util'
 import { openPopUp } from 'igz-controls/utils/common.util'
 import { PRIMARY_BUTTON, TERTIARY_BUTTON } from 'igz-controls/constants'
+import { useHasValueChanged } from '../../../hooks/useHasValueChanged.hook'
 import { isUrlInputValid } from '../UrlPath.utils'
 import {
   setNewFeatureSetPassthrough,
@@ -91,48 +92,45 @@ const FeatureSetsPanelTargetStore = ({
     [featureStore.newFeatureSet.spec.targets]
   )
 
-  useEffect(() => {
-    if (!targetsPathEditData.online.isModified && !targetsPathEditData.online.isEditMode) {
+  if (!targetsPathEditData.online.isModified && !targetsPathEditData.online.isEditMode) {
+    const nextOnlinePath = generatePath(
+      frontendSpec.feature_store_data_prefixes,
+      project,
+      data.online.kind,
+      featureStore.newFeatureSet.metadata.name,
+      ''
+    )
+
+    if (data.online.path !== nextOnlinePath) {
       setData(state => ({
         ...state,
         online: {
           ...state.online,
-          path: generatePath(
-            frontendSpec.feature_store_data_prefixes,
-            project,
-            state.online.kind,
-            featureStore.newFeatureSet.metadata.name,
-            ''
-          )
+          path: nextOnlinePath
         }
       }))
     }
+  }
 
-    if (!targetsPathEditData.parquet.isModified && !targetsPathEditData.parquet.isEditMode) {
+  if (!targetsPathEditData.parquet.isModified && !targetsPathEditData.parquet.isEditMode) {
+    const nextParquetPath = generatePath(
+      frontendSpec.feature_store_data_prefixes,
+      project,
+      PARQUET,
+      featureStore.newFeatureSet.metadata.name,
+      data.parquet?.partitioned ? '' : PARQUET
+    )
+
+    if (data.parquet.path !== nextParquetPath) {
       setData(state => ({
         ...state,
         parquet: {
           ...state.parquet,
-          path: generatePath(
-            frontendSpec.feature_store_data_prefixes,
-            project,
-            PARQUET,
-            featureStore.newFeatureSet.metadata.name,
-            state.parquet?.partitioned ? '' : PARQUET
-          )
+          path: nextParquetPath
         }
       }))
     }
-  }, [
-    featureStore.newFeatureSet.metadata.name,
-    featureStore.newFeatureSet.spec.source.kind,
-    frontendSpec.feature_store_data_prefixes,
-    project,
-    targetsPathEditData.online.isEditMode,
-    targetsPathEditData.online.isModified,
-    targetsPathEditData.parquet.isEditMode,
-    targetsPathEditData.parquet.isModified
-  ])
+  }
 
   useEffect(() => {
     setValidation(prevState => ({
@@ -206,7 +204,7 @@ const FeatureSetsPanelTargetStore = ({
     targetsPathEditData.parquet.isModified
   ])
 
-  useEffect(() => {
+  if (useHasValueChanged(frontendSpec.feature_store_data_prefixes)) {
     if (isEmpty(frontendSpec.feature_store_data_prefixes)) {
       setTargetsPathEditData(state => ({
         ...state,
@@ -230,7 +228,7 @@ const FeatureSetsPanelTargetStore = ({
         isOnlineTargetPathValid: false
       }))
     }
-  }, [frontendSpec.feature_store_data_prefixes, setDisableButtons, setValidation])
+  }
 
   useEffect(() => {
     setValidation(state => ({
@@ -673,69 +671,80 @@ const FeatureSetsPanelTargetStore = ({
     previousTargets.selectedTargetKind
   ])
 
+  if (featureStore.newFeatureSet.spec.passthrough && !passthroughtEnabled) {
+    setPreviousTargets({
+      data: {
+        ...data,
+        [PARQUET]: {
+          ...data[PARQUET],
+          path: data[PARQUET].path ?? offlineTarget.path
+        },
+        [ONLINE]: {
+          ...data[ONLINE],
+          path: data[ONLINE].path ?? onlineTarget.path
+        }
+      },
+      featureSetTargets: featureStore.newFeatureSet.spec.targets,
+      selectedPartitionKind,
+      selectedTargetKind,
+      partitionRadioButtonsState
+    })
+
+    setPassThrouthEnabled(true)
+  } else if (!featureStore.newFeatureSet.spec.passthrough && passthroughtEnabled) {
+    setPassThrouthEnabled(false)
+  }
+
+  const lastHandledPassthroughRef = useRef(featureStore.newFeatureSet.spec.passthrough)
+
   useEffect(() => {
-    if (featureStore.newFeatureSet.spec.passthrough && !passthroughtEnabled) {
-      setPreviousTargets({
-        data: {
-          ...data,
-          [PARQUET]: {
-            ...data[PARQUET],
-            path: data[PARQUET].path ?? offlineTarget.path
-          },
-          [ONLINE]: {
-            ...data[ONLINE],
-            path: data[ONLINE].path ?? onlineTarget.path
+    if (lastHandledPassthroughRef.current === featureStore.newFeatureSet.spec.passthrough) {
+      return
+    }
+
+    lastHandledPassthroughRef.current = featureStore.newFeatureSet.spec.passthrough
+
+    // Deferred to a microtask (same convention used in DetailsTransformations.jsx) so that
+    // clearTargets/restoreTargets - which update several pieces of state together - run as a
+    // reaction to the passthrough flag settling, rather than synchronously inside this effect.
+    queueMicrotask(() => {
+      if (!featureStore.newFeatureSet.spec.passthrough) {
+        restoreTargets()
+        return
+      }
+
+      if (!selectedTargetKind.includes(ONLINE)) {
+        clearTargets(false)
+        return
+      }
+
+      openPopUp(ConfirmDialog, {
+        confirmButton: {
+          label: 'Unset online-target',
+          variant: PRIMARY_BUTTON,
+          handler: () => {
+            clearTargets(false)
           }
         },
-        featureSetTargets: featureStore.newFeatureSet.spec.targets,
-        selectedPartitionKind,
-        selectedTargetKind,
-        partitionRadioButtonsState
+        cancelButton: {
+          label: 'Keep online-target set',
+          variant: TERTIARY_BUTTON,
+          handler: () => {
+            clearTargets(true)
+          }
+        },
+        closePopUp: () => {
+          dispatch(setNewFeatureSetPassthrough(false))
+        },
+        message:
+          'Passthrough set to "enabled" while online-target is set. Do you want to unset online-target?'
       })
-
-      setPassThrouthEnabled(true)
-
-      if (selectedTargetKind.includes(ONLINE)) {
-        openPopUp(ConfirmDialog, {
-          confirmButton: {
-            label: 'Unset online-target',
-            variant: PRIMARY_BUTTON,
-            handler: () => {
-              clearTargets(false)
-            }
-          },
-          cancelButton: {
-            label: 'Keep online-target set',
-            variant: TERTIARY_BUTTON,
-            handler: () => {
-              clearTargets(true)
-            }
-          },
-          closePopUp: () => {
-            dispatch(setNewFeatureSetPassthrough(false))
-          },
-          message:
-            'Passthrough set to "enabled" while online-target is set. Do you want to unset online-target?'
-        })
-      } else {
-        clearTargets(false)
-      }
-    } else if (!featureStore.newFeatureSet.spec.passthrough && passthroughtEnabled) {
-      restoreTargets()
-      setPassThrouthEnabled(false)
-    }
+    })
   }, [
     clearTargets,
-    data,
     dispatch,
     featureStore.newFeatureSet.spec.passthrough,
-    featureStore.newFeatureSet.spec.targets,
-    offlineTarget,
-    onlineTarget,
-    partitionRadioButtonsState,
-    passthroughtEnabled,
     restoreTargets,
-    selectedPartitionKind,
     selectedTargetKind
   ])
 
