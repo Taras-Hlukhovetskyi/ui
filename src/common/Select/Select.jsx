@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
@@ -27,6 +27,7 @@ import { SelectOption } from 'igz-controls/elements'
 import { SELECT_OPTIONS } from '../../types'
 import { DENSITY_OPTIONS } from 'igz-controls/types'
 import { TERTIARY_BUTTON } from 'igz-controls/constants'
+import { useElementWidth } from '../../hooks/useElementWidth.hook'
 
 import Caret from 'igz-controls/images/dropdown.svg?react'
 
@@ -56,15 +57,7 @@ const Select = ({
   const [isConfirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [isOpen, setOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
-  const [dropdownWidth, setDropdownWidth] = useState(0)
-
-  useLayoutEffect(() => {
-    const measuredWidth = selectRef.current?.getBoundingClientRect().width
-
-    if (measuredWidth && measuredWidth !== dropdownWidth) {
-      setDropdownWidth(measuredWidth)
-    }
-  })
+  const dropdownWidth = useElementWidth(selectRef)
 
   const selectClassName = classNames(
     'select',

@@ -118,7 +118,7 @@ const ProjectCardView = React.forwardRef(({ actionsMenu, alert, project, statist
         </div>
 
         <div className="project-card__actions-menu" ref={ref}>
-          <ActionsMenu dataItem={project} menu={actionsMenu[project.metadata.name]} />
+          <ActionsMenu dataItem={project} menu={actionsMenu[project.metadata.name] || [[]]} />
         </div>
       </div>
     </div>

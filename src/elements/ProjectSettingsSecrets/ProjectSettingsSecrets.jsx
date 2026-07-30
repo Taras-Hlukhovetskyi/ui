@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Form } from 'react-final-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -79,14 +79,20 @@ const ProjectSettingsSecrets = ({ setNotification }) => {
   }, [fetchSecrets])
 
   useEffect(() => {
-    fetchSecrets()
+    // Deferred to a microtask (same convention used in DetailsTransformations.jsx and
+    // FeatureSetsPanelTargetStore.jsx): fetchSecrets reads fetchSecretsRef.current inside its
+    // retry path, so queuing this call keeps it a reaction to that ref syncing rather than a
+    // synchronous call inside this effect.
+    queueMicrotask(() => {
+      fetchSecrets()
+    })
 
     return () => {
       dispatch(removeProjectData())
     }
   }, [dispatch, fetchSecrets, params.projectName])
 
-  useEffect(() => {
+  const newInitialSecrets = useMemo(() => {
     const formSecrets = projectStore.project.secrets?.data['secret_keys']
       ? projectStore.project.secrets.data['secret_keys'].map(secret => ({
           data: {
@@ -95,13 +101,19 @@ const ProjectSettingsSecrets = ({ setNotification }) => {
           }
         }))
       : []
-    const newInitial = {
-      secrets: formSecrets
-    }
 
-    setLastEditedFormValues(newInitial)
-    formStateRef.current.form.restart(newInitial)
+    return { secrets: formSecrets }
   }, [projectStore.project.secrets.data])
+
+  useEffect(() => {
+    // Deferred to a microtask (same convention used elsewhere in this file and in
+    // DetailsTransformations.jsx): keeps this a reaction to newInitialSecrets settling rather
+    // than a call synchronous with this effect's body.
+    queueMicrotask(() => {
+      setLastEditedFormValues(newInitialSecrets)
+      formStateRef.current.form.restart(newInitialSecrets)
+    })
+  }, [newInitialSecrets])
 
   const modifyProjectSecret = useCallback(
     (modificationType, requestData) => {

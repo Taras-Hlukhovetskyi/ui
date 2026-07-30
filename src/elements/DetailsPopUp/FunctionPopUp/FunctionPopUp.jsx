@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { isEmpty } from 'lodash'
@@ -114,7 +114,14 @@ const FunctionPopUp = ({ funcTag = '', funcUri = null, isOpen, onResolve }) => {
         navigate,
         refreshFunction
       ),
-    [dispatch, refreshFunction, navigate, selectedFunction]
+    [
+      dispatch,
+      refreshFunction,
+      navigate,
+      selectedFunction,
+      fetchFunctionLogsTimeout,
+      fetchFunctionNuclioLogsTimeout
+    ]
   )
 
   useEffect(() => {

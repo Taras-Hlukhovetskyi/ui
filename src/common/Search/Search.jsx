@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 
@@ -25,6 +25,7 @@ import Input from '../Input/Input'
 import { SelectOption } from 'igz-controls/elements'
 import { PopUpDialog } from 'igz-controls/components'
 
+import { useElementWidth } from '../../hooks/useElementWidth.hook'
 import { deleteUnsafeHtml } from 'igz-controls/utils/string.util'
 
 import SearchIcon from 'igz-controls/images/search.svg?react'
@@ -50,7 +51,7 @@ const Search = ({
   const searchRef = useRef()
   const popUpRef = useRef()
 
-  const [searchWidth, setSearchWidth] = useState(0)
+  const searchWidth = useElementWidth(searchRef)
 
   const label =
     matches.length > 0 && searchValue.length > 0
@@ -65,14 +66,6 @@ const Search = ({
       setSearchValue(value)
     }
   }
-
-  useLayoutEffect(() => {
-    const measuredWidth = searchRef.current?.getBoundingClientRect().width
-
-    if (measuredWidth && measuredWidth !== searchWidth) {
-      setSearchWidth(measuredWidth)
-    }
-  })
 
   const searchClassNames = classnames('search-container', className)
 

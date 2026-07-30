@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import PropTypes from 'prop-types'
 import arrayMutators from 'final-form-arrays'
 import classnames from 'classnames'
@@ -94,9 +94,7 @@ const ActionBar = ({
   withoutExpandButton,
   withoutSearchParams = false
 }) => {
-  const [internalAutoRefreshPrevValue, setInternalAutoRefreshPrevValue] = useState(
-    internalAutoRefreshIsEnabled
-  )
+  const internalAutoRefreshPrevValueRef = useRef(internalAutoRefreshIsEnabled)
 
   const filtersStore = useSelector(store => store.filtersStore)
   const changes = useSelector(store => store.commonDetailsStore.changes)
@@ -214,7 +212,7 @@ const ActionBar = ({
         dispatch(setFilters({ relativeDateChange: Date.now() }))
       }
     },
-    [dispatch, filtersConfig]
+    [dispatch, filtersConfig, formRef]
   )
 
   const applyFilters = useCallback(
@@ -345,7 +343,7 @@ const ActionBar = ({
         }
       })
     }
-  }, [filterMenu, filtersConfig])
+  }, [filterMenu, filtersConfig, formRef])
 
   useEffect(() => {
     if (
@@ -367,32 +365,33 @@ const ActionBar = ({
     refresh,
     withInternalAutoRefresh,
     filtersStore.internalAutoRefresh,
-    filtersStore.autoRefresh
+    filtersStore.autoRefresh,
+    formRef
   ])
 
   useEffect(() => {
     if (autoRefreshStopTrigger && filtersStore.internalAutoRefresh) {
       formRef?.change(INTERNAL_AUTO_REFRESH_ID, false)
-      setInternalAutoRefreshPrevValue(true)
+      internalAutoRefreshPrevValueRef.current = true
       dispatch(toggleInternalAutoRefresh(false))
       handleAutoRefreshPrevValueChange && handleAutoRefreshPrevValueChange(true)
-    } else if (!autoRefreshStopTrigger && internalAutoRefreshPrevValue) {
-      setInternalAutoRefreshPrevValue(false)
+    } else if (!autoRefreshStopTrigger && internalAutoRefreshPrevValueRef.current) {
+      internalAutoRefreshPrevValueRef.current = false
       dispatch(toggleInternalAutoRefresh(true))
       formRef?.change(INTERNAL_AUTO_REFRESH_ID, true)
       handleAutoRefreshPrevValueChange && handleAutoRefreshPrevValueChange(false)
     }
   }, [
-    internalAutoRefreshPrevValue,
     autoRefreshStopTrigger,
     handleAutoRefreshPrevValueChange,
     dispatch,
-    filtersStore.internalAutoRefresh
+    filtersStore.internalAutoRefresh,
+    formRef
   ])
 
   useEffect(() => {
     return () => {
-      setInternalAutoRefreshPrevValue(false)
+      internalAutoRefreshPrevValueRef.current = false
     }
   }, [])
 
@@ -404,14 +403,14 @@ const ActionBar = ({
       ...formFiltersInitialValues
     }
     formRef.reset(valuesToReset)
-  }, [formFiltersInitialValues])
+  }, [formFiltersInitialValues, formRef])
 
   useLayoutEffect(() => {
     formRef?.batch(() => {
       formRef?.change(AUTO_REFRESH_ID, autoRefreshIsEnabled)
       formRef?.change(INTERNAL_AUTO_REFRESH_ID, internalAutoRefreshIsEnabled)
     })
-  }, [autoRefreshIsEnabled, internalAutoRefreshIsEnabled])
+  }, [autoRefreshIsEnabled, internalAutoRefreshIsEnabled, formRef])
 
   useEffect(() => {
     dispatch(toggleAutoRefresh(false))

@@ -164,9 +164,8 @@ const FeatureVectors = () => {
     )
   }, [dispatch, params.projectName])
 
-  const handleDeleteFeatureVectorRef = useRef(null)
   const handleDeleteFeatureVector = useCallback(
-    featureVector => {
+    function handleDeleteFeatureVector(featureVector) {
       dispatch(
         deleteFeatureVector({ project: params.projectName, featureVector: featureVector.name })
       )
@@ -215,7 +214,7 @@ const FeatureVectors = () => {
         })
         .catch(error => {
           showErrorNotification(dispatch, error, '', 'Failed to delete the feature vector', () =>
-            handleDeleteFeatureVectorRef.current(featureVector)
+            handleDeleteFeatureVector(featureVector)
           )
         })
 
@@ -233,10 +232,6 @@ const FeatureVectors = () => {
       fetchData
     ]
   )
-
-  useEffect(() => {
-    handleDeleteFeatureVectorRef.current = handleDeleteFeatureVector
-  }, [handleDeleteFeatureVector])
 
   const onDeleteFeatureVector = useCallback(
     featureVector => {

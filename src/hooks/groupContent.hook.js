@@ -133,18 +133,29 @@ export const useGroupContent = (
     }
   }, [params.jobId, params.pipelineId, content])
 
-  useLayoutEffect(() => {
-    if (Object.keys(groupedContent).length > 0) {
-      setAllRowsAreExpanded(expandedRowsCount === Object.keys(groupedContent).length)
+  const groupedContentRowsCount = Object.keys(groupedContent).length
+
+  if (groupedContentRowsCount > 0) {
+    const nextAllRowsAreExpanded = expandedRowsCount === groupedContentRowsCount
+
+    if (nextAllRowsAreExpanded !== allRowsAreExpanded) {
+      setAllRowsAreExpanded(nextAllRowsAreExpanded)
     }
-  }, [expandedRowsCount, groupedContent])
+  }
 
   useLayoutEffect(() => {
-    if (filtersStore.groupBy === GROUP_BY_NAME) {
-      handleGroupByName()
-    } else if (filtersStore.groupBy === GROUP_BY_NONE) {
-      handleGroupByNone()
-    }
+    // Deferred to a microtask (same convention used in DetailsTransformations.jsx): microtasks
+    // are guaranteed to flush before the browser paints, so this still runs pre-paint like the
+    // rest of this layout effect - it just makes the DOM classList sync (inside
+    // handleGroupByName/handleGroupByNone) a reaction rather than a call synchronous with this
+    // effect's own body.
+    queueMicrotask(() => {
+      if (filtersStore.groupBy === GROUP_BY_NAME) {
+        handleGroupByName()
+      } else if (filtersStore.groupBy === GROUP_BY_NONE) {
+        handleGroupByNone()
+      }
+    })
 
     return () => {
       setGroupedContent({})

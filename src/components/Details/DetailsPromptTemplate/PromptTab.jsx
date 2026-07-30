@@ -33,6 +33,21 @@ import { fetchLLMPromptTemplate } from '../../../reducers/artifactsReducer'
 
 export const ExpandContext = createContext({})
 
+const resolvePromptSource = (localTemplate, remoteTemplate, targetPath, isValid) => {
+  if (!isEmpty(localTemplate)) {
+    return { source: isValid(localTemplate) ? localTemplate : null, needsFetch: false }
+  }
+
+  if (!isEmpty(remoteTemplate)) {
+    return { source: isValid(remoteTemplate) ? remoteTemplate : null, needsFetch: false }
+  }
+
+  return {
+    source: null,
+    needsFetch: targetPath.endsWith('.txt') || targetPath.endsWith('.json')
+  }
+}
+
 const PromptTab = ({
   handleTabChange,
   selectedItem,
@@ -110,65 +125,61 @@ const PromptTab = ({
     [setSelectedArgument, setSelectedTab]
   )
 
+  const { source: sourcePromptTemplate, needsFetch } = resolvePromptSource(
+    selectedItem.prompt_template,
+    artifactsStore.LLMPrompts.promptTemplate,
+    selectedItem.target_path,
+    isPromptTemplateValid
+  )
+  const isError = !sourcePromptTemplate && !needsFetch
+
+  if (isError && !showError) {
+    setShowError(true)
+  }
+
+  const [prevSourcePromptTemplate, setPrevSourcePromptTemplate] = useState(null)
+
+  if (sourcePromptTemplate && sourcePromptTemplate !== prevSourcePromptTemplate) {
+    setPrevSourcePromptTemplate(sourcePromptTemplate)
+    setPromptTemplate(generateJsxContent(sourcePromptTemplate, selectedItem.prompt_legend))
+  }
+
+  if (needsFetch && !loading) {
+    setLoading(true)
+  }
+
   useEffect(() => {
-    if (!isEmpty(selectedItem.prompt_template)) {
-      if (!isPromptTemplateValid(selectedItem.prompt_template)) {
-        setShowError(true)
-      } else {
-        setPromptTemplate(
-          generateJsxContent(selectedItem.prompt_template, selectedItem.prompt_legend)
-        )
-      }
-    } else if (isEmpty(artifactsStore.LLMPrompts.promptTemplate)) {
-      if (
-        !selectedItem.target_path.endsWith('.txt') &&
-        !selectedItem.target_path.endsWith('.json')
-      ) {
-        setShowError(true)
-      } else {
-        setLoading(true)
-        dispatch(
-          fetchLLMPromptTemplate({
-            project: selectedItem.project,
-            config: {
-              params: {
-                path: selectedItem.target_path
-              }
+    if (needsFetch) {
+      dispatch(
+        fetchLLMPromptTemplate({
+          project: selectedItem.project,
+          config: {
+            params: {
+              path: selectedItem.target_path
             }
-          })
-        )
-          .unwrap()
-          .then(response => {
-            if (!isPromptTemplateValid(response.data)) {
-              setShowError(true)
-            } else {
-              setPromptTemplate(generateJsxContent(response.data, selectedItem.prompt_legend))
-            }
-          })
-          .catch(() => setShowError(true))
-          .finally(() => {
-            setLoading(false)
-          })
-      }
-    } else if (!isEmpty(artifactsStore.LLMPrompts.promptTemplate)) {
-      if (!isPromptTemplateValid(artifactsStore.LLMPrompts.promptTemplate)) {
-        return setShowError(true)
-      } else {
-        setPromptTemplate(
-          generateJsxContent(artifactsStore.LLMPrompts.promptTemplate, selectedItem.prompt_legend)
-        )
-      }
+          }
+        })
+      )
+        .unwrap()
+        .then(response => {
+          if (!isPromptTemplateValid(response.data)) {
+            setShowError(true)
+          } else {
+            setPromptTemplate(generateJsxContent(response.data, selectedItem.prompt_legend))
+          }
+        })
+        .catch(() => setShowError(true))
+        .finally(() => {
+          setLoading(false)
+        })
     }
   }, [
-    selectedItem.prompt_template,
+    needsFetch,
     selectedItem.prompt_legend,
-    setSelectedArgument,
-    setSelectedTab,
     selectedItem.project,
     selectedItem.target_path,
     generateJsxContent,
     dispatch,
-    artifactsStore.LLMPrompts.promptTemplate,
     isPromptTemplateValid
   ])
 

@@ -84,7 +84,7 @@ const Functions = ({ isAllVersions = false }) => {
   const [selectedFunction, setSelectedFunction] = useState({})
   const [editableItem, setEditableItem] = useState(null)
   const [functionsPanelIsOpen, setFunctionsPanelIsOpen] = useState(false)
-  const [jobWizardIsOpened, setJobWizardIsOpened] = useState(false)
+  const jobWizardIsOpenedRef = useRef(false)
   const [jobWizardMode, setJobWizardMode] = useState(null)
   const filtersStore = useSelector(store => store.filtersStore)
   const [requestErrorMessage, setRequestErrorMessage] = useState('')
@@ -451,20 +451,53 @@ const Functions = ({ isAllVersions = false }) => {
     [navigate, params.projectName]
   )
 
-  const pageData = useMemo(
-    () =>
-      generateFunctionsPageData(
-        dispatch,
-        selectedFunction,
-        fetchFunctionLogsTimeout,
-        fetchFunctionNuclioLogsTimeout,
-        navigate,
-        fetchData,
-        filtersStore,
-        isAllVersions ? null : () => showAllVersions(selectedFunction.name)
-      ),
-    [dispatch, fetchData, filtersStore, navigate, isAllVersions, selectedFunction, showAllVersions]
+  // Lazy initial value has the same shape pageData will have once the effect below runs, using
+  // a no-op stand-in for fetchData (never invoked before the effect replaces it - refreshLogs is
+  // only reachable from a user click, which can't happen before this mount effect commits) so
+  // that consumers (Details, DetailsHeader, etc.) never see a menu-less/type-less pageData.
+  const [pageData, setPageData] = useState(() =>
+    generateFunctionsPageData(
+      dispatch,
+      selectedFunction,
+      fetchFunctionLogsTimeout,
+      fetchFunctionNuclioLogsTimeout,
+      navigate,
+      () => {},
+      filtersStore,
+      isAllVersions ? null : () => showAllVersions(selectedFunction.name)
+    )
   )
+
+  useEffect(() => {
+    // Deferred to a microtask: fetchData reads fetchDataRef.current inside an async chain (so
+    // pollDeletingFunctions() can call the freshest fetchData once a background delete task
+    // finishes) - queuing this recomputation keeps the pageData update a reaction to that ref
+    // syncing, rather than a synchronous derivation inside this effect.
+    queueMicrotask(() => {
+      setPageData(
+        generateFunctionsPageData(
+          dispatch,
+          selectedFunction,
+          fetchFunctionLogsTimeout,
+          fetchFunctionNuclioLogsTimeout,
+          navigate,
+          fetchData,
+          filtersStore,
+          isAllVersions ? null : () => showAllVersions(selectedFunction.name)
+        )
+      )
+    })
+  }, [
+    dispatch,
+    fetchData,
+    filtersStore,
+    navigate,
+    isAllVersions,
+    selectedFunction,
+    showAllVersions,
+    fetchFunctionLogsTimeout,
+    fetchFunctionNuclioLogsTimeout
+  ])
 
   const actionsMenu = useMemo(
     () => func =>
@@ -631,19 +664,19 @@ const Functions = ({ isAllVersions = false }) => {
   }
 
   useEffect(() => {
-    if (!jobWizardIsOpened && jobWizardMode) {
+    if (!jobWizardIsOpenedRef.current && jobWizardMode) {
+      jobWizardIsOpenedRef.current = true
+
       openPopUp(JobWizard, {
         params,
         onWizardClose: () => {
           setJobWizardMode(null)
-          setJobWizardIsOpened(false)
+          jobWizardIsOpenedRef.current = false
         },
         mode: jobWizardMode
       })
-
-      setJobWizardIsOpened(true)
     }
-  }, [editableItem, jobWizardIsOpened, jobWizardMode, params])
+  }, [editableItem, jobWizardMode, params])
 
   const [
     handleRefreshFunctions,

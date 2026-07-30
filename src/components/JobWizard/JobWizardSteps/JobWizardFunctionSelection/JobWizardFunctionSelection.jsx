@@ -20,7 +20,17 @@ such restriction.
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
-import { includes, isEmpty, intersection, isBoolean, pickBy, keys, uniqBy, cloneDeep } from 'lodash'
+import {
+  includes,
+  isEmpty,
+  isEqual,
+  intersection,
+  isBoolean,
+  pickBy,
+  keys,
+  uniqBy,
+  cloneDeep
+} from 'lodash'
 
 import ContentMenu from '../../../../elements/ContentMenu/ContentMenu'
 import FilterMenuModal from '../../../FilterMenuModal/FilterMenuModal'
@@ -97,6 +107,7 @@ const JobWizardFunctionSelection = ({
   const selectedActiveTab = useRef(null)
   const functionsContainerRef = useRef(null)
   const hubFunctionLoadedRef = useRef(false)
+  const pendingSelectedProjectNameRef = useRef(null)
 
   const jobWizardFiltersValues = useSelector(
     store =>
@@ -166,64 +177,38 @@ const JobWizardFunctionSelection = ({
     }
   }, [formState.form, formState.initialValues, params.projectName, projects.length])
 
-  useEffect(() => {
-    const filteredByCategory = !isEmpty(filtersStoreHubCategories)
+  const filteredByCategory = !isEmpty(filtersStoreHubCategories)
+  const nextFilteredTemplates = getFilteredTemplates(templates, filteredByCategory)
 
-    const filteredTemplates = getFilteredTemplates(templates, filteredByCategory)
-    setFilteredTemplates(filteredTemplates)
+  if (!isEqual(filteredTemplates, nextFilteredTemplates)) {
+    setFilteredTemplates(nextFilteredTemplates)
+  }
 
-    if (filterByName.length > 0 || filteredByCategory) {
-      const filteredFunctions = functions.filter(func => func.name.includes(filterByName))
-      setFilteredFunctions(filteredFunctions)
+  if (filterByName.length > 0 || filteredByCategory) {
+    const nextFilteredFunctions = functions.filter(func => func.name.includes(filterByName))
 
-      const filterMatches =
+    if (!isEqual(filteredFunctions, nextFilteredFunctions)) {
+      setFilteredFunctions(nextFilteredFunctions)
+    }
+
+    const nextFilterMatches = [
+      ...new Set(
         activeTab === FUNCTIONS_SELECTION_FUNCTIONS_TAB
-          ? filteredFunctions.map(func => func.name)
-          : filteredTemplates.map(template => template.metadata.name)
+          ? nextFilteredFunctions.map(func => func.name)
+          : nextFilteredTemplates.map(template => template.metadata.name)
+      )
+    ]
 
-      setFilterMatches([...new Set(filterMatches)])
+    if (!isEqual(filterMatches, nextFilterMatches)) {
+      setFilterMatches(nextFilterMatches)
     }
-  }, [
-    activeTab,
-    filterByName,
-    filtersStoreHubCategories,
-    functions,
-    getFilteredTemplates,
-    setFilteredFunctions,
-    setFilteredTemplates,
-    templates,
-    templatesCategories
-  ])
+  } else if (filterMatches.length > 0) {
+    setFilterMatches([])
 
-  useEffect(() => {
-    if (
-      filterByName.length === 0 &&
-      isEmpty(filtersStoreHubCategories) &&
-      filterMatches.length > 0
-    ) {
-      setFilterMatches([])
-
-      if (filteredFunctions.length > 0) {
-        setFilteredFunctions([])
-      }
-
-      if (!isEmpty(filteredTemplates)) {
-        const filteredByCategory = !isEmpty(filtersStoreHubCategories)
-
-        setFilteredTemplates(getFilteredTemplates(templates, filteredByCategory))
-      }
+    if (filteredFunctions.length > 0) {
+      setFilteredFunctions([])
     }
-  }, [
-    filterByName.length,
-    filterMatches.length,
-    filteredFunctions.length,
-    filteredTemplates,
-    filtersStoreHubCategories,
-    getFilteredTemplates,
-    setFilteredFunctions,
-    setFilteredTemplates,
-    templates
-  ])
+  }
 
   const generateData = functionData => {
     if (!isEmpty(functionData)) {
@@ -238,6 +223,12 @@ const JobWizardFunctionSelection = ({
 
       const newInitial = {
         ...cloneDeep(formState.initialValues),
+        ...(pendingSelectedProjectNameRef.current && {
+          [FUNCTION_SELECTION_STEP]: {
+            ...cloneDeep(formState.initialValues[FUNCTION_SELECTION_STEP]),
+            projectName: pendingSelectedProjectNameRef.current
+          }
+        }),
         ...cloneDeep(jobFormData)
       }
 
@@ -296,7 +287,7 @@ const JobWizardFunctionSelection = ({
         setFunctions([])
       })
 
-    formState.initialValues[FUNCTION_SELECTION_STEP].projectName = currentValue
+    pendingSelectedProjectNameRef.current = currentValue
   }
 
   useEffect(() => {

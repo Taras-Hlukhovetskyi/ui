@@ -22,6 +22,7 @@ import PropTypes from 'prop-types'
 
 import ComboboxView from './ComboboxView'
 
+import { useHasValueChanged } from '../../hooks/useHasValueChanged.hook'
 import { COMBOBOX_MATCHES } from '../../types'
 
 import './combobox.scss'
@@ -68,8 +69,16 @@ const Combobox = ({
   const comboboxRef = useRef()
   const inputRef = useRef()
 
+  const appliedDefaultInputValueRef = useRef(null)
+
   useLayoutEffect(() => {
-    if (inputDefaultValue.length > 0 && selectValue.id.length > 0 && inputValue.length === 0) {
+    if (
+      inputDefaultValue.length > 0 &&
+      selectValue.id.length > 0 &&
+      inputValue.length === 0 &&
+      appliedDefaultInputValueRef.current !== inputDefaultValue
+    ) {
+      appliedDefaultInputValueRef.current = inputDefaultValue
       setInputValue(inputDefaultValue)
       inputOnChange(inputDefaultValue)
     }
@@ -97,11 +106,9 @@ const Combobox = ({
     }
   }
 
-  useEffect(() => {
-    if (isInvalid !== invalid) {
-      setIsInvalid(invalid)
-    }
-  }, [invalid, isInvalid])
+  if (useHasValueChanged(invalid)) {
+    setIsInvalid(invalid)
+  }
 
   const handleOutsideClick = useCallback(
     event => {
