@@ -17,12 +17,12 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import { Form } from 'react-final-form'
 import { createForm } from 'final-form'
-import { isEmpty, isEqual, reduce, throttle } from 'lodash'
+import { isEqual, reduce, throttle } from 'lodash'
 import { useDispatch } from 'react-redux'
 
 import { PopUpDialog, RoundedIcon, Button } from 'igz-controls/components'
@@ -54,38 +54,56 @@ const FilterMenuModal = ({
   const [filtersWizardIsShown, setFiltersWizardIsShown] = useState(false)
   const filtersIconButtonRef = useRef()
   const dispatch = useDispatch()
-  const formRef = React.useRef(
+  const appliedValues = useMemo(
+    () => ({
+      ...initialValues,
+      ...values
+    }),
+    [initialValues, values]
+  )
+  const [form] = useState(() =>
     createForm({
       onSubmit: () => {},
-      initialValues
+      initialValues: appliedValues
     })
   )
+  const previousAppliedValuesRef = useRef(appliedValues)
+
   const filtersIconClassnames = classnames(
     'filters-button',
-    !isEqual(values, initialValues) && 'filters-button_applied'
+    !isEqual(appliedValues, initialValues) && 'filters-button_applied'
   )
 
   const filtersWizardClassnames = classnames('filters-wizard', wizardClassName)
 
-  useEffect(() => {
-    if (!isEqual(formRef.current?.getState().values, values)) {
-      formRef.current?.batch(() => {
-        for (const filterName in values) {
-          formRef.current?.change(filterName, values[filterName])
-        }
-      })
+  useLayoutEffect(() => {
+    if (!isEqual(previousAppliedValuesRef.current, appliedValues)) {
+      previousAppliedValuesRef.current = appliedValues
+      form.initialize(appliedValues)
     }
-  }, [values])
+  }, [appliedValues, form])
 
-  const hideFiltersWizard = useCallback(event => {
-    if (
-      !event.target.closest('.filters-button') &&
-      !event.target.closest('.filters-wizard') &&
-      !isTargetElementInContainerElement(event.target, document.querySelector('.filters-wizard'))
-    ) {
-      setFiltersWizardIsShown(false)
+  const preserveDraftForRemount = useCallback(() => {
+    const formState = form.getState()
+
+    if (!isEqual(formState.initialValues, formState.values)) {
+      form.initialize(formState.values)
     }
-  }, [])
+  }, [form])
+
+  const hideFiltersWizard = useCallback(
+    event => {
+      if (
+        !event.target.closest('.filters-button') &&
+        !event.target.closest('.filters-wizard') &&
+        !isTargetElementInContainerElement(event.target, document.querySelector('.filters-wizard'))
+      ) {
+        preserveDraftForRemount()
+        setFiltersWizardIsShown(false)
+      }
+    },
+    [preserveDraftForRemount]
+  )
 
   useEffect(() => {
     const throttledHideFiltersWizard = throttle(hideFiltersWizard, 500, {
@@ -101,21 +119,11 @@ const FilterMenuModal = ({
     }
   }, [hideFiltersWizard])
 
-  useLayoutEffect(() => {
-    formRef.current.reset(initialValues)
-  }, [initialValues])
-
-  const getFilterCounter = formState => {
-    const initialValuesLocal = applyChanges ? initialValues : formState.initialValues
-    const currentValues = applyChanges ? values : formState.values
-
+  const getFilterCounter = () => {
     return reduce(
-      currentValues,
+      appliedValues,
       (acc, filterValue, filterName) => {
-        return !isEqual(filterValue, initialValuesLocal[filterName]) &&
-          isEmpty(formState.errors[filterName])
-          ? ++acc
-          : acc
+        return !isEqual(filterValue, initialValues[filterName]) ? ++acc : acc
       },
       0
     )
@@ -132,6 +140,7 @@ const FilterMenuModal = ({
     }
 
     applyChanges && applyChanges(formState.values)
+    preserveDraftForRemount()
     setFiltersWizardIsShown(false)
   }
 
@@ -144,7 +153,7 @@ const FilterMenuModal = ({
       }
 
       if (actionCanBePerformed) {
-        formRef.current.restart(initialValues)
+        form.restart(initialValues)
         setFiltersWizardIsShown(false)
 
         if (counter > 0) {
@@ -164,9 +173,9 @@ const FilterMenuModal = ({
   }
 
   return (
-    <Form form={formRef.current} onSubmit={() => {}}>
+    <Form form={form} onSubmit={() => {}}>
       {formState => {
-        const counter = getFilterCounter(formState)
+        const counter = getFilterCounter()
         return (
           <FilterMenuWizardContext.Provider value={{ filterMenuName }}>
             <RoundedIcon
@@ -175,6 +184,10 @@ const FilterMenuModal = ({
               className={filtersIconClassnames}
               isActive={filtersWizardIsShown}
               onClick={() => {
+                if (filtersWizardIsShown) {
+                  preserveDraftForRemount()
+                }
+
                 setFiltersWizardIsShown(prevValue => !prevValue)
               }}
               tooltipText={counter > 0 ? `Filter (${counter})` : 'Filter'}
@@ -197,7 +210,7 @@ const FilterMenuModal = ({
                     <div className="filters-wizard__modal-buttons">
                       {cancelButton && (
                         <Button
-                          disabled={isEqual(formState.initialValues, formState.values)}
+                          disabled={isEqual(initialValues, formState.values)}
                           id="filter-clear-btn"
                           label={cancelButton.label}
                           onClick={() => handleClearFilters(formState, counter)}
@@ -206,7 +219,7 @@ const FilterMenuModal = ({
                       )}
                       {applyButton && !withoutApplyButton && (
                         <Button
-                          disabled={isEqual(values, formState.values) || formState?.invalid}
+                          disabled={isEqual(appliedValues, formState.values) || formState?.invalid}
                           id="filter-apply-btn"
                           variant={applyButton.variant}
                           label={applyButton.label}
