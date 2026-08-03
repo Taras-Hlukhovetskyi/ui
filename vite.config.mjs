@@ -4,10 +4,22 @@ import svgr from 'vite-plugin-svgr'
 import { defineConfig, loadEnv } from 'vite'
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, path.resolve(process.cwd()), '')
+  const env = loadEnv(mode, import.meta.dirname, '')
 
   return {
-    plugins: [react(), svgr()],
+    plugins: [
+      react(),
+      svgr({
+        svgrOptions: {
+          jsxRuntime: 'classic'
+        },
+        oxcOptions: {
+          jsx: {
+            runtime: 'classic'
+          }
+        }
+      })
+    ],
     base: env.NODE_ENV === 'production' ? env.VITE_PUBLIC_URL : '/',
     server: {
       proxy: {
@@ -62,11 +74,23 @@ export default defineConfig(({ mode }) => {
           import.meta.dirname,
           'node_modules/iguazio.dashboard-react-controls/dist'
         ),
-        '@': path.resolve(import.meta.dirname, './src/nextGenComponents')
+        '@': path.resolve(import.meta.dirname, './src/nextGenComponents'),
+        'react-router-dom': path.resolve(
+          // remove when get reed of DRC
+          import.meta.dirname,
+          'node_modules/react-router-dom'
+        ),
+        'react-router': path.resolve(
+          // remove when get reed of DRC
+          import.meta.dirname,
+          'node_modules/react-router'
+        )
       },
       dedupe: [
         'react',
         'react-dom',
+        'react-router',
+        'react-router-dom',
         'classnames',
         'final-form',
         'final-form-arrays',
@@ -77,6 +101,9 @@ export default defineConfig(({ mode }) => {
         'react-modal-promise',
         'react-transition-group'
       ]
+    },
+    optimizeDeps: {
+      include: ['react-router-dom', 'react-router']
     },
     build: {
       sourcemap: true,

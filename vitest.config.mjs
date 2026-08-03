@@ -9,7 +9,19 @@ const drcDist = path.resolve(
 )
 
 export default defineConfig({
-  plugins: [react(), svgr()],
+  plugins: [
+    react(),
+    svgr({
+      svgrOptions: {
+        jsxRuntime: 'classic'
+      },
+      oxcOptions: {
+        jsx: {
+          runtime: 'classic'
+        }
+      }
+    })
+  ],
   test: {
     globals: true,
     environment: 'jsdom',

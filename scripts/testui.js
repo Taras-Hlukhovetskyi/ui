@@ -34,7 +34,7 @@ process.on('unhandledRejection', err => {
 const argv = process.argv.slice(2)
 
 const cucumberCommand =
-  'cucumber-js --require-module @babel/register --require-module @babel/polyfill ' +
+  'cucumber-js ' +
   '-f json:' +
   report +
   '.json -f html:' +
