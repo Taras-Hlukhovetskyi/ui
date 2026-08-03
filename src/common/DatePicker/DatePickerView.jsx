@@ -19,7 +19,6 @@ such restriction.
 */
 import React from 'react'
 import PropTypes from 'prop-types'
-import MaskedInput from 'react-text-mask'
 import classnames from 'classnames'
 import { isEmpty } from 'lodash-es'
 import moment from 'moment'
@@ -31,7 +30,8 @@ import {
   Tooltip,
   TextTooltipTemplate,
   PopUpDialog,
-  ErrorMessage
+  ErrorMessage,
+  MaskedInput
 } from 'igz-controls/components'
 import { SelectOption } from 'igz-controls/elements'
 
