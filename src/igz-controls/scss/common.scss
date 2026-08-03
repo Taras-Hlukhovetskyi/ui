@@ -33,6 +33,7 @@
   isolation: isolate;
 }
 
+/* stylelint-disable-next-line selector-id-pattern */
 #overlay_container {
   position: fixed;
   bottom: 0;
@@ -65,7 +66,9 @@ button {
 
 input,
 textarea {
+  padding: 0;
   overflow-x: hidden;
+  color: inherit;
   font-weight: normal;
   font-size: 15px;
   font-family: Roboto, sans-serif;
@@ -73,10 +76,8 @@ textarea {
   line-height: 18px;
   white-space: nowrap;
   text-overflow: ellipsis;
-  border: 0;
-  color: inherit;
   background-color: transparent;
-  padding: 0;
+  border: 0;
   resize: none;
 
   &::placeholder {
@@ -117,8 +118,8 @@ textarea {
 
 .link {
   color: colors.$cornflowerBlue;
-  cursor: pointer;
   line-height: 20px;
+  cursor: pointer;
 
   &:hover {
     text-decoration: underline;
@@ -127,10 +128,10 @@ textarea {
 }
 
 .warning-text {
-  color: colors.$amaranth;
   padding: 5px 0;
-  line-height: 1.5;
+  color: colors.$amaranth;
   font-size: 13px;
+  line-height: 1.5;
 }
 
 [class*='igz-transition'] {
@@ -222,15 +223,15 @@ a {
   position: relative;
   flex-direction: column;
   min-width: 800px;
-  padding: 15px 24px 10px;
-  background-color: colors.$white;
-  overflow: auto;
   min-height: 0;
+  padding: 15px 24px 10px;
+  overflow: auto;
+  background-color: colors.$white;
 
   @include mixins.displayFlex;
 
   @media screen and (min-width: 1300px) {
-    padding: 15px 64px 15px;
+    padding: 15px 64px;
   }
 
   &__header {
@@ -592,8 +593,8 @@ a {
                   &::before {
                     background: linear-gradient(
                       90deg,
-                      rgba(255, 255, 255, 0) 0%,
-                      rgba(245, 247, 255, 1) 100%
+                      rgb(255 255 255 / 0%) 0%,
+                      rgb(245 247 255 / 100%) 100%
                     );
                   }
                 }
@@ -612,8 +613,8 @@ a {
                       &::before {
                         background: linear-gradient(
                           90deg,
-                          rgba(255, 255, 255, 0) 0%,
-                          rgba(245, 247, 255, 1) 100%
+                          rgb(255 255 255 / 0%) 0%,
+                          rgb(245 247 255 / 100%) 100%
                         );
                       }
                     }
@@ -701,7 +702,7 @@ a {
         @include mixins.tableHeader;
 
         &:first-child {
-          border-radius: 4px 0 0 0;
+          border-radius: 4px 0 0;
         }
 
         &:last-child {
@@ -779,9 +780,9 @@ a {
     display: flex;
     align-items: center;
     min-height: $tableHeaderHeight;
-    border-bottom: borders.$primaryBorder;
-    background-color: colors.$white;
     padding: 5px 0;
+    background-color: colors.$white;
+    border-bottom: borders.$primaryBorder;
 
     &.form-table__row_excluded {
       .form-table__cell {
@@ -834,17 +835,17 @@ a {
   }
 
   .form-table__header-row {
-    border-top: borders.$primaryBorder;
-    font-size: 18px;
-    font-weight: bold;
     top: 0;
+    font-weight: bold;
+    font-size: 18px;
+    border-top: borders.$primaryBorder;
   }
 
   .form-table__sub-header-row {
-    border: unset;
-    font-size: 16px;
-    font-weight: bold;
     top: $tableHeaderHeight;
+    font-weight: bold;
+    font-size: 16px;
+    border: unset;
   }
 
   .form-table__action-row {
@@ -874,9 +875,9 @@ a {
 
   .form-table__cell {
     display: flex;
-    overflow: hidden;
     align-items: center;
     padding: 3px 10px;
+    overflow: hidden;
     color: colors.$primary;
 
     &.disabled {
@@ -889,9 +890,9 @@ a {
 
       &.form-table__name_with-asterisk {
         &::after {
-          content: ' * ';
-          color: colors.$amaranth;
           margin-right: 10px;
+          color: colors.$amaranth;
+          content: ' * ';
         }
       }
     }
@@ -924,10 +925,10 @@ a {
 
   .form-table__actions-cell {
     flex: 0 1 auto;
-    visibility: hidden;
     justify-content: flex-end;
     min-width: variables.$actionsCellWidth;
     padding: 0;
+    visibility: hidden;
 
     & > * {
       margin: 0 5px 0 0;
@@ -957,33 +958,31 @@ a {
   }
 }
 
-/* =========== HIDDEN CHIPS ============= */
-
 .chip-block-hidden {
   position: fixed;
-  display: flex;
-  flex-direction: column;
   top: unset;
   right: unset;
-  left: unset;
   bottom: unset;
+  left: unset;
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
   width: min-content;
-  height: min-content;
   min-width: 250px;
   max-width: 100%;
+  height: min-content;
   max-height: 100%;
   padding: 10px;
   background-color: colors.$white;
   border-radius: variables.$mainBorderRadius;
   box-shadow: shadows.$hiddenChipsBlockShadow;
-  z-index: 9;
   opacity: 0;
 
   &__scrollable-container {
-    overflow: auto;
     display: flex;
-    width: 100%;
     flex-flow: row wrap;
+    width: 100%;
+    overflow: auto;
   }
 
   &_bottom {

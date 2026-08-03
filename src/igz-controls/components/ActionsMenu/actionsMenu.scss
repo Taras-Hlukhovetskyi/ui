@@ -13,17 +13,17 @@
       display: none;
       align-items: center;
       justify-content: center;
-      background-color: colors.$ghostWhite;
       height: 100%;
+      background-color: colors.$ghostWhite;
 
-      &:before {
-        content: '';
+      &::before {
+        position: absolute;
+        left: -30px;
+        display: block;
         width: 30px;
         height: 100%;
-        position: absolute;
-        display: block;
-        left: -30px;
-        background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(245, 247, 255, 1) 100%);
+        background: linear-gradient(90deg, rgb(255 255 255 / 0%) 0%, rgb(245 247 255 / 100%) 100%);
+        content: '';
       }
 
       .actions-menu {
@@ -53,8 +53,8 @@
   }
 
   &__list {
-    list-style-type: none;
     margin: 0;
     padding: 0;
+    list-style-type: none;
   }
 }

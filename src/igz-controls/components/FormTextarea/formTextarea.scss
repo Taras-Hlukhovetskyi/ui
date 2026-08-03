@@ -5,8 +5,8 @@
   width: 100%;
 
   textarea {
-    height: inherit;
     width: 100%;
+    height: inherit;
     padding: 12px 16px;
     white-space: normal;
   }
@@ -21,9 +21,9 @@
     }
 
     &__counter {
+      margin-top: 5px;
       color: colors.$topaz;
       font-size: 12px;
-      margin-top: 5px;
       text-align: right;
     }
   }

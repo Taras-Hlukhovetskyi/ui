@@ -44,13 +44,13 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      width: max-content;
+      min-width: 100%;
+      margin-top: 5px;
       font-weight: normal;
       font-size: 12px;
       font-family: Roboto, sans-serif;
       font-style: normal;
-      margin-top: 5px;
-      width: max-content;
-      min-width: 100%;
 
       & > span {
         &:not(:last-child) {

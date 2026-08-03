@@ -10,13 +10,13 @@
 
 .tip {
   position: fixed;
+  z-index: 9;
   display: block;
   padding: 10px;
   color: colors.$white;
   white-space: pre-line;
   background: colors.$primary;
   border-radius: 4px;
-  z-index: 9;
 
   &-wrapper {
     display: inline-flex;

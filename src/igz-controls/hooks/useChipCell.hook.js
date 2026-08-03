@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { throttle } from 'lodash'
 
 import {
@@ -159,9 +159,16 @@ export const useChipCell = (isEditMode, visibleChipsMaxLength, withInitialParent
       setVisibleChipsCount(chipIndex)
       setShowChips(true)
     }
-  }, [chipBlockMarginRight, chipCellInitialWidth, chipsSizes, isEditMode, withInitialParentWidth])
-
-  useEffect(() => {
+  }, [
+    chipBlockMarginRight,
+    chipCellInitialWidth,
+    chipsSizes,
+    isEditMode,
+    withInitialParentWidth,
+    // Forces a follow-up pass once the counter badge mounts, so its real width gets budgeted in.
+    visibleChipsCount
+  ])
+  useLayoutEffect(() => {
     resizeChipCell()
   }, [resizeChipCell])
 

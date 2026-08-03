@@ -39,8 +39,8 @@
 
       &-value {
         display: block;
-        font-size: 15px;
         overflow: hidden;
+        font-size: 15px;
         white-space: nowrap;
         text-overflow: ellipsis;
       }
@@ -68,11 +68,11 @@
     }
 
     .options-list {
+      max-height: 250px;
       margin: 0;
       padding: 0;
-      list-style-type: none;
-      max-height: 250px;
       overflow-y: auto;
+      list-style-type: none;
 
       &__body {
         width: 100%;

@@ -23,24 +23,24 @@
   }
 
   &__switch {
-    height: 24px;
-    width: 48px;
     display: flex;
-    cursor: pointer;
     align-items: center;
+    width: 48px;
+    height: 24px;
     background-color: colors.$alto;
     border-radius: 20px;
+    cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 1px 3px colors.$lightBlack;
 
-    &:before {
-      content: '';
+    &::before {
       width: 20px;
       height: 20px;
       background-color: colors.$white;
       border-radius: 50%;
       transform: translateX(2px);
       transition: all 0.2s ease;
+      content: '';
       box-shadow: 0 1px 2px colors.$lightBlack;
     }
   }
@@ -55,10 +55,10 @@
     height: 0;
 
     &:disabled {
-      & + .form-field-toggle__switch {
+      & + * .form-field-toggle__switch {
+        cursor: default;
         opacity: 0.5;
         pointer-events: none;
-        cursor: default;
       }
     }
 
@@ -66,7 +66,7 @@
       & + .form-field-toggle__switch {
         background-color: colors.$malibu;
 
-        &:before {
+        &::before {
           transform: translateX(26px);
         }
       }

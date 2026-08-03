@@ -38,7 +38,7 @@
         flex-wrap: wrap;
         align-items: flex-start;
         justify-content: flex-end;
-        margin: 0 0 1em 0;
+        margin: 0 0 1em;
 
         &-wrapper {
           position: sticky;
@@ -101,7 +101,7 @@
           margin-right: auto;
 
           h3 {
-            margin: 0 0 5px 0;
+            margin: 0 0 5px;
             font-size: 24px;
             line-height: 28px;
           }

@@ -3,15 +3,15 @@
 .wizard-steps {
   display: flex;
   flex-flow: row nowrap;
-  background-color: colors.$white;
   min-width: 260px;
   margin: 1.5rem 0;
   padding: 0 2rem;
+  background-color: colors.$white;
 
   @media screen and (min-width: 1200px) {
     flex-flow: column nowrap;
-    overflow-y: auto;
     padding: 0 1rem;
+    overflow-y: auto;
 
     & > *:not(:last-child) {
       margin-bottom: 10px;
@@ -21,15 +21,15 @@
   .wizard-steps {
     &__item {
       display: block;
-      background-color: inherit;
+      width: 100%;
+      height: auto;
+      min-height: 52px;
+      padding: 8px;
       color: colors.$primary;
+      font-size: 1em;
+      background-color: inherit;
       border: 0;
       border-radius: 8px;
-      font-size: 1em;
-      padding: 8px;
-      min-height: 52px;
-      height: auto;
-      width: 100%;
 
       @media screen and (min-width: 1200px) {
         display: flex;
@@ -37,25 +37,25 @@
         justify-content: flex-start;
 
         & > * {
-          text-align: left;
           white-space: normal;
+          text-align: left;
         }
       }
 
       .wizard-steps__indicator {
-        border-color: colors.$malibu;
         color: colors.$malibu;
         background-color: inherit;
+        border-color: colors.$malibu;
       }
 
       &.wizard-steps__item_active {
-        background-color: colors.$malibuTwo;
         color: colors.$cornflowerBlue;
+        background-color: colors.$malibuTwo;
 
         .wizard-steps__indicator {
-          border-color: transparent;
           color: colors.$white;
           background-color: colors.$malibu;
+          border-color: transparent;
         }
       }
 
@@ -67,20 +67,20 @@
         }
 
         .wizard-steps__indicator {
-          border-color: colors.$amaranth;
           color: colors.$amaranth;
           background-color: inherit;
+          border-color: colors.$amaranth;
         }
       }
 
       &:disabled {
-        border: 0;
         color: colors.$spunPearl;
+        border: 0;
 
         .wizard-steps__indicator {
-          border-color: colors.$spunPearl;
           color: colors.$spunPearl;
           background-color: inherit;
+          border-color: colors.$spunPearl;
         }
       }
     }
@@ -89,17 +89,17 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border: 2px solid transparent;
-      border-radius: 50%;
-      padding: 10px;
-      margin: 0 0 10px 0;
       width: 36px;
       height: 36px;
+      margin: 0 0 10px;
+      padding: 10px;
+      border: 2px solid transparent;
+      border-radius: 50%;
 
       @media screen and (min-width: 1200px) {
         flex-flow: row nowrap;
-        text-align: left;
         margin: 0 10px 0 0;
+        text-align: left;
       }
     }
   }
