@@ -1,7 +1,8 @@
 import path from 'node:path'
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import svgr from 'vite-plugin-svgr'
 import { defineConfig, loadEnv } from 'vite'
+import eslint from 'vite-plugin-eslint'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, import.meta.dirname, '')
@@ -18,7 +19,8 @@ export default defineConfig(({ mode }) => {
             runtime: 'classic'
           }
         }
-      })
+      }),
+      eslint({ failOnError: false })
     ],
     base: env.NODE_ENV === 'production' ? env.VITE_PUBLIC_URL : '/',
     server: {
@@ -74,23 +76,11 @@ export default defineConfig(({ mode }) => {
           import.meta.dirname,
           'node_modules/iguazio.dashboard-react-controls/dist'
         ),
-        '@': path.resolve(import.meta.dirname, './src/nextGenComponents'),
-        'react-router-dom': path.resolve(
-          // remove when get reed of DRC
-          import.meta.dirname,
-          'node_modules/react-router-dom'
-        ),
-        'react-router': path.resolve(
-          // remove when get reed of DRC
-          import.meta.dirname,
-          'node_modules/react-router'
-        )
+        '@': path.resolve(import.meta.dirname, './src/nextGenComponents')
       },
       dedupe: [
         'react',
         'react-dom',
-        'react-router',
-        'react-router-dom',
         'classnames',
         'final-form',
         'final-form-arrays',
@@ -103,7 +93,7 @@ export default defineConfig(({ mode }) => {
       ]
     },
     optimizeDeps: {
-      include: ['react-router-dom', 'react-router']
+      force: true
     },
     build: {
       sourcemap: true,
