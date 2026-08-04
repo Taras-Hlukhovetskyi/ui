@@ -25,7 +25,13 @@ import {
   selectOptionInDropdownWithoutCheck
 } from './dropdown.action'
 import { getElementText, hoverComponent } from './common.action'
-import { DataFrame } from 'pandas-js'
+
+/** Minimal column accessor for UI test geometry checks (replaces pandas-js DataFrame). */
+const geometryFrame = rows => ({
+  get(column) {
+    return rows.map(row => row[column])
+  }
+})
 
 async function getColumnValuesAttribute(driver, table, columnName) {
   return await driver
@@ -448,7 +454,7 @@ export const getNamedRowsGeometry = async (driver, table, name = 'name') => {
       result.push(position)
     }
 
-    return new DataFrame(result)
+    return geometryFrame(result)
   }
 
 export const getNamedFieldsGeometry = async (driver, table, column) => {
@@ -461,7 +467,7 @@ export const getNamedFieldsGeometry = async (driver, table, column) => {
       result.push(coord)
     }
 
-    return new DataFrame(result)
+    return geometryFrame(result)
   }
 
 export const putToTestContextCellParameters = async (
