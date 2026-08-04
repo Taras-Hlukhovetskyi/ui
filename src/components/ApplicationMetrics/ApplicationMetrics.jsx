@@ -199,8 +199,6 @@ const ApplicationMetrics = () => {
     }
 
     // navigate triggers this use effect when we select first item in the list if id is not in the URL
-    // if adding new deps, please double check it by removing next comment
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     applicationsStore.monitoringApplications.applications,
     dispatch,
