@@ -21,7 +21,7 @@ import React, { useMemo, useRef } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import { useParams } from 'react-router-dom'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 
 import { ActionsMenu, TableCell } from 'igz-controls/components'
 

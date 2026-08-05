@@ -18,7 +18,7 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import React, { useMemo } from 'react'
-import { find, has, map } from 'lodash'
+import { find, has, map } from 'lodash-es'
 import classnames from 'classnames'
 import PropTypes from 'prop-types'
 import { useParams } from 'react-router-dom'

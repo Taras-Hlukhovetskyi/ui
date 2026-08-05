@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 # build stage
-# node:20.18.2-alpine used as 20-alpine
-FROM quay.io/mlrun/node:20-alpine	 as build-stage
+# node:24-alpine
+FROM quay.io/mlrun/node:24-alpine    as build-stage
 
 RUN apk update && \
 	apk upgrade && \

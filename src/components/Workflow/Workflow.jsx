@@ -20,7 +20,7 @@ such restriction.
 import React, { useEffect, useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
-import { forEach, isEmpty, lowerCase } from 'lodash'
+import { forEach, isEmpty, lowerCase } from 'lodash-es'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import Details from '../Details/Details'

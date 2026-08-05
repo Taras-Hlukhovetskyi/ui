@@ -21,7 +21,7 @@ import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } fr
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import classnames from 'classnames'
-import { isEmpty, isNil } from 'lodash'
+import { isEmpty, isNil } from 'lodash-es'
 
 import ActionBar from '../../ActionBar/ActionBar'
 import NoData from '../../../common/NoData/NoData'

@@ -1,15 +1,27 @@
-import commonjs from 'vite-plugin-commonjs'
-import eslint from 'vite-plugin-eslint'
 import path from 'node:path'
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import svgr from 'vite-plugin-svgr'
 import { defineConfig, loadEnv } from 'vite'
+import eslint from 'vite-plugin-eslint'
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, path.resolve(process.cwd()), '')
+  const env = loadEnv(mode, import.meta.dirname, '')
 
   return {
-    plugins: [commonjs(), react(), svgr(), eslint({ failOnError: false })],
+    plugins: [
+      react(),
+      svgr({
+        svgrOptions: {
+          jsxRuntime: 'classic'
+        },
+        oxcOptions: {
+          jsx: {
+            runtime: 'classic'
+          }
+        }
+      }),
+      eslint({ failOnError: false })
+    ],
     base: env.NODE_ENV === 'production' ? env.VITE_PUBLIC_URL : '/',
     server: {
       proxy: {
@@ -57,14 +69,15 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         'igz-controls/nextGenComponents': path.resolve(
-          __dirname,
-          'node_modules/iguazio.dashboard-react-controls/dist/nextGenComponents/index.mjs'
+          import.meta.dirname,
+          'src/igz-controls/nextGenComponents/index.ts'
         ),
-        'igz-controls': path.resolve(
-          __dirname,
-          'node_modules/iguazio.dashboard-react-controls/dist'
+        'igz-controls/index.css': path.resolve(
+          import.meta.dirname,
+          'src/igz-controls/index.scss'
         ),
-        '@': path.resolve(__dirname, './src/nextGenComponents')
+        'igz-controls': path.resolve(import.meta.dirname, 'src/igz-controls'),
+        '@': path.resolve(import.meta.dirname, './src/nextGenComponents')
       },
       dedupe: [
         'react',

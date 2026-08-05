@@ -18,7 +18,7 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import { expect } from 'chai'
-import { differenceWith, isEqual } from 'lodash'
+import { differenceWith, isEqual } from 'lodash-es'
 import { clickNearComponent, scrollToWebElement } from './common.action'
 
 export const getOptionValues = async (driver, options) => {

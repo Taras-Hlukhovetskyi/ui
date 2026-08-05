@@ -18,7 +18,7 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import React from 'react'
-import { cloneDeep, debounce, omit } from 'lodash'
+import { cloneDeep, debounce, omit } from 'lodash-es'
 
 import {
   BE_PAGE,

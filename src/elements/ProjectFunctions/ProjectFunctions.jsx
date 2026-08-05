@@ -19,7 +19,7 @@ such restriction.
 */
 import React, { useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { has } from 'lodash'
+import { has } from 'lodash-es'
 
 import classnames from 'classnames'
 import { useParams } from 'react-router-dom'

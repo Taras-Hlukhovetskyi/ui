@@ -20,7 +20,7 @@ such restriction.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 import { HelpCircle, FileCode2 } from 'lucide-react'
 import {
   DataTable,
@@ -207,7 +207,7 @@ const ApplicationsPage = () => {
 
   return (
     <div
-      className="mlrun-tw-scope h-screen overflow-hidden bg-background flex flex-col w-full"
+      className="h-screen overflow-hidden bg-background flex flex-col w-full"
       data-testid="applications-page"
     >
       <TooltipProvider>

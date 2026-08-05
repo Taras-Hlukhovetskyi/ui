@@ -19,7 +19,7 @@ such restriction.
 */
 import React, { useCallback, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { cloneDeep, concat, find, forEach, map, reject } from 'lodash'
+import { cloneDeep, concat, find, forEach, map, reject } from 'lodash-es'
 
 import ConfigFunctionTemplate from './ConfigFunctionTemplate/ConfigFunctionTemplate'
 import ConfigSource from './ConfigSource/ConfigSource'

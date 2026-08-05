@@ -20,7 +20,7 @@ such restriction.
 import { By } from 'selenium-webdriver'
 import { locatorBuilder } from '../../common-tools/common-tools'
 
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 
 export default function(datepickerStructure) {
   const datepickerRoot = locatorBuilder`${0} ${1}`

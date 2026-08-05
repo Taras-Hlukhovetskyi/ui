@@ -17,12 +17,20 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-module.exports = {
-  timeout: 60000,
-  browser: 'chrome',
-  headless: false,
-  screen_size: { width: 1600, height: 900 },
-  report: 'tests/reports/cucumber_report',
-  test_url: 'localhost',
-  test_port: '3000'
+export const timeout = 60000
+export const browser = 'chrome'
+export const headless = false
+export const screen_size = { width: 1600, height: 900 }
+export const report = 'tests/reports/cucumber_report'
+export const test_url = 'localhost'
+export const test_port = '3000'
+
+export default {
+  timeout,
+  browser,
+  headless,
+  screen_size,
+  report,
+  test_url,
+  test_port
 }

@@ -20,7 +20,7 @@ such restriction.
 import React, { useCallback, useState, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-es'
 
 import ProjectMonitorView from './ProjectMonitorView'
 import RegisterArtifactModal from '../RegisterArtifactModal/RegisterArtifactModal'

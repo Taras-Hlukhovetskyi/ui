@@ -22,7 +22,7 @@ import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import { Form } from 'react-final-form'
 import { createForm } from 'final-form'
-import { isEqual, reduce, throttle } from 'lodash'
+import { isEqual, reduce, throttle } from 'lodash-es'
 import { useDispatch } from 'react-redux'
 
 import { PopUpDialog, RoundedIcon, Button } from 'igz-controls/components'

@@ -21,7 +21,7 @@ such restriction.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { chain, isEmpty, isNil } from 'lodash'
+import { chain, isEmpty, isNil } from 'lodash-es'
 import PropTypes from 'prop-types'
 
 import AddArtifactTagPopUp from '../../elements/AddArtifactTagPopUp/AddArtifactTagPopUp'

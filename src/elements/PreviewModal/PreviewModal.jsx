@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import prettyBytes from 'pretty-bytes'
 import PropTypes from 'prop-types'
 import { useParams } from 'react-router-dom'
-import { has } from 'lodash'
+import { has } from 'lodash-es'
 
 import ArtifactsPreview from '../../components/ArtifactsPreview/ArtifactsPreview'
 import Download from '../../common/Download/Download'

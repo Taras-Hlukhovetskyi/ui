@@ -19,7 +19,7 @@ such restriction.
 */
 import { useEffect, useState, createContext, useCallback } from 'react'
 import PropTypes from 'prop-types'
-import { capitalize, has, isEmpty } from 'lodash'
+import { capitalize, has, isEmpty } from 'lodash-es'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Loader, Tooltip, TextTooltipTemplate } from 'igz-controls/components'

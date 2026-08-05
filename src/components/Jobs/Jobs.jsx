@@ -20,7 +20,7 @@ such restriction.
 import React, { useEffect, useState, useMemo, useLayoutEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate, useParams, Outlet, useLocation } from 'react-router-dom'
-import { defaultsDeep, isEmpty } from 'lodash'
+import { defaultsDeep, isEmpty } from 'lodash-es'
 
 import Breadcrumbs from '../../common/Breadcrumbs/Breadcrumbs'
 import PreviewModal from '../../elements/PreviewModal/PreviewModal'
@@ -88,7 +88,6 @@ const Jobs = () => {
         parseQueryParamsCallback: parseScheduledQueryParamsCallback
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.jobName, params.projectName, selectedTab])
 
   const {
