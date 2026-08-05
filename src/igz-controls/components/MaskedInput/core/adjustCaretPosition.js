@@ -32,7 +32,9 @@ export default function adjustCaretPosition({
   indexesOfPipedChars = defaultArray,
   caretTrapIndexes = defaultArray
 }) {
-  if (currentCaretPosition === 0 || !rawValue.length) { return 0 }
+  if (currentCaretPosition === 0 || !rawValue.length) {
+    return 0
+  }
 
   // Store lengths for faster performance?
   const rawValueLength = rawValue.length
@@ -62,16 +64,16 @@ export default function adjustCaretPosition({
   // the current caret position.
   //
   // This works fine for most cases.
-  if (isPartialMultiCharEdit) { return currentCaretPosition }
+  if (isPartialMultiCharEdit) {
+    return currentCaretPosition
+  }
 
   // For a mask like (111), if the `previousConformedValue` is (1__) and user attempts to enter
   // `f` so the `rawValue` becomes (1f__), the new `conformedValue` would be (1__), which is the
   // same as the original `previousConformedValue`. We handle this case differently for caret
   // positioning.
-  const possiblyHasRejectedChar = isAddition && (
-    previousConformedValue === conformedValue ||
-    conformedValue === placeholder
-  )
+  const possiblyHasRejectedChar =
+    isAddition && (previousConformedValue === conformedValue || conformedValue === placeholder)
 
   let startingSearchIndex = 0
   let trackRightCharacter
@@ -96,7 +98,7 @@ export default function adjustCaretPosition({
 
     // Now we find all the characters in the left half that exist in the conformed input
     // This step ensures that we don't look for a character that was filtered out or rejected by `conformToMask`.
-    const intersection = leftHalfChars.filter((char) => normalizedConformedValue.indexOf(char) !== -1)
+    const intersection = leftHalfChars.filter(char => normalizedConformedValue.indexOf(char) !== -1)
 
     // The last character in the intersection is the character we want to look for in the conformed
     // value and the one we want to adjust the caret close to
@@ -107,28 +109,25 @@ export default function adjustCaretPosition({
     const previousLeftMaskChars = previousPlaceholder
       .substr(0, intersection.length)
       .split(emptyString)
-      .filter(char => char !== placeholderChar)
-      .length
+      .filter(char => char !== placeholderChar).length
 
     // Calculate the number of mask characters in the current placeholder
     // from the start of the string up to the place where the caret is
     const leftMaskChars = placeholder
       .substr(0, intersection.length)
       .split(emptyString)
-      .filter(char => char !== placeholderChar)
-      .length
+      .filter(char => char !== placeholderChar).length
 
     // Has the number of mask characters up to the caret changed?
     const masklengthChanged = leftMaskChars !== previousLeftMaskChars
 
     // Detect if `targetChar` is a mask character and has moved to the left
-    const targetIsMaskMovingLeft = (
+    const targetIsMaskMovingLeft =
       previousPlaceholder[intersection.length - 1] !== undefined &&
       placeholder[intersection.length - 2] !== undefined &&
       previousPlaceholder[intersection.length - 1] !== placeholderChar &&
       previousPlaceholder[intersection.length - 1] !== placeholder[intersection.length - 1] &&
       previousPlaceholder[intersection.length - 1] === placeholder[intersection.length - 2]
-    )
 
     // If deleting and the `targetChar` `is a mask character and `masklengthChanged` is true
     // or the mask is moving to the left, we can't use the selected `targetChar` any longer
@@ -152,40 +151,38 @@ export default function adjustCaretPosition({
 
     // If the `conformedValue` got piped, we need to know which characters were piped in so that when we look for
     // our `targetChar`, we don't select a piped char by mistake
-    const pipedChars = indexesOfPipedChars.map((index) => normalizedConformedValue[index])
+    const pipedChars = indexesOfPipedChars.map(index => normalizedConformedValue[index])
 
     // We need to know how many times the `targetChar` occurs in the piped characters.
-    const countTargetCharInPipedChars = pipedChars.filter((char) => char === targetChar).length
+    const countTargetCharInPipedChars = pipedChars.filter(char => char === targetChar).length
 
     // We need to know how many times it occurs in the intersection
-    const countTargetCharInIntersection = intersection.filter((char) => char === targetChar).length
+    const countTargetCharInIntersection = intersection.filter(char => char === targetChar).length
 
     // We need to know if the placeholder contains characters that look like
     // our `targetChar`, so we don't select one of those by mistake.
     const countTargetCharInPlaceholder = placeholder
       .substr(0, placeholder.indexOf(placeholderChar))
       .split(emptyString)
-      .filter((char, index) => (
-        // Check if `char` is the same as our `targetChar`, so we account for it
-        char === targetChar &&
-
-        // but also make sure that both the `rawValue` and placeholder don't have the same character at the same
-        // index because if they are equal, that means we are already counting those characters in
-        // `countTargetCharInIntersection`
-        rawValue[index] !== char
-      ))
-      .length
+      .filter(
+        (char, index) =>
+          // Check if `char` is the same as our `targetChar`, so we account for it
+          char === targetChar &&
+          // but also make sure that both the `rawValue` and placeholder don't have the same character at the same
+          // index because if they are equal, that means we are already counting those characters in
+          // `countTargetCharInIntersection`
+          rawValue[index] !== char
+      ).length
 
     // The number of times we need to see occurrences of the `targetChar` before we know it is the one we're looking
     // for is:
-    const requiredNumberOfMatches = (
+    const requiredNumberOfMatches =
       countTargetCharInPlaceholder +
       countTargetCharInIntersection +
       countTargetCharInPipedChars +
       // The character to the right of the caret isn't included in `intersection`
       // so add one if we are tracking the character to the right
       (trackRightCharacter ? 1 : 0)
-    )
 
     // Now we start looking for the location of the `targetChar`.
     // We keep looping forward and store the index in every iteration. Once we have encountered
@@ -227,10 +224,8 @@ export default function adjustCaretPosition({
       if (
         // If we're adding, we can position the caret at the next placeholder character.
         placeholder[i] === placeholderChar ||
-
         // If a caret trap was set by a mask function, we need to stop at the trap.
         caretTrapIndexes.indexOf(i) !== -1 ||
-
         // This is the end of the placeholder. We cannot move any further. Let's put the caret there.
         i === placeholderLength
       ) {
@@ -250,10 +245,8 @@ export default function adjustCaretPosition({
           // `targetChar` should be in `conformedValue`, since it was in `rawValue`, just
           // to the right of the caret
           conformedValue[i] === targetChar ||
-
           // If a caret trap was set by a mask function, we need to stop at the trap.
           caretTrapIndexes.indexOf(i) !== -1 ||
-
           // This is the beginning of the placeholder. We cannot move any further.
           // Let's put the caret there.
           i === 0
@@ -273,10 +266,8 @@ export default function adjustCaretPosition({
         if (
           // If we're deleting, we can position the caret right before the placeholder character
           placeholder[i - 1] === placeholderChar ||
-
           // If a caret trap was set by a mask function, we need to stop at the trap.
           caretTrapIndexes.indexOf(i) !== -1 ||
-
           // This is the beginning of the placeholder. We cannot move any further.
           // Let's put the caret there.
           i === 0
