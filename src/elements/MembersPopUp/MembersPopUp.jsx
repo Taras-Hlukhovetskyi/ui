@@ -107,7 +107,7 @@ const MembersPopUp = ({ changeMembersCallback, membersDispatch, membersState }) 
     membersState.projectAuthorizationRoles
       .filter(policy => policy.spec.displayName !== OWNER_ROLE)
       .forEach(policy => {
-        const roleName = policy.spec.displayName.toLowerCase()
+        const roleName = policy.spec.role
         membership[roleName] = {
           values: (groupedByRole[policy.spec.displayName] || []).map(member => member.id)
         }
