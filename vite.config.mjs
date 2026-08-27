@@ -13,25 +13,33 @@ export default defineConfig(async ({ mode }) => {
   const env = loadEnv(mode, path.resolve(process.cwd()), '')
   const mlrunProxyConfig = await loadMlrunProxyConfig(mode)
 
-  const federationPlugin =
-    env.VITE_FEDERATION === 'true'
-      ? federation({
-          filename: 'remoteEntry.js',
-          name: 'mlrun',
-          exposes: {
-            './loadRemoteConfig': './src/loadRemoteConfig.js',
-            './app': './src/main.jsx'
-          },
-          shared: {
-            react: { requiredVersion: dependencies.react, singleton: true },
-            'react-dom': { requiredVersion: dependencies['react-dom'], singleton: true }
-          }
-        })
-      : null
+  // Always built so remoteEntry.js is present in every image - it's simply unused
+  // when the app isn't loaded as a Module Federation remote (igz3/CE).
+  const federationPlugin = federation({
+    filename: 'remoteEntry.js',
+    name: 'mlrun',
+    // No TypeScript in this codebase, so the plugin's cross-remote .d.ts
+    // sync (and its dev-only websocket) has nothing to do here.
+    // TODO remove dts when migrate to TS
+    dts: false,
+    exposes: {
+      './loadRemoteConfig': './src/loadRemoteConfig.js',
+      './app': './src/main.jsx'
+    },
+    shared: {
+      react: { requiredVersion: dependencies.react, singleton: true },
+      'react-dom': { requiredVersion: dependencies['react-dom'], singleton: true }
+    }
+  })
 
   return {
     plugins: [commonjs(), react(), federationPlugin, svgr(), eslint({ failOnError: false })],
-    base: env.NODE_ENV === 'production' ? env.VITE_PUBLIC_URL : '/',
+    // Relative so one build works both standalone (nginx strips /mlrun, see
+    // nginx.conf.tmpl) and as an MF remote (module-federation runtime patches
+    // chunk URLs from wherever remoteEntry.js actually loaded from - it needs
+    // an unprefixed build to do that cleanly, same reason feature/ig4 cleared
+    // VITE_PUBLIC_URL for MF builds instead of using the standalone /mlrun).
+    base: env.NODE_ENV === 'production' ? './' : '/',
     server: {
       proxy: {
         ...mlrunProxyConfig(env)
