@@ -22,9 +22,6 @@ RUN npm install
 
 COPY . .
 
-# Single build for every environment (igz3, igz4/Module Federation, CE): MF mode
-# is detected at runtime in the browser (see src/constants.js IS_MF_MODE), not
-# baked in at build time, so there is no IS_MF build arg here anymore.
 RUN npm run build
 
 ARG COMMIT_HASH
