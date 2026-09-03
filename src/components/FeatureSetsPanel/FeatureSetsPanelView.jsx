@@ -119,7 +119,6 @@ const FeatureSetsPanelView = ({
           <PanelCredentialsAccessKey
             credentialsAccessKey={featureStore.newFeatureSet.credentials.access_key}
             frontendSpec={frontendSpec}
-            isApiToken // TODO add condition before merge to dev (for igz3 should be checkbox)
             required={accessKeyRequired}
             setCredentialsAccessKey={value => dispatch(setNewFeatureSetCredentialsAccessKey(value))}
             setValidation={setValidation}
