@@ -28,6 +28,7 @@ import { REDISNOSQL } from '../components/FeatureSetsPanel/FeatureSetsPanelTarge
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { hideLoading, showLoading } from './redux.util'
 import { isCommunityEdition } from '../utils/helper'
+import { IS_MF_MODE, PANEL_DEFAULT_ACCESS_KEY } from '../constants'
 import { largeResponseCatchHandler } from '../utils/largeResponseCatchHandler'
 import { parseFeatureSets } from '../utils/parseFeatureSets'
 import { parseFeatureVectors } from '../utils/parseFeatureVectors'
@@ -66,7 +67,7 @@ const initialState = {
   loading: false,
   newFeatureSet: {
     credentials: {
-      access_key: 'default' // TODO should be conditional based on env for igz3 PANEL_DEFAULT_ACCESS_KEY
+      access_key: IS_MF_MODE ? 'default' : PANEL_DEFAULT_ACCESS_KEY
     },
     metadata: {
       name: '',
