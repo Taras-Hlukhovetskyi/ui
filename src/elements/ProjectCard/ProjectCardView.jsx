@@ -20,6 +20,7 @@ such restriction.
 import React, { useRef } from 'react'
 import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
+import classnames from 'classnames'
 import { useNavigate } from 'react-router-dom'
 
 import ProjectStatistics from '../ProjectStatistics/ProjectStatistics'
@@ -32,6 +33,11 @@ import {
 } from 'igz-controls/components'
 
 import { getTimeElapsedByDate } from 'igz-controls/utils/datetime.util'
+import {
+  getProjectTransition,
+  getProjectTransitionTooltip
+} from '../../utils/projectOperation.util'
+import { IS_MF_MODE } from '../../constants'
 
 import Alerts from 'igz-controls/images/alerts.svg?react'
 import ClockIcon from 'igz-controls/images/clock.svg?react'
@@ -43,15 +49,21 @@ const ProjectCardView = React.forwardRef(({ actionsMenu, alert, project, statist
   const chipRef = useRef()
   const navigate = useNavigate()
 
-  const { deletingProjects, projectsToDelete } = useSelector(state => state.projectStore)
+  const { deletingProjects, projectsInTransition, projectsToDelete, projectsWithSyncIssues } =
+    useSelector(state => state.projectStore)
+  const transition = IS_MF_MODE ? getProjectTransition(project, projectsInTransition) : null
+  const transitionTooltip = transition
+    ? getProjectTransitionTooltip(transition, projectsWithSyncIssues[project.metadata.name])
+    : null
 
-  return (
-    <div className="project-card">
+  const card = (
+    <div className={classnames('project-card', transition && 'project-card_disabled')}>
       {(Object.values(deletingProjects).includes(project.metadata.name) ||
         projectsToDelete.includes(project.metadata.name)) && <Loader section />}
       <div
         onClick={event => {
           if (
+            !transition &&
             event.target.tagName !== 'A' &&
             !ref.current.contains(event.target) &&
             !chipRef.current?.contains(event.target) &&
@@ -121,6 +133,21 @@ const ProjectCardView = React.forwardRef(({ actionsMenu, alert, project, statist
           <ActionsMenu dataItem={project} menu={actionsMenu[project.metadata.name]} />
         </div>
       </div>
+    </div>
+  )
+
+  if (!transition) {
+    return card
+  }
+
+  return (
+    <div className="project-card__disabled-wrap">
+      <div className="project-card__disabled-overlay">
+        <div className="project-card__disabled-tooltip">
+          <TextTooltipTemplate text={transitionTooltip} />
+        </div>
+      </div>
+      {card}
     </div>
   )
 })

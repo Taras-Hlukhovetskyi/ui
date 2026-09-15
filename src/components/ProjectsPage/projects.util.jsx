@@ -39,7 +39,13 @@ import {
 } from '../../reducers/projectReducer'
 import tasksApi from '../../api/tasks-api'
 import { DANGER_BUTTON, FORBIDDEN_ERROR_STATUS_CODE } from 'igz-controls/constants'
-import { PROJECT_ONLINE_STATUS } from '../../constants'
+import {
+  endProjectTransition,
+  isProjectTransitioning,
+  startProjectTransition,
+  trackProjectMutation
+} from '../../utils/projectOperation.util'
+import { PROJECT_DELETING_STATE, PROJECT_ONLINE_STATUS } from '../../constants'
 import { setNotification } from 'igz-controls/reducers/notificationReducer'
 import { showErrorNotification } from 'igz-controls/utils/notification.util'
 
@@ -62,6 +68,7 @@ export const pageData = {
 export const generateProjectActionsMenu = (
   projects,
   deletingProjects,
+  projectsInTransition,
   exportYaml,
   viewYaml,
   archiveProject,
@@ -72,7 +79,9 @@ export const generateProjectActionsMenu = (
   let actionsMenu = {}
 
   projects.forEach(project => {
-    const projectIsDeleting = deletingProjectNames.includes(project.metadata.name)
+    const projectIsBusy =
+      deletingProjectNames.includes(project.metadata.name) ||
+      isProjectTransitioning(project, projectsInTransition)
 
     actionsMenu[project.metadata.name] = [
       [
@@ -80,26 +89,26 @@ export const generateProjectActionsMenu = (
           label: 'Archive',
           icon: <ArchiveIcon />,
           hidden: project.status.state === 'archived',
-          disabled: projectIsDeleting,
+          disabled: projectIsBusy,
           onClick: archiveProject
         },
         {
           label: 'Unarchive',
           icon: <UnarchiveIcon />,
           hidden: project.status.state === PROJECT_ONLINE_STATUS,
-          disabled: projectIsDeleting,
+          disabled: projectIsBusy,
           onClick: unarchiveProject
         },
         {
           label: 'Export YAML',
           icon: <DownloadIcon />,
-          disabled: projectIsDeleting,
+          disabled: projectIsBusy,
           onClick: exportYaml
         },
         {
           label: 'View YAML',
           icon: <Yaml />,
-          disabled: projectIsDeleting,
+          disabled: projectIsBusy,
           onClick: viewYaml
         },
         {
@@ -108,7 +117,7 @@ export const generateProjectActionsMenu = (
           className: 'danger',
           hidden:
             window.mlrunConfig?.nuclioMode === 'enabled' && project?.metadata?.name === 'default',
-          disabled: projectIsDeleting,
+          disabled: projectIsBusy,
           onClick: deleteProject
         }
       ]
@@ -393,10 +402,34 @@ export const handleDeleteProject = (
 ) => {
   setConfirmData && setConfirmData(null)
 
+  startProjectTransition(dispatch, projectName, PROJECT_DELETING_STATE)
+
   dispatch(deleteProject({ projectName, deleteNonEmpty }))
     .unwrap()
     .then(({ response }) => {
-      if (isBackgroundTaskRunning(response)) {
+      const isTracked = trackProjectMutation(response, {
+        projectName,
+        dispatch,
+        successMessage: `Project "${projectName}" was deleted successfully`,
+        failureMessage: `Failed to delete the project "${projectName}"`,
+        removeProjectOnSuccess: true,
+        operation: PROJECT_DELETING_STATE,
+        onSettled: refreshProjects ?? fetchMinimalProjects
+      })
+
+      if (isTracked) {
+        dispatch(
+          setNotification({
+            status: 200,
+            id: Math.random(),
+            message: 'Project deletion in progress'
+          })
+        )
+
+        if (navigate) {
+          navigate('/projects')
+        }
+      } else if (isBackgroundTaskRunning(response)) {
         dispatch(
           setNotification({
             status: 200,
@@ -434,6 +467,8 @@ export const handleDeleteProject = (
       }
     })
     .catch(({ error }) => {
+      endProjectTransition(dispatch, projectName)
+
       handleDeleteProjectError(
         error,
         handleDeleteProject,
