@@ -24,6 +24,7 @@ import classnames from 'classnames'
 import { useNavigate } from 'react-router-dom'
 
 import ProjectStatistics from '../ProjectStatistics/ProjectStatistics'
+import ProjectCardTransitionOverlay from './ProjectCardTransitionOverlay'
 import {
   Tooltip,
   TextTooltipTemplate,
@@ -36,8 +37,7 @@ import { getTimeElapsedByDate } from 'igz-controls/utils/datetime.util'
 import {
   getProjectTransition,
   getProjectTransitionTooltip
-} from '../../utils/projectOperation.util'
-import { IS_MF_MODE } from '../../constants'
+} from '../../utils/projectTransition.util'
 
 import Alerts from 'igz-controls/images/alerts.svg?react'
 import ClockIcon from 'igz-controls/images/clock.svg?react'
@@ -49,17 +49,30 @@ const ProjectCardView = React.forwardRef(({ actionsMenu, alert, project, statist
   const chipRef = useRef()
   const navigate = useNavigate()
 
-  const { deletingProjects, projectsInTransition, projectsToDelete, projectsWithSyncIssues } =
-    useSelector(state => state.projectStore)
-  const transition = IS_MF_MODE ? getProjectTransition(project, projectsInTransition) : null
-  const transitionTooltip = transition
-    ? getProjectTransitionTooltip(transition, projectsWithSyncIssues[project.metadata.name])
-    : null
+  const projectName = project.metadata.name
 
-  const card = (
+  // Selected one value at a time, and as primitives, so that an unrelated change to the project
+  // store does not re-render every card in the grid.
+  const isDeleting = useSelector(
+    state =>
+      Object.values(state.projectStore.deletingProjects).includes(projectName) ||
+      state.projectStore.projectsToDelete.includes(projectName)
+  )
+  const transition = useSelector(state =>
+    getProjectTransition(project, state.projectStore.projectsInTransition)
+  )
+  const hasSyncIssue = useSelector(state =>
+    Boolean(state.projectStore.projectsInTransition[projectName]?.hasSyncIssue)
+  )
+
+  return (
     <div className={classnames('project-card', transition && 'project-card_disabled')}>
-      {(Object.values(deletingProjects).includes(project.metadata.name) ||
-        projectsToDelete.includes(project.metadata.name)) && <Loader section />}
+      {transition && (
+        <ProjectCardTransitionOverlay
+          tooltip={getProjectTransitionTooltip(transition, hasSyncIssue)}
+        />
+      )}
+      {isDeleting && <Loader section />}
       <div
         onClick={event => {
           if (
@@ -133,21 +146,6 @@ const ProjectCardView = React.forwardRef(({ actionsMenu, alert, project, statist
           <ActionsMenu dataItem={project} menu={actionsMenu[project.metadata.name]} />
         </div>
       </div>
-    </div>
-  )
-
-  if (!transition) {
-    return card
-  }
-
-  return (
-    <div className="project-card__disabled-wrap">
-      <div className="project-card__disabled-overlay">
-        <div className="project-card__disabled-tooltip">
-          <TextTooltipTemplate text={transitionTooltip} />
-        </div>
-      </div>
-      {card}
     </div>
   )
 })

@@ -28,8 +28,19 @@ import {
   PROJECTS_PAGE_PATH,
   PUBLIC_URL
 } from './constants'
+import {
+  BAD_GATEWAY_ERROR_STATUS_CODE,
+  GATEWAY_TIMEOUT_STATUS_CODE,
+  SERVICE_UNAVAILABLE_ERROR_STATUS_CODE
+} from 'igz-controls/constants'
 import { openPopUp } from 'igz-controls/utils/common.util'
-import { mlrunUnhealthyErrors } from './components/ProjectsPage/projects.util'
+
+// Responses that mean the MLRun API itself is down rather than the request being wrong.
+const MLRUN_UNHEALTHY_ERRORS = [
+  BAD_GATEWAY_ERROR_STATUS_CODE,
+  SERVICE_UNAVAILABLE_ERROR_STATUS_CODE,
+  GATEWAY_TIMEOUT_STATUS_CODE
+]
 
 const headers = {
   'Cache-Control': 'no-cache'
@@ -221,7 +232,7 @@ const responseRejectInterceptor = error => {
 
   if (error.config?.method === 'get') {
     if (
-      mlrunUnhealthyErrors.includes(error.response?.status) &&
+      MLRUN_UNHEALTHY_ERRORS.includes(error.response?.status) &&
       consecutiveErrorsCount < MAX_CONSECUTIVE_ERRORS_COUNT
     ) {
       consecutiveErrorsCount++

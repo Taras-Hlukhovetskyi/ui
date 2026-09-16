@@ -21,11 +21,6 @@ import React from 'react'
 import { get, omit, last } from 'lodash'
 
 import {
-  BAD_GATEWAY_ERROR_STATUS_CODE,
-  SERVICE_UNAVAILABLE_ERROR_STATUS_CODE,
-  GATEWAY_TIMEOUT_STATUS_CODE
-} from 'igz-controls/constants'
-import {
   BG_TASK_FAILED,
   BG_TASK_SUCCEEDED,
   isBackgroundTaskRunning,
@@ -41,10 +36,10 @@ import tasksApi from '../../api/tasks-api'
 import { DANGER_BUTTON, FORBIDDEN_ERROR_STATUS_CODE } from 'igz-controls/constants'
 import {
   endProjectTransition,
-  isProjectTransitioning,
   startProjectTransition,
   trackProjectMutation
 } from '../../utils/projectOperation.util'
+import { isProjectTransitioning } from '../../utils/projectTransition.util'
 import { PROJECT_DELETING_STATE, PROJECT_ONLINE_STATUS } from '../../constants'
 import { setNotification } from 'igz-controls/reducers/notificationReducer'
 import { showErrorNotification } from 'igz-controls/utils/notification.util'
@@ -55,11 +50,6 @@ import DownloadIcon from 'igz-controls/images/ml-download.svg?react'
 import UnarchiveIcon from 'igz-controls/images/unarchive-icon.svg?react'
 import Yaml from 'igz-controls/images/yaml.svg?react'
 
-export const mlrunUnhealthyErrors = [
-  BAD_GATEWAY_ERROR_STATUS_CODE,
-  SERVICE_UNAVAILABLE_ERROR_STATUS_CODE,
-  GATEWAY_TIMEOUT_STATUS_CODE
-]
 export const projectDeletionKind = 'project.deletion'
 export const projectDeletionWrapperKind = 'project.deletion.wrapper'
 export const pageData = {

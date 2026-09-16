@@ -30,44 +30,23 @@
     }
   }
 
-  &__disabled-wrap {
-    position: relative;
-    height: 100%;
-
-    .project-card {
-      height: 100%;
-    }
-
-    &:hover {
-      z-index: 6;
-
-      .project-card__disabled-tooltip {
-        visibility: visible;
-        opacity: 1;
-      }
-    }
-  }
-
-  &__disabled-overlay {
+  // Sits over the whole card so a transitional project cannot be clicked through to.
+  &__transition-overlay {
     position: absolute;
     inset: 0;
     z-index: 5;
   }
 
-  &__disabled-tooltip {
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    z-index: 6;
-    width: max-content;
-    max-width: calc(100% - 16px);
+  // Portaled to #overlay_container, so `.tooltip` already supplies position: fixed, the max width
+  // and the stacking. The coordinates set from JS are the centre of the card's top edge, so the box
+  // is pulled left by half its own width and up by its own height to sit above and centred on it.
+  &__transition-tooltip {
     pointer-events: none;
-    visibility: hidden;
-    opacity: 0;
-    transform: translateX(-50%);
-    transition:
-      opacity 0.2s,
-      visibility 0.2s;
+    transform: translate(-50%, -100%);
+
+    &_below {
+      transform: translate(-50%, 0);
+    }
   }
 
   &__general-info {

@@ -40,7 +40,6 @@ import {
   handleProjectOperationConflict,
   startProjectTransition,
   trackProjectMutation,
-  trackUntrackedProjectOperations,
   withLatestOpId
 } from '../../utils/projectOperation.util'
 import {
@@ -74,6 +73,9 @@ import {
   upsertProject
 } from '../../reducers/projectReducer'
 import { fetchAllNuclioFunctions } from '../../reducers/nuclioReducer'
+import { parseProjects } from '../../utils/parseProjects'
+
+const PROJECTS_LIST_POLL_INTERVAL = 60 * 1000
 
 const Projects = () => {
   const [actionsMenu, setActionsMenu] = useState({})
@@ -217,21 +219,23 @@ const Projects = () => {
   // Reports the outcome of a finished lifecycle operation without disturbing the list on screen.
   const refreshProjectsInPlace = useCallback(() => refreshProjects(true), [refreshProjects])
 
-  // Creating/deleting projects this client did not start (reload, another client) get an execution
-  // poll when they carry an opId. The list is re-read only once that poll succeeds.
+  // While this page is open, re-read the project list on a fixed interval so a create/delete that
+  // outlived its execution poll still undims (or disappears) once the leader reports it settled.
   useEffect(() => {
     if (!IS_MF_MODE) return
 
-    trackUntrackedProjectOperations(
-      projectStore.projects,
-      projectStore.projectsInTransition,
-      dispatch,
-      () => {
-        refreshProjectsInPlace()
-        dispatch(fetchProjectsNames())
-      }
-    )
-  }, [dispatch, projectStore.projects, projectStore.projectsInTransition, refreshProjectsInPlace])
+    const intervalId = setInterval(() => {
+      dispatch(
+        fetchProjects({
+          params: { format: 'minimal' },
+          silent: true,
+          showNotification: false
+        })
+      )
+    }, PROJECTS_LIST_POLL_INTERVAL)
+
+    return () => clearInterval(intervalId)
+  }, [dispatch])
 
   const handleSearchOnChange = useCallback(
     name => {
@@ -494,14 +498,19 @@ const Projects = () => {
           setCreateProject(false)
 
           if (IS_MF_MODE) {
-            startProjectTransition(dispatch, projectName, PROJECT_CREATING_STATE)
-            dispatch(
-              upsertProject({
-                ...result,
-                status: { ...result.status, state: PROJECT_CREATING_STATE, createdOnUI: true }
-              })
+            const project = {
+              ...result,
+              status: { ...result.status, state: PROJECT_CREATING_STATE }
+            }
+
+            startProjectTransition(
+              dispatch,
+              projectName,
+              PROJECT_CREATING_STATE,
+              parseProjects([project])[0]
             )
-  
+            dispatch(upsertProject(project))
+
             trackProjectMutation(result, {
               projectName,
               dispatch,
@@ -513,8 +522,7 @@ const Projects = () => {
                 dispatch(fetchProjectsNames())
               }
             })
-          }
-          else {
+          } else {
             refreshProjects()
             dispatch(fetchProjectsNames())
           }

@@ -40,6 +40,9 @@ export const orcaProjectMutations = {
       toOrcaStatePayload(state, project)
     ),
   createProject: postData => iguazioHttpClient.post(PROJECTS_URL, toOrcaCreatePayload(postData)),
+  // TODO: Orca does not honour `x-mlrun-deletion-strategy` yet, so a non-empty project cannot be
+  // refused and re-confirmed the way MLRun does. The header is sent already so that the existing
+  // confirmation flow starts working unchanged once the leader adds support.
   deleteProject: (project, deleteNonEmpty) =>
     iguazioHttpClient.delete(`${PROJECTS_URL}/${project}`, {
       headers: {

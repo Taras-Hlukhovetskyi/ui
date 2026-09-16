@@ -22,7 +22,7 @@ import { VIEW_SEARCH_PARAMETER } from 'igz-controls/constants'
 import { generateUrlFromRouterPath } from 'igz-controls/utils/common.util'
 import { getFilteredSearchParams } from 'igz-controls/utils/filter.util'
 import { showErrorNotification } from 'igz-controls/utils/notification.util'
-import { isProjectTransitioning } from './projectOperation.util'
+import { isProjectTransitioning } from './projectTransition.util'
 
 export const isPageTabValid = (pageTab, tabs, navigate, location) => {
   if (!tabs.includes(pageTab)) {

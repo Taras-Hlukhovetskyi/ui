@@ -20,16 +20,18 @@ such restriction.
 
 /*
  * Temporary shim: Orca does not accept MLRun's `{ metadata, spec }` project body. Its endpoints are
- * a gRPC-gateway proxy that rejects unknown fields outright, so sending the MLRun body fails with
- * `proto: unknown field "metadata"`. It expects a flat options message instead.
+ * a gRPC-gateway proxy, so the MLRun body fails with `proto: unknown field "metadata"`. It expects
+ * a flat message instead, which is what this module produces.
  *
  * Every MLRun -> Orca payload difference is confined to this file so that, once the leader accepts
  * the MLRun shape, this module can be deleted and `projects-orca-api.js` can pass its payloads
  * straight through.
  *
- * Known gap while this shim is needed: the flat update message only carries name, description,
- * labels, annotations, owner and desiredState, so MLRun-only settings (artifact path, source,
- * goals, params, node selectors, default image) have nowhere to go on the Orca body.
+ * TODO: the flattening below forwards every `spec`/`metadata` key the UI holds, including the
+ * MLRun-only settings (artifact path, source, goals, params, node selectors, default image) that
+ * the leader has no field for. Whether it ignores or rejects them is a leader-side bug being fixed
+ * on the backend; until that lands, Project Settings saves in ORIS mode are unverified. Link the
+ * Orca ticket here once it is filed.
  */
 
 import { PROJECT_ARCHIVED_STATE, PROJECT_ONLINE_STATUS } from '../constants'
@@ -44,7 +46,7 @@ const toOrcaProjectFields = (project = {}) => {
   const { metadata = {}, spec = {} } = project
 
   return {
-    ...(spec && { ...spec}),
+    ...(spec && { ...spec }),
     ...(metadata && { ...metadata })
   }
 }
