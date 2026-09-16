@@ -28,6 +28,7 @@ import {
 } from 'igz-controls/constants'
 import { DEFAULT_ABORT_MSG, PROJECT_ONLINE_STATUS, REQUEST_CANCELED } from '../constants'
 import { parseProjects } from '../utils/parseProjects'
+import { isProjectTransitioning } from '../utils/projectOperation.util'
 import { showErrorNotification } from 'igz-controls/utils/notification.util'
 import { parseSummaryData } from '../utils/parseSummaryData'
 import { mlrunUnhealthyErrors } from '../components/ProjectsPage/projects.util'
@@ -120,6 +121,8 @@ const initialState = {
   },
   projectTotalAlerts: {},
   projects: [],
+  projectsInTransition: {},
+  projectsWithSyncIssues: {},
   projectsNames: {
     error: null,
     loading: false,
@@ -135,6 +138,18 @@ const initialState = {
     loading: true,
     data: []
   }
+}
+
+// A recorded sync issue only describes the operation the project is currently going through, so it
+// must not outlive it and resurface on an unrelated later operation.
+const dropResolvedSyncIssues = (state, projects) => {
+  Object.keys(state.projectsWithSyncIssues).forEach(projectName => {
+    const project = projects.find(({ metadata }) => metadata.name === projectName)
+
+    if (!project || !isProjectTransitioning(project, state.projectsInTransition)) {
+      delete state.projectsWithSyncIssues[projectName]
+    }
+  })
 }
 
 export const changeProjectState = createAsyncThunk(
@@ -180,16 +195,11 @@ export const deleteProject = createAsyncThunk(
 export const fetchProject = createAsyncThunk(
   'fetchProject',
   ({ project, params, signal }, thunkAPI) => {
-    return projectsApi
-      .getProject(project, params, signal)
-      .then(response => {
-        return response
-      })
-      .catch(error => {
-        if (![REQUEST_CANCELED, DEFAULT_ABORT_MSG].includes(error.message)) {
-          return thunkAPI.rejectWithValue(error)
-        }
-      })
+    return projectsApi.getProject(project, params, signal).catch(error => {
+      if (![REQUEST_CANCELED, DEFAULT_ABORT_MSG].includes(error.message)) {
+        return thunkAPI.rejectWithValue(error)
+      }
+    })
   }
 )
 export const fetchProjectDataSets = createAsyncThunk(
@@ -287,9 +297,7 @@ export const fetchProjects = createAsyncThunk(
 
     return projectsApi
       .getProjects(params)
-      .then(response => {
-        return parseProjects(response.data.projects)
-      })
+      .then(response => parseProjects(response.data.projects))
       .catch(error => {
         if (showNotification) {
           showErrorNotification(
@@ -399,11 +407,53 @@ const projectStoreSlice = createSlice({
     setProjectTotalAlerts(state, action) {
       state.projectTotalAlerts = { ...action.payload }
     },
+    setProjectSyncIssue(state, action) {
+      const { projectName, hasSyncIssue } = action.payload
+
+      if (hasSyncIssue) {
+        state.projectsWithSyncIssues[projectName] = true
+      } else {
+        delete state.projectsWithSyncIssues[projectName]
+      }
+    },
+    // The leader only reports a project as transitional once it has processed the request, and the
+    // list is not re-read until the operation completes, so the card is held in its transitional
+    // look from the moment the request is sent until the operation settles or the request fails.
+    setProjectTransition(state, action) {
+      const { projectName, operation } = action.payload
+
+      if (operation) {
+        state.projectsInTransition[projectName] = operation
+      } else {
+        delete state.projectsInTransition[projectName]
+        delete state.projectsWithSyncIssues[projectName]
+      }
+    },
     setAccessibleProjectsMap(state, action) {
       state.accessibleProjectsMap = {
         ...state.accessibleProjectsMap,
         ...action.payload
       }
+    },
+    upsertProject(state, action) {
+      const [project] = parseProjects([action.payload])
+      const name = project?.metadata?.name
+
+      if (!name) return
+
+      const index = state.projects.findIndex(item => item.metadata.name === name)
+
+      if (index === -1) {
+        state.projects.unshift(project)
+      } else {
+        state.projects[index] = project
+      }
+    },
+    removeProject(state, action) {
+      const projectName = action.payload
+
+      state.projects = state.projects.filter(project => project.metadata.name !== projectName)
+      state.projectsNames.data = state.projectsNames.data.filter(name => name !== projectName)
     }
   },
   extraReducers: builder => {
@@ -546,7 +596,13 @@ const projectStoreSlice = createSlice({
         loading: false
       }
     })
-    builder.addCase(fetchProjects.pending, showLoading)
+    // A refresh triggered by a finished lifecycle operation asks for `silent`, so the list is
+    // replaced in place instead of collapsing behind the page-level loader.
+    builder.addCase(fetchProjects.pending, (state, action) => {
+      if (!action.meta.arg?.silent) {
+        state.loading = true
+      }
+    })
     builder.addCase(fetchProjects.fulfilled, (state, action) => {
       state.projects = action.payload
       state.loading = false
@@ -554,6 +610,8 @@ const projectStoreSlice = createSlice({
       state.projectsNames.data = action.payload
         .filter(project => project.status.state === PROJECT_ONLINE_STATUS)
         .map(project => project.metadata.name)
+
+      dropResolvedSyncIssues(state, action.payload)
     })
     builder.addCase(fetchProjects.rejected, (state, action) => {
       state.projects = []
@@ -607,7 +665,11 @@ export const {
   setMlrunUnhealthyRetrying,
   setJobsMonitoringData,
   setProjectTotalAlerts,
-  setAccessibleProjectsMap
+  setProjectSyncIssue,
+  setProjectTransition,
+  setAccessibleProjectsMap,
+  upsertProject,
+  removeProject
 } = projectStoreSlice.actions
 
 export default projectStoreSlice.reducer

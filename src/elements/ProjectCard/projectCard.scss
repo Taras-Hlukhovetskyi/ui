@@ -20,6 +20,56 @@
 
   @include mixins.gradient('card');
 
+  &_disabled {
+    cursor: default;
+    filter: grayscale(1);
+    opacity: 0.6;
+
+    &:hover {
+      box-shadow: shadows.$previewBoxShadowInit;
+    }
+  }
+
+  &__disabled-wrap {
+    position: relative;
+    height: 100%;
+
+    .project-card {
+      height: 100%;
+    }
+
+    &:hover {
+      z-index: 6;
+
+      .project-card__disabled-tooltip {
+        visibility: visible;
+        opacity: 1;
+      }
+    }
+  }
+
+  &__disabled-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+  }
+
+  &__disabled-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    z-index: 6;
+    width: max-content;
+    max-width: calc(100% - 16px);
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateX(-50%);
+    transition:
+      opacity 0.2s,
+      visibility 0.2s;
+  }
+
   &__general-info {
     position: relative;
     display: flex;
