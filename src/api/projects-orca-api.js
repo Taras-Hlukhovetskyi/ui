@@ -40,7 +40,12 @@ export const orcaProjectMutations = {
       toOrcaStatePayload(state, project)
     ),
   createProject: postData => iguazioHttpClient.post(PROJECTS_URL, toOrcaCreatePayload(postData)),
-  deleteProject: project => iguazioHttpClient.delete(`${PROJECTS_URL}/${project}`),
+  deleteProject: (project, deleteNonEmpty) =>
+    iguazioHttpClient.delete(`${PROJECTS_URL}/${project}`, {
+      headers: {
+        'x-mlrun-deletion-strategy': deleteNonEmpty ? 'cascade' : 'restricted'
+      }
+    }),
   editProject: (projectName, data) =>
     iguazioHttpClient.put(`${PROJECTS_URL}/${projectName}`, toOrcaUpdatePayload(data)),
   updateProject: (projectName, data) =>

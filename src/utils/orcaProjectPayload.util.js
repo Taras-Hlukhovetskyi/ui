@@ -44,13 +44,8 @@ const toOrcaProjectFields = (project = {}) => {
   const { metadata = {}, spec = {} } = project
 
   return {
-    ...(metadata.name && { name: metadata.name }),
-    ...(spec.description != null && { description: spec.description }),
-    ...(spec.owner && { owner: spec.owner }),
-    // Despite the OpenAPI spec describing these as arrays of {key, value} entries, the gateway
-    // rejects the array form and takes the same plain key/value map that MLRun uses.
-    ...(metadata.labels && { labels: metadata.labels }),
-    ...(metadata.annotations && { annotations: metadata.annotations })
+    ...(spec && { ...spec}),
+    ...(metadata && { ...metadata })
   }
 }
 
@@ -62,7 +57,6 @@ const toOrcaMutationBase = (project = {}) => {
   return {
     name: project.metadata?.name,
     owner: project.spec?.owner,
-    // PUT upserts when the project is absent and ignores prevOpId; omit it rather than send stale.
     ...(prevOpId && { prevOpId })
   }
 }

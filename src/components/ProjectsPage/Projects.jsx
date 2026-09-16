@@ -492,27 +492,29 @@ const Projects = () => {
           const successMessage = `Project "${projectName}" was created successfully`
 
           setCreateProject(false)
-          startProjectTransition(dispatch, projectName, PROJECT_CREATING_STATE)
-          dispatch(
-            upsertProject({
-              ...result,
-              status: { ...result.status, state: PROJECT_CREATING_STATE, createdOnUI: true }
+
+          if (IS_MF_MODE) {
+            startProjectTransition(dispatch, projectName, PROJECT_CREATING_STATE)
+            dispatch(
+              upsertProject({
+                ...result,
+                status: { ...result.status, state: PROJECT_CREATING_STATE, createdOnUI: true }
+              })
+            )
+  
+            trackProjectMutation(result, {
+              projectName,
+              dispatch,
+              successMessage,
+              failureMessage: `Failed to create the project "${projectName}"`,
+              operation: PROJECT_CREATING_STATE,
+              onSettled: () => {
+                refreshProjectsInPlace()
+                dispatch(fetchProjectsNames())
+              }
             })
-          )
-
-          const isTracked = trackProjectMutation(result, {
-            projectName,
-            dispatch,
-            successMessage,
-            failureMessage: `Failed to create the project "${projectName}"`,
-            operation: PROJECT_CREATING_STATE,
-            onSettled: () => {
-              refreshProjectsInPlace()
-              dispatch(fetchProjectsNames())
-            }
-          })
-
-          if (!isTracked) {
+          }
+          else {
             refreshProjects()
             dispatch(fetchProjectsNames())
           }
@@ -521,7 +523,7 @@ const Projects = () => {
             setNotification({
               status: 200,
               id: Math.random(),
-              message: isTracked ? `Project "${projectName}" is being created` : successMessage
+              message: IS_MF_MODE ? `Project "${projectName}" is being created` : successMessage
             })
           )
         }

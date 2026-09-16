@@ -23,7 +23,7 @@ import { IS_MF_MODE } from '../constants'
 
 const mlrunProjectsApi = {
   changeProjectState: (project, state) =>
-    mainHttpClient.patch(`/projects/${project}`, {
+    mainHttpClient.patch(`/projects/${project.metadata.name}`, {
       spec: { desired_state: state }
     }),
   createProject: postData => mainHttpClient.post('/projects', postData),
