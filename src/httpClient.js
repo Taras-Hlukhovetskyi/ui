@@ -25,22 +25,11 @@ import {
   CANCEL_REQUEST_TIMEOUT,
   IS_MF_MODE,
   LARGE_REQUEST_CANCELED,
+  MLRUN_UNHEALTHY_ERRORS,
   PROJECTS_PAGE_PATH,
   PUBLIC_URL
 } from './constants'
-import {
-  BAD_GATEWAY_ERROR_STATUS_CODE,
-  GATEWAY_TIMEOUT_STATUS_CODE,
-  SERVICE_UNAVAILABLE_ERROR_STATUS_CODE
-} from 'igz-controls/constants'
 import { openPopUp } from 'igz-controls/utils/common.util'
-
-// Responses that mean the MLRun API itself is down rather than the request being wrong.
-const MLRUN_UNHEALTHY_ERRORS = [
-  BAD_GATEWAY_ERROR_STATUS_CODE,
-  SERVICE_UNAVAILABLE_ERROR_STATUS_CODE,
-  GATEWAY_TIMEOUT_STATUS_CODE
-]
 
 const headers = {
   'Cache-Control': 'no-cache'

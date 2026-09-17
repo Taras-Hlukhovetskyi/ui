@@ -69,9 +69,8 @@ export const generateProjectActionsMenu = (
   let actionsMenu = {}
 
   projects.forEach(project => {
-    const projectIsBusy =
-      deletingProjectNames.includes(project.metadata.name) ||
-      isProjectTransitioning(project, projectsInTransition)
+    const projectIsDeleting = deletingProjectNames.includes(project.metadata.name)
+    const projectIsTransitioning = isProjectTransitioning(project, projectsInTransition)
 
     actionsMenu[project.metadata.name] = [
       [
@@ -79,26 +78,26 @@ export const generateProjectActionsMenu = (
           label: 'Archive',
           icon: <ArchiveIcon />,
           hidden: project.status.state === 'archived',
-          disabled: projectIsBusy,
+          disabled: projectIsDeleting || projectIsTransitioning,
           onClick: archiveProject
         },
         {
           label: 'Unarchive',
           icon: <UnarchiveIcon />,
           hidden: project.status.state === PROJECT_ONLINE_STATUS,
-          disabled: projectIsBusy,
+          disabled: projectIsDeleting || projectIsTransitioning,
           onClick: unarchiveProject
         },
         {
           label: 'Export YAML',
           icon: <DownloadIcon />,
-          disabled: projectIsBusy,
+          disabled: projectIsDeleting || projectIsTransitioning,
           onClick: exportYaml
         },
         {
           label: 'View YAML',
           icon: <Yaml />,
-          disabled: projectIsBusy,
+          disabled: projectIsDeleting || projectIsTransitioning,
           onClick: viewYaml
         },
         {
@@ -107,7 +106,7 @@ export const generateProjectActionsMenu = (
           className: 'danger',
           hidden:
             window.mlrunConfig?.nuclioMode === 'enabled' && project?.metadata?.name === 'default',
-          disabled: projectIsBusy,
+          disabled: projectIsDeleting || projectIsTransitioning,
           onClick: deleteProject
         }
       ]

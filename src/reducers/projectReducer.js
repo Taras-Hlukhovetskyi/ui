@@ -22,16 +22,14 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import projectsApi from '../api/projects-api'
 import { hideLoading, showLoading } from './redux.util'
 import {
-  BAD_GATEWAY_ERROR_STATUS_CODE,
   CONFLICT_ERROR_STATUS_CODE,
   FORBIDDEN_ERROR_STATUS_CODE,
-  GATEWAY_TIMEOUT_STATUS_CODE,
-  INTERNAL_SERVER_ERROR_STATUS_CODE,
-  SERVICE_UNAVAILABLE_ERROR_STATUS_CODE
+  INTERNAL_SERVER_ERROR_STATUS_CODE
 } from 'igz-controls/constants'
 import {
   DEFAULT_ABORT_MSG,
   IS_MF_MODE,
+  MLRUN_UNHEALTHY_ERRORS,
   PROJECT_ONLINE_STATUS,
   REQUEST_CANCELED
 } from '../constants'
@@ -45,13 +43,6 @@ import {
   splitApplicationsContent
 } from '../utils/applications.utils'
 import { fetchNuclioFunctions } from './nuclioReducer'
-
-// Responses that mean the MLRun API itself is down rather than the request being wrong.
-const MLRUN_UNHEALTHY_ERRORS = [
-  BAD_GATEWAY_ERROR_STATUS_CODE,
-  SERVICE_UNAVAILABLE_ERROR_STATUS_CODE,
-  GATEWAY_TIMEOUT_STATUS_CODE
-]
 
 /**
  * Takes the fetched list as-is. A still-polling entry is left in `projectsInTransition` so the

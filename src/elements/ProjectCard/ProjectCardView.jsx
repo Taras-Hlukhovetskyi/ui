@@ -58,7 +58,7 @@ const ProjectCardView = React.forwardRef(({ actionsMenu, alert, project, statist
       Object.values(state.projectStore.deletingProjects).includes(projectName) ||
       state.projectStore.projectsToDelete.includes(projectName)
   )
-  const transition = useSelector(state =>
+  const projectTransition = useSelector(state =>
     getProjectTransition(project, state.projectStore.projectsInTransition)
   )
   const hasSyncIssue = useSelector(state =>
@@ -66,17 +66,17 @@ const ProjectCardView = React.forwardRef(({ actionsMenu, alert, project, statist
   )
 
   return (
-    <div className={classnames('project-card', transition && 'project-card_disabled')}>
-      {transition && (
+    <div className={classnames('project-card', projectTransition && 'project-card_disabled')}>
+      {projectTransition && (
         <ProjectCardTransitionOverlay
-          tooltip={getProjectTransitionTooltip(transition, hasSyncIssue)}
+          tooltip={getProjectTransitionTooltip(projectTransition, hasSyncIssue)}
         />
       )}
       {isDeleting && <Loader section />}
       <div
         onClick={event => {
           if (
-            !transition &&
+            !projectTransition &&
             event.target.tagName !== 'A' &&
             !ref.current.contains(event.target) &&
             !chipRef.current?.contains(event.target) &&
