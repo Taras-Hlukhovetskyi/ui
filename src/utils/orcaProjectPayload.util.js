@@ -42,6 +42,12 @@ const ORCA_DESIRED_STATE_BY_MLRUN_STATE = {
   [PROJECT_ARCHIVED_STATE]: 3
 }
 
+/**
+ * Flattens MLRun's `{ metadata, spec }` project body into the fields the leader accepts. Metadata
+ * keys win over spec keys on collision. `metadata` itself is not sent.
+ * @param {Object} [project]
+ * @returns {Object}
+ */
 const toOrcaProjectFields = (project = {}) => {
   const { metadata = {}, spec = {} } = project
 
@@ -53,6 +59,12 @@ const toOrcaProjectFields = (project = {}) => {
 
 const readOpId = project => project?.status?.opId ?? project?.status?.op_id
 
+/**
+ * CAS witness and identity fields required on every mutation of an existing project.
+ * `prevOpId` is omitted when the project has none, rather than sending a stale value.
+ * @param {Object} [project]
+ * @returns {{name: (string|undefined), owner: (string|undefined), prevOpId?: string}}
+ */
 const toOrcaMutationBase = (project = {}) => {
   const prevOpId = readOpId(project)
 
@@ -63,13 +75,33 @@ const toOrcaMutationBase = (project = {}) => {
   }
 }
 
+/**
+ * Body for `POST /v1/projects/projects`. Create does not take a CAS witness.
+ * @param {Object} project - MLRun-shaped `{ metadata, spec }` project.
+ * @returns {Object}
+ */
 export const toOrcaCreatePayload = project => toOrcaProjectFields(project)
 
+/**
+ * Body for `PUT`/`PATCH /v1/projects/projects/{name}`. Includes `prevOpId` when the project
+ * already carries one so the leader can reject a stale write with 409.
+ * @param {Object} project - MLRun-shaped `{ metadata, spec }` project.
+ * @returns {Object}
+ */
 export const toOrcaUpdatePayload = project => ({
   ...toOrcaMutationBase(project),
   ...toOrcaProjectFields(project)
 })
 
+/**
+ * Body for archive/unarchive (`PATCH` with `desiredState`). Maps MLRun's `'online'`/`'archived'`
+ * strings onto the leader's integer enum (1 and 3). An unrecognised state yields
+ * `desiredState: undefined`.
+ * @param {string} state - MLRun desired state (`'online'` or `'archived'`).
+ * @param {Object} project - MLRun-shaped `{ metadata, spec }` project; supplies name, owner and
+ *     the CAS witness.
+ * @returns {Object}
+ */
 export const toOrcaStatePayload = (state, project) => ({
   ...toOrcaMutationBase(project),
   desiredState: ORCA_DESIRED_STATE_BY_MLRUN_STATE[state]

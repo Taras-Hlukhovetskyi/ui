@@ -34,7 +34,12 @@ import {
   PROJECT_UPDATING_STATE
 } from '../constants'
 
-/** The transition the leader itself reports for a project, ignoring anything started locally. */
+/**
+ * The transition the leader itself reports for a project, ignoring anything started locally.
+ * Archived is treated as settled even when a leftover phase is still present.
+ * @param {Object} [project] - a project from the list or a mutation response.
+ * @returns {string|null} `'creating'`, `'deleting'` or `'updating'`, or `null` when settled.
+ */
 export const getReportedTransition = project => {
   if (project?.status?.state === PROJECT_ARCHIVED_STATE) return null
 
@@ -48,7 +53,11 @@ export const getReportedTransition = project => {
 /**
  * Which lifecycle operation a project is currently going through, or `null` when it is settled.
  * A locally started operation (still polling, or waiting on a later list read) takes precedence;
- * otherwise the leader-reported creating/deleting/phase is used.
+ * otherwise the leader-reported creating/deleting/phase is used. Always `null` outside ORIS.
+ * @param {Object} [project] - a project from the list or a mutation response.
+ * @param {Object.<string, {operation: string}>} [projectsInTransition={}] - locally recorded
+ *     operations, keyed by project name.
+ * @returns {string|null} `'creating'`, `'deleting'` or `'updating'`, or `null` when settled.
  */
 export const getProjectTransition = (project, projectsInTransition = {}) => {
   if (!IS_MF_MODE) return null
@@ -58,6 +67,12 @@ export const getProjectTransition = (project, projectsInTransition = {}) => {
   return projectsInTransition[project?.metadata?.name]?.operation ?? getReportedTransition(project)
 }
 
+/**
+ * Whether a project is currently going through a lifecycle operation.
+ * @param {Object} [project] - a project from the list or a mutation response.
+ * @param {Object} [projectsInTransition] - locally recorded operations, keyed by project name.
+ * @returns {boolean}
+ */
 export const isProjectTransitioning = (project, projectsInTransition) =>
   Boolean(getProjectTransition(project, projectsInTransition))
 
@@ -67,9 +82,16 @@ const TRANSITION_WORDING = {
   [PROJECT_UPDATING_STATE]: { noun: 'update', verb: 'updating' }
 }
 
-// TODO (ML-12526, next phase): the third scenario - a system-level sync issue read from
-// `GET /api/v1/events/activations?class=Project&severity=major,critical`, worded "Project
-// synchronization issues were detected. Contact the system admin." - is not covered here yet.
+/**
+ * Tooltip copy for a dimmed project card. An unknown `transition` falls back to the update wording.
+ *
+ * TODO (ML-12526, next phase): the third scenario - a system-level sync issue read from
+ * `GET /api/v1/events/activations?class=Project&severity=major,critical`, worded "Project
+ * synchronization issues were detected. Contact the system admin." - is not covered here yet.
+ * @param {string} transition - `'creating'`, `'deleting'` or `'updating'`.
+ * @param {boolean} [hasSyncIssue] - whether the execution has already failed and is retrying.
+ * @returns {string}
+ */
 export const getProjectTransitionTooltip = (transition, hasSyncIssue) => {
   const { noun, verb } =
     TRANSITION_WORDING[transition] ?? TRANSITION_WORDING[PROJECT_UPDATING_STATE]

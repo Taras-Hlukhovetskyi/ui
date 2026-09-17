@@ -53,16 +53,31 @@ const EXECUTION_STATE_BY_CODE = {
 
 const readOpId = project => project?.status?.opId ?? project?.status?.op_id
 
-// Accepts either an axios response or a bare project body, since the thunks unwrap them differently.
+/**
+ * Reads `status.opId` (or the snake_case `status.op_id`) from either an axios response or a bare
+ * project body, since the thunks unwrap them differently.
+ * @param {Object} [payload] - the mutation's axios response or project body.
+ * @returns {string|undefined} the operation id, or `undefined` when none is present.
+ */
 export const getProjectOperationId = payload => readOpId(payload?.data ?? payload)
 
+/**
+ * Whether an error is the compare-and-swap 409 the leader returns when another mutation raced
+ * ahead. Always `false` outside ORIS.
+ * @param {Object} [error] - an axios error.
+ * @returns {boolean}
+ */
 export const isProjectOperationConflict = error =>
   IS_MF_MODE && error?.response?.status === CONFLICT_ERROR_STATUS_CODE
 
 /**
  * Records that a lifecycle operation has been requested for a project, so its card can be shown as
  * transitional from the moment the request leaves the client rather than only once a later read of
- * the leader reflects it.
+ * the leader reflects it. A no-op outside ORIS.
+ * @param {function} dispatch
+ * @param {string} projectName
+ * @param {string} operation - `'creating'`, `'deleting'` or `'updating'`.
+ * @param {Object} [project] - parsed project snapshot kept until the leader lists it.
  */
 export const startProjectTransition = (dispatch, projectName, operation, project) => {
   if (IS_MF_MODE) {
@@ -77,6 +92,12 @@ export const startProjectTransition = (dispatch, projectName, operation, project
   }
 }
 
+/**
+ * Releases the project back to its normal look, whether the operation completed or never began.
+ * A no-op outside ORIS.
+ * @param {function} dispatch
+ * @param {string} projectName
+ */
 export const endProjectTransition = (dispatch, projectName) => {
   if (IS_MF_MODE) {
     dispatch(setProjectTransition({ projectName, operation: null }))
@@ -104,6 +125,19 @@ const executionHasRetrySignal = status =>
  * TODO: the poll is bounded by the operation deadline but is not cancelled on unmount, so leaving
  * the projects page mid-delete keeps it running for the rest of its 15 minute window. Wire the
  * page's existing terminatePollRef through here.
+ * @param {string} opId - the operation id taken from `status.opId` of the mutation's 202 response.
+ * @param {Object} options
+ * @param {string} options.projectName
+ * @param {function} options.dispatch
+ * @param {string} [options.successMessage] - notification shown once the execution succeeds.
+ * @param {string} [options.failureMessage] - fallback notification when the execution fails.
+ * @param {function} [options.onSettled] - invoked with the terminal state (`succeeded` / `failed`).
+ * @param {boolean} [options.removeProjectOnSuccess] - drop the project from the list before
+ *     undimming, so a deleted card cannot flash as online while the list refresh is still in flight.
+ * @param {string} [options.operation] - lifecycle operation; selects the poll timeout
+ *     (2 minutes for create, 15 minutes for delete).
+ * @returns {Promise} resolved with the last polling cycle's result, or rejected when the
+ *     execution endpoint itself fails.
  */
 const trackProjectOperation = (
   opId,
@@ -219,6 +253,13 @@ export const trackProjectMutation = (payload, options) => {
   return true
 }
 
+/**
+ * Copies `status.opId` from `latest` onto `project` without mutating either. Used after a 409 so
+ * the retry carries the leader's current witness rather than the stale one.
+ * @param {Object} project
+ * @param {Object} latest - a project body or axios response carrying a fresh opId.
+ * @returns {Object} a new project object.
+ */
 export const withLatestOpId = (project, latest) => ({
   ...project,
   status: {
@@ -230,6 +271,10 @@ export const withLatestOpId = (project, latest) => ({
 /**
  * Handles the compare-and-swap rejection the leader returns when another mutation raced ahead of
  * this one. Re-reads the project for a fresh opId, then lets the user retry.
+ * @param {Object} error - an axios error.
+ * @param {string} projectName
+ * @param {function} dispatch
+ * @param {function} [retry] - invoked with the freshly read project when the user retries.
  * @returns {boolean} whether the error was a conflict and has been reported.
  */
 export const handleProjectOperationConflict = (error, projectName, dispatch, retry) => {
