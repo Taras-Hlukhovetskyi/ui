@@ -1,17 +1,16 @@
-import commonjs from 'vite-plugin-commonjs'
-import eslint from 'vite-plugin-eslint'
+import checker from 'vite-plugin-checker'
 import { federation } from '@module-federation/vite'
 import path from 'node:path'
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import svgr from 'vite-plugin-svgr'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig, loadEnv } from 'vite'
 
 import { loadMlrunProxyConfig } from './config/loadDevProxyConfig.js'
-import { dependencies } from './package.json'
+import packageJson from './package.json' with { type: 'json' }
 
 export default defineConfig(async ({ mode }) => {
-  const env = loadEnv(mode, path.resolve(process.cwd()), '')
+  const env = loadEnv(mode, import.meta.dirname, '')
   const mlrunProxyConfig = await loadMlrunProxyConfig(mode)
 
   // Always built so remoteEntry.js is present in every image - it's simply unused
@@ -28,8 +27,8 @@ export default defineConfig(async ({ mode }) => {
       './app': './src/main.jsx'
     },
     shared: {
-      react: { requiredVersion: dependencies.react, singleton: true },
-      'react-dom': { requiredVersion: dependencies['react-dom'], singleton: true }
+      react: { requiredVersion: packageJson.dependencies.react, singleton: true },
+      'react-dom': { requiredVersion: packageJson.dependencies['react-dom'], singleton: true }
     }
   })
 
@@ -46,7 +45,7 @@ export default defineConfig(async ({ mode }) => {
     apply: 'build',
     async closeBundle() {
       const fs = await import('node:fs/promises')
-      const htmlPath = path.resolve(__dirname, 'build/index.html')
+      const htmlPath = path.resolve(import.meta.dirname, 'build/index.html')
       const html = await fs.readFile(htmlPath, 'utf-8')
       const baseTagMatch = html.match(/<base[^>]*\/?>\s*/)
       if (!baseTagMatch) {
@@ -62,12 +61,27 @@ export default defineConfig(async ({ mode }) => {
 
   return {
     plugins: [
-      commonjs(),
       tailwindcss(),
       react(),
       federationPlugin,
-      svgr(),
-      eslint({ failOnError: false }),
+      svgr({
+        svgrOptions: {
+          jsxRuntime: 'classic'
+        },
+        oxcOptions: {
+          jsx: {
+            runtime: 'classic'
+          }
+        }
+      }),
+      checker({
+        eslint: {
+          useFlatConfig: true,
+          enableBuild: true,
+          lintCommand: 'eslint "./src/**/*.{js,jsx,ts,tsx}"'
+        },
+        enableBuild: false
+      }),
       baseHrefFirstPlugin
     ],
     base: env.NODE_ENV === 'production' ? './' : '/',
@@ -86,14 +100,12 @@ export default defineConfig(async ({ mode }) => {
     resolve: {
       alias: {
         'igz-controls/nextGenComponents': path.resolve(
-          __dirname,
-          'node_modules/iguazio.dashboard-react-controls/dist/nextGenComponents/index.mjs'
+          import.meta.dirname,
+          'src/igz-controls/nextGenComponents/index.ts'
         ),
-        'igz-controls': path.resolve(
-          __dirname,
-          'node_modules/iguazio.dashboard-react-controls/dist'
-        ),
-        '@': path.resolve(__dirname, './src/nextGenComponents')
+        'igz-controls/index.css': path.resolve(import.meta.dirname, 'src/igz-controls/index.scss'),
+        'igz-controls': path.resolve(import.meta.dirname, 'src/igz-controls'),
+        '@': path.resolve(import.meta.dirname, './src/nextGenComponents')
       },
       dedupe: [
         'react',

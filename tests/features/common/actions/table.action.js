@@ -19,7 +19,7 @@ such restriction.
 */
 import { expect } from 'chai'
 import { By } from 'selenium-webdriver'
-import { difference  } from 'lodash'
+import { difference  } from 'lodash-es'
 import {
   getOptionValues,
   openDropdown,

@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 # build stage
+# TODO update to 24
 FROM quay.io/mlrun/node:20.19.2-slim AS build-stage
 
 WORKDIR /app
