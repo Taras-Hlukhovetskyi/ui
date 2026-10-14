@@ -6,12 +6,10 @@ import svgr from 'vite-plugin-svgr'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig, loadEnv } from 'vite'
 
-import { loadMlrunProxyConfig } from './config/loadDevProxyConfig.js'
 import packageJson from './package.json' with { type: 'json' }
 
-export default defineConfig(async ({ mode }) => {
+export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, import.meta.dirname, '')
-  const mlrunProxyConfig = await loadMlrunProxyConfig(mode)
 
   // Always built so remoteEntry.js is present in every image - it's simply unused
   // when the app isn't loaded as a Module Federation remote (igz3/CE).
@@ -77,7 +75,6 @@ export default defineConfig(async ({ mode }) => {
       checker({
         eslint: {
           useFlatConfig: true,
-          enableBuild: true,
           lintCommand: 'eslint "./src/**/*.{js,jsx,ts,tsx}"'
         },
         enableBuild: false
@@ -87,7 +84,38 @@ export default defineConfig(async ({ mode }) => {
     base: env.NODE_ENV === 'production' ? './' : '/',
     server: {
       proxy: {
-        ...mlrunProxyConfig(env)
+        '/api': env.VITE_MLRUN_API_URL
+          ? {
+              target: env.VITE_MLRUN_API_URL,
+              changeOrigin: true,
+              headers: {
+                Connection: 'keep-alive',
+                'x-v3io-session-key': env.VITE_MLRUN_V3IO_ACCESS_KEY,
+                'x-remote-user': 'admin'
+              }
+            }
+          : undefined,
+        '/nuclio': env.VITE_NUCLIO_API_URL
+          ? {
+              target: env.VITE_NUCLIO_API_URL,
+              changeOrigin: true,
+              rewrite: path => path.replace(/^\/nuclio/, '')
+            }
+          : undefined,
+        '/iguazio': env.VITE_IGUAZIO_API_URL
+          ? {
+              target: env.VITE_IGUAZIO_API_URL,
+              changeOrigin: true,
+              rewrite: path => path.replace(/^\/iguazio/, '')
+            }
+          : undefined,
+        '/function-catalog': env.VITE_FUNCTION_CATALOG_URL
+          ? {
+              target: env.VITE_FUNCTION_CATALOG_URL,
+              changeOrigin: true,
+              rewrite: path => path.replace(/^\/function-catalog/, '')
+            }
+          : undefined
       },
       fs: {
         strict: false
@@ -121,7 +149,6 @@ export default defineConfig(async ({ mode }) => {
         'react-redux',
         '@reduxjs/toolkit',
         'react-router',
-        'react-router-dom',
         'react-transition-group'
       ]
     },

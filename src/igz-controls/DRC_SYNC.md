@@ -6,4 +6,9 @@ Internal `igz-controls` files were refreshed from local `dashboard-react-control
 - Source commit: c814ef5ced38d3de09d802d444ec19238c4e6a57
 - Synced at: 2026-08-03T15:39:55Z
 
+Ported on top for 4.0.0 (Tailwind CSS v4), adapted to the local React 19 refactor:
+
+- `874be0f` [CHORE] Prepare components for Tailwind CSS v4
+- `bdffd56` drop unused OverlayContainer
+
 Excluded (same as PR #3713): `ChipForm`, `proxyServerConfig`, storybook `*.stories.*` files, unused npm `index.js` entry (UI uses `index.scss`).

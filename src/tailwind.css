@@ -16,7 +16,7 @@
 
 @source './nextGenComponents';
 @source not './nextGenComponents/**/*.test.{js,jsx}';
-@source '../node_modules/iguazio.dashboard-react-controls/dist/nextGenComponents';
+@source './igz-controls/nextGenComponents';
 
 @layer base {
   .ml-app,

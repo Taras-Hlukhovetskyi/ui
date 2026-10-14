@@ -121,19 +121,19 @@ const Calendar = ({
           defaultClassNames.nav
         ),
         button_previous: cn(
-          'flex items-center justify-center h-[--cell-size] w-[--cell-size]',
+          'flex items-center justify-center h-[var(--cell-size)] w-[var(--cell-size)]',
           defaultClassNames.button_previous
         ),
         button_next: cn(
-          'flex items-center justify-center h-[--cell-size] w-[--cell-size]',
+          'flex items-center justify-center h-[var(--cell-size)] w-[var(--cell-size)]',
           defaultClassNames.button_next
         ),
         month_caption: cn(
-          'flex h-[--cell-size] w-full items-center justify-center px-5',
+          'flex h-[var(--cell-size)] w-full items-center justify-center px-5',
           defaultClassNames.month_caption
         ),
         dropdowns: cn(
-          'flex h-[--cell-size] w-full items-center justify-center gap-1.5 text-sm font-medium',
+          'flex h-[var(--cell-size)] w-full items-center justify-center gap-1.5 text-sm font-medium',
           defaultClassNames.dropdowns
         ),
         dropdown: cn('bg-popover absolute inset-0 opacity-0', defaultClassNames.dropdown),

@@ -78,7 +78,6 @@
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
     "format:write": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "preview": "vite preview",
-    "preinstall": "npx force-resolutions",
     "test:coverage": "npm run test -- --coverage --watchAll=false",
     "docker": "docker buildx build --platform linux/amd64 -t ${MLRUN_DOCKER_REGISTRY}${MLRUN_DOCKER_REPO:-mlrun}/mlrun-ui:${MLRUN_DOCKER_TAG:-latest} --build-arg COMMIT_HASH=\"`git rev-parse --short HEAD`\" --build-arg GIT_COMMIT_SHA=\"`git rev-parse HEAD`\" --build-arg DATE=\"`date -u`\" -f Dockerfile .",
     "generate-rn": "./generate-release-notes.js ${MLRUN_OLD_VERSION} ${MLRUN_VERSION} ${MLRUN_RELEASE_BRANCH} ${MLRUN_RELEASE_TYPE}",

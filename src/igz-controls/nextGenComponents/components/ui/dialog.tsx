@@ -4,12 +4,18 @@ import * as React from 'react'
 import Close from '../../../images/close.svg?react'
 import { Button } from './button'
 import { cn } from '../../lib/utils'
+import { getPortalContainer } from '../../../utils/portalContainer.util'
 
 const Dialog = DialogPrimitive.Root
 
 const DialogTrigger = DialogPrimitive.Trigger
 
-const DialogPortal = DialogPrimitive.Portal
+const DialogPortal = ({
+  container,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Portal>) => (
+  <DialogPrimitive.Portal container={container ?? getPortalContainer()} {...props} />
+)
 
 const DialogClose = DialogPrimitive.Close
 

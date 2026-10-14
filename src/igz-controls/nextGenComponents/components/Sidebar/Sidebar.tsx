@@ -65,7 +65,7 @@ function Sidebar({
     return (
       <nav
         className={cn(
-          'flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground',
+          'flex h-full w-[var(--sidebar-width)] flex-col bg-sidebar text-sidebar-foreground',
           className
         )}
         ref={ref as React.Ref<HTMLElement>}
@@ -82,7 +82,7 @@ function Sidebar({
       className={cn(
         'group peer relative shrink-0 self-stretch overflow-visible text-sidebar-foreground',
         'transition-[width] duration-300 ease-linear',
-        pinned && open ? 'w-[--sidebar-width]' : 'w-[--sidebar-width-icon]'
+        pinned && open ? 'w-[var(--sidebar-width)]' : 'w-[var(--sidebar-width-icon)]'
       )}
       data-state={state}
       data-collapsible={state === 'collapsed' ? collapsible : ''}
@@ -120,12 +120,12 @@ function Sidebar({
             pinned &&
             'group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
           variant === 'floating' || variant === 'inset'
-            ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]'
+            ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_1rem_+_2px)]'
             : cn(
                 'group-data-[side=left]:border-r group-data-[side=right]:border-l',
                 (open && !pinned) || (pinned && state === 'expanded')
-                  ? 'w-[--sidebar-width]'
-                  : 'w-[--sidebar-width-icon]'
+                  ? 'w-[var(--sidebar-width)]'
+                  : 'w-[var(--sidebar-width-icon)]'
               ),
           className
         )}
@@ -223,7 +223,7 @@ function SidebarInset({ className, ref, ...props }: React.ComponentProps<'main'>
       ref={ref}
       className={cn(
         'relative flex min-h-0 flex-1 flex-col bg-background transition-[width] duration-300 ease-linear',
-        'peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow',
+        'peer-data-[variant=inset]:min-h-[calc(100svh-1rem)] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow',
         className
       )}
       {...props}
