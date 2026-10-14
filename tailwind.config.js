@@ -19,8 +19,6 @@ such restriction.
 */
 /** @type {import('tailwindcss').Config} */
 
-import tailwindcssAnimate from 'tailwindcss-animate'
-
 export default {
   darkMode: ['class'],
   theme: {
@@ -132,7 +130,6 @@ export default {
     }
   },
   plugins: [
-    tailwindcssAnimate,
     function ({ addComponents }) {
       addComponents({
         '.status-dot': { '@apply inline-block w-2 h-2 rounded-full': {} }

@@ -1,8 +1,5 @@
 @use './colors';
 
-// Global element styles. Included by common.scss unless it's loaded with
-// `$include-element-resets: false`, e.g. to put them in a cascade layer.
-
 button {
   padding: 0;
   font-family: Roboto, sans-serif;

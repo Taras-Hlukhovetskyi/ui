@@ -5,8 +5,6 @@
 @use './shadows';
 @use './mixins';
 
-$include-element-resets: true !default;
-
 :root {
   --chipBlockMarginRight: 5px;
   --tipArrowLength: 10px;
@@ -36,7 +34,6 @@ $include-element-resets: true !default;
   isolation: isolate;
 }
 
-/* stylelint-disable-next-line selector-id-pattern */
 #overlay_container {
   position: fixed;
   bottom: 0;
@@ -47,10 +44,6 @@ $include-element-resets: true !default;
   align-items: center;
   justify-content: center;
   width: 100%;
-}
-
-@if $include-element-resets {
-  @include meta.load-css('resets');
 }
 
 .link {

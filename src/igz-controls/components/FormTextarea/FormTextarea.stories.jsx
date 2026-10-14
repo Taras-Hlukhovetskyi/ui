@@ -17,22 +17,36 @@ such restriction.
 import React from 'react'
 import { Form } from 'react-final-form'
 
-import FormRadio from '/src/lib/components/FormRadio/FormRadio.jsx'
+import FormTextarea from './FormTextarea'
 
 export default {
-  title: 'Example/FormRadio',
-  component: FormRadio
+  title: 'Example/FormTextarea',
+  component: FormTextarea
 }
 
 const commonArgs = {
-  disabled: false,
-  label: 'label',
-  name: 'radio'
+  name: 'textArea',
+  rows: 3
 }
 
-const Template = args => <Form onSubmit={() => null}>{() => <FormRadio {...args} />}</Form>
+const Template = args => <Form onSubmit={() => null}>{() => <FormTextarea {...args} />}</Form>
 
 export const Normal = Template.bind({})
 Normal.args = {
-  ...commonArgs
+  ...commonArgs,
+  label: 'Normal'
+}
+
+export const WithTip = Template.bind({})
+WithTip.args = {
+  ...commonArgs,
+  label: 'With Tip',
+  tip: 'Tip'
+}
+
+export const WithMaxLength = Template.bind({})
+WithMaxLength.args = {
+  ...commonArgs,
+  label: 'With max length',
+  maxLength: 50
 }

@@ -11,6 +11,7 @@
 @layer theme, base, components, utilities;
 @import 'tailwindcss/theme.css' layer(theme) theme(reference inline);
 @import 'tailwindcss/utilities.css' layer(utilities) source(none);
+@import 'tw-animate-css';
 
 @config '../tailwind.config.js';
 
