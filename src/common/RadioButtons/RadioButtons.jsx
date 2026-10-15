@@ -34,7 +34,7 @@ const RadioButtons = ({
   onChangeCallback = () => {},
   selectedValue = null
 }) => {
-  const [checked, setChecked] = useState('')
+  const [checked, setChecked] = useState(selectedValue)
   const [prevSelectedValue, setPrevSelectedValue] = useState(selectedValue)
 
   if (selectedValue !== prevSelectedValue) {

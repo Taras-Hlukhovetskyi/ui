@@ -487,7 +487,7 @@ const App = () => {
   )
 
   return (
-    <div className="ml-app mlrun-tw-scope">
+    <div className="ml-app">
       {isHeaderShown && <Header />}
       <div className={mlAppContainerClasses}>
         <TooltipProvider>

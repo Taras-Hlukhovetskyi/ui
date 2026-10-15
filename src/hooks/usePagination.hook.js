@@ -160,13 +160,12 @@ export const usePagination = ({
   useEffect(() => {
     if (hidden) return
 
-    queueMicrotask(() => {
-      setPaginationConfig(prevConfig =>
-        isEqual(prevConfig, paginationConfigRef.current)
-          ? prevConfig
-          : { ...paginationConfigRef.current }
-      )
-    })
+    // Mirror the ref into state so consumers can read it during render; isEqual bails out of no-op updates
+    setPaginationConfig(prevConfig =>
+      isEqual(prevConfig, paginationConfigRef.current)
+        ? prevConfig
+        : { ...paginationConfigRef.current }
+    )
   }, [content, hidden, paginatedContent, paginationConfigRef, searchParams])
 
   useEffect(() => {

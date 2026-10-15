@@ -49,6 +49,8 @@ const defaultProps = {
   setExternalInvalid: () => {}
 }
 
+const EXTERNAL_INVALID_NOT_SYNCED = Symbol('externalInvalidNotSynced')
+
 const DatePicker = ({
   className = '',
   customOptions = null,
@@ -79,7 +81,7 @@ const DatePicker = ({
     formatDate(isRange, isTime, date, dateTo || new Date())
   )
   const [isInputInvalid, setInputIsInvalid] = useState(false)
-  const [prevExternalInvalid, setPrevExternalInvalid] = useState(externalInvalid)
+  const [prevExternalInvalid, setPrevExternalInvalid] = useState(EXTERNAL_INVALID_NOT_SYNCED)
 
   const [prevDateRange, setPrevDateRange] = useState({ date, dateTo })
 
@@ -291,7 +293,7 @@ const DatePicker = ({
   }
 
   useEffect(() => {
-    if (isInputInvalid && requiredValueIsValid && externalInvalid !== false) {
+    if (isInputInvalid !== externalInvalid && isInputInvalid && requiredValueIsValid) {
       setExternalInvalid(false)
     }
   }, [isInputInvalid, requiredValueIsValid, externalInvalid, setExternalInvalid])

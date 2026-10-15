@@ -41,8 +41,8 @@ import {
 import './detailsTransformations.scss'
 
 const DetailsTransformations = ({ selectedItem }) => {
-  const [states, setStates] = useState({})
-  const [targets, setTargets] = useState([])
+  const [states, setStates] = useState(() => cloneDeep(selectedItem.graph?.steps))
+  const [targets, setTargets] = useState(() => cloneDeep(selectedItem.targets))
   const [nodes, setNodes] = useState([])
   const [edges, setEdges] = useState([])
   const [steps, setSteps] = useState([])

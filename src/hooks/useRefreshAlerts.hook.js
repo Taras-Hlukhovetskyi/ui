@@ -92,7 +92,7 @@ export const useRefreshAlerts = (filters, isAlertsPage) => {
 
   const refreshAlerts = useCallback(
     filters => {
-      queueMicrotask(() => setAlerts(null))
+      setAlerts(null)
       lastCheckedAlertIdRef.current = null
       abortControllerRef.current = new AbortController()
       dispatchAlertsFetch(filters)
@@ -102,6 +102,7 @@ export const useRefreshAlerts = (filters, isAlertsPage) => {
 
   useEffect(() => {
     if (!isAlertsPage) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- refetch (and reset alerts) when filters change
       refreshAlerts(filters)
     }
   }, [filters, isAlertsPage, refreshAlerts])

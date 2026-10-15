@@ -49,21 +49,21 @@ const NewFunctionPopUp = ({
   isOpened = false,
   setFunctionsPanelIsOpen
 }) => {
+  const openPanelByDefault = useOpenPanel()
+  const location = useLocation()
+  const runtime = new URLSearchParams(location.search).get('runtime') // TODO: Delete after new wizard implemented
   const [data, setData] = useState({
     name: '',
-    runtime: FUNCTION_TYPE_JOB,
+    runtime: runtime || FUNCTION_TYPE_JOB,
     tag: ''
   })
-  const [isPopUpOpen, setIsPopUpOpen] = useState(isOpened ?? false)
+  const [isPopUpOpen, setIsPopUpOpen] = useState((isOpened ?? false) || openPanelByDefault)
   const [validation, setValidation] = useState({
     isNameValid: true,
     isTagValid: true
   })
   const { isStagingMode } = useMode()
-  const openPanelByDefault = useOpenPanel()
   const newFunctionBtn = useRef(null)
-  const location = useLocation()
-  const runtime = new URLSearchParams(location.search).get('runtime') // TODO: Delete after new wizard implemented
   const dispatch = useDispatch()
   const functionsStore = useSelector(store => store.functionsStore)
 
@@ -115,7 +115,7 @@ const NewFunctionPopUp = ({
     }
   }
 
-  if (runtime && data.runtime !== runtime) {
+  if (useHasValueChanged(runtime) && runtime) {
     setData(state => ({ ...state, runtime }))
   }
 

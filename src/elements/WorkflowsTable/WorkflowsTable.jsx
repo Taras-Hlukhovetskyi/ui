@@ -79,7 +79,6 @@ import { useSortTable } from '../../hooks/useSortTable.hook'
 import './workflowsTable.scss'
 
 function WorkflowsTable({
-  abortJobRef,
   backLink,
   context,
   filters,
@@ -105,6 +104,7 @@ function WorkflowsTable({
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
+  const abortJobRef = useRef(null)
   const fetchJobFunctionsPromiseRef = useRef()
   const fetchFunctionLogsTimeout = useRef(null)
   const accessibleProjectsMap = useSelector(state => state.projectStore.accessibleProjectsMap)
@@ -116,9 +116,9 @@ function WorkflowsTable({
   )
   const [prevPermissionsFetchKey, setPrevPermissionsFetchKey] = useState('')
 
-  if (permissionsFetchKey && permissionsFetchKey !== prevPermissionsFetchKey) {
+  if (permissionsFetchKey !== prevPermissionsFetchKey) {
     setPrevPermissionsFetchKey(permissionsFetchKey)
-    setPermissionsLoading(true)
+    setPermissionsLoading(Boolean(permissionsFetchKey))
   }
 
   const rerunInProgress = workflowsStore.workflows.rerunInProgress
@@ -785,10 +785,6 @@ function WorkflowsTable({
   ])
 
   useEffect(() => {
-    abortJobRef.current?.()
-  }, [abortJobRef, params.jobId])
-
-  useEffect(() => {
     if (!params.functionHash && !params.jobId) {
       setItemIsSelected(false)
       setSelectedJob({})
@@ -796,24 +792,18 @@ function WorkflowsTable({
     }
   }, [params.functionHash, params.jobId, setItemIsSelected, setSelectedFunction, setSelectedJob])
 
+  // Keyed on the cooldown (not rerunInProgress) so the timer survives the request finishing early
   useEffect(() => {
-    if (!rerunInProgress) {
+    if (!rerunCooldownActive) {
       return
     }
 
-    let cancelled = false
-
     const timeoutId = setTimeout(() => {
-      if (!cancelled) {
-        setRerunCooldownActive(false)
-      }
+      setRerunCooldownActive(false)
     }, 5000)
 
-    return () => {
-      cancelled = true
-      clearTimeout(timeoutId)
-    }
-  }, [rerunInProgress])
+    return () => clearTimeout(timeoutId)
+  }, [rerunCooldownActive])
 
   const virtualizationConfig = useVirtualization({
     rowsData: {
@@ -892,7 +882,6 @@ function WorkflowsTable({
 }
 
 WorkflowsTable.propTypes = {
-  abortJobRef: PropTypes.object.isRequired,
   backLink: PropTypes.string.isRequired,
   context: PropTypes.object.isRequired,
   filters: PropTypes.object.isRequired,

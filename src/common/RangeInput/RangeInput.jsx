@@ -48,7 +48,7 @@ const RangeInput = ({
   requiredText = 'This field is required',
   value
 }) => {
-  const [inputValue, setInputValue] = useState(0)
+  const [inputValue, setInputValue] = useState(value)
   const [isRequired, setIsRequired] = useState(false)
   const [prevValue, setPrevValue] = useState(value)
 

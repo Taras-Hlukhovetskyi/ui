@@ -75,10 +75,11 @@ const ConsumerGroupsWrapper = () => {
     }
   }, [frontendSpec, navigate, nuclioStreamsAreEnabled, params.projectName, refreshConsumerGroups])
 
-  if (useHasValueChanged(nuclioStreamsAreEnabled)) {
-    if (nuclioStreamsAreEnabled) {
-      setRequestErrorMessage('')
-    }
+  // Reset the previous request's error whenever streams are (re)fetched: on enable and on project change
+  const streamsFetchKey = nuclioStreamsAreEnabled ? params.projectName : null
+
+  if (useHasValueChanged(streamsFetchKey) && streamsFetchKey) {
+    setRequestErrorMessage('')
   }
 
   useEffect(() => {

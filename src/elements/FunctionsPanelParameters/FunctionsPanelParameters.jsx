@@ -37,11 +37,25 @@ import { setNewFunctionParameters } from '../../reducers/functionReducer'
 import Edit from 'igz-controls/images/edit.svg?react'
 import Delete from 'igz-controls/images/delete.svg?react'
 
+const mapDefaultParameters = defaultParameters =>
+  Object.entries(defaultParameters).map(([key, value]) => ({
+    data: {
+      name: key,
+      type: getParameterType(value),
+      value: getParameterType(value) === JSON_TYPE ? JSON.stringify(value) : String(value)
+    },
+    isDefault: true
+  }))
+
 const FunctionsPanelParameters = ({ defaultData }) => {
   const [showAddNewParameterRow, setShowAddNewParameterRow] = useState(false)
   const [newParameter, setNewParameter] = useState(newParameterInitialState)
   const [selectedParameter, setSelectedParameter] = useState(null)
-  const [parameters, setParameters] = useState([])
+  const [parameters, setParameters] = useState(() =>
+    isEveryObjectValueEmpty(defaultData.parameters ?? {})
+      ? []
+      : mapDefaultParameters(defaultData.parameters)
+  )
   const [validation, setValidation] = useState(validationInitialState)
   const dispatch = useDispatch()
   const functionsStore = useSelector(store => store.functionsStore)
@@ -51,16 +65,7 @@ const FunctionsPanelParameters = ({ defaultData }) => {
     setPrevDefaultParameters(defaultData.parameters)
 
     if (!isEveryObjectValueEmpty(defaultData.parameters ?? {})) {
-      setParameters(
-        Object.entries(defaultData.parameters).map(([key, value]) => ({
-          data: {
-            name: key,
-            type: getParameterType(value),
-            value: getParameterType(value) === JSON_TYPE ? JSON.stringify(value) : String(value)
-          },
-          isDefault: true
-        }))
-      )
+      setParameters(mapDefaultParameters(defaultData.parameters))
     }
   }
 

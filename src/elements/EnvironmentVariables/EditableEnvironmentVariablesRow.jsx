@@ -37,6 +37,9 @@ import { getSecretNameValidator } from '../../utils/getSecretNameValidator'
 
 import Checkmark from 'igz-controls/images/checkmark.svg?react'
 
+const getSecretParts = envVariable =>
+  envVariable.type === ENV_VARIABLE_TYPE_SECRET ? envVariable.value.split(':') : null
+
 const EditableEnvironmentVariablesRow = ({
   editEnvVariable,
   envVariables,
@@ -44,8 +47,8 @@ const EditableEnvironmentVariablesRow = ({
   selectedEnvVariable,
   setSelectedEnvVariable
 }) => {
-  const [secretName, setSecretName] = useState('')
-  const [secretKey, setSecretKey] = useState('')
+  const [secretName, setSecretName] = useState(() => getSecretParts(selectedEnvVariable)?.[0] ?? '')
+  const [secretKey, setSecretKey] = useState(() => getSecretParts(selectedEnvVariable)?.[1] ?? '')
   const [validation, setValidation] = useState({
     isNameValid: true,
     isValueValid: true,
@@ -67,11 +70,11 @@ const EditableEnvironmentVariablesRow = ({
       value: selectedEnvVariable.value
     })
 
-    if (selectedEnvVariable.type === ENV_VARIABLE_TYPE_SECRET) {
-      const [name, key] = selectedEnvVariable.value.split(':')
+    const secretParts = getSecretParts(selectedEnvVariable)
 
-      setSecretName(name)
-      setSecretKey(key)
+    if (secretParts) {
+      setSecretName(secretParts[0])
+      setSecretKey(secretParts[1])
     }
   }
 

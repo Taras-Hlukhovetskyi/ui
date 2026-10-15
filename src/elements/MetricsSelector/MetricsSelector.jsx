@@ -21,7 +21,7 @@ import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { FieldArray } from 'react-final-form-arrays'
 import classNames from 'classnames'
-import { capitalize, debounce, isEmpty, isEqual } from 'lodash-es'
+import { capitalize, debounce, isEmpty } from 'lodash-es'
 import { Form } from 'react-final-form'
 import arrayMutators from 'final-form-arrays'
 import { createForm } from 'final-form'
@@ -50,6 +50,8 @@ import SearchIcon from 'igz-controls/images/search.svg?react'
 
 import './metricsSelector.scss'
 
+const NO_PRESELECTED_METRICS = []
+
 const MetricsSelector = ({
   applicationName = '',
   disabled = false,
@@ -57,11 +59,12 @@ const MetricsSelector = ({
   metrics,
   name,
   onSelect = () => {},
-  preselectedMetrics = []
+  preselectedMetrics = NO_PRESELECTED_METRICS
 }) => {
   const [nameFilter, setNameFilter] = useState('')
   const [isOpen, setIsOpen] = useState(false)
-  const [appliedMetrics, setAppliedMetrics] = useState([])
+  const [appliedMetrics, setAppliedMetrics] = useState(preselectedMetrics)
+  const [prevPreselectedMetrics, setPrevPreselectedMetrics] = useState(preselectedMetrics)
   const selectorFieldRef = useRef()
   const dropdownRef = useRef()
   const [form] = React.useState(() =>
@@ -113,8 +116,12 @@ const MetricsSelector = ({
     }
   }, [appliedMetrics, isOpen, form])
 
-  if (preselectedMetrics && !isEqual(appliedMetrics, preselectedMetrics)) {
-    setAppliedMetrics(preselectedMetrics)
+  if (preselectedMetrics !== prevPreselectedMetrics) {
+    setPrevPreselectedMetrics(preselectedMetrics)
+
+    if (preselectedMetrics) {
+      setAppliedMetrics(preselectedMetrics)
+    }
   }
 
   useEffect(() => {

@@ -44,7 +44,6 @@ import {
 } from './featureSetsPanelTargetStore.util'
 import { openPopUp } from 'igz-controls/utils/common.util'
 import { PRIMARY_BUTTON, TERTIARY_BUTTON } from 'igz-controls/constants'
-import { useHasValueChanged } from '../../../hooks/useHasValueChanged.hook'
 import { isUrlInputValid } from '../UrlPath.utils'
 import {
   setNewFeatureSetPassthrough,
@@ -207,9 +206,11 @@ const FeatureSetsPanelTargetStore = ({
     targetsPathEditData.parquet.isModified
   ])
 
-  // Force path edit mode when prefixes become empty (useHasValueChanged skips initial mount).
-  if (useHasValueChanged(frontendSpec.feature_store_data_prefixes)) {
+  // Force path edit mode when prefixes are empty, including on mount. Kept as an effect because it
+  // updates parent state (setDisableButtons/setValidation), which must not happen during render.
+  useEffect(() => {
     if (isEmpty(frontendSpec.feature_store_data_prefixes)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- must also run on mount and touches parent state
       setTargetsPathEditData(state => ({
         ...state,
         [PARQUET]: {
@@ -232,7 +233,7 @@ const FeatureSetsPanelTargetStore = ({
         isOnlineTargetPathValid: false
       }))
     }
-  }
+  }, [frontendSpec.feature_store_data_prefixes, setDisableButtons, setValidation])
 
   useEffect(() => {
     setValidation(state => ({
@@ -708,39 +709,37 @@ const FeatureSetsPanelTargetStore = ({
 
     lastHandledPassthroughRef.current = featureStore.newFeatureSet.spec.passthrough
 
-    // Defer target restore/clear to avoid set-state-in-effect
-    queueMicrotask(() => {
-      if (!featureStore.newFeatureSet.spec.passthrough) {
-        restoreTargets()
-        return
-      }
+    if (!featureStore.newFeatureSet.spec.passthrough) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reacts to the passthrough toggle in the store
+      restoreTargets()
+      return
+    }
 
-      if (!selectedTargetKind.includes(ONLINE)) {
-        clearTargets(false)
-        return
-      }
+    if (!selectedTargetKind.includes(ONLINE)) {
+      clearTargets(false)
+      return
+    }
 
-      openPopUp(ConfirmDialog, {
-        confirmButton: {
-          label: 'Unset online-target',
-          variant: PRIMARY_BUTTON,
-          handler: () => {
-            clearTargets(false)
-          }
-        },
-        cancelButton: {
-          label: 'Keep online-target set',
-          variant: TERTIARY_BUTTON,
-          handler: () => {
-            clearTargets(true)
-          }
-        },
-        closePopUp: () => {
-          dispatch(setNewFeatureSetPassthrough(false))
-        },
-        message:
-          'Passthrough set to "enabled" while online-target is set. Do you want to unset online-target?'
-      })
+    openPopUp(ConfirmDialog, {
+      confirmButton: {
+        label: 'Unset online-target',
+        variant: PRIMARY_BUTTON,
+        handler: () => {
+          clearTargets(false)
+        }
+      },
+      cancelButton: {
+        label: 'Keep online-target set',
+        variant: TERTIARY_BUTTON,
+        handler: () => {
+          clearTargets(true)
+        }
+      },
+      closePopUp: () => {
+        dispatch(setNewFeatureSetPassthrough(false))
+      },
+      message:
+        'Passthrough set to "enabled" while online-target is set. Do you want to unset online-target?'
     })
   }, [
     clearTargets,

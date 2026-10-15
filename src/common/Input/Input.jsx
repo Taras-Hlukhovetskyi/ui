@@ -69,38 +69,38 @@ function Input({
   withoutBorder = false,
   wrapperClassName = ''
 }) {
-  const [inputIsFocused, setInputIsFocused] = useState(false)
+  const [inputIsFocused, setInputIsFocused] = useState(focused)
+  const [prevFocused, setPrevFocused] = useState(focused)
   const [labelWidth, setLabelWidth] = useState(0)
-  const [localInvalid, setLocalInvalid] = useState(false)
+  const [isInvalid, setIsInvalid] = useState(false)
+  const [typedValue, setTypedValue] = useState(String(value ?? ''))
+  const [prevValue, setPrevValue] = useState(value)
   const [validationPattern] = useState(RegExp(pattern))
   const [validationRules, setValidationRules] = useState(rules)
   const [showValidationRules, setShowValidationRules] = useState(false)
   const wrapperRef = useRef()
   ref ??= wrapperRef
   const inputRef = useRef()
-  const lastReportedValidityRef = useRef(null)
   const inputLabelRef = useRef(null)
   useDetectOutsideClick(ref, () => setShowValidationRules(false))
 
-  const typedValue = String(value ?? '')
+  // Sync the displayed value from the `value` prop; local typing still updates it when the parent
+  // doesn't pass `value` (uncontrolled usage).
+  if (!Object.is(value, prevValue)) {
+    setPrevValue(value)
+    setTypedValue(String(value ?? ''))
+  }
 
-  const isInvalid = useMemo(() => {
-    if (required && typedValue.trim().length === 0) {
-      return true
-    }
-    if (localInvalid) {
-      return true
-    }
-    if (pattern && !validationPattern.test(typedValue)) {
-      return true
-    }
-    if (typedValue.startsWith(' ')) {
-      return true
-    }
-    return invalid
-  }, [required, typedValue, localInvalid, invalid, pattern, validationPattern])
+  // `focused` focuses the field once (like a user focus); blur still clears it afterwards
+  if (focused !== prevFocused) {
+    setPrevFocused(focused)
 
-  const labelActive = inputIsFocused || focused || placeholder || typedValue.length > 0
+    if (focused) {
+      setInputIsFocused(true)
+    }
+  }
+
+  const labelActive = inputIsFocused || placeholder || typedValue.length > 0
 
   const inputStyles = useMemo(() => {
     return {
@@ -162,10 +162,10 @@ function Input({
       ) {
         // Sync local validity with controlled `invalid` prop; parent setInvalid must not run during render.
         // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional vs development; render-time sync loops on Feature Set forms.
-        setLocalInvalid(true)
+        setIsInvalid(true)
         setInvalid(false)
       } else {
-        setLocalInvalid(invalid)
+        setIsInvalid(invalid)
       }
     }
   }, [invalid, isInvalid, pattern, required, setInvalid, typedValue, validationPattern])
@@ -209,17 +209,12 @@ function Input({
       value.startsWith(' ') ||
       !isFieldValidByPattern
 
-    setLocalInvalid(
-      !isFieldValidByPattern || (pattern && !validationPattern.test(value)) || value.startsWith(' ')
-    )
-    const isValid = !fieldInvalid
-    if (lastReportedValidityRef.current !== isValid) {
-      lastReportedValidityRef.current = isValid
-      setInvalid(isValid)
-    }
+    setIsInvalid(fieldInvalid)
+    setInvalid(!fieldInvalid)
   }
 
   const changeValue = value => {
+    setTypedValue(value)
     onChange(value)
     validateField(value)
   }
@@ -309,7 +304,7 @@ function Input({
           {inputIcon}
         </span>
       )}
-      {suggestionList?.length > 0 && (inputIsFocused || focused) && (
+      {suggestionList?.length > 0 && inputIsFocused && (
         <ul className="suggestion-list">
           {suggestionList.map((item, index) => {
             return (

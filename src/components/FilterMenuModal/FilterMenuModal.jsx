@@ -22,7 +22,7 @@ import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import { Form } from 'react-final-form'
 import { createForm } from 'final-form'
-import { isEqual, reduce, throttle } from 'lodash-es'
+import { isEmpty, isEqual, reduce, throttle } from 'lodash-es'
 import { useDispatch } from 'react-redux'
 
 import { PopUpDialog, RoundedIcon, Button } from 'igz-controls/components'
@@ -34,9 +34,9 @@ import { performDetailsActionHelper } from '../Details/details.util'
 
 import FilterIcon from 'igz-controls/images/filter.svg?react'
 
-import './filterMenuModal.scss'
+import { FilterMenuWizardContext } from './FilterMenuModal.context'
 
-const FilterMenuWizardContext = React.createContext({})
+import './filterMenuModal.scss'
 
 const FilterMenuModal = ({
   applyChanges = null,
@@ -119,11 +119,16 @@ const FilterMenuModal = ({
     }
   }, [hideFiltersWizard])
 
-  const getFilterCounter = () => {
+  const getFilterCounter = formState => {
+    const currentValues = applyChanges ? appliedValues : formState.values
+
     return reduce(
-      appliedValues,
+      currentValues,
       (acc, filterValue, filterName) => {
-        return !isEqual(filterValue, initialValues[filterName]) ? ++acc : acc
+        return !isEqual(filterValue, initialValues[filterName]) &&
+          (applyChanges || isEmpty(formState.errors[filterName]))
+          ? ++acc
+          : acc
       },
       0
     )
@@ -175,7 +180,7 @@ const FilterMenuModal = ({
   return (
     <Form form={form} onSubmit={() => {}}>
       {formState => {
-        const counter = getFilterCounter()
+        const counter = getFilterCounter(formState)
         return (
           <FilterMenuWizardContext.Provider value={{ filterMenuName }}>
             <RoundedIcon

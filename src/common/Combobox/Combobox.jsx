@@ -22,7 +22,6 @@ import PropTypes from 'prop-types'
 
 import ComboboxView from './ComboboxView'
 
-import { useHasValueChanged } from '../../hooks/useHasValueChanged.hook'
 import { COMBOBOX_MATCHES } from '../../types'
 
 import './combobox.scss'
@@ -65,20 +64,14 @@ const Combobox = ({
   const [showMatchesDropdown, setShowMatchesDropdown] = useState(false)
   const [dropdownList, setDropdownList] = useState(matches)
   const [searchIsFocused, setSearchIsFocused] = useState(false)
-  const [isInvalid, setIsInvalid] = useState(false)
   const comboboxRef = useRef()
   const inputRef = useRef()
 
-  const appliedDefaultInputValueRef = useRef(null)
-
   useLayoutEffect(() => {
-    if (
-      inputDefaultValue.length > 0 &&
-      selectValue.id.length > 0 &&
-      inputValue.length === 0 &&
-      appliedDefaultInputValueRef.current !== inputDefaultValue
-    ) {
-      appliedDefaultInputValueRef.current = inputDefaultValue
+    if (inputDefaultValue.length > 0 && selectValue.id.length > 0 && inputValue.length === 0) {
+      // Re-applied whenever the input is emptied with a selected option stays an
+      // effect because it also notifies the parent through inputOnChange
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- see above
       setInputValue(inputDefaultValue)
       inputOnChange(inputDefaultValue)
     }
@@ -94,41 +87,34 @@ const Combobox = ({
     }
   }
 
-  const [prevMatches, setPrevMatches] = useState(matches)
-  const [prevSearchIsFocused, setPrevSearchIsFocused] = useState(searchIsFocused)
-
-  if (matches !== prevMatches || searchIsFocused !== prevSearchIsFocused) {
-    setPrevMatches(matches)
-    setPrevSearchIsFocused(searchIsFocused)
-
-    if (!searchIsFocused && JSON.stringify(dropdownList) !== JSON.stringify(matches)) {
-      setDropdownList(matches)
+  // Must stay an effect syncing during render replaces the clicked option in the
+  // same synchronous render, so the window click listener sees a detached target, treats it as an
+  // outside click and closes the suggestions before the next path part is shown
+  useEffect(() => {
+    if (!searchIsFocused) {
+      if (JSON.stringify(dropdownList) !== JSON.stringify(matches)) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- see above
+        setDropdownList(matches)
+      }
     }
-  }
+  }, [dropdownList, matches, searchIsFocused])
 
-  if (useHasValueChanged(invalid)) {
-    setIsInvalid(invalid)
-  }
+  const isInvalid = invalid
 
   const handleOutsideClick = useCallback(
     event => {
-      if (comboboxRef.current && !comboboxRef.current.contains(event.target)) {
+      // composedPath() is fixed at dispatch time. With React 19 the clicked option can already be
+      // removed by the synchronous re-render (e.g. matches emptied while the next path part loads),
+      // so `contains(event.target)` would wrongly treat a click on an option as an outside click
+      if (comboboxRef.current && !event.composedPath().includes(comboboxRef.current)) {
         if (showSelectDropdown) {
           setShowSelectDropdown(false)
-
-          if (selectValue.id.length === 0 && required && onBlur) {
-            setIsInvalid(true)
-          }
 
           onBlur && onBlur(selectValue.id, inputValue)
         }
 
         if (showMatchesDropdown) {
           setShowMatchesDropdown(false)
-
-          if (inputValue.length === 0 && required && onBlur) {
-            setIsInvalid(true)
-          }
 
           onBlur && onBlur(selectValue.id, inputValue)
         }
@@ -142,7 +128,6 @@ const Combobox = ({
       comboboxRef,
       inputValue,
       onBlur,
-      required,
       searchIsFocused,
       selectValue.id,
       showMatchesDropdown,
@@ -190,10 +175,6 @@ const Combobox = ({
 
     if (selectValue.id.length > 0) {
       setInputValue('')
-    }
-
-    if (isInvalid) {
-      setIsInvalid(false)
     }
 
     setSelectValue(option)

@@ -60,7 +60,7 @@ const PromptTab = ({
   const [promptTemplate, setPromptTemplate] = useState([])
   const [searchResult, setSearchResult] = useState('')
   const [forceExpandAll, setForceExpandAll] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [fetchedTargetPath, setFetchedTargetPath] = useState(null)
   const [showError, setShowError] = useState(false)
   const [prevSourcePromptTemplate, setPrevSourcePromptTemplate] = useState(null)
   const [prevPromptLegend, setPrevPromptLegend] = useState(null)
@@ -152,9 +152,7 @@ const PromptTab = ({
     setPromptTemplate(generateJsxContent(sourcePromptTemplate, selectedItem.prompt_legend))
   }
 
-  if (needsFetch && !loading) {
-    setLoading(true)
-  }
+  const loading = needsFetch && fetchedTargetPath !== selectedItem.target_path
 
   // Only the network request belongs in an effect; loading/error/template sync is handled above.
   useEffect(() => {
@@ -179,7 +177,7 @@ const PromptTab = ({
         })
         .catch(() => setShowError(true))
         .finally(() => {
-          setLoading(false)
+          setFetchedTargetPath(selectedItem.target_path)
         })
     }
   }, [

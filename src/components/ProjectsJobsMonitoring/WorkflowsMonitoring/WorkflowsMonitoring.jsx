@@ -48,7 +48,7 @@ const WorkflowsMonitoring = () => {
   const { isStagingMode } = useMode()
   const abortControllerRef = useRef(new AbortController())
 
-  const { abortJobRef, initialTabData, getWorkflows, requestErrorMessage, workflowsFiltersConfig } =
+  const { initialTabData, getWorkflows, requestErrorMessage, workflowsFiltersConfig } =
     React.useContext(ProjectJobsMonitoringContext)
 
   const filters = useFiltersFromSearchParams(
@@ -105,7 +105,6 @@ const WorkflowsMonitoring = () => {
         filtersConfig={workflowsFiltersConfig}
         getWorkflows={getWorkflows}
         itemIsSelected={itemIsSelected}
-        abortJobRef={abortJobRef}
         requestErrorMessage={requestErrorMessage}
         selectedFunction={selectedFunction}
         selectedJob={selectedJob}

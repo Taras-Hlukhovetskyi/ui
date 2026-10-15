@@ -48,7 +48,6 @@ const MonitorWorkflows = () => {
   const { isStagingMode } = useMode()
   const {
     abortControllerRef,
-    abortJobRef,
     dateFilter,
     getWorkflows,
     initialTabData,
@@ -115,7 +114,6 @@ const MonitorWorkflows = () => {
       filtersConfig={workflowsFiltersConfig}
       getWorkflows={getWorkflows}
       itemIsSelected={itemIsSelected}
-      abortJobRef={abortJobRef}
       requestErrorMessage={requestErrorMessage}
       selectedFunction={selectedFunction}
       selectedJob={selectedJob}

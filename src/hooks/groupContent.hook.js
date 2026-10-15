@@ -144,14 +144,13 @@ export const useGroupContent = (
   }
 
   useLayoutEffect(() => {
-    // Defer grouped-content sync to avoid set-state-in-effect
-    queueMicrotask(() => {
-      if (filtersStore.groupBy === GROUP_BY_NAME) {
-        handleGroupByName()
-      } else if (filtersStore.groupBy === GROUP_BY_NONE) {
-        handleGroupByNone()
-      }
-    })
+    // Synchronous in the layout effect so the regrouped table is committed before paint
+    if (filtersStore.groupBy === GROUP_BY_NAME) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- regroup must run before paint
+      handleGroupByName()
+    } else if (filtersStore.groupBy === GROUP_BY_NONE) {
+      handleGroupByNone()
+    }
 
     return () => {
       setGroupedContent({})

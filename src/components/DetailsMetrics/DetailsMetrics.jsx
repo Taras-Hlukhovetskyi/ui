@@ -49,7 +49,6 @@ import {
   setSelectedMetricsOptions
 } from '../../reducers/detailsReducer'
 import { groupMetricByApplication } from '../../elements/MetricsSelector/metricsSelector.util'
-import { useHasValueChanged } from '../../hooks/useHasValueChanged.hook'
 import { REQUEST_CANCELED } from '../../constants'
 
 import MetricsIcon from 'igz-controls/images/metrics-icon.svg?react'
@@ -63,7 +62,6 @@ const DetailsMetrics = ({
   isDetailsPopUp = false
 }) => {
   const [metrics, setMetrics] = useState([])
-  const [selectedDate, setSelectedDate] = useState('')
   const [previousTotalInvocation, setPreviousTotalInvocation] = useState(0)
   const [isInvocationCardExpanded, setIsInvocationCardExpanded] = useState(false)
   const [requestErrorMessage, setRequestErrorMessage] = useState('')
@@ -71,7 +69,13 @@ const DetailsMetrics = ({
   const metricsContainerRef = useRef(null)
   const metricsValuesAbortController = useRef(new AbortController())
   const [metricOptionsAreLoaded, setMetricOptionsAreLoaded] = useState(false)
+  const [metricOptionsEndpointUid, setMetricOptionsEndpointUid] = useState(
+    selectedItem.metadata.uid
+  )
   const detailsStore = useSelector(store => store.detailsStore)
+  const [selectedDate, setSelectedDate] = useState(
+    () => timeRangeMapping[detailsStore.dates.selectedOptionId] ?? ''
+  )
   const dispatch = useDispatch()
   const generatedMetrics = useMemo(() => {
     return groupMetricByApplication(metrics, true)
@@ -121,6 +125,8 @@ const DetailsMetrics = ({
   }, [handleChangeDates])
 
   useEffect(() => {
+    let isStale = false
+
     dispatch(
       fetchModelEndpointMetrics({
         project: selectedItem.metadata.project,
@@ -129,7 +135,14 @@ const DetailsMetrics = ({
       })
     )
       .unwrap()
-      .then(() => setMetricOptionsAreLoaded(true))
+      .then(() => {
+        // Ignore a late response for an endpoint the user already switched away from
+        if (!isStale) setMetricOptionsAreLoaded(true)
+      })
+
+    return () => {
+      isStale = true
+    }
   }, [applicationNameProp, dispatch, selectedItem.metadata.project, selectedItem.metadata.uid])
 
   const storeSelectedOptionId = detailsStore.dates.selectedOptionId
@@ -183,7 +196,12 @@ const DetailsMetrics = ({
     [dispatch, setMetrics, metricsValuesAbortController]
   )
 
-  const justSwitchedEndpoint = useHasValueChanged(selectedItem.metadata.uid)
+  // metricsOptions in the store belong to the previous endpoint until fetchModelEndpointMetrics
+  // for the new one resolves, so don't fetch metric values until then
+  if (selectedItem.metadata.uid !== metricOptionsEndpointUid) {
+    setMetricOptionsEndpointUid(selectedItem.metadata.uid)
+    setMetricOptionsAreLoaded(false)
+  }
 
   const shouldFetchMetrics =
     metricOptionsAreLoaded &&
@@ -191,15 +209,11 @@ const DetailsMetrics = ({
     detailsStore.metricsOptions.all.length > 0 &&
     detailsStore.metricsOptions.selectedByEndpoint[selectedItem.metadata?.uid]
 
-  if (!justSwitchedEndpoint && !shouldFetchMetrics && metrics.length > 0) {
+  if (!shouldFetchMetrics && metrics.length > 0) {
     setMetrics([])
   }
 
   useEffect(() => {
-    if (justSwitchedEndpoint) {
-      return
-    }
-
     if (shouldFetchMetrics) {
       const selectedMetrics =
         detailsStore.metricsOptions.selectedByEndpoint[selectedItem.metadata?.uid]
@@ -243,7 +257,6 @@ const DetailsMetrics = ({
       setMetrics([])
     }
   }, [
-    justSwitchedEndpoint,
     shouldFetchMetrics,
     fetchData,
     selectedItem.metadata.uid,

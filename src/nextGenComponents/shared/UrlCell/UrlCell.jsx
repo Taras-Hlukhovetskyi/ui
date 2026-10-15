@@ -65,6 +65,8 @@ const UrlCell = ({ items = [] }) => {
       recalculate()
       throttleTimerRef.current = setTimeout(() => {
         throttleTimerRef.current = null
+        // Trailing call so the last resize inside the throttle window is measured too
+        recalculate()
       }, RESIZE_THROTTLE_MS)
     }
 

@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import classnames from 'classnames'
 import PropTypes from 'prop-types'
 import { isEmpty } from 'lodash-es'
@@ -58,7 +58,6 @@ function TextArea({
   value = '',
   wrapperClassName = ''
 }) {
-  const [textAreaIsFocused, setTextAreaIsFocused] = useState(false)
   const [localInvalid, setLocalInvalid] = useState(false)
   const [validationRules, setValidationRules] = useState(rules)
   const [showValidationRules, setShowValidationRules] = useState(false)
@@ -69,17 +68,10 @@ function TextArea({
   useDetectOutsideClick(ref, () => setShowValidationRules(false))
 
   const stringValue = String(value ?? '')
-  const isInvalid = useMemo(() => {
-    if (required && stringValue.trim().length === 0) {
-      return true
-    }
-    if (localInvalid) {
-      return true
-    }
-    return invalid
-  }, [required, stringValue, localInvalid, invalid])
+  // Required-but-empty is flagged on change (handleChange/validateField), not on a pristine render
+  const isInvalid = localInvalid || invalid
 
-  const labelActive = textAreaIsFocused || stringValue.length > 0
+  const labelActive = stringValue.length > 0
 
   const textAreaClassNames = classnames(
     'text-area',
@@ -142,12 +134,6 @@ function TextArea({
   }, [handleTextAreaScroll])
 
   const handleChange = event => {
-    if (event.target.value.length > 0) {
-      setTextAreaIsFocused(true)
-    } else {
-      setTextAreaIsFocused(false)
-    }
-
     if (required && event.target.value.trim().length === 0) {
       setLocalInvalid(true)
       setInvalid && setInvalid(false)
@@ -186,7 +172,6 @@ function TextArea({
   const toggleValidationRulesMenu = () => {
     setShowValidationRules(!showValidationRules)
     textAreaRef.current.focus()
-    setTextAreaIsFocused(true)
   }
 
   return (

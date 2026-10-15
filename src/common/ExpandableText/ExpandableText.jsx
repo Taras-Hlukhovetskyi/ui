@@ -28,12 +28,12 @@ const ExpandableText = ({
   collapsedHeight = 95,
   forceExpand = false
 }) => {
-  const [expanded, setExpanded] = useState(false)
+  const { contextForceExpand } = useContext(context)
+  const forceExpandValue = forceExpand || contextForceExpand
+  const [expanded, setExpanded] = useState(Boolean(forceExpandValue))
   const [isOverflowing, setIsOverflowing] = useState(false)
   const contentRef = useRef(null)
-  const { contextForceExpand } = useContext(context)
 
-  const forceExpandValue = forceExpand || contextForceExpand
   const [prevForceExpandValue, setPrevForceExpandValue] = useState(forceExpandValue)
 
   if (forceExpandValue !== prevForceExpandValue) {
