@@ -38,7 +38,9 @@ const PanelCredentialsAccessKey = ({
   setValidation,
   validation
 }) => {
-  const [inputValue, setInputValue] = useState('')
+  const [inputValue, setInputValue] = useState(() =>
+    credentialsAccessKey !== PANEL_DEFAULT_ACCESS_KEY ? credentialsAccessKey : ''
+  )
   const [prevCredentialsAccessKey, setPrevCredentialsAccessKey] = useState(credentialsAccessKey)
   const accessKeyClassNames = classnames(className, 'new-item-side-panel__item', 'access-key')
 

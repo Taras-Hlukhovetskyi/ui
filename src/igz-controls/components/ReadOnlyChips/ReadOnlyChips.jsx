@@ -17,11 +17,12 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React from 'react'
+import React, { useLayoutEffect, useRef } from 'react'
 import { Form } from 'react-final-form'
 import { createForm } from 'final-form'
 import PropTypes from 'prop-types'
 import arrayMutators from 'final-form-arrays'
+import { isEqual } from 'lodash-es'
 
 import { FormChipCell } from '../index'
 
@@ -39,6 +40,16 @@ const ReadOnlyChips = ({ chipOptions = defaultChipOptions, labels = [], ...args 
       onSubmit: () => {}
     })
   )
+  const lastLabelsRef = useRef(labels)
+
+  // The form is created once: keep it in sync when the cell is reused for another item
+  // (e.g. table rows keyed by index after filtering), otherwise the previous item's chips are shown
+  useLayoutEffect(() => {
+    if (!isEqual(lastLabelsRef.current, labels)) {
+      lastLabelsRef.current = labels
+      form.initialize({ labels })
+    }
+  }, [form, labels])
 
   return (
     <Form form={form} onSubmit={() => {}}>

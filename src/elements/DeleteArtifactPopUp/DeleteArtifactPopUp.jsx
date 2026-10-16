@@ -116,8 +116,8 @@ const DeleteArtifactPopUp = ({
     setDisableConfirmButton(value)
   }
 
-  const onDeletionStrategyChange = () => {
-    setDisableConfirmButton(false)
+  const onDeletionStrategyChange = value => {
+    setDisableConfirmButton(!value)
   }
 
   return (

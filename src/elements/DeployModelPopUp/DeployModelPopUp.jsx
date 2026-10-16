@@ -95,6 +95,7 @@ const DeployModelPopUp = ({
 
   const [form] = useState(() =>
     createForm({
+      initialValues,
       mutators: { ...arrayMutators, setFieldState },
       onSubmit: () => {}
     })

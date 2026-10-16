@@ -17,7 +17,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { throttle } from 'lodash-es'
 
 import {
@@ -160,7 +160,10 @@ export const useChipCell = (isEditMode, visibleChipsMaxLength, withInitialParent
       setShowChips(true)
     }
   }, [chipBlockMarginRight, chipCellInitialWidth, chipsSizes, isEditMode, withInitialParentWidth])
-  useLayoutEffect(() => {
+
+  // Also recalculate once the hidden chips counter is shown/hidden: its width is part of the calculation
+  // (with React 19 the chip sizes arrive in one batch, so there's no later pass that would measure it)
+  useEffect(() => {
     resizeChipCell()
   }, [resizeChipCell, visibleChipsCount])
 

@@ -517,7 +517,7 @@ function WorkflowsTable({
     [dispatch, handleRetry]
   )
 
-  const rerunIsDisabled = workflowsStore.workflows.rerunInProgress || rerunCooldownActive
+  const rerunIsDisabled = rerunCooldownActive
 
   const actionsMenu = useMemo(() => {
     return job =>

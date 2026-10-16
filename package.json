@@ -68,6 +68,7 @@
   },
   "scripts": {
     "start": "vite",
+    "postinstall": "node scripts/patchPackages.mjs",
     "build": "vite build",
     "preview:federation": "cross-env PREVIEW_MODE=true dotenv -e .env.development.mf -- vite build && node scripts/previewLocalBuildMF.mjs",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\" \".storybook/**/*.{js,mjs}\"",

@@ -354,7 +354,10 @@ const DatePicker = ({
       )
     )
     setIsDatePickerOpened(false)
-    setInputIsInvalid(false)
+    // when the parent passes `externalInvalid`, it owns the validity (synced above), as before
+    if (isNil(externalInvalid)) {
+      setInputIsInvalid(false)
+    }
     setExternalInvalid(true)
 
     let dates = [roundSeconds(datePickerState.configFrom.selectedDate)]

@@ -24,8 +24,8 @@ import {
   getOptionValues,
   openDropdown,
   selectOptionInDropdownWithoutCheck
-} from './dropdown.action'
-import { getElementText, hoverComponent } from './common.action'
+} from './dropdown.action.js'
+import { getElementText, hoverComponent } from './common.action.js'
 
 async function getColumnValuesAttribute(driver, table, columnName) {
   return await driver

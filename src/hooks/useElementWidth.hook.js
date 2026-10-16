@@ -37,8 +37,8 @@ export const useElementWidth = elementRef => {
 
     setMeasuredWidth(element.getBoundingClientRect().width)
 
-    const observer = new ResizeObserver(entries => {
-      setMeasuredWidth(entries[0]?.contentRect.width)
+    const observer = new ResizeObserver(() => {
+      setMeasuredWidth(element.getBoundingClientRect().width)
     })
 
     observer.observe(element)

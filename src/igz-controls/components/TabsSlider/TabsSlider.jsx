@@ -151,9 +151,12 @@ const TabsSlider = ({
     moveToSelectedTab()
   }, [moveToSelectedTab])
 
-  if (params.tab && params.tab !== selectedTab && !isDetailsPopUp) {
-    setSelectedTab(tabsList.find(tab => tab.id === params.tab)?.id)
-  }
+  useEffect(() => {
+    if (params.tab && params.tab !== selectedTab && !isDetailsPopUp) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- render-time sync loops when the URL tab is not in the list
+      setSelectedTab(tabsList.find(tab => tab.id === params.tab)?.id)
+    }
+  }, [isDetailsPopUp, params.tab, selectedTab, tabsList])
 
   const getTabContent = useCallback(tab => {
     return (

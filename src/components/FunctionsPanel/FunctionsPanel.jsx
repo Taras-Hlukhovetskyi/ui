@@ -315,7 +315,8 @@ const FunctionsPanel = ({
               closePanel={closePanel}
               confirmData={confirmData}
               defaultData={defaultData ?? {}}
-              error={functionsStore.error}
+              // fetchFunction stores a raw Error (404 existence check) that is cleared right after
+              error={typeof functionsStore.error === 'string' ? functionsStore.error : ''}
               formState={formState}
               frontendSpec={frontendSpec}
               functionsStore={functionsStore}

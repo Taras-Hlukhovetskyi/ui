@@ -28,7 +28,8 @@ import {
   pickBy,
   keys,
   uniqBy,
-  cloneDeep
+  cloneDeep,
+  set
 } from 'lodash-es'
 
 import ContentMenu from '../../../../elements/ContentMenu/ContentMenu'
@@ -102,7 +103,6 @@ const JobWizardFunctionSelection = ({
   const selectedActiveTab = useRef(null)
   const functionsContainerRef = useRef(null)
   const hubFunctionLoadedRef = useRef(false)
-  const pendingSelectedProjectNameRef = useRef(null)
 
   const jobWizardFiltersValues = useSelector(
     store =>
@@ -212,17 +212,8 @@ const JobWizardFunctionSelection = ({
         isEditMode
       )
 
-      const pendingProjectName = pendingSelectedProjectNameRef.current
-      pendingSelectedProjectNameRef.current = null
-
       const newInitial = {
         ...cloneDeep(formState.initialValues),
-        ...(pendingProjectName && {
-          [FUNCTION_SELECTION_STEP]: {
-            ...cloneDeep(formState.initialValues[FUNCTION_SELECTION_STEP]),
-            projectName: pendingProjectName
-          }
-        }),
         ...cloneDeep(jobFormData)
       }
 
@@ -276,7 +267,7 @@ const JobWizardFunctionSelection = ({
         setFunctions([])
       })
 
-    pendingSelectedProjectNameRef.current = currentValue
+    set(formState.initialValues, [FUNCTION_SELECTION_STEP, 'projectName'], currentValue)
   }
 
   useEffect(() => {

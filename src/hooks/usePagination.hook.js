@@ -60,14 +60,18 @@ export const usePagination = ({
   const resetPagination = useCallback(
     resetSearchParams => {
       setSearchParams(
-        prevSearchParams => {
+        () => {
+          // `prev` can still be the previous URL right after another setSearchParams (e.g. filters
+          // saved), reset on the live URL so that change isn't reverted
+          const liveSearchParams = new URLSearchParams(window.location.search)
+
           if (resetSearchParams) {
-            prevSearchParams.set(BE_PAGE, 1)
-            prevSearchParams.set(FE_PAGE, 1)
-            prevSearchParams.delete(FORCE_REFRESH)
+            liveSearchParams.set(BE_PAGE, 1)
+            liveSearchParams.set(FE_PAGE, 1)
+            liveSearchParams.delete(FORCE_REFRESH)
           }
 
-          return prevSearchParams
+          return liveSearchParams
         },
         { replace: true }
       )
@@ -115,16 +119,24 @@ export const usePagination = ({
         newPaginationConfig[FE_PAGE] =
           fePage && fePage >= fePageStart && fePage <= fePageEnd ? fePage : fePageStart
 
-        setSearchParams(
-          prevSearchParams => {
-            prevSearchParams.set(BE_PAGE, newPaginationConfig[BE_PAGE])
-            prevSearchParams.set(FE_PAGE, newPaginationConfig[FE_PAGE])
-            forceRefreshDataRef.current.isForce = searchParams.get(FORCE_REFRESH) === 'true'
-            prevSearchParams.delete(FORCE_REFRESH)
-            return prevSearchParams
-          },
-          { replace: true }
-        )
+        // `searchParams` is from the last render; right after another setSearchParams (e.g. filters
+        // saved) it can still be the previous URL, and writing it back would revert the new URL.
+        // Skip the write then: the effect re-runs once the router commits the new `searchParams`
+        const isSearchParamsStale =
+          new URLSearchParams(window.location.search).toString() !== searchParams.toString()
+
+        if (!isSearchParamsStale) {
+          setSearchParams(
+            prevSearchParams => {
+              prevSearchParams.set(BE_PAGE, newPaginationConfig[BE_PAGE])
+              prevSearchParams.set(FE_PAGE, newPaginationConfig[FE_PAGE])
+              forceRefreshDataRef.current.isForce = searchParams.get(FORCE_REFRESH) === 'true'
+              prevSearchParams.delete(FORCE_REFRESH)
+              return prevSearchParams
+            },
+            { replace: true }
+          )
+        }
       }
 
       setPaginatedContent(prevPaginatedContent => {
@@ -154,6 +166,13 @@ export const usePagination = ({
           ? prevPaginatedContent
           : newPaginatedContent
       })
+      // Updaters run in hook order, so the ref is already updated by the updater above. Setting the
+      // config in the same render keeps "Showing X - Y" in sync with the paginated content
+      setPaginationConfig(prevConfig =>
+        isEqual(prevConfig, paginationConfigRef.current)
+          ? prevConfig
+          : { ...paginationConfigRef.current }
+      )
     }
   }, [bePageSize, fePageSize, paginationConfigRef, content, searchParams, setSearchParams, hidden])
 

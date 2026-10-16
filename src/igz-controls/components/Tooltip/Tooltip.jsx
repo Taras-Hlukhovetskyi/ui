@@ -14,7 +14,7 @@ illegal under applicable law, and the grant of the foregoing license
 under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
-import React, { useRef, useState, useEffect, useLayoutEffect, useCallback, useMemo } from 'react'
+import React, { useRef, useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import PropTypes from 'prop-types'
 import { CSSTransition } from 'react-transition-group'
@@ -24,31 +24,6 @@ import { debounce } from 'lodash-es'
 import { isEveryObjectValueEmpty } from '../../utils/common.util'
 
 import './tooltip.scss'
-
-const VIEWPORT_PADDING = 8
-
-const getTooltipPosition = (anchorRect, tooltipRect, offset) => {
-  const viewportWidth = window.innerWidth
-  const viewportHeight = window.innerHeight
-  const spaceBelow = viewportHeight - anchorRect.bottom - offset
-  const spaceAbove = anchorRect.top - offset
-  const showBelow = spaceBelow >= tooltipRect.height || spaceBelow >= spaceAbove
-
-  let top = showBelow ? anchorRect.bottom + offset : anchorRect.top - tooltipRect.height - offset
-
-  top = Math.max(
-    VIEWPORT_PADDING,
-    Math.min(top, viewportHeight - tooltipRect.height - VIEWPORT_PADDING)
-  )
-
-  let left = anchorRect.left
-  left = Math.max(
-    VIEWPORT_PADDING,
-    Math.min(left, viewportWidth - tooltipRect.width - VIEWPORT_PADDING)
-  )
-
-  return { top, left }
-}
 
 let Tooltip = ({
   children = '',
@@ -90,69 +65,68 @@ let Tooltip = ({
     [hidden]
   )
 
-  const handleMouseEnter = useCallback(() => {
-    if (!show) {
-      const [child] = parentRef.current.childNodes
-      let show =
-        !hidden &&
-        (textShow
-          ? true
-          : !child
-            ? false
-            : (child.nodeType !== Node.TEXT_NODE &&
-                child.childNodes?.[0]?.nodeType !== Node.TEXT_NODE) ||
-              /*
+  const handleMouseEnter = useCallback(
+    event => {
+      if (!show) {
+        const [child] = parentRef.current.childNodes
+        let show =
+          !hidden &&
+          (textShow
+            ? true
+            : !child
+              ? false
+              : (child.nodeType !== Node.TEXT_NODE &&
+                  child.childNodes?.[0]?.nodeType !== Node.TEXT_NODE) ||
+                /*
                                     If the child node is a text node and the text of the child node inside the container is greater than the width of the container, then show tooltip.
                                   */
-              ((child.nodeType === Node.TEXT_NODE ||
-                child.childNodes?.[0]?.nodeType === Node.TEXT_NODE) &&
-                parentRef.current.scrollWidth > parentRef.current.offsetWidth))
+                ((child.nodeType === Node.TEXT_NODE ||
+                  child.childNodes?.[0]?.nodeType === Node.TEXT_NODE) &&
+                  parentRef.current.scrollWidth > parentRef.current.offsetWidth))
 
-      setShow(show)
-    }
-  }, [hidden, textShow, show])
+        setShow(show)
 
-  const updateTooltipPosition = useCallback(() => {
-    const anchorEl = parentRef.current
-    const tooltipEl = tooltipRef.current
+        setTimeout(() => {
+          if (show) {
+            let { height, top, bottom } = parentRef?.current?.getBoundingClientRect() ?? {}
+            const { height: tooltipHeight, width: tooltipWidth } =
+              tooltipRef.current?.getBoundingClientRect() ?? {
+                height: 0,
+                width: 0
+              }
+            const leftPosition = event.x - (event.x + tooltipWidth - window.innerWidth + offset)
+            const left =
+              event.x + tooltipWidth + offset > window.innerWidth
+                ? leftPosition > offset
+                  ? leftPosition
+                  : offset
+                : event.x + offset
 
-    if (!anchorEl || !tooltipEl) {
-      return
-    }
+            if (top + height + offset + tooltipHeight >= window.innerHeight) {
+              const topPosition = bottom - height - offset - tooltipHeight
 
-    const anchorRect = anchorEl.getBoundingClientRect()
-    const tooltipRect = tooltipEl.getBoundingClientRect()
-
-    if (tooltipRect.width === 0 && tooltipRect.height === 0) {
-      return
-    }
-
-    setStyle(getTooltipPosition(anchorRect, tooltipRect, offset))
-  }, [offset])
-
-  useLayoutEffect(() => {
-    if (!show) {
-      return
-    }
-
-    updateTooltipPosition()
-
-    const frameId = requestAnimationFrame(() => {
-      updateTooltipPosition()
-    })
-
-    return () => cancelAnimationFrame(frameId)
-  }, [show, updateTooltipPosition])
-
-  const clearStyles = useMemo(
-    () =>
-      debounce(() => {
-        setStyle(prevStyle => (isEveryObjectValueEmpty(prevStyle) ? prevStyle : {}))
-      }, 100),
-    []
+              setStyle({
+                top: topPosition > 0 ? topPosition : offset,
+                left
+              })
+            } else {
+              setStyle({
+                top: top + height + offset,
+                left
+              })
+            }
+          }
+        }, 0)
+      }
+    },
+    [hidden, textShow, show]
   )
 
-  useEffect(() => () => clearStyles.cancel(), [clearStyles])
+  const clearStyles = debounce(() => {
+    if (!isEveryObjectValueEmpty(style)) {
+      setStyle({})
+    }
+  }, 100)
 
   useEffect(() => {
     const parentNode = parentRef.current
@@ -194,7 +168,7 @@ let Tooltip = ({
     return () => {
       window.removeEventListener('resize', clearStyles)
     }
-  }, [clearStyles])
+  }, [clearStyles, style])
 
   return (
     <>
@@ -224,7 +198,6 @@ let Tooltip = ({
             in={show}
             timeout={duration}
             unmountOnExit
-            onEntered={updateTooltipPosition}
           >
             <div
               data-testid={id ? `${id}-tooltip` : 'tooltip'}

@@ -18,7 +18,7 @@ under the Apache 2.0 license is conditioned upon your compliance with
 such restriction.
 */
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { isEmpty, isNumber, orderBy } from 'lodash-es'
+import { isEmpty, isEqual, isNumber, orderBy } from 'lodash-es'
 
 import ArrowIcon from 'igz-controls/images/back-arrow.svg?react'
 
@@ -27,13 +27,19 @@ const defaultSortConfig = {}
 export const useSortTable = ({ headers, content, sortConfig = defaultSortConfig }) => {
   const [direction, setDirection] = useState('')
   const [selectedColumnName, setSelectedColumnName] = useState('')
+  const [config, setConfig] = useState(sortConfig)
+
+  // As before: callers pass `sortConfig` inline, keep it stable while its values don't change
+  if (!isEqual(config, sortConfig)) {
+    setConfig(sortConfig)
+  }
 
   const {
     allowSortBy = null,
     excludeSortBy = null,
     defaultSortBy = null,
     defaultDirection = null
-  } = sortConfig
+  } = config
 
   const isDateValid = date => {
     const dateString = String(date)
@@ -160,51 +166,36 @@ export const useSortTable = ({ headers, content, sortConfig = defaultSortConfig 
     })
   }, [isSortableByIndex, headers, isSortable])
 
-  const { columnName: activeColumnName, sortDirection: activeSortDirection } = useMemo(() => {
-    if (direction && selectedColumnName) {
-      return { columnName: selectedColumnName, sortDirection: direction }
+  // Default sort while the user hasn't chosen one (`null` when there is none)
+  const defaultSort = useMemo(() => {
+    if (defaultSortBy === null || (direction && !defaultDirection) || content.length === 0) {
+      return null
     }
 
-    if (defaultSortBy !== null && (!direction || defaultDirection) && content.length > 0) {
-      const columnName = selectedColumnName
-        ? selectedColumnName
-        : isNumber(defaultSortBy)
-          ? headers[defaultSortBy]?.headerId
-          : defaultSortBy
+    const columnName = selectedColumnName
+      ? selectedColumnName
+      : isNumber(defaultSortBy)
+        ? headers[defaultSortBy]?.headerId
+        : defaultSortBy
 
-      return { columnName, sortDirection: defaultDirection || 'asc' }
-    }
-
-    return { columnName: '', sortDirection: '' }
+    return columnName ? { columnName, sortDirection: defaultDirection || 'asc' } : null
   }, [content.length, defaultDirection, defaultSortBy, direction, headers, selectedColumnName])
 
+  const { columnName: activeColumnName, sortDirection: activeSortDirection } =
+    direction && selectedColumnName
+      ? { columnName: selectedColumnName, sortDirection: direction }
+      : (defaultSort ?? { columnName: '', sortDirection: '' })
+
+  // Store the default sort as the selected one, so the next click on its header toggles the direction
   useEffect(() => {
-    if (direction && selectedColumnName) {
+    if ((direction && selectedColumnName) || !defaultSort) {
       return
     }
 
-    if (defaultSortBy !== null && (!direction || defaultDirection) && content.length > 0) {
-      const columnName = selectedColumnName
-        ? selectedColumnName
-        : isNumber(defaultSortBy)
-          ? headers[defaultSortBy]?.headerId
-          : defaultSortBy
-
-      if (!columnName) {
-        return
-      }
-
-      const sortDirection = defaultDirection
-        ? defaultDirection
-        : columnName === selectedColumnName && direction === 'asc'
-          ? 'desc'
-          : 'asc'
-
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSelectedColumnName(columnName)
-      setDirection(sortDirection)
-    }
-  }, [content, defaultDirection, defaultSortBy, direction, headers, selectedColumnName])
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- keeps the header toggle in sync with the default sort
+    setSelectedColumnName(defaultSort.columnName)
+    setDirection(defaultSort.sortDirection)
+  }, [defaultSort, direction, selectedColumnName])
 
   const sortedTableContent = useMemo(() => {
     if (!activeColumnName || !activeSortDirection) {

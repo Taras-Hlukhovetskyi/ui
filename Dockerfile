@@ -19,6 +19,8 @@ FROM quay.io/mlrun/node:20.19.2-slim AS build-stage
 WORKDIR /app
 
 COPY package*.json ./
+# used by the postinstall script
+COPY scripts/patchPackages.mjs ./scripts/
 RUN npm install
 
 COPY . .

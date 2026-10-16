@@ -78,7 +78,7 @@ const allureFormatOptions = {
 
 // build cucumber executive command args
 const cucumberArgs = [
-  '--require',
+  '--import',
   'tests/features/**/*.js',
   '-f',
   './tests/formatters/scenario-formatter.js',

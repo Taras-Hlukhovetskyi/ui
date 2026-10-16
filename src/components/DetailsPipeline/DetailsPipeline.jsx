@@ -348,6 +348,12 @@ const DetailsPipeline = ({ selectedItem }) => {
                     edges={edges}
                     onNodeClick={(event, node) => {
                       if (node.data?.customData) {
+                        if (node.id === defaultErrorHandlerStepId) {
+                          // unselectNodesAndEdges doesn't re-render by itself: run it before the
+                          // selection re-render, so the previously selected step isn't left highlighted
+                          reactFlowStoreApi.getState().unselectNodesAndEdges()
+                        }
+
                         setSelectedStep(node)
                       }
                     }}

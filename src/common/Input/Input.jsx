@@ -148,8 +148,11 @@ function Input({
   }, [showValidationRules, handleScroll])
 
   useEffect(() => {
-    if (focused) {
-      inputRef.current?.focus()
+    if (focused && inputRef.current) {
+      inputRef.current.focus()
+      // As before: show the beginning of a long value (previously the value was rendered after focusing).
+      // Otherwise the input stays scrolled to the caret and resets on blur, the scroll event closes open dropdowns
+      inputRef.current.scrollLeft = 0
     }
   }, [focused])
 
